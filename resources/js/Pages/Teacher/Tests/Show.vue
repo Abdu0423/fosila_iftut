@@ -11,24 +11,14 @@
                 {{ test.schedule.subject_name }} - {{ test.schedule.group_name }}
               </p>
             </div>
-            <div class="d-flex gap-2">
-              <v-btn
-                :color="test.is_active ? 'warning' : 'success'"
-                @click="toggleStatus"
-                variant="tonal"
-              >
-                <v-icon start>mdi-toggle-switch</v-icon>
-                {{ test.is_active ? 'Деактивировать' : 'Активировать' }}
-              </v-btn>
-              <v-btn
-                color="secondary"
-                variant="outlined"
-                @click="navigateTo('/teacher/tests')"
-                prepend-icon="mdi-arrow-left"
-              >
-                К списку
-              </v-btn>
-            </div>
+            <v-btn
+              color="secondary"
+              variant="outlined"
+              @click="goBack"
+              prepend-icon="mdi-arrow-left"
+            >
+              К списку
+            </v-btn>
           </div>
         </v-col>
       </v-row>
@@ -42,336 +32,247 @@
         </v-col>
       </v-row>
 
-      <v-row>
-        <!-- Настройки теста -->
-        <v-col cols="12" md="4">
-          <v-card class="mb-4">
+      <!-- Форма добавления вопроса -->
+      <v-row class="mb-4">
+        <v-col cols="12">
+          <v-card>
             <v-card-title class="text-h6">
-              <v-icon start>mdi-cog</v-icon>
-              Настройки теста
+              <v-icon start>mdi-plus-circle</v-icon>
+              Добавить вопрос
             </v-card-title>
             <v-card-text>
-              <v-form @submit.prevent="saveSettings">
-                <v-text-field
-                  v-model="settingsForm.title"
-                  label="Название теста"
-                  variant="outlined"
-                  density="compact"
-                  class="mb-3"
-                ></v-text-field>
+              <v-form @submit.prevent="saveQuestion">
+                <v-row>
+                  <v-col cols="12">
+                    <v-textarea
+                      v-model="questionForm.question"
+                      label="Текст вопроса *"
+                      variant="outlined"
+                      rows="3"
+                      :rules="[v => !!v || 'Обязательное поле']"
+                    ></v-textarea>
+                  </v-col>
 
-                <v-textarea
-                  v-model="settingsForm.description"
-                  label="Описание"
-                  variant="outlined"
-                  density="compact"
-                  rows="3"
-                  class="mb-3"
-                ></v-textarea>
+                  <!-- Ответы -->
+                  <v-col cols="12">
+                    <div class="d-flex justify-space-between align-center mb-3">
+                      <h3 class="text-h6">Ответы</h3>
+                      <v-btn
+                        size="small"
+                        color="primary"
+                        variant="tonal"
+                        @click="addAnswer"
+                        prepend-icon="mdi-plus"
+                      >
+                        Добавить ответ
+                      </v-btn>
+                    </div>
 
-                <v-text-field
-                  v-model.number="settingsForm.time_limit"
-                  label="Время (минуты)"
-                  variant="outlined"
-                  density="compact"
-                  type="number"
-                  hint="Оставьте пустым для безлимитного"
-                  class="mb-3"
-                ></v-text-field>
+                    <v-radio-group
+                      v-model="selectedCorrectAnswer"
+                      hide-details
+                      class="mb-3"
+                    >
+                      <div class="d-flex flex-column" style="gap: 16px;">
+                        <v-card
+                          v-for="(answer, index) in questionForm.answers"
+                          :key="index"
+                          variant="outlined"
+                          class="pa-3"
+                          :class="{ 'border-success': selectedCorrectAnswer === index }"
+                        >
+                          <div class="d-flex align-center gap-2">
+                            <v-radio
+                              :value="index"
+                              hide-details
+                              density="compact"
+                            ></v-radio>
+                            <v-text-field
+                              v-model="answer.answer"
+                              :label="`Ответ ${index + 1} *`"
+                              variant="outlined"
+                              density="compact"
+                              hide-details
+                              class="flex-grow-1"
+                              style="width: 100%;"
+                              :rules="[v => !!v || 'Обязательное поле']"
+                            ></v-text-field>
+                            <v-btn
+                              v-if="questionForm.answers.length > 4"
+                              icon="mdi-delete"
+                              size="small"
+                              color="error"
+                              variant="text"
+                              @click="removeAnswer(index)"
+                            ></v-btn>
+                          </div>
+                        </v-card>
+                      </div>
+                    </v-radio-group>
+                  </v-col>
 
-                <v-text-field
-                  v-model.number="settingsForm.passing_score"
-                  label="Проходной балл (%)"
-                  variant="outlined"
-                  density="compact"
-                  type="number"
-                  min="0"
-                  max="100"
-                  class="mb-3"
-                ></v-text-field>
-
-                <v-text-field
-                  v-model.number="settingsForm.max_attempts"
-                  label="Максимум попыток"
-                  variant="outlined"
-                  density="compact"
-                  type="number"
-                  min="1"
-                  class="mb-3"
-                ></v-text-field>
-
-                <v-switch
-                  v-model="settingsForm.is_active"
-                  label="Активен"
-                  color="success"
-                  class="mb-3"
-                ></v-switch>
-
-                <v-btn
-                  type="submit"
-                  color="primary"
-                  block
-                  :loading="settingsForm.processing"
-                >
-                  Сохранить настройки
-                </v-btn>
+                  <v-col cols="12">
+                    <div class="d-flex justify-end gap-2">
+                      <v-btn
+                        variant="text"
+                        @click="resetQuestionForm"
+                      >
+                        Очистить
+                      </v-btn>
+                      <v-btn
+                        color="primary"
+                        type="submit"
+                        :disabled="!isQuestionFormValid"
+                        :loading="questionForm.processing"
+                        prepend-icon="mdi-content-save"
+                      >
+                        Сохранить вопрос
+                      </v-btn>
+                    </div>
+                  </v-col>
+                </v-row>
               </v-form>
             </v-card-text>
           </v-card>
+        </v-col>
+      </v-row>
 
-          <!-- Статистика -->
+      <!-- Список вопросов -->
+      <v-row>
+        <v-col cols="12">
           <v-card>
             <v-card-title class="text-h6">
-              <v-icon start>mdi-chart-bar</v-icon>
-              Статистика
-            </v-card-title>
-            <v-card-text>
-              <v-list>
-                <v-list-item>
-                  <template v-slot:prepend>
-                    <v-icon color="primary">mdi-help-circle</v-icon>
-                  </template>
-                  <v-list-item-title>Вопросов</v-list-item-title>
-                  <v-list-item-subtitle>{{ test.questions.length }}</v-list-item-subtitle>
-                </v-list-item>
-                <v-list-item>
-                  <template v-slot:prepend>
-                    <v-icon :color="test.is_active ? 'success' : 'warning'">
-                      mdi-{{ test.is_active ? 'check-circle' : 'alert-circle' }}
-                    </v-icon>
-                  </template>
-                  <v-list-item-title>Статус</v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{ test.is_active ? 'Активен' : 'Неактивен' }}
-                  </v-list-item-subtitle>
-                </v-list-item>
-              </v-list>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <!-- Вопросы -->
-        <v-col cols="12" md="8">
-          <v-card>
-            <v-card-title class="text-h6 d-flex justify-space-between align-center">
-              <div>
-                <v-icon start>mdi-help-circle</v-icon>
-                Вопросы ({{ test.questions.length }})
-              </div>
-              <v-btn
-                color="primary"
-                @click="showQuestionDialog = true; editingQuestion = null; resetQuestionForm()"
-                prepend-icon="mdi-plus"
-                size="small"
-              >
-                Добавить вопрос
-              </v-btn>
+              <v-icon start>mdi-help-circle</v-icon>
+              Вопросы теста ({{ searchQuery ? `${filteredQuestions.length} из ${test.questions.length}` : test.questions.length }})
             </v-card-title>
             <v-card-text>
               <div v-if="test.questions.length === 0" class="text-center py-8">
                 <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-help-circle-outline</v-icon>
                 <h3 class="text-h6 text-grey">Нет вопросов</h3>
                 <p class="text-body-2 text-grey">Добавьте первый вопрос для теста</p>
-                <v-btn
-                  color="primary"
-                  @click="showQuestionDialog = true; editingQuestion = null; resetQuestionForm()"
-                  class="mt-4"
-                  prepend-icon="mdi-plus"
-                >
-                  Добавить вопрос
-                </v-btn>
               </div>
 
-              <v-expansion-panels v-else variant="accordion">
-                <v-expansion-panel
-                  v-for="(question, index) in test.questions"
-                  :key="question.id"
-                >
-                  <v-expansion-panel-title>
-                    <div class="d-flex align-center w-100">
-                      <v-chip size="small" color="primary" class="mr-3">
-                        {{ index + 1 }}
-                      </v-chip>
-                      <span class="flex-grow-1">{{ question.question }}</span>
-                      <v-chip size="small" variant="tonal" class="mr-2">
-                        {{ getQuestionTypeText(question.type) }}
-                      </v-chip>
-                      <v-chip size="small" color="info" variant="tonal">
-                        {{ question.answers.length }} ответов
-                      </v-chip>
-                    </div>
-                  </v-expansion-panel-title>
-                  <v-expansion-panel-text>
-                    <!-- Ответы -->
-                    <v-list density="compact">
-                      <v-list-item
-                        v-for="(answer, ansIndex) in question.answers"
-                        :key="answer.id"
-                      >
-                        <template v-slot:prepend>
-                          <v-icon :color="answer.is_correct ? 'success' : 'grey'">
-                            {{ answer.is_correct ? 'mdi-check-circle' : 'mdi-circle-outline' }}
-                          </v-icon>
-                        </template>
-                        <v-list-item-title :class="{ 'text-success font-weight-bold': answer.is_correct }">
-                          {{ ansIndex + 1 }}. {{ answer.answer }}
-                        </v-list-item-title>
-                      </v-list-item>
-                    </v-list>
+              <div v-else>
+                <!-- Поле поиска -->
+                <div class="mb-4">
+                  <v-text-field
+                    v-model="searchQuery"
+                    label="Поиск вопросов"
+                    variant="outlined"
+                    density="comfortable"
+                    prepend-inner-icon="mdi-magnify"
+                    clearable
+                    hide-details
+                  ></v-text-field>
+                </div>
 
-                    <v-divider class="my-3"></v-divider>
+                <div v-if="filteredQuestions.length === 0" class="text-center py-8">
+                  <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-magnify</v-icon>
+                  <h3 class="text-h6 text-grey">Вопросы не найдены</h3>
+                  <p class="text-body-2 text-grey">Попробуйте изменить поисковый запрос</p>
+                </div>
 
-                    <div v-if="question.explanation" class="text-caption text-medium-emphasis mb-3">
-                      <strong>Объяснение:</strong> {{ question.explanation }}
-                    </div>
+                <div v-else class="d-flex flex-column gap-4">
+                  <v-card
+                    v-for="(question, index) in filteredQuestions"
+                    :key="question.id"
+                    variant="outlined"
+                    class="pa-4"
+                  >
+                    <div class="d-flex align-start gap-3 mb-3">
+                      <v-avatar color="primary" size="40">
+                        <span class="text-white font-weight-bold">{{ index + 1 }}</span>
+                      </v-avatar>
+                      <div class="flex-grow-1">
+                        <h3 class="text-h6 font-weight-medium mb-3">
+                          {{ question.question }}
+                        </h3>
+                        
+                        <!-- Ответы -->
+                        <div class="mb-3">
+                          <v-chip
+                            size="small"
+                            color="info"
+                            variant="tonal"
+                            class="mb-3"
+                          >
+                            {{ question.answers.length }} ответов
+                          </v-chip>
+                          
+                          <div class="mt-2 d-flex flex-column gap-2">
+                            <!-- Правильные ответы -->
+                            <div
+                              v-for="(answer, ansIndex) in question.answers.filter(a => a.is_correct)"
+                              :key="`correct-${answer.id}`"
+                              class="pa-3"
+                              style="background-color: rgba(var(--v-theme-success), 0.1); border-radius: 4px;"
+                            >
+                              <div class="d-flex align-center">
+                                <v-icon color="success" class="mr-2">mdi-check-circle</v-icon>
+                                <span class="font-weight-bold text-success flex-grow-1">
+                                  {{ answer.answer }}
+                                </span>
+                                <v-chip size="small" color="success" class="ml-2">
+                                  Правильный ответ
+                                </v-chip>
+                              </div>
+                            </div>
+                            
+                            <!-- Неправильные ответы -->
+                            <div
+                              v-for="(answer, ansIndex) in question.answers.filter(a => !a.is_correct)"
+                              :key="`wrong-${answer.id}`"
+                              class="pa-2"
+                            >
+                              <div class="d-flex align-center">
+                                <span class="text-body-2">
+                                  {{ answer.answer }}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
 
-                    <div class="d-flex gap-2">
-                      <v-btn
-                        size="small"
-                        color="primary"
-                        variant="tonal"
-                        @click="editQuestion(question)"
-                        prepend-icon="mdi-pencil"
-                      >
-                        Редактировать
-                      </v-btn>
-                      <v-btn
-                        size="small"
-                        color="error"
-                        variant="tonal"
-                        @click="deleteQuestion(question)"
-                        prepend-icon="mdi-delete"
-                      >
-                        Удалить
-                      </v-btn>
+                        <div v-if="question.explanation" class="text-body-2 text-medium-emphasis mb-3">
+                          <strong>Объяснение:</strong> {{ question.explanation }}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                          <v-btn
+                            size="small"
+                            color="secondary"
+                            variant="text"
+                            @click="editQuestion(question)"
+                            prepend-icon="mdi-pencil"
+                          >
+                            Редактировать
+                          </v-btn>
+                          <v-btn
+                            size="small"
+                            color="error"
+                            variant="text"
+                            @click="deleteQuestion(question)"
+                            prepend-icon="mdi-delete"
+                          >
+                            Удалить
+                          </v-btn>
+                        </div>
+                      </div>
                     </div>
-                  </v-expansion-panel-text>
-                </v-expansion-panel>
-              </v-expansion-panels>
+                  </v-card>
+                </div>
+              </div>
             </v-card-text>
           </v-card>
         </v-col>
       </v-row>
-
-      <!-- Диалог добавления/редактирования вопроса -->
-      <v-dialog v-model="showQuestionDialog" max-width="800" scrollable>
-        <v-card>
-          <v-card-title>
-            <v-icon start>mdi-{{ editingQuestion ? 'pencil' : 'plus' }}</v-icon>
-            {{ editingQuestion ? 'Редактировать вопрос' : 'Добавить вопрос' }}
-          </v-card-title>
-          <v-card-text>
-            <v-form @submit.prevent="saveQuestion">
-              <v-textarea
-                v-model="questionForm.question"
-                label="Текст вопроса *"
-                variant="outlined"
-                rows="3"
-                class="mb-3"
-                :rules="[v => !!v || 'Обязательное поле']"
-              ></v-textarea>
-
-              <v-select
-                v-model="questionForm.type"
-                :items="[
-                  { title: 'Одиночный выбор', value: 'single_choice' },
-                  { title: 'Множественный выбор', value: 'multiple_choice' },
-                  { title: 'Сопоставление', value: 'matching' }
-                ]"
-                item-title="title"
-                item-value="value"
-                label="Тип вопроса *"
-                variant="outlined"
-                class="mb-3"
-                :rules="[v => !!v || 'Обязательное поле']"
-              ></v-select>
-
-              <v-textarea
-                v-model="questionForm.explanation"
-                label="Объяснение (опционально)"
-                variant="outlined"
-                rows="2"
-                class="mb-3"
-                hint="Будет показано студентам после прохождения"
-              ></v-textarea>
-
-              <v-divider class="my-4"></v-divider>
-
-              <div class="d-flex justify-space-between align-center mb-3">
-                <h3 class="text-h6">Ответы (минимум 3)</h3>
-                <v-btn
-                  size="small"
-                  color="primary"
-                  variant="tonal"
-                  @click="addAnswer"
-                  prepend-icon="mdi-plus"
-                >
-                  Добавить ответ
-                </v-btn>
-              </div>
-
-              <div
-                v-for="(answer, index) in questionForm.answers"
-                :key="index"
-                class="mb-3 pa-3 border rounded"
-              >
-                <div class="d-flex align-center gap-2">
-                  <v-checkbox
-                    v-model="answer.is_correct"
-                    label="Правильный"
-                    hide-details
-                    density="compact"
-                  ></v-checkbox>
-                  <v-text-field
-                    v-model="answer.answer"
-                    :label="`Ответ ${index + 1} *`"
-                    variant="outlined"
-                    density="compact"
-                    hide-details
-                    class="flex-grow-1"
-                  ></v-text-field>
-                  <v-btn
-                    v-if="questionForm.answers.length > 3"
-                    icon="mdi-delete"
-                    size="small"
-                    color="error"
-                    variant="text"
-                    @click="removeAnswer(index)"
-                  ></v-btn>
-                </div>
-              </div>
-
-              <v-alert
-                v-if="questionForm.answers.length < 3"
-                type="warning"
-                variant="tonal"
-                class="mt-3"
-              >
-                Необходимо минимум 3 ответа
-              </v-alert>
-            </v-form>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn @click="showQuestionDialog = false">Отмена</v-btn>
-            <v-btn
-              color="primary"
-              @click="saveQuestion"
-              :disabled="questionForm.answers.length < 3 || !questionForm.question || !questionForm.type"
-              :loading="questionForm.processing"
-            >
-              {{ editingQuestion ? 'Сохранить' : 'Добавить' }}
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
     </v-container>
   </Layout>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { useForm, usePage } from '@inertiajs/vue3'
+import { ref, reactive, computed, watch } from 'vue'
+import { useForm, usePage, router } from '@inertiajs/vue3'
 import Layout from '../../Layout.vue'
 
 const page = usePage()
@@ -384,18 +285,9 @@ const props = defineProps({
 })
 
 // Состояние
-const showQuestionDialog = ref(false)
 const editingQuestion = ref(null)
-
-// Форма настроек
-const settingsForm = useForm({
-  title: props.test.title,
-  description: props.test.description,
-  time_limit: props.test.time_limit,
-  passing_score: props.test.passing_score,
-  max_attempts: props.test.max_attempts,
-  is_active: props.test.is_active
-})
+const selectedCorrectAnswer = ref(0)
+const searchQuery = ref('')
 
 // Форма вопроса
 const questionForm = reactive({
@@ -403,29 +295,74 @@ const questionForm = reactive({
   type: 'single_choice',
   explanation: '',
   answers: [
-    { answer: '', is_correct: true },
+    { answer: '', is_correct: false },
+    { answer: '', is_correct: false },
     { answer: '', is_correct: false },
     { answer: '', is_correct: false }
   ],
   processing: false
 })
 
+// Валидация формы
+const isQuestionFormValid = computed(() => {
+  const hasQuestion = !!questionForm.question
+  const hasEnoughAnswers = questionForm.answers.length >= 4
+  const allAnswersFilled = questionForm.answers.every(a => !!a.answer)
+  const hasCorrectAnswer = selectedCorrectAnswer.value !== null
+  
+  return hasQuestion && hasEnoughAnswers && allAnswersFilled && hasCorrectAnswer
+})
+
+// Фильтрация вопросов
+const filteredQuestions = computed(() => {
+  let questions = props.test.questions
+  
+  // Применяем фильтр, если есть поисковый запрос
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    questions = questions.filter(question => {
+      // Поиск по тексту вопроса
+      if (question.question.toLowerCase().includes(query)) {
+        return true
+      }
+      
+      // Поиск по ответам
+      if (question.answers.some(answer => answer.answer.toLowerCase().includes(query))) {
+        return true
+      }
+      
+      // Поиск по объяснению
+      if (question.explanation && question.explanation.toLowerCase().includes(query)) {
+        return true
+      }
+      
+      return false
+    })
+  }
+  
+  // Сортируем по дате создания в убывающем порядке (новые сверху)
+  // Используем ID как fallback, если created_at не доступен
+  return [...questions].sort((a, b) => {
+    const dateA = a.created_at ? new Date(a.created_at).getTime() : a.id || 0
+    const dateB = b.created_at ? new Date(b.created_at).getTime() : b.id || 0
+    return dateB - dateA
+  })
+})
+
+// Инициализация правильного ответа
+questionForm.answers[0].is_correct = true
+
+// Отслеживаем изменение выбранного правильного ответа
+watch(selectedCorrectAnswer, (newValue) => {
+  // Сбрасываем все ответы и устанавливаем выбранный как правильный
+  questionForm.answers.forEach((answer, index) => {
+    answer.is_correct = (index === newValue)
+  })
+}, { immediate: true })
+
 // Методы
-const navigateTo = (route) => {
-  window.location.href = route
-}
-
-const saveSettings = () => {
-  settingsForm.put(`/teacher/tests/${props.test.id}`, {
-    preserveScroll: true
-  })
-}
-
-const toggleStatus = () => {
-  const form = useForm({})
-  form.post(`/teacher/tests/${props.test.id}/toggle-status`, {
-    preserveScroll: true
-  })
+const goBack = () => {
+  router.visit('/teacher/tests')
 }
 
 const resetQuestionForm = () => {
@@ -435,47 +372,82 @@ const resetQuestionForm = () => {
   questionForm.answers = [
     { answer: '', is_correct: true },
     { answer: '', is_correct: false },
+    { answer: '', is_correct: false },
     { answer: '', is_correct: false }
   ]
+  selectedCorrectAnswer.value = 0
+  editingQuestion.value = null
 }
 
 const addAnswer = () => {
   questionForm.answers.push({ answer: '', is_correct: false })
+  // После добавления нового ответа правильный ответ остается выбранным
 }
 
 const removeAnswer = (index) => {
-  if (questionForm.answers.length > 3) {
+  if (questionForm.answers.length > 4) {
     questionForm.answers.splice(index, 1)
+    // Если удалили выбранный правильный ответ, выбираем первый
+    if (selectedCorrectAnswer.value === index) {
+      selectedCorrectAnswer.value = 0
+    } else if (selectedCorrectAnswer.value > index) {
+      selectedCorrectAnswer.value = selectedCorrectAnswer.value - 1
+    }
   }
 }
 
 const editQuestion = (question) => {
   editingQuestion.value = question
   questionForm.question = question.question
-  questionForm.type = question.type
+  questionForm.type = question.type || 'single_choice'
   questionForm.explanation = question.explanation || ''
   questionForm.answers = question.answers.map(a => ({
     id: a.id,
     answer: a.answer,
     is_correct: a.is_correct
   }))
-  showQuestionDialog.value = true
+  
+  // Если ответов меньше 4, добавляем до 4
+  while (questionForm.answers.length < 4) {
+    questionForm.answers.push({ answer: '', is_correct: false })
+  }
+  
+  // Находим индекс правильного ответа
+  const correctIndex = questionForm.answers.findIndex(a => a.is_correct)
+  selectedCorrectAnswer.value = correctIndex >= 0 ? correctIndex : 0
 }
 
 const saveQuestion = () => {
-  if (questionForm.answers.length < 3) return
+  if (!isQuestionFormValid.value) {
+    return
+  }
 
   questionForm.processing = true
-  const form = useForm(questionForm)
+  
+  // Устанавливаем правильный ответ на основе выбранного индекса
+  questionForm.answers.forEach((answer, index) => {
+    answer.is_correct = (index === selectedCorrectAnswer.value)
+  })
+  
+  // Убираем пустые ответы
+  const validAnswers = questionForm.answers.filter(a => !!a.answer)
+  
+  const formData = {
+    question: questionForm.question,
+    type: questionForm.type,
+    explanation: questionForm.explanation || '',
+    answers: validAnswers
+  }
+
+  const form = useForm(formData)
 
   if (editingQuestion.value) {
     // Обновление
     form.put(`/teacher/tests/${props.test.id}/questions/${editingQuestion.value.id}`, {
       preserveScroll: true,
       onSuccess: () => {
-        showQuestionDialog.value = false
         resetQuestionForm()
-        editingQuestion.value = null
+        router.reload()
       },
       onFinish: () => {
         questionForm.processing = false
@@ -486,8 +458,8 @@ const saveQuestion = () => {
     form.post(`/teacher/tests/${props.test.id}/questions`, {
       preserveScroll: true,
       onSuccess: () => {
-        showQuestionDialog.value = false
         resetQuestionForm()
+        router.reload()
       },
       onFinish: () => {
         questionForm.processing = false
@@ -497,26 +469,26 @@ const saveQuestion = () => {
 }
 
 const deleteQuestion = (question) => {
-  if (confirm('Вы уверены, что хотите удалить этот вопрос?')) {
-    const form = useForm({})
-    form.delete(`/teacher/tests/${props.test.id}/questions/${question.id}`, {
-      preserveScroll: true
-    })
+  if (!confirm('Вы уверены, что хотите удалить этот вопрос?')) {
+    return
   }
-}
 
-const getQuestionTypeText = (type) => {
-  const types = {
-    'single_choice': 'Одиночный выбор',
-    'multiple_choice': 'Множественный выбор',
-    'matching': 'Сопоставление'
-  }
-  return types[type] || type
+  const form = useForm({})
+  form.delete(`/teacher/tests/${props.test.id}/questions/${question.id}`, {
+    preserveScroll: true,
+    onSuccess: () => {
+      router.reload()
+    }
+  })
 }
 </script>
 
 <style scoped>
-.border {
-  border: 1px solid #e0e0e0;
+.v-card {
+  border-radius: 12px;
+}
+
+.border-success {
+  border: 2px solid rgb(var(--v-theme-success)) !important;
 }
 </style>

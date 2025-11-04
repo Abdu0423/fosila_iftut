@@ -88,8 +88,10 @@ class TestController extends Controller
             ]);
         }
 
-        // Загружаем вопросы с ответами
-        $test->load(['questions.answers']);
+        // Загружаем вопросы с ответами, отсортированные по дате создания в убывающем порядке (новые сверху)
+        $test->load(['questions' => function ($query) {
+            $query->orderBy('created_at', 'desc');
+        }, 'questions.answers']);
 
         $testData = [
             'id' => $test->id,
@@ -114,6 +116,7 @@ class TestController extends Controller
                     'type' => $question->type,
                     'order' => $question->order,
                     'explanation' => $question->explanation,
+                    'created_at' => $question->created_at ? $question->created_at->toISOString() : null,
                     'answers' => $question->answers->map(function ($answer) {
                         return [
                             'id' => $answer->id,

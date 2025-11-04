@@ -213,8 +213,8 @@
                         @click="openTest(schedule)"
                         variant="tonal"
                       >
-                        <v-icon start>{{ schedule.has_test ? 'mdi-pencil' : 'mdi-plus' }}</v-icon>
-                        {{ schedule.has_test ? 'Редактировать тест' : 'Создать тест' }}
+                        <v-icon start>mdi-eye</v-icon>
+                        Просмотр
                       </v-btn>
                     </template>
                   </v-list-item>

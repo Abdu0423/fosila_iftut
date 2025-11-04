@@ -7,23 +7,7 @@
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
               <h1 class="text-h4 font-weight-bold mb-2">Мои уроки</h1>
-              <p class="text-body-1 text-medium-emphasis">Управление уроками из ваших расписаний</p>
-            </div>
-            <div class="d-flex gap-2">
-              <v-btn
-                color="primary"
-                @click="navigateTo('/teacher/lessons/create')"
-                prepend-icon="mdi-plus"
-              >
-                Создать урок
-              </v-btn>
-              <v-btn
-                color="info"
-                @click="navigateTo('/teacher/students')"
-                prepend-icon="mdi-account-group"
-              >
-                Мои студенты
-              </v-btn>
+              <p class="text-body-1 text-medium-emphasis">Выберите расписание для управления уроками</p>
             </div>
           </div>
         </v-col>
@@ -42,224 +26,80 @@
         </v-col>
       </v-row>
 
-      <!-- Статистика -->
-      <v-row>
-        <v-col cols="12" md="4">
-          <v-card variant="outlined">
-            <v-card-text class="text-center">
-              <div class="text-h4 font-weight-bold text-primary">{{ stats.total }}</div>
-              <div class="text-body-2 text-medium-emphasis">Всего уроков</div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="12" md="4">
-          <v-card variant="outlined">
-            <v-card-text class="text-center">
-              <div class="text-h4 font-weight-bold text-success">{{ stats.active }}</div>
-              <div class="text-body-2 text-medium-emphasis">Активных</div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="12" md="4">
-          <v-card variant="outlined">
-            <v-card-text class="text-center">
-              <div class="text-h4 font-weight-bold text-warning">{{ stats.inactive }}</div>
-              <div class="text-body-2 text-medium-emphasis">Неактивных</div>
-            </v-card-text>
-          </v-card>
+      <!-- Список расписаний -->
+      <v-row v-if="schedules.length > 0">
+        <v-col
+          v-for="schedule in schedules"
+          :key="schedule.id"
+          cols="12"
+          md="6"
+          lg="4"
+        >
+          <div
+            class="schedule-card-wrapper"
+            @click="viewSchedule(schedule)"
+          >
+            <v-card
+              class="schedule-card"
+              hover
+            >
+              <v-card-title class="d-flex justify-space-between align-center">
+                <div>
+                  <h3 class="text-h6">{{ schedule.subject?.name || 'Без предмета' }}</h3>
+                  <p class="text-body-2 text-medium-emphasis mb-0">
+                    {{ schedule.group?.name || 'Группа не указана' }}
+                  </p>
+                </div>
+                <v-chip
+                  :color="schedule.is_active ? 'success' : 'grey'"
+                  size="small"
+                >
+                  {{ schedule.is_active ? 'Активно' : 'Неактивно' }}
+                </v-chip>
+              </v-card-title>
+
+              <v-card-text>
+                <div class="d-flex align-center justify-space-between">
+                  <div class="d-flex align-center">
+                    <v-icon class="mr-2" color="info" size="24">mdi-teach</v-icon>
+                    <div>
+                      <div class="text-h5 font-weight-bold">{{ schedule.lessons_count || 0 }}</div>
+                      <div class="text-caption text-medium-emphasis">Уроков</div>
+                    </div>
+                  </div>
+                  <v-icon color="primary">mdi-chevron-right</v-icon>
+                </div>
+                
+                <v-divider class="my-3"></v-divider>
+                
+                <div class="text-caption text-medium-emphasis">
+                  <div v-if="schedule.scheduled_at" class="mb-1">
+                    <v-icon size="14">mdi-calendar-clock</v-icon>
+                    {{ schedule.scheduled_at }}
+                  </div>
+                  <div v-if="schedule.semester" class="mb-1">
+                    <v-icon size="14">mdi-school</v-icon>
+                    Семестр {{ schedule.semester }}
+                  </div>
+                  <div v-if="schedule.credits">
+                    <v-icon size="14">mdi-credit-card</v-icon>
+                    {{ schedule.credits }} кредитов
+                  </div>
+                </div>
+              </v-card-text>
+            </v-card>
+          </div>
         </v-col>
       </v-row>
 
-      <!-- Фильтры -->
-      <v-row>
-        <v-col cols="12">
-          <v-card variant="outlined">
-            <v-card-text>
-              <v-row>
-                <v-col cols="12" md="4">
-                  <v-text-field
-                    v-model="search"
-                    label="Поиск по названию"
-                    variant="outlined"
-                    density="compact"
-                    prepend-inner-icon="mdi-magnify"
-                    clearable
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="12" md="3">
-                  <v-select
-                    v-model="selectedSubject"
-                    :items="subjects"
-                    item-title="name"
-                    item-value="id"
-                    label="Предмет"
-                    variant="outlined"
-                    density="compact"
-                    clearable
-                  ></v-select>
-                </v-col>
-                <v-col cols="12" md="3">
-                  <v-select
-                    v-model="selectedGroup"
-                    :items="groups"
-                    item-title="name"
-                    item-value="id"
-                    label="Группа"
-                    variant="outlined"
-                    density="compact"
-                    clearable
-                  ></v-select>
-                </v-col>
-                <v-col cols="12" md="2">
-                  <v-select
-                    v-model="selectedStatus"
-                    :items="[
-                      { title: 'Все', value: '' },
-                      { title: 'Активные', value: 'active' },
-                      { title: 'Неактивные', value: 'inactive' }
-                    ]"
-                    item-title="title"
-                    item-value="value"
-                    label="Статус"
-                    variant="outlined"
-                    density="compact"
-                  ></v-select>
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <!-- Список уроков -->
-      <v-row>
+      <!-- Пустое состояние -->
+      <v-row v-else>
         <v-col cols="12">
           <v-card>
-            <v-card-title class="text-h6">
-              <v-icon start>mdi-teach</v-icon>
-              Уроки ({{ filteredLessons.length }})
-            </v-card-title>
-            <v-card-text>
-              <div v-if="filteredLessons.length === 0" class="text-center py-8">
-                <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-teach-outline</v-icon>
-                <h3 class="text-h6 text-grey">Нет уроков</h3>
-                <p class="text-body-2 text-grey">У вас пока нет запланированных уроков</p>
-              </div>
-              
-              <div v-else>
-                <v-list>
-                  <v-list-item
-                    v-for="lesson in filteredLessons"
-                    :key="lesson.id"
-                    class="mb-4"
-                  >
-                    <template v-slot:prepend>
-                      <v-avatar color="primary" size="40">
-                        <v-icon color="white">mdi-teach</v-icon>
-                      </v-avatar>
-                    </template>
-                    
-                    <v-list-item-title class="font-weight-medium mb-2">
-                      {{ lesson.title }}
-                    </v-list-item-title>
-                    
-                                         <v-list-item-subtitle>
-                       <div class="d-flex align-center gap-4 mb-2">
-                         <v-chip
-                           color="primary"
-                           size="small"
-                           variant="tonal"
-                         >
-                           {{ lesson.subject_name }}
-                         </v-chip>
-                         
-                         <v-chip
-                           color="secondary"
-                           size="small"
-                           variant="tonal"
-                         >
-                           {{ lesson.group_name }}
-                         </v-chip>
-                         
-                         <v-chip
-                           color="info"
-                           size="small"
-                           variant="tonal"
-                         >
-                           {{ getDayOfWeekText(lesson.day_of_week) }}
-                         </v-chip>
-                         
-                         <v-chip
-                           :color="lesson.is_active ? 'success' : 'warning'"
-                           size="small"
-                           variant="tonal"
-                         >
-                           {{ lesson.is_active ? 'Активен' : 'Неактивен' }}
-                         </v-chip>
-                       </div>
-                       
-                       <p v-if="lesson.description" class="text-body-2 mb-2">
-                         {{ lesson.description }}
-                       </p>
-                       
-                       <div class="d-flex align-center gap-4 text-caption text-medium-emphasis">
-                         <span v-if="lesson.start_time && lesson.end_time">
-                           <v-icon size="16" class="mr-1">mdi-clock</v-icon>
-                           {{ lesson.start_time }} - {{ lesson.end_time }}
-                         </span>
-                         <span v-if="lesson.room">
-                           <v-icon size="16" class="mr-1">mdi-map-marker</v-icon>
-                           {{ lesson.room }}
-                         </span>
-                         <span v-if="lesson.semester">
-                           <v-icon size="16" class="mr-1">mdi-school</v-icon>
-                           Семестр {{ lesson.semester }}
-                         </span>
-                         <span v-if="lesson.credits">
-                           <v-icon size="16" class="mr-1">mdi-credit-card</v-icon>
-                           {{ lesson.credits }} кр.
-                         </span>
-                         <span>
-                           <v-icon size="16" class="mr-1">mdi-calendar</v-icon>
-                           {{ lesson.created_at }}
-                         </span>
-                       </div>
-                     </v-list-item-subtitle>
-                    
-                    <template v-slot:append>
-                      <div class="d-flex gap-2">
-                        <v-btn
-                          color="primary"
-                          variant="text"
-                          size="small"
-                          @click="navigateTo(`/teacher/lessons/${lesson.id}`)"
-                          prepend-icon="mdi-eye"
-                        >
-                          Просмотр
-                        </v-btn>
-                        <v-btn
-                          color="secondary"
-                          variant="text"
-                          size="small"
-                          @click="navigateTo(`/teacher/lessons/${lesson.id}/edit`)"
-                          prepend-icon="mdi-pencil"
-                        >
-                          Редактировать
-                        </v-btn>
-                        <v-btn
-                          color="error"
-                          variant="text"
-                          size="small"
-                          @click="deleteLesson(lesson)"
-                          prepend-icon="mdi-delete"
-                        >
-                          Удалить
-                        </v-btn>
-                      </div>
-                    </template>
-                  </v-list-item>
-                </v-list>
-              </div>
+            <v-card-text class="text-center py-8">
+              <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-calendar-outline</v-icon>
+              <h3 class="text-h6 mb-2">У вас пока нет расписаний</h3>
+              <p class="text-body-2 text-grey">Расписания будут отображаться здесь после их создания</p>
             </v-card-text>
           </v-card>
         </v-col>
@@ -269,101 +109,38 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useForm, usePage, router } from '@inertiajs/vue3'
+import { usePage, router } from '@inertiajs/vue3'
 import Layout from '../../Layout.vue'
 
 const page = usePage()
 
-// Props из Inertia
+// Props
 const props = defineProps({
-  lessons: {
+  schedules: {
     type: Array,
     default: () => []
-  },
-  subjects: {
-    type: Array,
-    default: () => []
-  },
-  groups: {
-    type: Array,
-    default: () => []
-  },
-  stats: {
-    type: Object,
-    default: () => ({})
   }
-})
-
-// Состояние
-const search = ref('')
-const selectedSubject = ref(null)
-const selectedGroup = ref(null)
-const selectedStatus = ref('')
-
-// Вычисляемые свойства
-const filteredLessons = computed(() => {
-  let filtered = props.lessons
-
-  // Поиск по названию
-  if (search.value) {
-    filtered = filtered.filter(lesson =>
-      lesson.title.toLowerCase().includes(search.value.toLowerCase())
-    )
-  }
-
-  // Фильтр по предмету
-  if (selectedSubject.value) {
-    filtered = filtered.filter(lesson => lesson.subject_id === selectedSubject.value)
-  }
-
-  // Фильтр по группе
-  if (selectedGroup.value) {
-    filtered = filtered.filter(lesson => lesson.group_id === selectedGroup.value)
-  }
-
-  // Фильтр по статусу
-  if (selectedStatus.value === 'active') {
-    filtered = filtered.filter(lesson => lesson.is_active)
-  } else if (selectedStatus.value === 'inactive') {
-    filtered = filtered.filter(lesson => !lesson.is_active)
-  }
-
-  return filtered
 })
 
 // Методы
-const navigateTo = (route) => {
-  window.location.href = route
-}
-
-const getDayOfWeekText = (day) => {
-  const days = {
-    'monday': 'Понедельник',
-    'tuesday': 'Вторник',
-    'wednesday': 'Среда',
-    'thursday': 'Четверг',
-    'friday': 'Пятница',
-    'saturday': 'Суббота',
-    'sunday': 'Воскресенье'
+const viewSchedule = (schedule) => {
+  console.log('Переход к расписанию:', schedule.id)
+  if (!schedule || !schedule.id) {
+    console.error('Расписание не найдено или нет ID')
+    return
   }
-  return days[day] || day
+  
+  router.get(`/teacher/lessons/schedule/${schedule.id}`, {}, {
+    preserveState: false,
+    preserveScroll: false,
+    onError: (errors) => {
+      console.error('Ошибка при переходе к расписанию:', errors)
+    },
+    onSuccess: () => {
+      console.log('Успешно перешли к расписанию')
+    }
+  })
 }
-
-const deleteLesson = (lesson) => {
-  if (confirm(`Вы уверены, что хотите удалить урок "${lesson.title}"?`)) {
-    router.delete(`/teacher/lessons/${lesson.id}`, {
-      onSuccess: () => {
-        console.log('Урок удален успешно')
-      },
-      onError: (errors) => {
-        console.error('Ошибка при удалении урока:', errors)
-      }
-    })
-  }
-}
-
-
 </script>
 
 <style scoped>
@@ -371,9 +148,18 @@ const deleteLesson = (lesson) => {
   border-radius: 12px;
 }
 
-.v-list-item {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  margin-bottom: 8px;
+.schedule-card-wrapper {
+  cursor: pointer;
+  height: 100%;
+}
+
+.schedule-card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
+}
+
+.schedule-card-wrapper:hover .schedule-card {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12) !important;
 }
 </style>

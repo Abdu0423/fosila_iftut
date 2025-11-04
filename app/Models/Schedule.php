@@ -70,11 +70,19 @@ class Schedule extends Model
     }
 
     /**
-     * Отношение к тесту (one-to-one)
+     * Отношение к тесту (one-to-one) - для обратной совместимости
      */
     public function test()
     {
         return $this->hasOne(Test::class);
+    }
+
+    /**
+     * Отношение к тестам (one-to-many) - для подсчета количества
+     */
+    public function tests()
+    {
+        return $this->hasMany(Test::class);
     }
 
     /**

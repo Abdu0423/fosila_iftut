@@ -25,13 +25,13 @@ class QuestionController extends Controller
             'question' => 'required|string',
             'type' => 'required|in:single_choice,multiple_choice,matching',
             'explanation' => 'nullable|string',
-            'answers' => 'required|array|min:3',
+            'answers' => 'required|array|min:4',
             'answers.*.answer' => 'required|string',
             'answers.*.is_correct' => 'required|boolean',
             'answers.*.matching_key' => 'nullable|string',
             'answers.*.matching_value' => 'nullable|string',
         ], [
-            'answers.min' => 'Минимум 3 ответа требуется',
+            'answers.min' => 'Минимум 4 ответа требуется',
             'answers.required' => 'Необходимо добавить ответы',
         ]);
 
@@ -81,14 +81,14 @@ class QuestionController extends Controller
             'question' => 'required|string',
             'type' => 'required|in:single_choice,multiple_choice,matching',
             'explanation' => 'nullable|string',
-            'answers' => 'required|array|min:3',
+            'answers' => 'required|array|min:4',
             'answers.*.id' => 'nullable|exists:test_answers,id',
             'answers.*.answer' => 'required|string',
             'answers.*.is_correct' => 'required|boolean',
             'answers.*.matching_key' => 'nullable|string',
             'answers.*.matching_value' => 'nullable|string',
         ], [
-            'answers.min' => 'Минимум 3 ответа требуется',
+            'answers.min' => 'Минимум 4 ответа требуется',
         ]);
 
         DB::transaction(function () use ($request, $question) {

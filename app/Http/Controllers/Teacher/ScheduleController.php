@@ -22,38 +22,83 @@ class ScheduleController extends Controller
     {
         $teacher = Auth::user();
         
-        // Получаем расписания текущего учителя
+        // Получаем расписания текущего учителя с подсчетом тестов
         $schedules = Schedule::where('teacher_id', $teacher->id)
-            ->with(['subject', 'group', 'syllabuses', 'lessons.subject'])
+            ->with(['subject', 'group', 'syllabuses.creator', 'lessons.subject'])
+            ->withCount('tests')
             ->orderBy('created_at', 'desc')
-            ->get();
-
-        // Получаем доступные предметы для создания новых расписаний
-        $subjects = Subject::where('is_active', true)
-            ->orderBy('name')
-            ->get();
-
-        // Получаем доступные группы
-        $groups = Group::where('status', 'active')
-            ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(function ($schedule) {
+                return [
+                    'id' => $schedule->id,
+                    'subject' => $schedule->subject ? [
+                        'id' => $schedule->subject->id,
+                        'name' => $schedule->subject->name,
+                    ] : null,
+                    'group' => $schedule->group ? [
+                        'id' => $schedule->group->id,
+                        'name' => $schedule->group->name,
+                    ] : null,
+                    'scheduled_at' => $schedule->scheduled_at ? $schedule->scheduled_at->format('Y-m-d H:i:s') : null,
+                    'scheduled_at_formatted' => $schedule->scheduled_at ? $schedule->scheduled_at->format('d.m.Y H:i') : 'Не указано',
+                    'semester' => $schedule->semester,
+                    'study_year' => $schedule->study_year,
+                    'credits' => $schedule->credits,
+                    'is_active' => $schedule->is_active,
+                    'syllabuses' => $schedule->syllabuses->map(function ($syllabus) {
+                        return [
+                            'id' => $syllabus->id,
+                            'name' => $syllabus->name,
+                            'description' => $syllabus->description,
+                            'file_name' => $syllabus->file_name,
+                            'file_size_formatted' => $syllabus->file_size_formatted ?? 'Не указано',
+                            'creator' => $syllabus->creator ? [
+                                'id' => $syllabus->creator->id,
+                                'name' => $syllabus->creator->name,
+                            ] : null,
+                        ];
+                    }),
+                    'lessons' => $schedule->lessons->map(function ($lesson) {
+                        return [
+                            'id' => $lesson->id,
+                            'title' => $lesson->title,
+                            'description' => $lesson->description,
+                            'subject' => $lesson->subject ? [
+                                'id' => $lesson->subject->id,
+                                'name' => $lesson->subject->name,
+                            ] : null,
+                            'pivot' => [
+                                'order' => $lesson->pivot->order ?? null,
+                                'start_time' => $lesson->pivot->start_time ?? null,
+                                'end_time' => $lesson->pivot->end_time ?? null,
+                                'room' => $lesson->pivot->room ?? null,
+                            ],
+                        ];
+                    }),
+                    'tests_count' => $schedule->tests_count ?? 0,
+                    'created_at' => $schedule->created_at->format('d.m.Y H:i'),
+                ];
+            });
 
         // Получаем доступные силлабусы для добавления
-        $syllabuses = Syllabus::with(['subject', 'creator'])
+        $availableSyllabuses = Syllabus::with(['subject', 'creator'])
             ->orderBy('name')
-            ->get();
-
-        // Получаем доступные уроки для добавления
-        $lessons = Lesson::with(['subject'])
-            ->orderBy('title')
-            ->get();
+            ->get()
+            ->map(function ($syllabus) {
+                return [
+                    'id' => $syllabus->id,
+                    'name' => $syllabus->name,
+                    'description' => $syllabus->description,
+                    'subject' => $syllabus->subject ? [
+                        'id' => $syllabus->subject->id,
+                        'name' => $syllabus->subject->name,
+                    ] : null,
+                ];
+            });
 
         return Inertia::render('Teacher/Schedule/Index', [
             'schedules' => $schedules,
-            'subjects' => $subjects,
-            'groups' => $groups,
-            'syllabuses' => $syllabuses,
-            'lessons' => $lessons,
+            'availableSyllabuses' => $availableSyllabuses,
         ]);
     }
 
@@ -98,7 +143,7 @@ class ScheduleController extends Controller
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 
-        $schedule->load(['subject', 'group', 'syllabuses.creator', 'lessons.subject']);
+        $schedule->load(['subject', 'group', 'syllabuses.creator', 'lessons.subject', 'test']);
 
         // Получаем доступные предметы для редактирования
         $subjects = Subject::where('is_active', true)
@@ -130,6 +175,7 @@ class ScheduleController extends Controller
             'availableLessons' => $availableLessons,
         ]);
     }
+
 
     /**
      * Обновить расписание
@@ -203,6 +249,57 @@ class ScheduleController extends Controller
     }
 
     /**
+     * Загрузить силлабус из файла и добавить к расписанию
+     */
+    public function uploadSyllabus(Request $request, Schedule $schedule)
+    {
+        $teacher = Auth::user();
+        
+        // Проверяем, что расписание принадлежит текущему учителю
+        if ($schedule->teacher_id !== $teacher->id) {
+            abort(403, 'У вас нет доступа к этому расписанию');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,txt,jpg,jpeg,png,gif,bmp,webp,md,html,css,js,json,xml,csv,log|max:10240',
+        ]);
+
+        try {
+            $file = $request->file('file');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('syllabuses', $fileName, 'public');
+
+            // Создаем новый силлабус
+            $syllabus = Syllabus::create([
+                'name' => $request->name,
+                'description' => $request->description ?? null,
+                'subject_id' => $schedule->subject_id,
+                'creation_year' => date('Y'),
+                'created_by' => $teacher->id,
+                'file_path' => $filePath,
+                'file_name' => $file->getClientOriginalName(),
+                'file_type' => $file->getMimeType(),
+                'file_size' => $file->getSize(),
+            ]);
+
+            // Привязываем силлабус к расписанию
+            $schedule->syllabuses()->attach($syllabus->id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Силлабус загружен и добавлен к расписанию'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка при загрузке силлабуса: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Добавить урок к расписанию
      */
     public function addLesson(Request $request, Schedule $schedule)
@@ -243,7 +340,7 @@ class ScheduleController extends Controller
     /**
      * Удалить силлабус из расписания
      */
-    public function removeSyllabus(Schedule $schedule, Syllabus $syllabus)
+    public function removeSyllabus(Request $request, Schedule $schedule, Syllabus $syllabus)
     {
         $teacher = Auth::user();
         
@@ -252,12 +349,19 @@ class ScheduleController extends Controller
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 
+        $syllabusName = $syllabus->name;
         $schedule->syllabuses()->detach($syllabus->id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Силлабус удален из расписания'
-        ]);
+        // Если запрос через AJAX (Inertia), возвращаем редирект с flash сообщением
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Силлабус удален из расписания'
+            ]);
+        }
+
+        return redirect()->route('teacher.schedule.index')
+            ->with('success', "Силлабус \"{$syllabusName}\" успешно удален из расписания");
     }
 
     /**

@@ -18,58 +18,128 @@ class LessonController extends Controller
     {
         $teacher = Auth::user();
         
-        // Получаем расписания с уроками для текущего учителя
-        $schedules = Schedule::with(['lessons.subject', 'group', 'subject'])
-            ->where('teacher_id', $teacher->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-            
-        // Преобразуем данные для отображения
-        $lessons = collect();
-        foreach ($schedules as $schedule) {
-            foreach ($schedule->lessons as $lesson) {
-                $lessons->push([
-                    'id' => $lesson->id,
-                    'title' => $lesson->title,
-                    'description' => $lesson->description ?? '',
-                    'subject_id' => $lesson->subject_id,
-                    'subject_name' => $lesson->subject->name ?? 'Не указан',
-                    'group_id' => $schedule->group_id,
-                    'group_name' => $schedule->group->name ?? 'Не указана',
-                    'teacher_name' => $teacher->name,
-                    'schedule_id' => $schedule->id,
-                    'schedule_name' => $schedule->subject->name ?? 'Расписание',
-                    'file_name' => $lesson->file_name,
-                    'file_size' => $lesson->file_size,
-                    'is_active' => $schedule->is_active ?? true,
-                    'created_at' => $lesson->created_at->format('d.m.Y H:i'),
-                    'updated_at' => $lesson->updated_at->format('d.m.Y H:i'),
-                ]);
-            }
-        }
-
-        // Получаем предметы для фильтрации
-        $subjects = Subject::orderBy('name')->get(['id', 'name']);
-        
-        // Получаем группы для фильтрации
-        $groups = Group::orderBy('name')->get(['id', 'name']);
-
-        // Получаем расписания для создания уроков
+        // Получаем расписания с подсчетом уроков для текущего учителя
         $schedules = Schedule::where('teacher_id', $teacher->id)
             ->with(['subject', 'group'])
+            ->withCount('lessons')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($schedule) {
+                return [
+                    'id' => $schedule->id,
+                    'subject' => $schedule->subject ? [
+                        'id' => $schedule->subject->id,
+                        'name' => $schedule->subject->name,
+                    ] : null,
+                    'group' => $schedule->group ? [
+                        'id' => $schedule->group->id,
+                        'name' => $schedule->group->name,
+                    ] : null,
+                    'lessons_count' => $schedule->lessons_count ?? 0,
+                    'scheduled_at' => $schedule->scheduled_at ? $schedule->scheduled_at->format('d.m.Y H:i') : null,
+                    'semester' => $schedule->semester,
+                    'study_year' => $schedule->study_year,
+                    'credits' => $schedule->credits,
+                    'is_active' => $schedule->is_active,
+                    'created_at' => $schedule->created_at->format('d.m.Y H:i'),
+                ];
+            });
 
         return Inertia::render('Teacher/Lessons/Index', [
-            'lessons' => $lessons,
-            'subjects' => $subjects,
-            'groups' => $groups,
             'schedules' => $schedules,
-            'stats' => [
-                'total' => $lessons->count(),
-                'active' => $lessons->where('is_active', true)->count(),
-                'inactive' => $lessons->where('is_active', false)->count(),
-            ]
+        ]);
+    }
+
+    /**
+     * Показать уроки конкретного расписания
+     */
+    public function showSchedule(Schedule $schedule)
+    {
+        $teacher = Auth::user();
+        
+        // Проверяем, что расписание принадлежит текущему учителю
+        if ($schedule->teacher_id !== $teacher->id) {
+            abort(403, 'У вас нет доступа к этому расписанию');
+        }
+
+        // Загружаем уроки расписания с данными
+        $schedule->load([
+            'subject',
+            'group',
+            'lessons.subject'
+        ]);
+
+        // Получаем все доступные уроки для добавления (не принадлежащие этому расписанию)
+        $availableLessons = Lesson::with(['subject'])
+            ->whereNotIn('id', $schedule->lessons->pluck('id'))
+            ->orderBy('title')
+            ->get()
+            ->map(function ($lesson) {
+                return [
+                    'id' => $lesson->id,
+                    'title' => $lesson->title,
+                    'description' => $lesson->description,
+                    'subject' => $lesson->subject ? [
+                        'id' => $lesson->subject->id,
+                        'name' => $lesson->subject->name,
+                    ] : null,
+                    'file_name' => $lesson->file_name,
+                    'file_type' => $lesson->file_type,
+                    'file_size' => $lesson->file_size,
+                    'file_size_formatted' => $lesson->file_size_formatted ?? 'Не указано',
+                    'file_path' => $lesson->file_path,
+                    'created_at' => $lesson->created_at ? $lesson->created_at->format('d.m.Y H:i') : null,
+                    'updated_at' => $lesson->updated_at ? $lesson->updated_at->format('d.m.Y H:i') : null,
+                ];
+            });
+
+        // Форматируем уроки для отображения (сортируем по order)
+        $lessons = $schedule->lessons->sortBy(function ($lesson) {
+            return $lesson->pivot->order ?? 0;
+        })->map(function ($lesson) {
+            return [
+                'id' => $lesson->id,
+                'title' => $lesson->title,
+                'description' => $lesson->description,
+                'subject' => $lesson->subject ? [
+                    'id' => $lesson->subject->id,
+                    'name' => $lesson->subject->name,
+                ] : null,
+                'pivot' => [
+                    'order' => $lesson->pivot->order ?? null,
+                    'duration' => $lesson->pivot->duration ?? null,
+                    'start_time' => $lesson->pivot->start_time ?? null,
+                    'end_time' => $lesson->pivot->end_time ?? null,
+                    'room' => $lesson->pivot->room ?? null,
+                    'notes' => $lesson->pivot->notes ?? null,
+                ],
+                'file_name' => $lesson->file_name,
+                'file_size' => $lesson->file_size,
+                'file_path' => $lesson->file_path,
+                'created_at' => $lesson->created_at->format('d.m.Y H:i'),
+                'updated_at' => $lesson->updated_at->format('d.m.Y H:i'),
+            ];
+        })->values();
+
+        return Inertia::render('Teacher/Lessons/ShowSchedule', [
+            'schedule' => [
+                'id' => $schedule->id,
+                'subject' => $schedule->subject ? [
+                    'id' => $schedule->subject->id,
+                    'name' => $schedule->subject->name,
+                ] : null,
+                'group' => $schedule->group ? [
+                    'id' => $schedule->group->id,
+                    'name' => $schedule->group->name,
+                ] : null,
+                'scheduled_at' => $schedule->scheduled_at ? $schedule->scheduled_at->format('d.m.Y H:i') : null,
+                'semester' => $schedule->semester,
+                'study_year' => $schedule->study_year,
+                'credits' => $schedule->credits,
+                'is_active' => $schedule->is_active,
+            ],
+            'lessons' => $lessons,
+            'availableLessons' => $availableLessons,
         ]);
     }
 
@@ -78,7 +148,7 @@ class LessonController extends Controller
     /**
      * Показать форму создания урока
      */
-    public function create()
+    public function create(Request $request)
     {
         $teacher = Auth::user();
         
@@ -88,8 +158,12 @@ class LessonController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Получаем schedule_id из query параметров, если есть
+        $selectedScheduleId = $request->query('schedule_id');
+
         return Inertia::render('Teacher/Lessons/Create', [
             'schedules' => $schedules,
+            'selectedScheduleId' => $selectedScheduleId,
         ]);
     }
 

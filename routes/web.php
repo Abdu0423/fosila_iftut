@@ -362,6 +362,9 @@ Route::get('/test-export-schedule', function() {
 
 // Маршруты для учителей
 Route::prefix('teacher')->middleware(['auth', 'teacher'])->group(function () {
+    // Выход из системы
+    Route::post('/logout', [AuthController::class, 'logout'])->name('teacher.logout');
+    
     // Главная страница учителя
     Route::get('/', function () {
         return Inertia::render('Teacher/Dashboard');
@@ -378,6 +381,7 @@ Route::prefix('teacher')->middleware(['auth', 'teacher'])->group(function () {
     
     // Мои уроки
     Route::get('/lessons', [App\Http\Controllers\Teacher\LessonController::class, 'index'])->name('teacher.lessons.index');
+    Route::get('/lessons/schedule/{schedule}', [App\Http\Controllers\Teacher\LessonController::class, 'showSchedule'])->name('teacher.lessons.schedule');
     Route::get('/lessons/create', [App\Http\Controllers\Teacher\LessonController::class, 'create'])->name('teacher.lessons.create');
     Route::post('/lessons', [App\Http\Controllers\Teacher\LessonController::class, 'store'])->name('teacher.lessons.store');
     Route::get('/lessons/{lesson}', [App\Http\Controllers\Teacher\LessonController::class, 'show'])->name('teacher.lessons.show');
@@ -420,6 +424,7 @@ Route::prefix('teacher')->middleware(['auth', 'teacher'])->group(function () {
     
     // Управление силлабусами в расписании
     Route::post('/schedule/{schedule}/syllabuses', [App\Http\Controllers\Teacher\ScheduleController::class, 'addSyllabus'])->name('teacher.schedule.add-syllabus');
+    Route::post('/schedule/{schedule}/syllabuses/upload', [App\Http\Controllers\Teacher\ScheduleController::class, 'uploadSyllabus'])->name('teacher.schedule.upload-syllabus');
     Route::delete('/schedule/{schedule}/syllabuses/{syllabus}', [App\Http\Controllers\Teacher\ScheduleController::class, 'removeSyllabus'])->name('teacher.schedule.remove-syllabus');
     
     // Управление уроками в расписании

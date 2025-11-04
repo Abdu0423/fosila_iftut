@@ -81,25 +81,28 @@
                       :error-messages="form.value?.errors?.description || []"
                     ></v-textarea>
                   </v-col>
-                  <v-col cols="12" md="6">
-                    <v-select
-                      v-model="formScheduleId"
-                      :items="schedules"
-                      item-title="display_name"
-                      item-value="id"
-                      label="Расписание"
-                      variant="outlined"
-                      density="compact"
-                      required
-                      :error-messages="form.value?.errors?.schedule_id || []"
-                    >
-                      <template v-slot:item="{ props, item }">
-                        <v-list-item v-bind="props">
-                          <v-list-item-title>{{ item.raw.subject?.name }} - {{ item.raw.group?.name }}</v-list-item-title>
-                          <v-list-item-subtitle>{{ item.raw.start_date }} - {{ item.raw.end_date }}</v-list-item-subtitle>
-                        </v-list-item>
-                      </template>
-                    </v-select>
+                  <v-col cols="12" v-if="selectedSchedule || selectedScheduleId">
+                    <v-card variant="outlined" class="pa-3">
+                      <div class="d-flex align-center">
+                        <v-icon class="mr-2" color="primary">mdi-calendar-clock</v-icon>
+                        <div v-if="selectedSchedule">
+                          <div class="text-body-1 font-weight-medium">
+                            {{ selectedSchedule.subject?.name || 'Расписание' }}
+                          </div>
+                          <div class="text-caption text-medium-emphasis">
+                            Группа: {{ selectedSchedule.group?.name || 'Не указана' }}
+                          </div>
+                        </div>
+                        <div v-else>
+                          <div class="text-body-1 font-weight-medium">
+                            Расписание выбрано
+                          </div>
+                          <div class="text-caption text-medium-emphasis">
+                            ID: {{ selectedScheduleId }}
+                          </div>
+                        </div>
+                      </div>
+                    </v-card>
                   </v-col>
                   <v-col cols="12">
                     <v-file-input
@@ -178,7 +181,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
 import Layout from '../../Layout.vue'
 import axios from 'axios'
@@ -190,6 +193,10 @@ const props = defineProps({
   schedules: {
     type: Array,
     default: () => []
+  },
+  selectedScheduleId: {
+    type: [Number, String],
+    default: null
   }
 })
 
@@ -203,10 +210,21 @@ const form = ref({
   processing: false
 })
 
+// Автоматически устанавливаем schedule_id при загрузке страницы
+onMounted(() => {
+  if (props.selectedScheduleId) {
+    form.value.schedule_id = Number(props.selectedScheduleId)
+  }
+})
+
 // Вычисляемые свойства
 const selectedSchedule = computed(() => {
-  if (!form.value?.schedule_id) return null
-  return props.schedules.find(schedule => schedule.id === form.value.schedule_id)
+  const scheduleId = form.value?.schedule_id || props.selectedScheduleId
+  if (!scheduleId) return null
+  
+  // Преобразуем оба значения к числу для сравнения
+  const numericScheduleId = Number(scheduleId)
+  return props.schedules.find(schedule => Number(schedule.id) === numericScheduleId)
 })
 
 // Computed свойства для формы
@@ -224,12 +242,6 @@ const formDescription = computed({
   }
 })
 
-const formScheduleId = computed({
-  get: () => form.value?.schedule_id || null,
-  set: (value) => {
-    if (form.value) form.value.schedule_id = value
-  }
-})
 
 const formFile = computed({
   get: () => form.value?.file || null,
