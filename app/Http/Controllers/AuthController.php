@@ -18,63 +18,108 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         Log::info('Получен запрос на вход', [
-            'email' => $request->email,
+            'login' => $request->login,
             'has_password' => !empty($request->password)
         ]);
 
-        $credentials = $request->validate([
-            'email' => 'required|email',
+        // Валидация
+        $validated = $request->validate([
+            'login' => 'required|string',
             'password' => 'required',
         ]);
 
-        Log::info('Попытка входа', ['email' => $credentials['email']]);
+        $login = $validated['login'];
+        $password = $validated['password'];
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
+        // Определяем, является ли ввод email или телефоном
+        $isEmail = filter_var($login, FILTER_VALIDATE_EMAIL) !== false;
+        
+        // Нормализуем номер телефона (убираем все нецифровые символы кроме +)
+        $normalizedPhone = $isEmail ? null : preg_replace('/[^0-9+]/', '', $login);
+
+        Log::info('Попытка входа', [
+            'login' => $login,
+            'is_email' => $isEmail,
+            'normalized_phone' => $normalizedPhone
+        ]);
+
+        // Ищем пользователя по email или телефону
+        $user = null;
+        if ($isEmail) {
+            $user = \App\Models\User::where('email', $login)->first();
+        } else {
+            // Нормализуем телефон для поиска (убираем все кроме цифр)
+            $phoneDigits = preg_replace('/[^0-9]/', '', $login);
             
-            $user = Auth::user();
-            Log::info('Пользователь успешно авторизован', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'role_id' => $user->role_id,
-                'role' => $user->role ? $user->role->name : 'no role'
-            ]);
-            
-            Log::info('Проверка роли пользователя', [
-                'role_id' => $user->role_id,
-                'role_name' => $user->role ? $user->role->name : 'no role'
-            ]);
-            
-            // Проверяем по role_id: 1 = admin, 2 = teacher, 3 = student
-            if ($user->role_id == 1) {
-                Log::info('Перенаправление администратора на /admin');
-                return redirect('/admin');
-            }
-
-            if ($user->role_id == 2) {
-                Log::info('Перенаправление учителя на /teacher/');
-                return redirect('/teacher/');
-            }
-
-            if ($user->role_id == 3) {
-                Log::info('Перенаправление студента на /student/');
-                return redirect('/student/');
-            }
-
-            // Если роль не определена, перенаправляем на общий dashboard
-            Log::warning('Неопределенная роль пользователя, перенаправление на /dashboard', [
-                'user_id' => $user->id,
-                'role_id' => $user->role_id,
-                'role_name' => $user->role ? $user->role->name : 'no role'
-            ]);
-            return redirect()->intended('/');
+            // Ищем по телефону (точное совпадение или нормализованное)
+            $user = \App\Models\User::where(function ($query) use ($login, $normalizedPhone, $phoneDigits) {
+                $query->where('phone', $login)
+                    ->orWhere('phone', $normalizedPhone)
+                    ->orWhere('phone', $phoneDigits);
+                
+                // Если номер достаточно длинный (больше 7 цифр), ищем по последним цифрам
+                if (strlen($phoneDigits) >= 7) {
+                    $lastDigits = substr($phoneDigits, -7);
+                    $query->orWhere('phone', 'like', '%' . $lastDigits);
+                }
+            })->first();
         }
 
-        Log::warning('Неудачная попытка входа', ['email' => $credentials['email']]);
+        if (!$user) {
+            Log::warning('Пользователь не найден', ['login' => $login]);
+            return back()->withErrors([
+                'login' => 'Предоставленные учетные данные не соответствуют нашим записям.',
+            ])->onlyInput('login');
+        }
 
-        return back()->withErrors([
-            'email' => 'Предоставленные учетные данные не соответствуют нашим записям.',
-        ])->onlyInput('email');
+        // Проверяем пароль
+        if (!\Hash::check($password, $user->password)) {
+            Log::warning('Неверный пароль', ['user_id' => $user->id]);
+            return back()->withErrors([
+                'login' => 'Предоставленные учетные данные не соответствуют нашим записям.',
+            ])->onlyInput('login');
+        }
+
+        // Авторизуем пользователя
+        Auth::login($user, $request->boolean('remember'));
+        $request->session()->regenerate();
+        
+        Log::info('Пользователь успешно авторизован', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'role_id' => $user->role_id,
+            'role' => $user->role ? $user->role->name : 'no role'
+        ]);
+        
+        Log::info('Проверка роли пользователя', [
+            'role_id' => $user->role_id,
+            'role_name' => $user->role ? $user->role->name : 'no role'
+        ]);
+        
+        // Проверяем по role_id: 1 = admin, 2 = teacher, 3 = student
+        if ($user->role_id == 1) {
+            Log::info('Перенаправление администратора на /admin');
+            return redirect('/admin');
+        }
+
+        if ($user->role_id == 2) {
+            Log::info('Перенаправление учителя на /teacher/');
+            return redirect('/teacher/');
+        }
+
+        if ($user->role_id == 3) {
+            Log::info('Перенаправление студента на /student/');
+            return redirect('/student/');
+        }
+
+        // Если роль не определена, перенаправляем на общий dashboard
+        Log::warning('Неопределенная роль пользователя, перенаправление на /dashboard', [
+            'user_id' => $user->id,
+            'role_id' => $user->role_id,
+            'role_name' => $user->role ? $user->role->name : 'no role'
+        ]);
+        return redirect()->intended('/');
     }
 
     public function logout(Request $request)

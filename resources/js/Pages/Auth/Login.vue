@@ -20,19 +20,20 @@
 
           <v-card-text class="pa-8 pt-0">
             <form @submit.prevent="submit" class="login-form">
-              <!-- Email поле -->
+              <!-- Email или телефон поле -->
               <v-text-field
-                v-model="form.email"
-                label="Email"
-                type="email"
-                prepend-inner-icon="mdi-email"
+                v-model="form.login"
+                label="Email или номер телефона"
+                prepend-inner-icon="mdi-account"
                 variant="outlined"
                 rounded="lg"
-                :error-messages="form.errors.email"
+                :error-messages="form.errors.login || form.errors.email"
                 :disabled="form.processing"
                 class="mb-4"
-                autocomplete="email"
+                autocomplete="username"
                 required
+                hint="Введите email или номер телефона"
+                persistent-hint
               ></v-text-field>
 
               <!-- Пароль поле -->
@@ -99,7 +100,7 @@
                 </template>
                 <div class="text-body-2">
                   <strong>Тестовые данные:</strong><br>
-                  Email: <code>admin@fosila.com</code><br>
+                  Email: <code>admin@fosila.com</code> или номер телефона<br>
                   Пароль: <code>password</code>
                 </div>
               </v-alert>
@@ -174,7 +175,7 @@ import { useForm, router } from '@inertiajs/vue3'
 const showPassword = ref(false)
 
 const form = useForm({
-  email: '',
+  login: '',
   password: '',
   remember: false,
 })

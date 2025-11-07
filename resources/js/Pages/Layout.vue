@@ -138,6 +138,11 @@ const user = computed(() => page.props.auth?.user || {})
 const userName = computed(() => user.value.name || 'Пользователь')
 const userAvatar = computed(() => user.value.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName.value)}`)
 
+// Количество непрочитанных сообщений
+const unreadChatsCount = computed(() => {
+  return page.props.unreadChatsCount || 0
+})
+
 // Уведомления
 const notifications = ref([
   { id: 1, message: 'Новое уведомление', time: '2 мин назад' }
@@ -213,18 +218,18 @@ const menuItems = computed(() => {
         { title: 'Мои студенты', icon: 'mdi-account-group', route: '/teacher/students' },
         { title: 'Расписание', icon: 'mdi-calendar-clock', route: '/teacher/schedule' },
         { title: 'Силлабусы', icon: 'mdi-file-document-multiple', route: '/teacher/syllabuses' },
-        { title: 'Материалы', icon: 'mdi-file-multiple', route: '/teacher/materials' },
-        { title: 'Отчеты', icon: 'mdi-chart-bar', route: '/teacher/reports' },
-        { title: 'Профиль', icon: 'mdi-account', route: '/teacher/profile' },
-        { title: 'Настройки', icon: 'mdi-cog', route: '/teacher/settings' },
+        //{ title: 'Материалы', icon: 'mdi-file-multiple', route: '/teacher/materials' },
+        //{ title: 'Отчеты', icon: 'mdi-chart-bar', route: '/teacher/reports' },
+        //{ title: 'Профиль', icon: 'mdi-account', route: '/teacher/profile' },
+        //{ title: 'Настройки', icon: 'mdi-cog', route: '/teacher/settings' },
         { title: 'Чат', icon: 'mdi-chat', route: '/teacher/chat' },
       ]
     
     default: // student
       return [
-        { title: 'Главная', icon: 'mdi-home', route: '/student/' },
+        { title: 'Главная', icon: 'mdi-view-dashboard', route: '/student/' },
         //{ title: 'Мои курсы', icon: 'mdi-book-open-variant', route: '/student/courses' },
-        { title: 'Расписание', icon: 'mdi-calendar', route: '/student/schedule' },
+        { title: 'Расписание', icon: 'mdi-calendar-clock', route: '/student/schedule' },
         { title: 'Задания', icon: 'mdi-clipboard-text', route: '/student/assignments' },
         { title: 'Чат', icon: 'mdi-chat', route: '/student/chat' },
         { title: 'Библиотека', icon: 'mdi-library', route: '/student/library' },

@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout :role="userRole">
     <v-container fluid>
       <!-- Заголовок -->
       <v-row>
@@ -34,10 +34,10 @@
                 <v-list-item
                   v-for="chat in chats"
                   :key="chat.id"
-                  :to="`/chat/${chat.id}`"
                   :active="selectedChatId === chat.id"
                   @click="selectChat(chat.id)"
                   class="chat-item"
+                  :class="{ 'v-list-item--active': selectedChatId === chat.id }"
                 >
                   <template v-slot:prepend>
                     <v-avatar
@@ -47,22 +47,22 @@
                       <v-img
                         v-if="chat.display_avatar"
                         :src="chat.display_avatar"
-                        :alt="chat.display_name"
+                        :alt="getChatPartnerName(chat)"
                       ></v-img>
                       <span v-else class="text-white font-weight-bold">
-                        {{ getInitials(chat.display_name) }}
+                        {{ getInitials(getChatPartnerName(chat)) }}
                       </span>
                     </v-avatar>
                   </template>
 
                   <v-list-item-title class="text-subtitle-1">
-                    {{ chat.display_name }}
+                    {{ getChatPartnerName(chat) }}
                   </v-list-item-title>
                   
                   <v-list-item-subtitle class="text-body-2">
                     <div v-if="chat.last_message" class="d-flex align-center">
                       <span class="text-truncate mr-2">
-                        {{ chat.last_message.user.name }}: {{ chat.last_message.message }}
+                        {{ chat.last_message.user_id === currentUserId ? 'Вы' : chat.last_message.user.name }}: {{ chat.last_message.message }}
                       </span>
                       <span class="text-caption text-medium-emphasis">
                         {{ formatTime(chat.last_message.created_at) }}
@@ -112,9 +112,9 @@
                 </span>
               </v-avatar>
               <div>
-                <div class="text-h6">{{ selectedChat.display_name }}</div>
-                <div class="text-caption text-medium-emphasis">
-                  {{ selectedChat.type === 'private' ? 'Приватный чат' : 'Групповой чат' }}
+                <div class="text-h6">{{ chatPartnerName }}</div>
+                <div v-if="selectedChat.type !== 'private'" class="text-caption text-medium-emphasis">
+                  Групповой чат
                 </div>
               </div>
               <v-spacer></v-spacer>
@@ -146,15 +146,15 @@
                   v-for="message in messages"
                   :key="message.id"
                   class="message-item"
-                  :class="{ 'message-own': message.is_from_current_user }"
+                  :class="{ 'message-own': isOwnMessage(message) }"
                 >
-                  <div class="message-content">
-                    <div class="message-header" v-if="!message.is_from_current_user">
+                  <div class="message-content" :class="{ 'message-own': isOwnMessage(message) }">
+                    <div class="message-header" v-if="!isOwnMessage(message)">
                       <span class="message-author">{{ message.user.name }}</span>
                       <span class="message-time">{{ formatTime(message.created_at) }}</span>
                     </div>
                     <div class="message-text">{{ message.message }}</div>
-                    <div class="message-status" v-if="message.is_from_current_user">
+                    <div class="message-status" v-if="isOwnMessage(message)">
                       <v-icon
                         size="16"
                         :color="message.status === 'read' ? 'primary' : 'grey'"
@@ -214,30 +214,37 @@
           </v-card-title>
           <v-card-text>
             <v-form @submit.prevent="createChat">
-              <v-select
+              <!-- Поле поиска с выпадающим списком -->
+              <v-autocomplete
                 v-model="newChatForm.user_id"
-                :items="users"
-                item-title="name"
+                :items="filteredUsers"
+                v-model:search="searchUser"
+                item-title="displayName"
                 item-value="id"
-                label="Выберите пользователя"
+                label="Поиск собеседника"
+                placeholder="Введите имя или email..."
                 variant="outlined"
                 density="compact"
+                prepend-inner-icon="mdi-magnify"
+                clearable
                 required
+                auto-select-first
+                :no-data-text="searchUser && filteredUsers.length === 0 ? 'Пользователи не найдены' : 'Начните вводить для поиска'"
               >
                 <template v-slot:item="{ props, item }">
                   <v-list-item v-bind="props">
-                    <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
+                    <v-list-item-title>{{ item.raw.name }} {{ item.raw.last_name || '' }}</v-list-item-title>
                     <v-list-item-subtitle>{{ item.raw.email }}</v-list-item-subtitle>
                   </v-list-item>
                 </template>
-              </v-select>
+              </v-autocomplete>
             </v-form>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn
               color="secondary"
-              @click="showNewChatDialog = false"
+              @click="showNewChatDialog = false; searchUser = ''"
             >
               Отмена
             </v-btn>
@@ -256,9 +263,23 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
-import { useForm, router } from '@inertiajs/vue3'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { useForm, router, usePage } from '@inertiajs/vue3'
 import Layout from '../Layout.vue'
+
+const page = usePage()
+
+// Определяем роль пользователя на основе URL
+const userRole = computed(() => {
+  const path = window.location.pathname
+  if (path.startsWith('/admin')) {
+    return 'admin'
+  } else if (path.startsWith('/teacher')) {
+    return 'teacher'
+  } else {
+    return 'student'
+  }
+})
 
 // Props
 const props = defineProps({
@@ -279,31 +300,119 @@ const messages = ref([])
 const newMessage = ref('')
 const showNewChatDialog = ref(false)
 const messagesContainer = ref(null)
+const echoChannel = ref(null)
+const chats = ref([...props.chats])
+const searchUser = ref('')
 
 // Форма для нового чата
 const newChatForm = useForm({
   user_id: null
 })
 
+// Получаем ID текущего пользователя
+const currentUserId = computed(() => {
+  return page.props.auth?.user?.id || null
+})
+
+// Фильтруем пользователей по поисковому запросу
+const filteredUsers = computed(() => {
+  if (!searchUser.value || searchUser.value.trim() === '') {
+    return props.users.map(user => ({
+      ...user,
+      displayName: `${user.name} ${user.last_name || ''}`.trim()
+    }))
+  }
+  
+  const search = searchUser.value.toLowerCase().trim()
+  return props.users
+    .filter(user => {
+      const fullName = `${user.name} ${user.last_name || ''}`.toLowerCase()
+      const email = (user.email || '').toLowerCase()
+      return fullName.includes(search) || email.includes(search)
+    })
+    .map(user => ({
+      ...user,
+      displayName: `${user.name} ${user.last_name || ''}`.trim()
+    }))
+})
+
+
+// Проверяем, является ли сообщение своим
+const isOwnMessage = (message) => {
+  if (!message || !message.user_id) return false
+  
+  const userId = currentUserId.value
+  if (!userId) return false
+  
+  // Сравниваем как числа для надежности
+  const messageUserId = Number(message.user_id)
+  const currentId = Number(userId)
+  
+  return messageUserId === currentId || message.is_from_current_user === true
+}
+
 // Вычисляемые свойства
 const currentChat = computed(() => {
   return props.chats.find(chat => chat.id === selectedChatId.value)
 })
 
+// Получаем имя и фамилию собеседника
+const chatPartnerName = computed(() => {
+  if (!selectedChat.value) return ''
+  
+  // Если это приватный чат, берем первого пользователя из списка (кроме текущего)
+  if (selectedChat.value.type === 'private' && selectedChat.value.users && selectedChat.value.users.length > 0) {
+    const partner = selectedChat.value.users[0]
+    if (partner) {
+      const parts = []
+      if (partner.last_name) parts.push(partner.last_name)
+      if (partner.name) parts.push(partner.name)
+      return parts.join(' ') || selectedChat.value.display_name
+    }
+  }
+  
+  // Для групповых чатов показываем название чата
+  return selectedChat.value.display_name || 'Чат'
+})
+
 // Методы
 const selectChat = (chatId) => {
+  // Отписываемся от предыдущего канала
+  if (echoChannel.value) {
+    window.Echo?.leave(`chat.${selectedChatId.value}`)
+    echoChannel.value = null
+  }
+  
   selectedChatId.value = chatId
-  selectedChat.value = props.chats.find(chat => chat.id === chatId)
+  selectedChat.value = chats.value.find(chat => chat.id === chatId)
   loadMessages()
+  
+  // Подписываемся на новый канал
+  subscribeToChatChannel(chatId)
+  
+  // Отмечаем сообщения как прочитанные
+  markMessagesAsRead(chatId)
 }
 
 const loadMessages = async () => {
   if (!selectedChatId.value) return
 
+  // Определяем правильный роут в зависимости от роли
+  const messagesRoute = userRole.value === 'admin' 
+    ? `/admin/chat/${selectedChatId.value}/messages` 
+    : userRole.value === 'teacher' 
+    ? `/teacher/chat/${selectedChatId.value}/messages` 
+    : `/student/chat/${selectedChatId.value}/messages`
+
   try {
-    const response = await fetch(`/chat/${selectedChatId.value}/messages`)
+    const response = await fetch(messagesRoute)
     const data = await response.json()
-    messages.value = data.data || []
+    // Добавляем флаг is_from_current_user для каждого сообщения
+    const userId = currentUserId.value
+    messages.value = (data.data || []).map(msg => ({
+      ...msg,
+      is_from_current_user: msg.user_id === userId
+    }))
     
     // Прокручиваем к последнему сообщению
     await nextTick()
@@ -313,11 +422,90 @@ const loadMessages = async () => {
   }
 }
 
+// Подписка на канал чата для real-time обновлений
+const subscribeToChatChannel = (chatId) => {
+  if (!window.Echo || !chatId) return
+  
+  try {
+    echoChannel.value = window.Echo.private(`chat.${chatId}`)
+    
+    // Слушаем новые сообщения
+    echoChannel.value.listen('.message.sent', (data) => {
+      const newMsg = data.message
+      const userId = currentUserId.value
+      
+      // Добавляем сообщение только если его еще нет в списке
+      if (!messages.value.find(m => m.id === newMsg.id)) {
+        messages.value.push({
+          ...newMsg,
+          is_from_current_user: newMsg.user_id === userId
+        })
+        
+        // Обновляем список чатов
+        updateChatsList(newMsg.chat_id || chatId)
+        
+        // Прокручиваем к новому сообщению
+        nextTick(() => {
+          scrollToBottom()
+        })
+      }
+    })
+  } catch (error) {
+    console.error('Ошибка при подписке на канал чата:', error)
+  }
+}
+
+// Обновление списка чатов при новом сообщении
+const updateChatsList = (chatId) => {
+  const chatIndex = chats.value.findIndex(c => c.id === chatId)
+  if (chatIndex !== -1) {
+    // Обновляем чат в списке
+    router.reload({
+      only: ['chats'],
+      preserveState: true,
+      onSuccess: (page) => {
+        chats.value = page.props.chats || []
+      }
+    })
+  }
+}
+
+// Отметить сообщения как прочитанные
+const markMessagesAsRead = async (chatId) => {
+  if (!chatId) return
+  
+  const markRoute = userRole.value === 'admin' 
+    ? `/admin/chat/${chatId}/read` 
+    : userRole.value === 'teacher' 
+    ? `/teacher/chat/${chatId}/read` 
+    : `/student/chat/${chatId}/read`
+  
+  try {
+    await fetch(markRoute, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+  } catch (error) {
+    console.error('Ошибка при отметке сообщений как прочитанных:', error)
+  }
+}
+
 const sendMessage = async () => {
   if (!newMessage.value.trim() || !selectedChatId.value) return
 
+  // Определяем правильный роут в зависимости от роли
+  const sendRoute = userRole.value === 'admin' 
+    ? `/admin/chat/${selectedChatId.value}/messages` 
+    : userRole.value === 'teacher' 
+    ? `/teacher/chat/${selectedChatId.value}/messages` 
+    : `/student/chat/${selectedChatId.value}/messages`
+
   try {
-    const response = await fetch(`/chat/${selectedChatId.value}/messages`, {
+    const response = await fetch(sendRoute, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -332,7 +520,13 @@ const sendMessage = async () => {
     const data = await response.json()
     
     if (data.success) {
-      messages.value.push(data.message)
+      // Добавляем флаг is_from_current_user для нового сообщения
+      const userId = currentUserId.value
+      const newMsg = {
+        ...data.message,
+        is_from_current_user: data.message.user_id === userId
+      }
+      messages.value.push(newMsg)
       newMessage.value = ''
       await nextTick()
       scrollToBottom()
@@ -345,10 +539,42 @@ const sendMessage = async () => {
 const createChat = () => {
   if (!newChatForm.user_id) return
 
-  newChatForm.post('/chat', {
-    onSuccess: () => {
+  // Проверяем, существует ли уже чат с этим пользователем
+  const existingChat = props.chats.find(chat => {
+    if (chat.type === 'private' && chat.users && chat.users.length > 0) {
+      return chat.users.some(user => user.id === newChatForm.user_id)
+    }
+    return false
+  })
+
+  // Если чат уже существует, выбираем его вместо создания нового
+  if (existingChat) {
+    showNewChatDialog.value = false
+    searchUser.value = ''
+    newChatForm.reset()
+    selectChat(existingChat.id)
+    return
+  }
+
+  // Определяем правильный роут в зависимости от роли
+  const chatRoute = userRole.value === 'admin' 
+    ? '/admin/chat' 
+    : userRole.value === 'teacher' 
+    ? '/teacher/chat' 
+    : '/student/chat'
+
+  newChatForm.post(chatRoute, {
+    preserveScroll: true,
+    onSuccess: (page) => {
       showNewChatDialog.value = false
+      searchUser.value = ''
       newChatForm.reset()
+      
+      // Перезагружаем страницу полностью для обновления списка чатов
+      router.reload()
+    },
+    onError: (errors) => {
+      console.error('Ошибка при создании чата:', errors)
     }
   })
 }
@@ -356,8 +582,23 @@ const createChat = () => {
 const leaveChat = () => {
   if (!selectedChatId.value) return
 
+  // Определяем правильный роут в зависимости от роли
+  const leaveRoute = userRole.value === 'admin' 
+    ? `/admin/chat/${selectedChatId.value}/leave` 
+    : userRole.value === 'teacher' 
+    ? `/teacher/chat/${selectedChatId.value}/leave` 
+    : `/student/chat/${selectedChatId.value}/leave`
+
   if (confirm('Вы уверены, что хотите покинуть этот чат?')) {
-    router.delete(`/chat/${selectedChatId.value}/leave`)
+    router.delete(leaveRoute, {
+      onSuccess: () => {
+        // Перезагружаем страницу для обновления списка
+        router.reload({ only: ['chats'] })
+        selectedChatId.value = null
+        selectedChat.value = null
+        messages.value = []
+      }
+    })
   }
 }
 
@@ -380,11 +621,40 @@ const getInitials = (name) => {
   return name.split(' ').map(word => word.charAt(0)).join('').toUpperCase().slice(0, 2)
 }
 
+// Получаем имя и фамилию собеседника для чата
+const getChatPartnerName = (chat) => {
+  if (!chat) return ''
+  
+  // Если это приватный чат, берем первого пользователя из списка
+  if (chat.type === 'private' && chat.users && chat.users.length > 0) {
+    const partner = chat.users[0]
+    if (partner) {
+      const parts = []
+      if (partner.last_name) parts.push(partner.last_name)
+      if (partner.name) parts.push(partner.name)
+      return parts.join(' ') || chat.display_name
+    }
+  }
+  
+  // Для групповых чатов показываем название чата
+  return chat.display_name || 'Чат'
+}
+
 // Жизненный цикл
 onMounted(() => {
+  // Инициализируем список чатов
+  chats.value = [...props.chats]
+  
   // Если есть чаты, выбираем первый
-  if (props.chats.length > 0) {
-    selectChat(props.chats[0].id)
+  if (chats.value.length > 0) {
+    selectChat(chats.value[0].id)
+  }
+})
+
+// Отписываемся при размонтировании
+onUnmounted(() => {
+  if (echoChannel.value && selectedChatId.value) {
+    window.Echo?.leave(`chat.${selectedChatId.value}`)
   }
 })
 </script>
@@ -404,27 +674,52 @@ onMounted(() => {
 
 .messages-list {
   padding: 16px;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .message-item {
-  margin-bottom: 16px;
+  margin-bottom: 0;
+  width: 100%;
   display: flex;
+  box-sizing: border-box;
 }
 
+/* Сообщения собеседника - слева */
+.message-item:not(.message-own) {
+  justify-content: flex-start;
+}
+
+.message-item:not(.message-own) .message-content {
+  background-color: #F5F5F5;
+  color: #212121;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+/* Свои сообщения - справа */
 .message-item.message-own {
   justify-content: flex-end;
 }
 
-.message-content {
-  max-width: 70%;
-  padding: 12px 16px;
-  border-radius: 18px;
-  background-color: rgb(var(--v-theme-surface-variant));
+.message-item.message-own .message-content {
+  background-color: #E3F2FD;
+  color: #1565C0;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
+  text-align: left;
 }
 
-.message-item.message-own .message-content {
-  background-color: rgb(var(--v-theme-primary));
-  color: white;
+.message-content {
+  max-width: 70%;
+  min-width: 120px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  display: inline-block;
+  box-sizing: border-box;
+  word-wrap: break-word;
 }
 
 .message-header {
@@ -437,15 +732,28 @@ onMounted(() => {
 .message-author {
   font-weight: 600;
   font-size: 0.875rem;
+  color: #424242;
 }
 
 .message-time {
   font-size: 0.75rem;
-  opacity: 0.7;
+  color: #757575;
+  opacity: 0.8;
+}
+
+.message-item.message-own .message-time {
+  color: #64B5F6;
 }
 
 .message-text {
-  line-height: 1.4;
+  line-height: 1.5;
+  font-size: 0.9375rem;
+  word-wrap: break-word;
+}
+
+.message-item.message-own .message-text {
+  color: #0D47A1;
+  font-weight: 500;
 }
 
 .message-status {

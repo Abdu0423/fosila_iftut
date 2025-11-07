@@ -20,6 +20,9 @@ class ChatController extends Controller
     {
         $user = auth()->user();
         
+        // Загружаем роль пользователя
+        $user->load('role');
+        
         // Получаем чаты пользователя с последними сообщениями
         $chats = $user->chats()
             ->with(['lastMessage.user', 'users' => function($query) use ($user) {
@@ -27,7 +30,19 @@ class ChatController extends Controller
             }])
             ->wherePivot('is_active', true)
             ->orderBy('updated_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($chat) use ($user) {
+                // Добавляем информацию о пользователях чата с полными именами
+                $chat->users = $chat->users->map(function ($chatUser) {
+                    return [
+                        'id' => $chatUser->id,
+                        'name' => $chatUser->name,
+                        'last_name' => $chatUser->last_name,
+                        'email' => $chatUser->email,
+                    ];
+                });
+                return $chat;
+            });
 
         // Получаем всех пользователей для создания новых чатов
         $users = User::where('id', '!=', $user->id)
@@ -35,9 +50,16 @@ class ChatController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'last_name', 'email']);
 
+        // Подсчитываем общее количество непрочитанных сообщений
+        $totalUnreadCount = 0;
+        foreach ($chats as $chat) {
+            $totalUnreadCount += $chat->unread_count ?? 0;
+        }
+
         return Inertia::render('Chat/Index', [
             'chats' => $chats,
             'users' => $users,
+            'unreadChatsCount' => $totalUnreadCount,
         ]);
     }
 
@@ -87,6 +109,8 @@ class ChatController extends Controller
         ]);
 
         $user = auth()->user();
+        // Загружаем роль пользователя
+        $user->load('role');
         $otherUserId = $request->user_id;
 
         // Проверяем, не существует ли уже приватный чат между этими пользователями
@@ -101,7 +125,11 @@ class ChatController extends Controller
                 ->first();
 
             if ($existingChat) {
-                return redirect()->route('chat.show', $existingChat);
+                // Определяем правильный роут в зависимости от роли пользователя
+                $role = $user->role ? $user->role->name : 'student';
+                $routeName = $role === 'admin' ? 'admin.chat.show' : 
+                           ($role === 'teacher' ? 'teacher.chat.show' : 'student.chat.show');
+                return redirect()->route($routeName, $existingChat);
             }
         }
 
@@ -121,7 +149,11 @@ class ChatController extends Controller
 
             DB::commit();
 
-            return redirect()->route('chat.show', $chat);
+            // Возвращаемся на страницу индекса с обновленным списком чатов
+            $role = $user->role ? $user->role->name : 'student';
+            $routeName = $role === 'admin' ? 'admin.chat.index' : 
+                       ($role === 'teacher' ? 'teacher.chat.index' : 'student.chat.index');
+            return redirect()->route($routeName)->with('success', 'Чат успешно создан');
         } catch (\Exception $e) {
             DB::rollback();
             return back()->with('error', 'Ошибка при создании чата: ' . $e->getMessage());

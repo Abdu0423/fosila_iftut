@@ -363,7 +363,7 @@ Route::get('/test-export-schedule', function() {
 // Маршруты для учителей
 Route::prefix('teacher')->middleware(['auth', 'teacher'])->group(function () {
     // Выход из системы
-    Route::post('/logout', [AuthController::class, 'logout'])->name('teacher.logout');
+    Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('teacher.logout');
     
     // Главная страница учителя
     Route::get('/', function () {

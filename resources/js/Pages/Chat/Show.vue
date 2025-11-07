@@ -1,5 +1,5 @@
 <template>
-  <Layout role="admin">
+  <Layout :role="userRole">
     <v-container fluid>
       <!-- Заголовок -->
       <v-row>
@@ -131,9 +131,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import Layout from '../Layout.vue'
+
+// Определяем роль пользователя на основе URL
+const userRole = computed(() => {
+  const path = window.location.pathname
+  if (path.startsWith('/admin')) {
+    return 'admin'
+  } else if (path.startsWith('/teacher')) {
+    return 'teacher'
+  } else {
+    return 'student'
+  }
+})
 
 // Props
 const props = defineProps({
