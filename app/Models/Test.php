@@ -18,10 +18,13 @@ class Test extends Model
         'passing_score',
         'max_attempts',
         'is_active',
+        'exam_type',
+        'exam_date',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'exam_date' => 'datetime',
     ];
 
     public function schedule()
@@ -37,6 +40,11 @@ class Test extends Model
     public function questions()
     {
         return $this->hasMany(TestQuestion::class)->orderBy('order');
+    }
+
+    public function attempts()
+    {
+        return $this->hasMany(TestAttempt::class);
     }
 
     public function getStatusAttribute()

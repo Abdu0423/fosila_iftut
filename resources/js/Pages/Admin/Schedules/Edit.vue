@@ -233,6 +233,74 @@
                   </v-col>
                 </v-row>
 
+                <!-- Даты экзаменов -->
+                <v-row>
+                  <v-col cols="12">
+                    <v-divider class="my-4"></v-divider>
+                    <h3 class="text-h6 mb-4">
+                      <v-icon start>mdi-calendar-clock</v-icon>
+                      Даты и время экзаменов
+                    </h3>
+                  </v-col>
+
+                  <!-- Периодический экзамен 1 -->
+                  <v-col cols="12" md="4" v-if="exams?.periodic_exam_1">
+                    <v-text-field
+                      v-model="form.periodic_exam_1_date"
+                      label="Периодический экзамен 1"
+                      type="datetime-local"
+                      variant="outlined"
+                      :error-messages="errors.periodic_exam_1_date"
+                      :hint="exams.periodic_exam_1.title"
+                      persistent-hint
+                    >
+                      <template v-slot:prepend-inner>
+                        <v-icon>mdi-calendar</v-icon>
+                      </template>
+                    </v-text-field>
+                  </v-col>
+
+                  <!-- Периодический экзамен 2 -->
+                  <v-col cols="12" md="4" v-if="exams?.periodic_exam_2">
+                    <v-text-field
+                      v-model="form.periodic_exam_2_date"
+                      label="Периодический экзамен 2"
+                      type="datetime-local"
+                      variant="outlined"
+                      :error-messages="errors.periodic_exam_2_date"
+                      :hint="exams.periodic_exam_2.title"
+                      persistent-hint
+                    >
+                      <template v-slot:prepend-inner>
+                        <v-icon>mdi-calendar</v-icon>
+                      </template>
+                    </v-text-field>
+                  </v-col>
+
+                  <!-- Итоговый экзамен -->
+                  <v-col cols="12" md="4" v-if="exams?.final_exam">
+                    <v-text-field
+                      v-model="form.final_exam_date"
+                      label="Итоговый экзамен"
+                      type="datetime-local"
+                      variant="outlined"
+                      :error-messages="errors.final_exam_date"
+                      :hint="exams.final_exam.title"
+                      persistent-hint
+                    >
+                      <template v-slot:prepend-inner>
+                        <v-icon>mdi-calendar</v-icon>
+                      </template>
+                    </v-text-field>
+                  </v-col>
+
+                  <v-col cols="12" v-if="!exams?.periodic_exam_1 && !exams?.periodic_exam_2 && !exams?.final_exam">
+                    <v-alert type="info" variant="tonal">
+                      Экзамены не созданы для этого расписания. Используйте команду <code>php artisan exams:create {schedule_id}</code> для создания экзаменов.
+                    </v-alert>
+                  </v-col>
+                </v-row>
+
                 <div class="d-flex gap-3 mt-6">
                   <v-btn
                     @click="goBack"
@@ -353,6 +421,14 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
+  exams: {
+    type: Object,
+    default: () => ({
+      periodic_exam_1: null,
+      periodic_exam_2: null,
+      final_exam: null
+    })
+  },
   errors: {
     type: Object,
     default: () => ({})
@@ -378,7 +454,10 @@ const form = useForm({
   scheduled_at: props.schedule?.scheduled_at ? formatDateTimeForInput(props.schedule.scheduled_at) : '',
   is_active: props.schedule?.is_active ?? true,
   syllabus_ids: props.schedule?.syllabuses?.map(s => s.id) || [],
-  lesson_ids: props.schedule?.lessons?.map(l => l.id) || []
+  lesson_ids: props.schedule?.lessons?.map(l => l.id) || [],
+  periodic_exam_1_date: props.exams?.periodic_exam_1?.exam_date ? formatDateTimeForInput(props.exams.periodic_exam_1.exam_date) : '',
+  periodic_exam_2_date: props.exams?.periodic_exam_2?.exam_date ? formatDateTimeForInput(props.exams.periodic_exam_2.exam_date) : '',
+  final_exam_date: props.exams?.final_exam?.exam_date ? formatDateTimeForInput(props.exams.final_exam.exam_date) : ''
 })
 
 const processing = ref(false)

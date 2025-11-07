@@ -230,6 +230,7 @@ const menuItems = computed(() => {
         { title: 'Главная', icon: 'mdi-view-dashboard', route: '/student/' },
         //{ title: 'Мои курсы', icon: 'mdi-book-open-variant', route: '/student/courses' },
         { title: 'Расписание', icon: 'mdi-calendar-clock', route: '/student/schedule' },
+        { title: 'Экзамены', icon: 'mdi-file-document-edit', route: '/student/tests' },
         { title: 'Задания', icon: 'mdi-clipboard-text', route: '/student/assignments' },
         { title: 'Чат', icon: 'mdi-chat', route: '/student/chat' },
         { title: 'Библиотека', icon: 'mdi-library', route: '/student/library' },

@@ -101,6 +101,7 @@ class TestController extends Controller
             'passing_score' => $test->passing_score,
             'max_attempts' => $test->max_attempts,
             'is_active' => $test->is_active,
+            'exam_type' => $test->exam_type,
             'schedule_id' => $schedule->id,
             'schedule' => [
                 'id' => $schedule->id,
@@ -151,6 +152,7 @@ class TestController extends Controller
             'passing_score' => 'nullable|integer|min:0|max:100',
             'max_attempts' => 'nullable|integer|min:1',
             'is_active' => 'boolean',
+            'exam_type' => 'nullable|in:periodic,final',
         ]);
 
         $test->update([
@@ -160,6 +162,7 @@ class TestController extends Controller
             'passing_score' => $request->passing_score,
             'max_attempts' => $request->max_attempts,
             'is_active' => $request->boolean('is_active', false),
+            'exam_type' => $request->exam_type,
         ]);
 
         return back()->with('success', 'Настройки теста обновлены!');

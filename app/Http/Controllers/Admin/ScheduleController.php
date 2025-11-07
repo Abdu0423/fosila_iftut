@@ -67,7 +67,9 @@ class ScheduleController extends Controller
         $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
-        $schedules = $query->paginate(20)
+        $schedules = $query->with(['tests' => function($q) {
+            $q->whereIn('exam_type', ['periodic', 'final'])->orderBy('exam_type')->orderBy('id');
+        }])->paginate(20)
             ->withQueryString();
 
         // Данные для фильтров
@@ -76,6 +78,18 @@ class ScheduleController extends Controller
         $teachers = User::whereHas('role', function($q) {
             $q->where('name', 'teacher');
         })->get();
+
+        // Форматируем расписания для отображения дат экзаменов
+        $schedules->getCollection()->transform(function($schedule) {
+            $periodicExams = $schedule->tests->where('exam_type', 'periodic');
+            $finalExam = $schedule->tests->where('exam_type', 'final')->first();
+            
+            $schedule->periodic_exam_1_date = $periodicExams->first()?->exam_date;
+            $schedule->periodic_exam_2_date = $periodicExams->skip(1)->first()?->exam_date;
+            $schedule->final_exam_date = $finalExam?->exam_date;
+            
+            return $schedule;
+        });
 
         return Inertia::render('Admin/Schedules/Index', [
             'schedules' => $schedules,
@@ -181,7 +195,9 @@ class ScheduleController extends Controller
      */
     public function edit(Schedule $schedule)
     {
-        $schedule->load(['subject', 'teacher', 'group', 'syllabuses', 'lessons']);
+        $schedule->load(['subject', 'teacher', 'group', 'syllabuses', 'lessons', 'tests' => function($query) {
+            $query->whereIn('exam_type', ['periodic', 'final'])->orderBy('exam_type')->orderBy('id');
+        }]);
         
         $subjects = Subject::all();
         $groups = Group::all();
@@ -191,6 +207,13 @@ class ScheduleController extends Controller
         $syllabuses = Syllabus::with(['creator'])->get();
         $lessons = Lesson::with(['subject'])->get();
 
+        // Форматируем экзамены для удобного отображения
+        $exams = [
+            'periodic_exam_1' => $schedule->tests->where('exam_type', 'periodic')->first() ?? null,
+            'periodic_exam_2' => $schedule->tests->where('exam_type', 'periodic')->skip(1)->first() ?? null,
+            'final_exam' => $schedule->tests->where('exam_type', 'final')->first() ?? null,
+        ];
+
         return Inertia::render('Admin/Schedules/Edit', [
             'schedule' => $schedule,
             'subjects' => $subjects,
@@ -198,6 +221,7 @@ class ScheduleController extends Controller
             'teachers' => $teachers,
             'syllabuses' => $syllabuses,
             'lessons' => $lessons,
+            'exams' => $exams,
         ]);
     }
 
@@ -220,6 +244,10 @@ class ScheduleController extends Controller
             'syllabus_ids.*' => 'exists:syllabuses,id',
             'lesson_ids' => 'nullable|array',
             'lesson_ids.*' => 'exists:lessons,id',
+            // Даты экзаменов
+            'periodic_exam_1_date' => 'nullable|date',
+            'periodic_exam_2_date' => 'nullable|date',
+            'final_exam_date' => 'nullable|date',
         ]);
 
         $schedule->update($validated);
@@ -236,6 +264,20 @@ class ScheduleController extends Controller
                 $lessonData[$lessonId] = ['order' => $index + 1];
             }
             $schedule->lessons()->sync($lessonData);
+        }
+
+        // Обновляем даты экзаменов
+        $periodicExams = $schedule->tests()->where('exam_type', 'periodic')->orderBy('id')->get();
+        $finalExam = $schedule->tests()->where('exam_type', 'final')->first();
+
+        if ($periodicExams->count() > 0 && $request->has('periodic_exam_1_date')) {
+            $periodicExams->first()->update(['exam_date' => $request->periodic_exam_1_date]);
+        }
+        if ($periodicExams->count() > 1 && $request->has('periodic_exam_2_date')) {
+            $periodicExams->skip(1)->first()->update(['exam_date' => $request->periodic_exam_2_date]);
+        }
+        if ($finalExam && $request->has('final_exam_date')) {
+            $finalExam->update(['exam_date' => $request->final_exam_date]);
         }
 
         return redirect()->route('admin.schedules.index')

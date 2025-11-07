@@ -159,6 +159,42 @@
             <span v-else class="text-medium-emphasis">Не назначено</span>
           </template>
 
+          <template v-slot:item.periodic_exam_1_date="{ item }">
+            <div v-if="item.periodic_exam_1_date">
+              <div class="font-weight-medium text-primary">
+                {{ formatDate(item.periodic_exam_1_date) }}
+              </div>
+              <div class="text-caption text-medium-emphasis">
+                {{ formatTime(item.periodic_exam_1_date) }}
+              </div>
+            </div>
+            <span v-else class="text-medium-emphasis">Не назначено</span>
+          </template>
+
+          <template v-slot:item.periodic_exam_2_date="{ item }">
+            <div v-if="item.periodic_exam_2_date">
+              <div class="font-weight-medium text-primary">
+                {{ formatDate(item.periodic_exam_2_date) }}
+              </div>
+              <div class="text-caption text-medium-emphasis">
+                {{ formatTime(item.periodic_exam_2_date) }}
+              </div>
+            </div>
+            <span v-else class="text-medium-emphasis">Не назначено</span>
+          </template>
+
+          <template v-slot:item.final_exam_date="{ item }">
+            <div v-if="item.final_exam_date">
+              <div class="font-weight-medium text-error">
+                {{ formatDate(item.final_exam_date) }}
+              </div>
+              <div class="text-caption text-medium-emphasis">
+                {{ formatTime(item.final_exam_date) }}
+              </div>
+            </div>
+            <span v-else class="text-medium-emphasis">Не назначено</span>
+          </template>
+
           <template v-slot:item.is_active="{ item }">
             <v-switch
               :model-value="item.is_active"
@@ -295,6 +331,9 @@ const headers = [
   { title: 'Кредиты', key: 'credits', width: '100px' },
   { title: 'Год обучения', key: 'study_year', width: '120px' },
   { title: 'Дата/Время', key: 'scheduled_at', width: '150px' },
+  { title: 'Период. экз. 1', key: 'periodic_exam_1_date', width: '150px' },
+  { title: 'Период. экз. 2', key: 'periodic_exam_2_date', width: '150px' },
+  { title: 'Итоговый экз.', key: 'final_exam_date', width: '150px' },
   { title: 'Статус', key: 'is_active', width: '100px' },
   { title: 'Действия', key: 'actions', width: '150px', sortable: false }
 ]

@@ -75,6 +75,12 @@ Route::prefix('student')->middleware(['auth', 'student'])->group(function () {
         return Inertia::render('Grades/Index');
     })->name('student.grades.index');
 
+    // Экзамены
+    Route::get('/tests', [App\Http\Controllers\Student\TestController::class, 'index'])->name('student.tests.index');
+    Route::get('/tests/{test}', [App\Http\Controllers\Student\TestController::class, 'show'])->name('student.tests.show');
+    Route::post('/tests/{test}/start', [App\Http\Controllers\Student\TestController::class, 'startAttempt'])->name('student.tests.start');
+    Route::post('/tests/{test}/submit', [App\Http\Controllers\Student\TestController::class, 'submitAttempt'])->name('student.tests.submit');
+
     // Профиль
     Route::get('/profile', function () {
         return Inertia::render('Profile/Index');
@@ -402,13 +408,9 @@ Route::prefix('teacher')->middleware(['auth', 'teacher'])->group(function () {
     Route::patch('/tests/{test}/questions/reorder', [App\Http\Controllers\Teacher\QuestionController::class, 'reorder'])->name('teacher.questions.reorder');
     
     // Оценки студентов
-    Route::get('/grades', function () {
-        return Inertia::render('Teacher/Grades/Index');
-    })->name('teacher.grades.index');
-    
-    Route::get('/grades/students', function () {
-        return Inertia::render('Teacher/Grades/Students');
-    })->name('teacher.grades.students');
+    Route::get('/grades', [App\Http\Controllers\Teacher\GradeController::class, 'index'])->name('teacher.grades.index');
+    Route::get('/grades/schedule/{schedule}', [App\Http\Controllers\Teacher\GradeController::class, 'getGrades'])->name('teacher.grades.get');
+    Route::put('/grades/{grade}', [App\Http\Controllers\Teacher\GradeController::class, 'updateGrade'])->name('teacher.grades.update');
     
     // Мои студенты
     Route::get('/students', [App\Http\Controllers\Teacher\StudentController::class, 'index'])->name('teacher.students.index');
