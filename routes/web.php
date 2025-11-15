@@ -462,3 +462,10 @@ Route::prefix('teacher')->middleware(['auth', 'teacher'])->group(function () {
     Route::post('/chat/{chat}/read', [App\Http\Controllers\ChatController::class, 'markAsRead'])->name('teacher.chat.mark-read');
     Route::delete('/chat/{chat}/leave', [App\Http\Controllers\ChatController::class, 'leave'])->name('teacher.chat.leave');
 });
+
+// Тестовые маршруты для SMS (удалить в production или защитить middleware)
+Route::prefix('sms-test')->middleware('auth')->group(function () {
+    Route::post('/send', [App\Http\Controllers\SmsTestController::class, 'send'])->name('sms.test.send');
+    Route::post('/send-verification', [App\Http\Controllers\SmsTestController::class, 'sendVerificationCode'])->name('sms.test.verification');
+    Route::get('/check-config', [App\Http\Controllers\SmsTestController::class, 'checkConfig'])->name('sms.test.config');
+});

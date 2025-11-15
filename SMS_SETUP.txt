@@ -1,0 +1,65 @@
+================================
+НАСТРОЙКА OSONSMS - ИНСТРУКЦИЯ
+================================
+
+1. ДОБАВЬТЕ СЛЕДУЮЩИЕ СТРОКИ В ФАЙЛ .env:
+   ----------------------------------------
+
+SMS_LOGIN=iftuttj
+SMS_HASH=39dc0b8ddfe0afb8ca4637fb3d895e18
+SMS_SENDER=IFTUT.TJ
+SMS_SERVER=https://api.osonsms.com/sendsms_v1.php
+SMS_LOGGING_ENABLED=true
+SMS_LOGGING_CHANNEL=daily
+
+
+2. ОЧИСТИТЕ КЭШ КОНФИГУРАЦИИ:
+   ---------------------------
+
+php artisan config:clear
+php artisan config:cache
+
+
+3. ПРОВЕРЬТЕ РАБОТУ SMS:
+   ---------------------
+
+Откройте в браузере (после авторизации):
+http://127.0.0.1:8000/sms-test/check-config
+
+Или выполните в коде:
+php artisan tinker
+>>> \App\Facades\Sms::send('992918123456', 'Тест');
+
+
+4. ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ:
+   ----------------------
+
+// В любом контроллере или сервисе:
+use App\Facades\Sms;
+
+// Простая отправка
+Sms::send('992918123456', 'Привет!');
+
+// Код верификации
+Sms::sendVerificationCode('992918123456', '123456');
+
+// Уведомление об оценке
+Sms::sendGradeNotification('992918123456', '5', 'Математика');
+
+
+5. ПОЛНАЯ ДОКУМЕНТАЦИЯ:
+   --------------------
+
+См. файл: docs/SMS_INTEGRATION.md
+
+
+6. ВАЖНО:
+   ------
+
+- Не коммитьте .env в Git
+- В production добавьте rate limiting
+- Проверьте баланс на osonsms.com
+- Удалите тестовые маршруты /sms-test/* в production
+
+================================
+

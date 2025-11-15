@@ -88,23 +88,6 @@
                 {{ form.processing ? 'Вход...' : 'Войти в систему' }}
               </v-btn>
 
-              <!-- Тестовые данные -->
-              <v-alert
-                type="info"
-                variant="tonal"
-                class="mb-4"
-                rounded="lg"
-              >
-                <template v-slot:prepend>
-                  <v-icon>mdi-information</v-icon>
-                </template>
-                <div class="text-body-2">
-                  <strong>Тестовые данные:</strong><br>
-                  Email: <code>admin@fosila.com</code> или номер телефона<br>
-                  Пароль: <code>password</code>
-                </div>
-              </v-alert>
-
               <!-- Ошибки -->
               <v-alert
                 v-if="Object.keys(form.errors).length > 0"
