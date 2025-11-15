@@ -262,25 +262,17 @@ const notifications = ref([
 // Текущий год
 const currentYear = computed(() => new Date().getFullYear())
 
-// Вычисляемые свойства для темы
-const isDarkTheme = computed(() => props.role === 'admin' || props.role === 'teacher')
-const navDrawerColor = computed(() => {
-  if (props.role === 'admin') return 'blue-grey-darken-4'
-  if (props.role === 'teacher') return 'indigo-darken-3'
-  return 'white'
-})
-const appBarColor = computed(() => {
-  if (props.role === 'admin') return 'blue-grey-darken-3'
-  if (props.role === 'teacher') return 'indigo-darken-2'
-  return 'primary'
-})
+// Вычисляемые свойства для темы (единый дизайн учителя для всех)
+const isDarkTheme = computed(() => true) // Темная тема для всех
+const navDrawerColor = computed(() => 'indigo-darken-3') // Единый цвет для всех
+const appBarColor = computed(() => 'indigo-darken-2') // Единый цвет для всех
 const appBarIconColor = computed(() => 'white')
 const appBarTitleClass = computed(() => 'text-white')
-const headerTitleClass = computed(() => isDarkTheme.value ? 'text-white' : 'text-primary')
-const headerSubtitleClass = computed(() => isDarkTheme.value ? 'text-grey-lighten-1' : 'text-grey-darken-1')
-const userInfoTextClass = computed(() => isDarkTheme.value ? 'text-white' : 'text-grey-darken-3')
-const userInfoSubtextClass = computed(() => isDarkTheme.value ? 'text-grey-lighten-1' : 'text-grey-darken-1')
-const footerTextClass = computed(() => isDarkTheme.value ? 'text-grey-lighten-1' : 'text-grey-darken-1')
+const headerTitleClass = computed(() => 'text-white')
+const headerSubtitleClass = computed(() => 'text-grey-lighten-1')
+const userInfoTextClass = computed(() => 'text-white')
+const userInfoSubtextClass = computed(() => 'text-grey-lighten-1')
+const footerTextClass = computed(() => 'text-grey-lighten-1')
 
 // Заголовки в зависимости от роли
 const headerIcon = computed(() => {
