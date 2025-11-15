@@ -187,153 +187,79 @@
   </Layout>
 </template>
 
-<script>
+<script setup>
+import { ref, computed } from 'vue'
+import { router } from '@inertiajs/vue3'
 import Layout from '../Layout.vue'
 
-export default {
-  name: 'GradesIndex',
-  components: {
-    Layout
-  },
-  data() {
-    return {
-      selectedCourse: null,
-      selectedSemester: null,
-      assignmentDialog: false,
-      selectedAssignment: null,
-      courses: [
-        'Все курсы',
-        'Введение в программирование',
-        'Веб-разработка'
-      ],
-      semesters: [
-        'Все семестры',
-        '1 семестр',
-        '2 семестр'
-      ],
-      gradeHeaders: [
-        { text: 'Задание', value: 'title' },
-        { text: 'Тип', value: 'type' },
-        { text: 'Оценка', value: 'grade' },
-        { text: 'Статус', value: 'status' },
-        { text: 'Дата', value: 'date' },
-        { text: 'Действия', value: 'actions', sortable: false }
-      ],
-      courseGrades: [
-        {
-          id: 1,
-          name: 'Введение в программирование',
-          averageGrade: 4.2,
-          assignments: [
-            {
-              id: 1,
-              title: 'Лабораторная работа №1',
-              type: 'Лабораторная',
-              grade: 5,
-              status: 'Оценено',
-              date: '2024-01-15'
-            },
-            {
-              id: 2,
-              title: 'Домашнее задание №1',
-              type: 'Домашнее',
-              grade: 4,
-              status: 'Оценено',
-              date: '2024-01-10'
-            },
-            {
-              id: 3,
-              title: 'Контрольная работа',
-              type: 'Контрольная',
-              grade: 4,
-              status: 'Ожидает оценки',
-              date: '2024-01-20'
-            }
-          ]
-        },
-        {
-          id: 2,
-          name: 'Веб-разработка',
-          averageGrade: 4.5,
-          assignments: [
-            {
-              id: 4,
-              title: 'Проект веб-сайта',
-              type: 'Проект',
-              grade: 5,
-              status: 'Оценено',
-              date: '2024-01-18'
-            }
-          ]
-        }
-      ]
-    }
-  },
-  computed: {
-    filteredCourses() {
-      let filtered = this.courseGrades
-      
-      if (this.selectedCourse && this.selectedCourse !== 'Все курсы') {
-        filtered = filtered.filter(course => course.name === this.selectedCourse)
-      }
-      
-      return filtered
-    },
-    
-    averageGrade() {
-      const allGrades = this.courseGrades.flatMap(course => 
-        course.assignments.filter(assignment => assignment.grade)
-      )
-      if (allGrades.length === 0) return '0.0'
-      
-      const sum = allGrades.reduce((acc, assignment) => acc + assignment.grade, 0)
-      return (sum / allGrades.length).toFixed(1)
-    },
-    
-    completedAssignments() {
-      return this.courseGrades.flatMap(course => 
-        course.assignments.filter(assignment => assignment.status === 'Оценено')
-      ).length
-    },
-    
-    pendingAssignments() {
-      return this.courseGrades.flatMap(course => 
-        course.assignments.filter(assignment => assignment.status === 'Ожидает оценки')
-      ).length
-    },
-    
-    totalCredits() {
-      // Простой расчет кредитов на основе оценок
-      return this.courseGrades.length * 3
-    }
-  },
-  methods: {
-    getGradeColor(grade) {
-      if (grade >= 4.5) return 'success'
-      if (grade >= 3.5) return 'warning'
-      return 'error'
-    },
-    
-    getStatusColor(status) {
-      switch (status) {
-        case 'Оценено':
-          return 'success'
-        case 'Ожидает оценки':
-          return 'warning'
-        default:
-          return 'grey'
-      }
-    },
-    
-    viewAssignment(assignment) {
-      this.selectedAssignment = {
-        ...assignment,
-        submittedDate: '2024-01-15',
-        gradedDate: '2024-01-16',
-        comment: 'Отличная работа! Код написан качественно и соответствует всем требованиям.'
-      }
-      this.assignmentDialog = true
-    }
-  }
+const props = defineProps({
+  grades: Object,
+  stats: Object,
+  gradesBySemester: Object,
+  semesters: Array,
+  studyYears: Array,
+  filters: Object
+})
+
+const selectedSemester = ref(props.filters?.semester || null)
+const selectedStudyYear = ref(props.filters?.study_year || null)
+const assignmentDialog = ref(false)
+const selectedGrade = ref(null)
+
+const gradeHeaders = [
+  { title: 'Урок', key: 'schedule.lesson.name' },
+  { title: 'Преподаватель', key: 'schedule.teacher.name' },
+  { title: 'Оценка', key: 'grade' },
+  { title: 'Дата', key: 'created_at' }
+]
+
+const averageGrade = computed(() => {
+  return props.stats?.average_grade?.toFixed(1) || '0.0'
+})
+
+const completedAssignments = computed(() => {
+  return props.stats?.total_grades || 0
+})
+
+const highestGrade = computed(() => {
+  return props.stats?.highest_grade || 0
+})
+
+const lowestGrade = computed(() => {
+  return props.stats?.lowest_grade || 0
+})
+
+const applyFilters = () => {
+  router.get(route('student.grades.index'), {
+    semester: selectedSemester.value,
+    study_year: selectedStudyYear.value
+  }, {
+    preserveState: true,
+    preserveScroll: true
+  })
+}
+
+const getGradeColor = (grade) => {
+  if (grade >= 85) return 'success'
+  if (grade >= 70) return 'info'
+  if (grade >= 50) return 'warning'
+  return 'error'
+}
+
+const viewGrade = (grade) => {
+  selectedGrade.value = grade
+  assignmentDialog.value = true
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return '-'
+  const date = new Date(dateString)
+  return date.toLocaleDateString('ru-RU')
+}
+
+const clearFilters = () => {
+  selectedSemester.value = null
+  selectedStudyYear.value = null
+  applyFilters()
 }
 </script>

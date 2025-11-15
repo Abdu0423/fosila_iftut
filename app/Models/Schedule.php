@@ -86,6 +86,14 @@ class Schedule extends Model
     }
 
     /**
+     * Отношение к оценкам (one-to-many)
+     */
+    public function grades()
+    {
+        return $this->hasMany(Grade::class);
+    }
+
+    /**
      * Получить отображаемое имя расписания
      */
     public function getDisplayNameAttribute()

@@ -35,65 +35,62 @@
       <!-- Результаты поиска -->
       <v-row>
         <v-col cols="12">
-          <v-card v-for="resource in filteredResources" :key="resource.id" class="mb-4">
+          <v-alert v-if="filteredResources.length === 0" type="info" class="mb-4">
+            Файлы не найдены. Попробуйте изменить параметры поиска.
+          </v-alert>
+          
+          <v-card v-for="file in filteredResources" :key="file.id" class="mb-4">
             <v-card-title class="d-flex align-center">
-              <v-icon class="mr-3" :color="getResourceColor(resource.type)">
-                {{ getResourceIcon(resource.type) }}
+              <v-icon class="mr-3" :color="getResourceColor(file.type)" size="large">
+                {{ getResourceIcon(file.type) }}
               </v-icon>
-              {{ resource.title }}
+              {{ file.name }}
               <v-spacer></v-spacer>
-              <v-chip :color="getResourceColor(resource.type)" small>
-                {{ resource.type }}
+              <v-chip :color="getResourceColor(file.type)" size="small">
+                {{ file.extension.toUpperCase() }}
               </v-chip>
             </v-card-title>
             
             <v-card-text>
-              <p>{{ resource.description }}</p>
-              
               <v-list dense>
                 <v-list-item>
-                  <v-list-item-icon>
-                    <v-icon>mdi-book</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>{{ resource.course }}</v-list-item-title>
-                  </v-list-item-content>
+                  <template v-slot:prepend>
+                    <v-icon>mdi-folder</v-icon>
+                  </template>
+                  <v-list-item-title>Категория: {{ file.category }}</v-list-item-title>
                 </v-list-item>
                 
                 <v-list-item>
-                  <v-list-item-icon>
-                    <v-icon>mdi-account</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>{{ resource.author }}</v-list-item-title>
-                  </v-list-item-content>
+                  <template v-slot:prepend>
+                    <v-icon>mdi-file-document</v-icon>
+                  </template>
+                  <v-list-item-title>Тип: {{ file.type }}</v-list-item-title>
                 </v-list-item>
                 
                 <v-list-item>
-                  <v-list-item-icon>
+                  <template v-slot:prepend>
+                    <v-icon>mdi-weight</v-icon>
+                  </template>
+                  <v-list-item-title>Размер: {{ formatFileSize(file.size) }}</v-list-item-title>
+                </v-list-item>
+                
+                <v-list-item>
+                  <template v-slot:prepend>
                     <v-icon>mdi-calendar</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>{{ resource.date }}</v-list-item-title>
-                  </v-list-item-content>
+                  </template>
+                  <v-list-item-title>Дата загрузки: {{ formatDate(file.modified) }}</v-list-item-title>
                 </v-list-item>
               </v-list>
             </v-card-text>
             
             <v-card-actions>
-              <v-btn color="primary" @click="downloadResource(resource)">
-                <v-icon left>mdi-download</v-icon>
+              <v-btn color="primary" @click="downloadResource(file)">
+                <v-icon start>mdi-download</v-icon>
                 Скачать
               </v-btn>
-              <v-btn color="secondary" outlined @click="previewResource(resource)">
-                <v-icon left>mdi-eye</v-icon>
-                Предварительный просмотр
-              </v-btn>
-              <v-spacer></v-spacer>
-              <v-btn icon @click="toggleFavorite(resource)">
-                <v-icon :color="resource.isFavorite ? 'red' : 'grey'">
-                  {{ resource.isFavorite ? 'mdi-heart' : 'mdi-heart-outline' }}
-                </v-icon>
+              <v-btn color="secondary" variant="outlined" @click="previewResource(file)">
+                <v-icon start>mdi-eye</v-icon>
+                Информация
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -152,127 +149,101 @@
   </Layout>
 </template>
 
-<script>
+<script setup>
+import { ref, computed } from 'vue'
+import { router } from '@inertiajs/vue3'
 import Layout from '../Layout.vue'
 
-export default {
-  name: 'LibraryIndex',
-  components: {
-    Layout
-  },
-  data() {
-    return {
-      searchQuery: '',
-      selectedCategory: null,
-      currentPage: 1,
-      previewDialog: false,
-      selectedResource: null,
-      categories: [
-        'Все',
-        'Учебники',
-        'Лекции',
-        'Практические работы',
-        'Видео',
-        'Презентации'
-      ],
-      resources: [
-        {
-          id: 1,
-          title: 'Учебник по Python для начинающих',
-          description: 'Подробное руководство по изучению языка программирования Python',
-          type: 'Учебник',
-          course: 'Введение в программирование',
-          author: 'Иванов И.И.',
-          date: '2024-01-15',
-          size: '2.5 MB',
-          format: 'PDF',
-          isFavorite: false
-        },
-        {
-          id: 2,
-          title: 'Лекция 1: Основы веб-разработки',
-          description: 'Вводная лекция по основам создания веб-сайтов',
-          type: 'Лекция',
-          course: 'Веб-разработка',
-          author: 'Петров П.П.',
-          date: '2024-01-14',
-          size: '15.2 MB',
-          format: 'MP4',
-          isFavorite: true
-        },
-        {
-          id: 3,
-          title: 'Практическая работа №1',
-          description: 'Создание простого HTML-сайта',
-          type: 'Практические работы',
-          course: 'Веб-разработка',
-          author: 'Петров П.П.',
-          date: '2024-01-13',
-          size: '1.8 MB',
-          format: 'ZIP',
-          isFavorite: false
-        }
-      ]
-    }
-  },
-  computed: {
-    filteredResources() {
-      let filtered = this.resources
-      
-      if (this.searchQuery) {
-        filtered = filtered.filter(resource =>
-          resource.title.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-          resource.description.toLowerCase().includes(this.searchQuery.toLowerCase())
-        )
-      }
-      
-      if (this.selectedCategory && this.selectedCategory !== 'Все') {
-        filtered = filtered.filter(resource => resource.type === this.selectedCategory)
-      }
-      
-      return filtered
-    },
-    
-    totalPages() {
-      return Math.ceil(this.filteredResources.length / 10)
-    }
-  },
-  methods: {
-    getResourceIcon(type) {
-      const icons = {
-        'Учебник': 'mdi-book-open-variant',
-        'Лекция': 'mdi-video',
-        'Практические работы': 'mdi-file-document',
-        'Видео': 'mdi-video',
-        'Презентации': 'mdi-presentation'
-      }
-      return icons[type] || 'mdi-file'
-    },
-    
-    getResourceColor(type) {
-      const colors = {
-        'Учебник': 'primary',
-        'Лекция': 'secondary',
-        'Практические работы': 'success',
-        'Видео': 'info',
-        'Презентации': 'warning'
-      }
-      return colors[type] || 'grey'
-    },
-    
-    downloadResource(resource) {
-      // Здесь будет логика скачивания
-      console.log('Скачивание ресурса:', resource.title)
-    },
-    
-    previewResource(resource) {
-      this.selectedResource = resource
-      this.previewDialog = true
-    },
-    
-    toggleFavorite(resource) {
-      resource.isFavorite = !resource.isFavorite
-    }
+const props = defineProps({
+  files: Object,
+  filters: Object,
+  categories: Array,
+  types: Array
+})
+
+const searchQuery = ref(props.filters?.search || '')
+const selectedCategory = ref(props.filters?.category || null)
+const selectedType = ref(props.filters?.type || null)
+const previewDialog = ref(false)
+const selectedResource = ref(null)
+
+const filteredResources = computed(() => {
+  return props.files?.data || []
+})
+
+const totalPages = computed(() => {
+  return props.files?.last_page || 1
+})
+
+const currentPage = computed({
+  get: () => props.files?.current_page || 1,
+  set: (value) => {
+    applyFilters({ page: value })
   }
+})
+
+const getResourceIcon = (type) => {
+  const icons = {
+    'document': 'mdi-file-document',
+    'image': 'mdi-image',
+    'video': 'mdi-video',
+    'audio': 'mdi-music',
+    'archive': 'mdi-archive',
+    'other': 'mdi-file'
+  }
+  return icons[type] || 'mdi-file'
+}
+
+const getResourceColor = (type) => {
+  const colors = {
+    'document': 'primary',
+    'image': 'success',
+    'video': 'info',
+    'audio': 'warning',
+    'archive': 'secondary',
+    'other': 'grey'
+  }
+  return colors[type] || 'grey'
+}
+
+const formatFileSize = (bytes) => {
+  if (bytes === 0) return '0 Bytes'
+  const k = 1024
+  const sizes = ['Bytes', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
+}
+
+const formatDate = (timestamp) => {
+  const date = new Date(timestamp * 1000)
+  return date.toLocaleDateString('ru-RU')
+}
+
+const applyFilters = (additionalParams = {}) => {
+  router.get(route('student.library.index'), {
+    search: searchQuery.value,
+    category: selectedCategory.value,
+    type: selectedType.value,
+    ...additionalParams
+  }, {
+    preserveState: true,
+    preserveScroll: true
+  })
+}
+
+const downloadResource = (resource) => {
+  window.location.href = route('student.library.download', { path: resource.path })
+}
+
+const previewResource = (resource) => {
+  selectedResource.value = resource
+  previewDialog.value = true
+}
+
+const clearFilters = () => {
+  searchQuery.value = ''
+  selectedCategory.value = null
+  selectedType.value = null
+  applyFilters()
 }
 </script>

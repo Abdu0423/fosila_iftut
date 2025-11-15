@@ -7,7 +7,7 @@
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
               <h1 class="text-h4 font-weight-bold mb-2">Настройки системы</h1>
-              <p class="text-body-1 text-medium-emphasis">Управление настройками системы Fosila</p>
+              <p class="text-body-1 text-medium-emphasis">Управление настройками системы ИФТУТ</p>
             </div>
           </div>
         </v-col>

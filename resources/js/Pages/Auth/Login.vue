@@ -14,7 +14,7 @@
         <v-card class="login-card" elevation="24" rounded="xl">
           <div class="login-header">
             <v-icon size="64" color="primary" class="mb-4">mdi-school</v-icon>
-            <h1 class="text-h3 font-weight-bold text-primary mb-2">Fosila</h1>
+            <h1 class="text-h3 font-weight-bold text-primary mb-2">ИФТУТ</h1>
             <p class="text-body-1 text-medium-emphasis">Система управления образованием</p>
           </div>
 
@@ -129,7 +129,7 @@
           <v-card-actions class="pa-8 pt-0">
             <div class="text-center w-100">
               <p class="text-body-2 text-medium-emphasis mb-2">
-                © {{ currentYear }} Fosila. Все права защищены.
+                © {{ currentYear }} ИФТУТ. Все права защищены.
               </p>
               <div class="d-flex justify-center gap-4">
                 <v-btn
@@ -159,7 +159,7 @@
             <v-icon size="48" color="white" class="mb-4">mdi-lightbulb</v-icon>
             <h3 class="text-h5 font-weight-bold text-white mb-2">Добро пожаловать!</h3>
             <p class="text-body-1 text-white opacity-75">
-              Войдите в систему управления образованием Fosila для доступа к панели администратора.
+              Войдите в систему управления образованием ИФТУТ для доступа к панели администратора.
             </p>
           </div>
         </div>

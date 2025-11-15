@@ -15,6 +15,11 @@ use App\Http\Controllers\AuthController;
 |
 */
 
+// Favicon route (чтобы избежать ошибок)
+Route::get('/favicon.ico', function () {
+    return response('', 204);
+});
+
 // Маршруты аутентификации (доступны для гостей)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -25,6 +30,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Маршруты для студентов
 Route::prefix('student')->middleware(['auth', 'student'])->group(function () {
+    // Выход из системы
+    Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('student.logout');
+    
     // Главная страница студента
     Route::get('/', function () {
         return Inertia::render('Dashboard');
@@ -48,13 +56,10 @@ Route::prefix('student')->middleware(['auth', 'student'])->group(function () {
     Route::get('/schedule', [App\Http\Controllers\Student\ScheduleController::class, 'index'])->name('student.schedule.index');
 
     // Задания
-    Route::get('/assignments', function () {
-        return Inertia::render('Assignments/Index');
-    })->name('student.assignments.index');
-
-    Route::get('/assignments/{assignment}', function ($assignment) {
-        return Inertia::render('Assignments/Show', ['assignment' => $assignment]);
-    })->name('student.assignments.show');
+    Route::get('/assignments', [App\Http\Controllers\Student\AssignmentController::class, 'index'])->name('student.assignments.index');
+    Route::get('/assignments/{assignment}', [App\Http\Controllers\Student\AssignmentController::class, 'show'])->name('student.assignments.show');
+    Route::post('/assignments/{assignment}/submit', [App\Http\Controllers\Student\AssignmentController::class, 'submit'])->name('student.assignments.submit');
+    Route::put('/assignments/{assignment}/submissions/{submission}', [App\Http\Controllers\Student\AssignmentController::class, 'updateSubmission'])->name('student.assignments.update-submission');
 
     // Чат
     Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('student.chat.index');
@@ -66,14 +71,12 @@ Route::prefix('student')->middleware(['auth', 'student'])->group(function () {
     Route::delete('/chat/{chat}/leave', [App\Http\Controllers\ChatController::class, 'leave'])->name('student.chat.leave');
 
     // Библиотека
-    Route::get('/library', function () {
-        return Inertia::render('Library/Index');
-    })->name('student.library.index');
+    Route::get('/library', [App\Http\Controllers\Student\LibraryController::class, 'index'])->name('student.library.index');
+    Route::get('/library/download', [App\Http\Controllers\Student\LibraryController::class, 'download'])->name('student.library.download');
 
     // Оценки
-    Route::get('/grades', function () {
-        return Inertia::render('Grades/Index');
-    })->name('student.grades.index');
+    Route::get('/grades', [App\Http\Controllers\Student\GradeController::class, 'index'])->name('student.grades.index');
+    Route::get('/grades/{grade}', [App\Http\Controllers\Student\GradeController::class, 'show'])->name('student.grades.show');
 
     // Экзамены
     Route::get('/tests', [App\Http\Controllers\Student\TestController::class, 'index'])->name('student.tests.index');
@@ -126,15 +129,11 @@ Route::middleware('auth')->group(function () {
 
 // Админ панель (требует аутентификации и прав администратора)
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    // Выход из системы
+    Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('admin.logout');
+    
     // Главная страница админа
-    Route::get('/', function () {
-        \Log::info('Admin Dashboard: Запрос к /admin получен', [
-            'user_id' => auth()->id(),
-            'role_id' => auth()->user()->role_id,
-            'url' => request()->url()
-        ]);
-        return Inertia::render('Admin/Dashboard');
-    })->name('admin.dashboard');
+    Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
     
     // Управление предметами
     Route::resource('subjects', App\Http\Controllers\Admin\SubjectController::class)->names('admin.subjects');
@@ -167,30 +166,15 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     })->name('admin.courses.edit');
     
     // Управление заданиями
-    Route::get('/assignments', function () {
-        return Inertia::render('Admin/Assignments/Index');
-    })->name('admin.assignments.index');
-    
-    Route::get('/assignments/create', function () {
-        return Inertia::render('Admin/Assignments/Create');
-    })->name('admin.assignments.create');
-    
-    Route::get('/assignments/{assignment}/edit', function ($assignment) {
-        return Inertia::render('Admin/Assignments/Edit', ['assignment' => $assignment]);
-    })->name('admin.assignments.edit');
+    Route::resource('assignments', App\Http\Controllers\Admin\AssignmentController::class)->names('admin.assignments');
+    Route::post('/assignments/bulk-action', [App\Http\Controllers\Admin\AssignmentController::class, 'bulkAction'])->name('admin.assignments.bulk-action');
     
     // Управление библиотекой
-    Route::get('/library', function () {
-        return Inertia::render('Admin/Library/Index');
-    })->name('admin.library.index');
-    
-    Route::get('/library/create', function () {
-        return Inertia::render('Admin/Library/Create');
-    })->name('admin.library.create');
-    
-    Route::get('/library/{resource}/edit', function ($resource) {
-        return Inertia::render('Admin/Library/Edit', ['resource' => $resource]);
-    })->name('admin.library.edit');
+    Route::get('/library', [App\Http\Controllers\Admin\LibraryController::class, 'index'])->name('admin.library.index');
+    Route::post('/library', [App\Http\Controllers\Admin\LibraryController::class, 'store'])->name('admin.library.store');
+    Route::get('/library/download', [App\Http\Controllers\Admin\LibraryController::class, 'download'])->name('admin.library.download');
+    Route::delete('/library', [App\Http\Controllers\Admin\LibraryController::class, 'destroy'])->name('admin.library.destroy');
+    Route::post('/library/bulk-delete', [App\Http\Controllers\Admin\LibraryController::class, 'bulkDelete'])->name('admin.library.bulk-delete');
     
     // Статистика и отчеты
     Route::get('/reports', function () {

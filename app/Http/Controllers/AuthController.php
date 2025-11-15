@@ -84,6 +84,9 @@ class AuthController extends Controller
         Auth::login($user, $request->boolean('remember'));
         $request->session()->regenerate();
         
+        // Обновляем время последнего входа
+        $user->update(['last_login_at' => now()]);
+        
         Log::info('Пользователь успешно авторизован', [
             'user_id' => $user->id,
             'email' => $user->email,

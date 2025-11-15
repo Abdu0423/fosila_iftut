@@ -4,85 +4,162 @@
     <v-navigation-drawer
       v-model="drawer"
       app
-      :dark="isDarkTheme"
-      :color="themeColor"
-      width="280"
+      :temporary="isMobile"
+      :permanent="!isMobile"
+      :color="navDrawerColor"
+      :width="navDrawerWidth"
+      class="modern-drawer"
+      :class="{ 'drawer-dark': isDarkTheme }"
     >
-      <v-list-item>
-        <template v-slot:prepend>
-          <v-icon class="mr-2">{{ headerIcon }}</v-icon>
-        </template>
-        <v-list-item-title class="text-h6">
-          {{ headerTitle }}
-        </v-list-item-title>
-        <v-list-item-subtitle>{{ headerSubtitle }}</v-list-item-subtitle>
-      </v-list-item>
+      <!-- Заголовок меню -->
+      <div class="drawer-header" :class="{ 'drawer-header-dark': isDarkTheme }">
+        <div class="d-flex align-center pa-4">
+          <v-avatar :color="isDarkTheme ? 'white' : 'primary'" size="48" class="mr-3">
+            <v-icon size="28" :color="isDarkTheme ? 'primary' : 'white'">{{ headerIcon }}</v-icon>
+          </v-avatar>
+          <div class="flex-grow-1">
+            <div class="text-h6 font-weight-bold" :class="headerTitleClass">
+              {{ headerTitle }}
+            </div>
+            <div class="text-caption" :class="headerSubtitleClass">
+              {{ headerSubtitle }}
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <v-divider></v-divider>
+      <v-divider :class="{ 'divider-dark': isDarkTheme }"></v-divider>
 
-      <v-list dense nav>
+      <!-- Информация о пользователе в меню -->
+      <div class="user-info-panel pa-3 ma-3" :class="{ 'user-info-dark': isDarkTheme }">
+        <div class="d-flex align-center">
+          <v-avatar size="40" class="mr-3">
+            <v-img v-if="userAvatar" :src="userAvatar" :alt="userName"></v-img>
+            <v-icon v-else>mdi-account-circle</v-icon>
+          </v-avatar>
+          <div class="flex-grow-1 text-truncate">
+            <div class="text-body-2 font-weight-medium" :class="userInfoTextClass">{{ userName }}</div>
+            <div class="text-caption" :class="userInfoSubtextClass">{{ userRole }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Пункты меню -->
+      <v-list class="menu-list pa-2" nav>
         <v-list-item
           v-for="item in menuItems"
           :key="item.title"
           :prepend-icon="item.icon"
           :title="item.title"
           :active="isActiveRoute(item.route)"
-          :disabled="isActiveRoute(item.route)"
+          :class="[
+            'menu-item',
+            { 'menu-item-active': isActiveRoute(item.route) },
+            { 'menu-item-dark': isDarkTheme }
+          ]"
           @click="navigateTo(item.route)"
-        ></v-list-item>
+          rounded="lg"
+        >
+          <template v-slot:prepend>
+            <v-icon :class="{ 'active-icon': isActiveRoute(item.route) }">{{ item.icon }}</v-icon>
+          </template>
+        </v-list-item>
       </v-list>
     </v-navigation-drawer>
 
     <!-- Верхняя панель -->
-    <v-app-bar app :color="appBarColor" elevation="1">
-      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+    <v-app-bar app :color="appBarColor" :elevation="appBarElevation" class="modern-appbar">
+      <v-app-bar-nav-icon 
+        @click="drawer = !drawer"
+        :color="appBarIconColor"
+        class="appbar-nav-icon"
+      ></v-app-bar-nav-icon>
       
-      <v-toolbar-title class="text-h6 font-weight-bold" :class="appBarTitleClass">
-        {{ appBarTitle }}
+      <v-toolbar-title class="text-h6 font-weight-bold d-flex align-center" :class="appBarTitleClass">
+        <span class="d-none d-sm-inline">{{ appBarTitle }}</span>
+        <span class="d-inline d-sm-none">{{ appBarTitleShort }}</span>
       </v-toolbar-title>
       
       <v-spacer></v-spacer>
+
+      <!-- Поиск (только на десктопе) -->
+      <v-text-field
+        v-if="!isMobile"
+        density="compact"
+        variant="solo"
+        label="Поиск..."
+        prepend-inner-icon="mdi-magnify"
+        single-line
+        hide-details
+        class="mr-4 search-field"
+        style="max-width: 300px;"
+      ></v-text-field>
       
       <!-- Уведомления -->
-      <v-btn icon class="mr-2">
-        <v-badge :content="notifications.length" :value="notifications.length" color="error">
+      <v-btn icon :color="appBarIconColor" class="mr-2 notification-btn">
+        <v-badge 
+          :content="notifications.length" 
+          :model-value="notifications.length > 0" 
+          color="error"
+          overlap
+        >
           <v-icon>mdi-bell</v-icon>
         </v-badge>
       </v-btn>
       
       <!-- Профиль -->
-      <v-menu offset-y>
+      <v-menu offset-y min-width="250">
         <template v-slot:activator="{ props }">
-          <v-btn icon v-bind="props">
-            <v-avatar size="32">
+          <v-btn 
+            :color="appBarIconColor" 
+            v-bind="props" 
+            class="profile-btn"
+            :variant="isMobile ? 'icon' : 'text'"
+          >
+            <v-avatar size="32" class="mr-2">
               <v-img v-if="userAvatar" :src="userAvatar" :alt="userName"></v-img>
               <v-icon v-else>mdi-account</v-icon>
             </v-avatar>
+            <span v-if="!isMobile" class="d-none d-md-inline text-none">{{ userName }}</span>
+            <v-icon v-if="!isMobile" class="ml-1">mdi-menu-down</v-icon>
           </v-btn>
         </template>
         
-        <v-list>
-          <v-list-item @click="goToProfile">
+        <v-list class="profile-menu">
+          <v-list-item class="user-menu-header">
             <template v-slot:prepend>
-              <v-icon>mdi-account</v-icon>
+              <v-avatar size="48">
+                <v-img v-if="userAvatar" :src="userAvatar" :alt="userName"></v-img>
+                <v-icon v-else>mdi-account-circle</v-icon>
+              </v-avatar>
+            </template>
+            <v-list-item-title class="font-weight-bold">{{ userName }}</v-list-item-title>
+            <v-list-item-subtitle>{{ userRole }}</v-list-item-subtitle>
+          </v-list-item>
+
+          <v-divider class="my-2"></v-divider>
+
+          <v-list-item @click="goToProfile" class="menu-action-item">
+            <template v-slot:prepend>
+              <v-icon color="primary">mdi-account</v-icon>
             </template>
             <v-list-item-title>Профиль</v-list-item-title>
           </v-list-item>
           
-          <v-list-item @click="goToSettings">
+          <v-list-item @click="goToSettings" class="menu-action-item">
             <template v-slot:prepend>
-              <v-icon>mdi-cog</v-icon>
+              <v-icon color="primary">mdi-cog</v-icon>
             </template>
             <v-list-item-title>Настройки</v-list-item-title>
           </v-list-item>
           
-          <v-divider></v-divider>
+          <v-divider class="my-2"></v-divider>
           
-          <v-list-item @click="logout">
+          <v-list-item @click="logout" class="menu-action-item logout-item">
             <template v-slot:prepend>
-              <v-icon>mdi-logout</v-icon>
+              <v-icon color="error">mdi-logout</v-icon>
             </template>
-            <v-list-item-title>Выйти</v-list-item-title>
+            <v-list-item-title class="error--text">Выйти</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -113,11 +190,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
+import { useDisplay } from 'vuetify'
 import NotificationSnackbar from '../Components/NotificationSnackbar.vue'
 
 const page = usePage()
+const { mobile, xs, sm, mdAndDown } = useDisplay()
 
 // Props
 const props = defineProps({
@@ -132,11 +211,43 @@ const props = defineProps({
 const drawer = ref(true)
 const showNotifications = ref(false)
 const loading = ref(false)
+const windowWidth = ref(window.innerWidth)
+
+// Адаптивность
+const isMobile = computed(() => windowWidth.value < 960)
+const navDrawerWidth = computed(() => isMobile.value ? '280' : '300')
+const appBarElevation = computed(() => isMobile.value ? 2 : 1)
+
+// Обработчик изменения размера окна
+const handleResize = () => {
+  windowWidth.value = window.innerWidth
+  if (windowWidth.value < 960) {
+    drawer.value = false
+  } else {
+    drawer.value = true
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+  handleResize()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 
 // Данные пользователя
 const user = computed(() => page.props.auth?.user || {})
 const userName = computed(() => user.value.name || 'Пользователь')
 const userAvatar = computed(() => user.value.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName.value)}`)
+const userRole = computed(() => {
+  switch (props.role) {
+    case 'admin': return 'Администратор'
+    case 'teacher': return 'Преподаватель'
+    default: return 'Студент'
+  }
+})
 
 // Количество непрочитанных сообщений
 const unreadChatsCount = computed(() => {
@@ -148,11 +259,28 @@ const notifications = ref([
   { id: 1, message: 'Новое уведомление', time: '2 мин назад' }
 ])
 
+// Текущий год
+const currentYear = computed(() => new Date().getFullYear())
+
 // Вычисляемые свойства для темы
 const isDarkTheme = computed(() => props.role === 'admin' || props.role === 'teacher')
-const themeColor = computed(() => isDarkTheme.value ? 'primary' : 'white')
-const appBarColor = computed(() => isDarkTheme.value ? 'white' : 'primary')
-const appBarTitleClass = computed(() => isDarkTheme.value ? 'primary--text' : 'white--text')
+const navDrawerColor = computed(() => {
+  if (props.role === 'admin') return 'blue-grey-darken-4'
+  if (props.role === 'teacher') return 'indigo-darken-3'
+  return 'white'
+})
+const appBarColor = computed(() => {
+  if (props.role === 'admin') return 'blue-grey-darken-3'
+  if (props.role === 'teacher') return 'indigo-darken-2'
+  return 'primary'
+})
+const appBarIconColor = computed(() => 'white')
+const appBarTitleClass = computed(() => 'text-white')
+const headerTitleClass = computed(() => isDarkTheme.value ? 'text-white' : 'text-primary')
+const headerSubtitleClass = computed(() => isDarkTheme.value ? 'text-grey-lighten-1' : 'text-grey-darken-1')
+const userInfoTextClass = computed(() => isDarkTheme.value ? 'text-white' : 'text-grey-darken-3')
+const userInfoSubtextClass = computed(() => isDarkTheme.value ? 'text-grey-lighten-1' : 'text-grey-darken-1')
+const footerTextClass = computed(() => isDarkTheme.value ? 'text-grey-lighten-1' : 'text-grey-darken-1')
 
 // Заголовки в зависимости от роли
 const headerIcon = computed(() => {
@@ -181,9 +309,17 @@ const headerSubtitle = computed(() => {
 
 const appBarTitle = computed(() => {
   switch (props.role) {
-    case 'admin': return 'Fosila Admin'
-    case 'teacher': return 'Fosila Teacher'
-    default: return 'Fosila Student'
+    case 'admin': return 'ИФТУТ Админ'
+    case 'teacher': return 'ИФТУТ Преподаватель'
+    default: return 'ИФТУТ Студент'
+  }
+})
+
+const appBarTitleShort = computed(() => {
+  switch (props.role) {
+    case 'admin': return 'Админ'
+    case 'teacher': return 'Препод'
+    default: return 'ИФТУТ'
   }
 })
 
@@ -283,55 +419,250 @@ const goToSettings = () => {
   }
 }
 
+// Определяем маршрут logout в зависимости от роли
+const logoutRoute = computed(() => {
+  switch (props.role) {
+    case 'admin':
+      return 'admin.logout'
+    case 'teacher':
+      return 'teacher.logout'
+    case 'student':
+      return 'student.logout'
+    default:
+      return 'logout'
+  }
+})
+
 const logout = () => {
-  router.visit(route('logout'), {
+  router.visit(route(logoutRoute.value), {
     method: 'post'
   })
 }
 </script>
 
 <style scoped>
-.v-navigation-drawer {
-  border-right: 1px solid rgba(0, 0, 0, 0.12);
+/* Основные стили для навигационного меню */
+.modern-drawer {
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
 }
 
-.v-navigation-drawer--dark {
-  border-right: 1px solid rgba(255, 255, 255, 0.12);
+.drawer-dark {
+  background: linear-gradient(180deg, var(--v-theme-background) 0%, rgba(0, 0, 0, 0.2) 100%);
 }
 
-.v-list-item {
-  margin: 4px 8px;
-  border-radius: 8px;
+/* Заголовок меню */
+.drawer-header {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0.05) 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.v-list-item:hover {
-  background-color: rgba(var(--v-theme-primary), 0.1);
+.drawer-header-dark {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.v-navigation-drawer--dark .v-list-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+/* Панель информации о пользователе */
+.user-info-panel {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.08) 0%, rgba(33, 150, 243, 0.03) 100%);
+  border-radius: 12px;
+  transition: all 0.3s ease;
 }
 
-.v-list-item--active {
-  background-color: rgba(var(--v-theme-primary), 0.2) !important;
-  border-left: 4px solid rgb(var(--v-theme-primary));
+.user-info-panel:hover {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.12) 0%, rgba(33, 150, 243, 0.06) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.v-navigation-drawer--dark .v-list-item--active {
-  background-color: rgba(255, 255, 255, 0.2) !important;
+.user-info-dark {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%);
+}
+
+.user-info-dark:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.1) 100%);
+}
+
+/* Пункты меню */
+.menu-list {
+  overflow-y: auto;
+  max-height: calc(100vh - 280px);
+}
+
+.menu-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.menu-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.menu-list::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.menu-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.menu-item {
+  margin: 4px 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-item:hover {
+  background: linear-gradient(90deg, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0.05) 100%);
+  transform: translateX(4px);
+}
+
+.menu-item-dark:hover {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+}
+
+.menu-item-active {
+  background: linear-gradient(90deg, rgba(33, 150, 243, 0.2) 0%, rgba(33, 150, 243, 0.1) 100%);
+  border-left: 4px solid rgb(33, 150, 243);
+  font-weight: 600;
+  transform: translateX(0);
+}
+
+.menu-item-active.menu-item-dark {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
   border-left: 4px solid white;
 }
 
-.v-list-item--disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+.menu-item-active:hover {
+  transform: translateX(0);
 }
 
-.v-app-bar {
-  border-bottom: 1px solid #e0e0e0;
+.active-icon {
+  color: rgb(33, 150, 243);
+  animation: iconPulse 1s ease-in-out;
 }
 
-.v-app-bar--dark {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+@keyframes iconPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Разделители */
+.divider-dark {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* App Bar стили */
+.modern-appbar {
+  backdrop-filter: blur(10px);
+}
+
+.appbar-nav-icon {
+  transition: all 0.3s ease;
+}
+
+.appbar-nav-icon:hover {
+  transform: rotate(90deg);
+}
+
+.search-field {
+  transition: all 0.3s ease;
+}
+
+.search-field:focus-within {
+  transform: scale(1.02);
+}
+
+.notification-btn {
+  transition: all 0.3s ease;
+}
+
+.notification-btn:hover {
+  transform: scale(1.1) rotate(15deg);
+}
+
+.profile-btn {
+  transition: all 0.3s ease;
+  border-radius: 24px !important;
+}
+
+.profile-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Меню профиля */
+.profile-menu {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.user-menu-header {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0.05) 100%);
+  padding: 16px;
+}
+
+.menu-action-item {
+  transition: all 0.3s ease;
+}
+
+.menu-action-item:hover {
+  background: rgba(33, 150, 243, 0.08);
+  transform: translateX(4px);
+}
+
+.logout-item:hover {
+  background: rgba(244, 67, 54, 0.08);
+}
+
+/* Адаптивные стили */
+@media (max-width: 960px) {
+  .menu-list {
+    max-height: calc(100vh - 250px);
+  }
+}
+
+@media (max-width: 600px) {
+  .user-info-panel {
+    margin: 12px 8px;
+    padding: 8px;
+  }
+
+  .drawer-header .d-flex {
+    padding: 16px !important;
+  }
+
+  .menu-list {
+    max-height: calc(100vh - 230px);
+  }
+}
+
+/* Анимации плавного появления */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modern-drawer,
+.modern-appbar {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Улучшенный скроллбар для темной темы */
+.drawer-dark .menu-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.drawer-dark .menu-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 </style>

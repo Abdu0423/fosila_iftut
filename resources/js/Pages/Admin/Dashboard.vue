@@ -23,39 +23,79 @@
 
       <!-- Статистика -->
       <v-row class="mb-6">
-        <v-col cols="12" md="3">
-          <v-card>
-            <v-card-text class="text-center">
+        <v-col cols="12" sm="6" md="3">
+          <v-card hover class="stat-card">
+            <v-card-text class="text-center pa-6">
               <v-icon size="48" color="primary" class="mb-4">mdi-account-group</v-icon>
-              <div class="text-h4 font-weight-bold">{{ stats.users }}</div>
-              <div class="text-body-2 text-medium-emphasis">Пользователей</div>
+              <div class="text-h4 font-weight-bold">{{ stats?.users || 0 }}</div>
+              <div class="text-body-2 text-medium-emphasis">Всего пользователей</div>
             </v-card-text>
           </v-card>
         </v-col>
-        <v-col cols="12" md="3">
-          <v-card>
-            <v-card-text class="text-center">
-              <v-icon size="48" color="success" class="mb-4">mdi-book-open-variant</v-icon>
-              <div class="text-h4 font-weight-bold">{{ stats.courses }}</div>
-              <div class="text-body-2 text-medium-emphasis">Курсов</div>
+        <v-col cols="12" sm="6" md="3">
+          <v-card hover class="stat-card">
+            <v-card-text class="text-center pa-6">
+              <v-icon size="48" color="success" class="mb-4">mdi-book-education</v-icon>
+              <div class="text-h4 font-weight-bold">{{ stats?.subjects || 0 }}</div>
+              <div class="text-body-2 text-medium-emphasis">Предметов</div>
             </v-card-text>
           </v-card>
         </v-col>
-        <v-col cols="12" md="3">
-          <v-card>
-            <v-card-text class="text-center">
+        <v-col cols="12" sm="6" md="3">
+          <v-card hover class="stat-card">
+            <v-card-text class="text-center pa-6">
               <v-icon size="48" color="info" class="mb-4">mdi-teach</v-icon>
-              <div class="text-h4 font-weight-bold">{{ stats.lessons }}</div>
+              <div class="text-h4 font-weight-bold">{{ stats?.lessons || 0 }}</div>
               <div class="text-body-2 text-medium-emphasis">Уроков</div>
             </v-card-text>
           </v-card>
         </v-col>
-        <v-col cols="12" md="3">
-          <v-card>
-            <v-card-text class="text-center">
+        <v-col cols="12" sm="6" md="3">
+          <v-card hover class="stat-card">
+            <v-card-text class="text-center pa-6">
               <v-icon size="48" color="warning" class="mb-4">mdi-chart-line</v-icon>
-              <div class="text-h4 font-weight-bold">{{ stats.activeUsers }}</div>
-              <div class="text-body-2 text-medium-emphasis">Активных сегодня</div>
+              <div class="text-h4 font-weight-bold">{{ stats?.activeUsers || 0 }}</div>
+              <div class="text-body-2 text-medium-emphasis">Активных за 24ч</div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Дополнительная статистика -->
+      <v-row class="mb-6">
+        <v-col cols="12" sm="6" md="3">
+          <v-card hover class="stat-card-secondary">
+            <v-card-text class="text-center pa-4">
+              <v-icon size="36" color="purple" class="mb-2">mdi-calendar-clock</v-icon>
+              <div class="text-h5 font-weight-bold">{{ stats?.schedules || 0 }}</div>
+              <div class="text-caption text-medium-emphasis">Расписаний</div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="6" md="3">
+          <v-card hover class="stat-card-secondary">
+            <v-card-text class="text-center pa-4">
+              <v-icon size="36" color="orange" class="mb-2">mdi-clipboard-text</v-icon>
+              <div class="text-h5 font-weight-bold">{{ stats?.assignments || 0 }}</div>
+              <div class="text-caption text-medium-emphasis">Заданий</div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="6" md="3">
+          <v-card hover class="stat-card-secondary">
+            <v-card-text class="text-center pa-4">
+              <v-icon size="36" color="pink" class="mb-2">mdi-help-circle</v-icon>
+              <div class="text-h5 font-weight-bold">{{ stats?.tests || 0 }}</div>
+              <div class="text-caption text-medium-emphasis">Тестов</div>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="6" md="3">
+          <v-card hover class="stat-card-secondary">
+            <v-card-text class="text-center pa-4">
+              <v-icon size="36" color="teal" class="mb-2">mdi-star</v-icon>
+              <div class="text-h5 font-weight-bold">{{ stats?.grades || 0 }}</div>
+              <div class="text-caption text-medium-emphasis">Оценок</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -179,15 +219,30 @@
             <v-card-text>
               <div class="mb-3">
                 <div class="text-body-2 text-medium-emphasis">Версия системы</div>
-                <div class="text-body-1 font-weight-medium">1.0.0</div>
+                <div class="text-body-1 font-weight-medium">{{ systemInfo?.version || '1.0.0' }}</div>
+              </div>
+              <div class="mb-3">
+                <div class="text-body-2 text-medium-emphasis">Laravel</div>
+                <div class="text-body-1 font-weight-medium">{{ systemInfo?.laravelVersion || 'N/A' }}</div>
+              </div>
+              <div class="mb-3">
+                <div class="text-body-2 text-medium-emphasis">PHP</div>
+                <div class="text-body-1 font-weight-medium">{{ systemInfo?.phpVersion || 'N/A' }}</div>
+              </div>
+              <div class="mb-3">
+                <div class="text-body-2 text-medium-emphasis">База данных</div>
+                <div class="text-body-1 font-weight-medium">{{ systemInfo?.dbConnection || 'N/A' }}</div>
               </div>
               <div class="mb-3">
                 <div class="text-body-2 text-medium-emphasis">Последнее обновление</div>
-                <div class="text-body-1 font-weight-medium">{{ formatDate(systemInfo.lastUpdate) }}</div>
+                <div class="text-body-1 font-weight-medium">{{ formatDate(systemInfo?.lastUpdate) }}</div>
               </div>
               <div class="mb-3">
                 <div class="text-body-2 text-medium-emphasis">Статус системы</div>
-                <v-chip color="success" size="small" variant="tonal">Работает</v-chip>
+                <v-chip color="success" size="small" variant="tonal">
+                  <v-icon start size="small">mdi-check-circle</v-icon>
+                  Работает
+                </v-chip>
               </div>
             </v-card-text>
           </v-card>
@@ -198,102 +253,69 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import Layout from '../Layout.vue'
 
-// Статистика
-const stats = ref({
-  users: 156,
-  courses: 12,
-  lessons: 89,
-  activeUsers: 23
+// Props из контроллера
+const props = defineProps({
+  stats: Object,
+  roleStats: Array,
+  recentUsers: Array,
+  recentLessons: Array,
+  recentGrades: Array,
+  activityStats: Array,
+  subjectsStats: Array,
+  systemNotifications: Array,
+  quickActions: Array,
+  systemInfo: Object
 })
 
-// Последние действия
-const recentActions = ref([
-  {
-    id: 1,
-    description: 'Создан новый курс "Программирование на Python"',
-    user: { name: 'Иванов И.И.', avatar: 'https://ui-avatars.com/api/?name=Иван+Иванов' },
-    type: 'create',
-    created_at: '2024-01-19 14:30'
-  },
-  {
-    id: 2,
-    description: 'Добавлен новый пользователь Петрова А.А.',
-    user: { name: 'Администратор', avatar: 'https://ui-avatars.com/api/?name=Admin' },
-    type: 'user',
-    created_at: '2024-01-19 13:15'
-  },
-  {
-    id: 3,
-    description: 'Обновлен курс "Веб-разработка"',
-    user: { name: 'Петров П.П.', avatar: 'https://ui-avatars.com/api/?name=Петр+Петров' },
-    type: 'update',
-    created_at: '2024-01-19 12:45'
+// Формируем последние действия из разных источников
+const recentActions = computed(() => {
+  const actions = []
+  
+  // Добавляем последних пользователей
+  if (props.recentUsers && props.recentUsers.length > 0) {
+    props.recentUsers.slice(0, 3).forEach(user => {
+      actions.push({
+        id: `user-${user.id}`,
+        description: `Зарегистрирован новый пользователь: ${user.name}`,
+        user: { name: 'Система', avatar: 'https://ui-avatars.com/api/?name=System' },
+        type: 'user',
+        created_at: user.created_at
+      })
+    })
   }
-])
-
-// Системные уведомления
-const systemNotifications = ref([
-  {
-    id: 1,
-    title: 'Резервное копирование',
-    message: 'Автоматическое резервное копирование выполнено успешно',
-    level: 'info',
-    created_at: '2024-01-19 02:00'
-  },
-  {
-    id: 2,
-    title: 'Обновление системы',
-    message: 'Доступно обновление системы до версии 1.1.0',
-    level: 'warning',
-    created_at: '2024-01-18 18:30'
-  },
-  {
-    id: 3,
-    title: 'Высокая нагрузка',
-    message: 'Обнаружена высокая нагрузка на сервер',
-    level: 'error',
-    created_at: '2024-01-18 15:20'
+  
+  // Добавляем последние уроки
+  if (props.recentLessons && props.recentLessons.length > 0) {
+    props.recentLessons.slice(0, 3).forEach(lesson => {
+      actions.push({
+        id: `lesson-${lesson.id}`,
+        description: `Создан урок: ${lesson.name} (${lesson.subject})`,
+        user: { name: lesson.teacher, avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(lesson.teacher)}` },
+        type: 'create',
+        created_at: lesson.created_at
+      })
+    })
   }
-])
-
-// Быстрые действия
-const quickActions = ref([
-  {
-    title: 'Добавить пользователя',
-    icon: 'mdi-account-plus',
-    route: '/admin/users/create'
-  },
-  {
-    title: 'Создать курс',
-    icon: 'mdi-book-plus',
-    route: '/admin/courses/create'
-  },
-  {
-    title: 'Просмотр отчетов',
-    icon: 'mdi-chart-bar',
-    route: '/admin/reports'
-  },
-  {
-    title: 'Настройки системы',
-    icon: 'mdi-cog',
-    route: '/admin/settings'
+  
+  // Добавляем последние оценки
+  if (props.recentGrades && props.recentGrades.length > 0) {
+    props.recentGrades.slice(0, 3).forEach(grade => {
+      actions.push({
+        id: `grade-${grade.id}`,
+        description: `Выставлена оценка ${grade.grade} студенту ${grade.student_name} за ${grade.subject_name}`,
+        user: { name: 'Преподаватель', avatar: 'https://ui-avatars.com/api/?name=Teacher' },
+        type: 'update',
+        created_at: grade.created_at
+      })
+    })
   }
-])
-
-// Статистика по ролям
-const roleStats = ref([
-  { name: 'Администраторы', count: 3, color: 'error' },
-  { name: 'Учителя', count: 12, color: 'warning' },
-  { name: 'Студенты', count: 141, color: 'primary' }
-])
-
-// Системная информация
-const systemInfo = ref({
-  lastUpdate: '2024-01-19 14:30'
+  
+  // Сортируем по дате и берем последние 10
+  return actions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 10)
 })
 
 // Методы
@@ -344,14 +366,70 @@ const getNotificationText = (level) => {
   }
   return texts[level] || level
 }
-
-onMounted(() => {
-  console.log('Страница администратора загружена')
-})
 </script>
 
 <style scoped>
 .v-card {
   border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.stat-card {
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 1) 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+.stat-card-secondary {
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 1) 100%);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.stat-card-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.v-list-item {
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
+.v-list-item:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.v-card-title {
+  font-weight: 600;
+}
+
+/* Анимация появления карточек */
+.v-col {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Задержка анимации для каждой карточки */
+.v-col:nth-child(1) { animation-delay: 0.05s; }
+.v-col:nth-child(2) { animation-delay: 0.1s; }
+.v-col:nth-child(3) { animation-delay: 0.15s; }
+.v-col:nth-child(4) { animation-delay: 0.2s; }
 </style>
