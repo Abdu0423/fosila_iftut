@@ -76,7 +76,8 @@
                        variant="outlined"
                        density="compact"
                        :error-messages="form.errors.email"
-                       required
+                       hint="Необязательно, будет сгенерирован автоматически"
+                       persistent-hint
                      ></v-text-field>
                    </v-col>
                    <v-col cols="12" md="6">
@@ -168,8 +169,7 @@
                        variant="outlined"
                        density="compact"
                        :error-messages="form.errors.password"
-                       required
-                       hint="Минимум 8 символов"
+                       hint="Необязательно, будет сгенерирован автоматически (минимум 4 символа)"
                        persistent-hint
                      ></v-text-field>
                    </v-col>
@@ -181,7 +181,8 @@
                        variant="outlined"
                        density="compact"
                        :error-messages="form.errors.password_confirmation"
-                       required
+                       hint="Только если указали пароль выше"
+                       persistent-hint
                      ></v-text-field>
                    </v-col>
                  </v-row>
@@ -227,6 +228,7 @@
 import { ref } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
 import AdminApp from '../AdminApp.vue'
+import { routes } from '../../../utils/routes'
 
 // Props из Inertia
 const props = defineProps({
@@ -257,13 +259,18 @@ const form = useForm({
 })
 
 // Методы
-const navigateTo = (route) => {
-  router.visit(route)
+const navigateTo = (path) => {
+  // Гарантируем абсолютный путь
+  const absolutePath = path.startsWith('/') ? path : '/' + path
+  router.visit(absolutePath)
 }
 
 const submitForm = () => {
   console.log('Отправка формы:', form.data())
-  form.post(route('admin.users.store'), {
+  console.log('URL для отправки:', routes.admin.users.store())
+  
+  // ЯВНЫЙ абсолютный путь
+  form.post(routes.admin.users.store(), {
     onSuccess: () => {
       console.log('Пользователь успешно создан')
       // Форма автоматически перенаправит на список пользователей

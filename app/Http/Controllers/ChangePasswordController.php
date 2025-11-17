@@ -1,0 +1,79 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
+
+class ChangePasswordController extends Controller
+{
+    /**
+     * Показать страницу смены пароля
+     */
+    public function show()
+    {
+        return Inertia::render('Auth/ChangePassword', [
+            'user' => auth()->user()->only(['id', 'name', 'email']),
+        ]);
+    }
+
+    /**
+     * Обновить пароль пользователя
+     */
+    public function update(Request $request)
+    {
+        $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:4', 'confirmed'],
+        ], [
+            'current_password.required' => __('auth.current_password_required'),
+            'password.required' => __('auth.password_required'),
+            'password.confirmed' => __('auth.password_confirmed'),
+            'password.min' => __('auth.password_min', ['min' => 4]),
+        ]);
+
+        $user = auth()->user();
+
+        // Проверяем текущий пароль
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors([
+                'current_password' => __('auth.current_password_incorrect')
+            ]);
+        }
+
+        // Проверяем что новый пароль отличается от текущего
+        if (Hash::check($request->password, $user->password)) {
+            return back()->withErrors([
+                'password' => __('auth.password_must_differ')
+            ]);
+        }
+
+        // Обновляем пароль и снимаем флаг обязательной смены
+        $user->update([
+            'password' => Hash::make($request->password),
+            'must_change_password' => false,
+        ]);
+
+        // Определяем куда перенаправить в зависимости от роли
+        $redirectRoute = $this->getRedirectRoute($user);
+
+        return redirect()->route($redirectRoute)
+            ->with('success', __('auth.password_changed'));
+    }
+
+    /**
+     * Определить маршрут для перенаправления в зависимости от роли
+     */
+    protected function getRedirectRoute($user)
+    {
+        if ($user->isAdmin()) {
+            return 'admin.dashboard';
+        } elseif ($user->isTeacher()) {
+            return 'teacher.dashboard';
+        } else {
+            return 'student.dashboard';
+        }
+    }
+}
+

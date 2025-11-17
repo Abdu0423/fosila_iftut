@@ -31,6 +31,8 @@ class User extends Authenticatable
         'mom_phone',
         'email_verified_at',
         'last_login_at',
+        'must_change_password',
+        'locale',
     ];
 
     /**
@@ -52,6 +54,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'last_login_at' => 'datetime',
+        'must_change_password' => 'boolean',
     ];
 
     public function role()

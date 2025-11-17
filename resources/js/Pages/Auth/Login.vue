@@ -14,8 +14,8 @@
         <v-card class="login-card" elevation="24" rounded="xl">
           <div class="login-header">
             <v-icon size="64" color="primary" class="mb-4">mdi-school</v-icon>
-            <h1 class="text-h3 font-weight-bold text-primary mb-2">ИФТУТ</h1>
-            <p class="text-body-1 text-medium-emphasis">Система управления образованием</p>
+            <h1 class="text-h3 font-weight-bold text-primary mb-2">{{ translations.auth?.login_title || 'ИФТУТ' }}</h1>
+            <p class="text-body-1 text-medium-emphasis">{{ translations.auth?.login_subtitle || 'Системаи идоракунии таълим' }}</p>
           </div>
 
           <v-card-text class="pa-8 pt-0">
@@ -23,7 +23,7 @@
               <!-- Email или телефон поле -->
               <v-text-field
                 v-model="form.login"
-                label="Email или номер телефона"
+                :label="translations.auth?.email_or_phone || 'Email ё рақами телефон'"
                 prepend-inner-icon="mdi-account"
                 variant="outlined"
                 rounded="lg"
@@ -32,14 +32,14 @@
                 class="mb-4"
                 autocomplete="username"
                 required
-                hint="Введите email или номер телефона"
+                :hint="translations.auth?.email_or_phone_hint || 'Email ё рақами телефонро ворид кунед'"
                 persistent-hint
               ></v-text-field>
 
               <!-- Пароль поле -->
               <v-text-field
                 v-model="form.password"
-                label="Пароль"
+                :label="translations.auth?.password_label || 'Парол'"
                 :type="showPassword ? 'text' : 'password'"
                 prepend-inner-icon="mdi-lock"
                 :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
@@ -53,11 +53,40 @@
                 required
               ></v-text-field>
 
+              <!-- Согласие с политикой конфиденциальности -->
+              <v-checkbox
+                v-model="agreeToTerms"
+                color="primary"
+                class="mb-4"
+                density="compact"
+              >
+                <template v-slot:label>
+                  <span class="text-body-2">
+                    {{ translations.auth?.agree_to_terms || 'Ман розӣ ҳастам' }}
+                    <a 
+                      href="#" 
+                      @click.prevent="showPrivacyDialog = true" 
+                      class="text-primary text-decoration-none"
+                    >
+                      {{ translations.auth?.privacy_policy || 'Сиёсати махфият' }}
+                    </a>
+                    {{ translations.auth?.and || 'ва' }}
+                    <a 
+                      href="#" 
+                      @click.prevent="showTermsDialog = true" 
+                      class="text-primary text-decoration-none"
+                    >
+                      {{ translations.auth?.terms_of_service || 'Шартҳои истифода' }}
+                    </a>
+                  </span>
+                </template>
+              </v-checkbox>
+
               <!-- Запомнить меня -->
               <div class="d-flex justify-space-between align-center mb-6">
                 <v-checkbox
                   v-model="form.remember"
-                  label="Запомнить меня"
+                  :label="translations.auth?.remember_me || 'Маро ба хотир гиред'"
                   color="primary"
                   hide-details
                 ></v-checkbox>
@@ -68,7 +97,7 @@
                   size="small"
                   class="text-none"
                 >
-                  Забыли пароль?
+                  {{ translations.auth?.forgot_password || 'Паролро фаромӯш кардед?' }}
                 </v-btn>
               </div>
 
@@ -80,13 +109,26 @@
                 block
                 rounded="lg"
                 :loading="form.processing"
-                :disabled="form.processing"
+                :disabled="form.processing || !agreeToTerms"
                 class="login-btn mb-6"
                 elevation="4"
               >
                 <v-icon start>mdi-login</v-icon>
-                {{ form.processing ? 'Вход...' : 'Войти в систему' }}
+                {{ form.processing ? (translations.auth?.logging_in || 'Вуруд...') : (translations.auth?.login_button || 'Ворид шудан ба система') }}
               </v-btn>
+              
+              <!-- Предупреждение если не согласен -->
+              <v-alert
+                v-if="!agreeToTerms"
+                type="info"
+                variant="tonal"
+                density="compact"
+                class="mb-4"
+              >
+                <span class="text-caption">
+                  {{ translations.auth?.must_agree || 'Барои вуруд зарур аст, ки бо сиёсати махфият ва шартҳои истифода розӣ шавед' }}
+                </span>
+              </v-alert>
 
               <!-- Ошибки -->
               <v-alert
@@ -112,24 +154,26 @@
           <v-card-actions class="pa-8 pt-0">
             <div class="text-center w-100">
               <p class="text-body-2 text-medium-emphasis mb-2">
-                © {{ currentYear }} ИФТУТ. Все права защищены.
+                © {{ currentYear }} ИФТУТ. {{ translations.auth?.all_rights_reserved || 'Ҳамаи ҳуқуқҳо ҳифз шудаанд.' }}
               </p>
               <div class="d-flex justify-center gap-4">
                 <v-btn
+                  @click="showPrivacyDialog = true"
                   variant="text"
                   size="small"
                   color="primary"
                   class="text-none"
                 >
-                  Политика конфиденциальности
+                  {{ translations.auth?.privacy_policy || 'Сиёсати махфият' }}
                 </v-btn>
                 <v-btn
+                  @click="showTermsDialog = true"
                   variant="text"
                   size="small"
                   color="primary"
                   class="text-none"
                 >
-                  Условия использования
+                  {{ translations.auth?.terms_of_service || 'Шартҳои истифода' }}
                 </v-btn>
               </div>
             </div>
@@ -140,22 +184,213 @@
         <div class="login-info">
           <div class="info-card">
             <v-icon size="48" color="white" class="mb-4">mdi-lightbulb</v-icon>
-            <h3 class="text-h5 font-weight-bold text-white mb-2">Добро пожаловать!</h3>
+            <h3 class="text-h5 font-weight-bold text-white mb-2">{{ translations.auth?.welcome || 'Хуш омадед!' }}</h3>
             <p class="text-body-1 text-white opacity-75">
-              Войдите в систему управления образованием ИФТУТ для доступа к панели администратора.
+              {{ translations.auth?.welcome_message || 'Барои дастрасӣ ба панели идоракунӣ ба системаи идоракунии таълими ИФТУТ ворид шавед.' }}
             </p>
           </div>
         </div>
       </div>
+      
+      <!-- Переключатель языка в правом верхнем углу -->
+      <div class="language-switcher-wrapper">
+        <LanguageSwitcher />
+      </div>
     </v-main>
+
+    <!-- Модальное окно - Политика конфиденциальности -->
+    <v-dialog v-model="showPrivacyDialog" max-width="900" scrollable>
+      <v-card>
+        <v-card-title class="bg-primary pa-4 d-flex align-center">
+          <v-icon color="white" class="mr-3">mdi-shield-lock</v-icon>
+          <span class="text-white">Политика конфиденциальности</span>
+          <v-spacer></v-spacer>
+          <v-btn icon variant="text" @click="showPrivacyDialog = false">
+            <v-icon color="white">mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        
+        <v-card-text class="pa-6" style="height: 600px;">
+          <div class="legal-content">
+            <p class="text-body-1 mb-4">
+              Институт Финансов и Технологий Университета Таджикистана (ИФТУТ) уважает вашу конфиденциальность 
+              и обязуется защищать ваши персональные данные.
+            </p>
+
+            <h3 class="text-h6 font-weight-bold mb-3">1. Собираемая информация</h3>
+            <ul class="mb-4">
+              <li>Персональные данные (ФИО, email, телефон, адрес)</li>
+              <li>Академическая информация (оценки, посещаемость, задания)</li>
+              <li>Техническая информация (IP-адрес, тип браузера, логи активности)</li>
+            </ul>
+
+            <h3 class="text-h6 font-weight-bold mb-3">2. Использование информации</h3>
+            <ul class="mb-4">
+              <li>Предоставление образовательных услуг</li>
+              <li>Коммуникация (email, SMS уведомления)</li>
+              <li>Обеспечение безопасности системы</li>
+              <li>Улучшение качества сервиса</li>
+            </ul>
+
+            <h3 class="text-h6 font-weight-bold mb-3">3. Защита данных</h3>
+            <ul class="mb-4">
+              <li>SSL/TLS шифрование для передачи данных</li>
+              <li>Bcrypt хеширование паролей</li>
+              <li>Контроль доступа по ролям</li>
+              <li>Регулярные резервные копии</li>
+              <li>Мониторинг безопасности</li>
+            </ul>
+
+            <h3 class="text-h6 font-weight-bold mb-3">4. Передача данных третьим лицам</h3>
+            <p class="mb-4">
+              Мы не передаем ваши персональные данные третьим лицам, за исключением:
+            </p>
+            <ul class="mb-4">
+              <li>SMS-провайдер (OsonSMS) для отправки уведомлений</li>
+              <li>Государственные органы РТ по официальным запросам</li>
+            </ul>
+
+            <h3 class="text-h6 font-weight-bold mb-3">5. Ваши права</h3>
+            <ul class="mb-4">
+              <li>Доступ к своим данным</li>
+              <li>Исправление неточной информации</li>
+              <li>Удаление данных (с ограничениями)</li>
+              <li>Ограничение обработки</li>
+            </ul>
+
+            <h3 class="text-h6 font-weight-bold mb-3">6. Cookies</h3>
+            <p class="mb-4">
+              Мы используем cookies для аутентификации, сохранения предпочтений и анализа использования системы.
+            </p>
+
+            <h3 class="text-h6 font-weight-bold mb-3">7. Контакты</h3>
+            <p>
+              По вопросам конфиденциальности: <a href="mailto:privacy@iftut.tj" class="text-primary">privacy@iftut.tj</a>
+            </p>
+          </div>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions class="pa-4">
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            variant="elevated"
+            @click="showPrivacyDialog = false"
+          >
+            Закрыть
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <!-- Модальное окно - Условия использования -->
+    <v-dialog v-model="showTermsDialog" max-width="900" scrollable>
+      <v-card>
+        <v-card-title class="bg-primary pa-4 d-flex align-center">
+          <v-icon color="white" class="mr-3">mdi-file-document</v-icon>
+          <span class="text-white">Условия использования</span>
+          <v-spacer></v-spacer>
+          <v-btn icon variant="text" @click="showTermsDialog = false">
+            <v-icon color="white">mdi-close</v-icon>
+          </v-btn>
+        </v-card-title>
+        
+        <v-card-text class="pa-6" style="height: 600px;">
+          <div class="legal-content">
+            <p class="text-body-1 mb-4">
+              Используя систему ИФТУТ, вы соглашаетесь соблюдать следующие условия использования.
+            </p>
+
+            <h3 class="text-h6 font-weight-bold mb-3">1. Принятие условий</h3>
+            <p class="mb-4">
+              Используя систему, вы подтверждаете, что прочитали и согласны со всеми положениями настоящих Условий.
+            </p>
+
+            <h3 class="text-h6 font-weight-bold mb-3">2. Учетные записи</h3>
+            <ul class="mb-4">
+              <li>Учетные записи создаются администраторами ИФТУТ</li>
+              <li>Вы обязаны сохранять конфиденциальность пароля</li>
+              <li>Запрещено передавать доступ третьим лицам</li>
+              <li>Необходимо сменить временный пароль при первом входе</li>
+            </ul>
+
+            <h3 class="text-h6 font-weight-bold mb-3">3. Правила использования</h3>
+            <p class="mb-2"><strong>Разрешено:</strong></p>
+            <ul class="mb-3">
+              <li>Использование для образовательных целей</li>
+              <li>Доступ к учебным материалам</li>
+              <li>Взаимодействие с преподавателями</li>
+            </ul>
+
+            <p class="mb-2"><strong>Запрещено:</strong></p>
+            <ul class="mb-4">
+              <li>Несанкционированный доступ к системе</li>
+              <li>Распространение вредоносного ПО</li>
+              <li>Плагиат и списывание</li>
+              <li>Размещение неприемлемого контента</li>
+              <li>Продажа или передача учетной записи</li>
+            </ul>
+
+            <h3 class="text-h6 font-weight-bold mb-3">4. Академическая честность</h3>
+            <ul class="mb-4">
+              <li>Самостоятельное выполнение заданий</li>
+              <li>Корректное цитирование источников</li>
+              <li>Запрет на списывание и плагиат</li>
+            </ul>
+
+            <h3 class="text-h6 font-weight-bold mb-3">5. Ответственность</h3>
+            <p class="mb-4">
+              Вы несете полную ответственность за все действия, совершенные с использованием вашей учетной записи.
+            </p>
+
+            <h3 class="text-h6 font-weight-bold mb-3">6. Приостановка доступа</h3>
+            <p class="mb-4">
+              ИФТУТ оставляет за собой право приостановить доступ при нарушении настоящих Условий.
+            </p>
+
+            <h3 class="text-h6 font-weight-bold mb-3">7. Применимое право</h3>
+            <p class="mb-4">
+              Настоящие Условия регулируются законодательством Республики Таджикистан.
+            </p>
+
+            <h3 class="text-h6 font-weight-bold mb-3">8. Контакты</h3>
+            <p>
+              По вопросам условий использования: <a href="mailto:legal@iftut.tj" class="text-primary">legal@iftut.tj</a>
+            </p>
+          </div>
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions class="pa-4">
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            variant="elevated"
+            @click="showTermsDialog = false"
+          >
+            Закрыть
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-app>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useForm, router } from '@inertiajs/vue3'
+import { useForm, router, usePage } from '@inertiajs/vue3'
+import LanguageSwitcher from '../../Components/LanguageSwitcher.vue'
+
+const page = usePage()
+const translations = computed(() => page.props.translations || {})
 
 const showPassword = ref(false)
+const agreeToTerms = ref(false)
+const showPrivacyDialog = ref(false)
+const showTermsDialog = ref(false)
 
 const form = useForm({
   login: '',
@@ -406,5 +641,45 @@ const submit = () => {
   100% {
     transform: scale(1);
   }
+}
+
+/* Стили для модальных окон */
+.legal-content {
+  line-height: 1.8;
+}
+
+.legal-content h3 {
+  margin-top: 20px;
+  color: rgb(var(--v-theme-primary));
+}
+
+.legal-content ul {
+  padding-left: 24px;
+}
+
+.legal-content li {
+  margin-bottom: 8px;
+}
+
+.legal-content a {
+  text-decoration: none;
+}
+
+.legal-content a:hover {
+  text-decoration: underline;
+}
+
+.v-dialog .v-card-title {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+/* Переключатель языка */
+.language-switcher-wrapper {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
 }
 </style>

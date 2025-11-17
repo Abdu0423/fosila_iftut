@@ -137,8 +137,8 @@ class UserController extends Controller
                 'name' => 'required|string|max:255',
                 'last_name' => 'required|string|max:255',
                 'middle_name' => 'nullable|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'password' => 'required|string|min:8|confirmed',
+                'email' => 'nullable|string|email|max:255|unique:users',
+                'password' => 'nullable|string|min:4|confirmed',
                 'role_id' => 'required|exists:roles,id',
                 'group_id' => 'nullable|integer',
                 'address' => 'nullable|string|max:255',
@@ -149,19 +149,30 @@ class UserController extends Controller
 
             \Log::info('Валидация прошла успешно', ['validated_data' => array_keys($validated)]);
 
+            // Генерируем email, если не указан
+            if (empty($validated['email'])) {
+                $validated['email'] = strtolower($validated['name']) . '.' . strtolower($validated['last_name']) . '@fosila.local';
+            }
+            
+            // Генерируем случайный пароль, если не указан
+            if (empty($validated['password'])) {
+                $validated['password'] = \Str::random(12);
+            }
+
             $user = User::create([
                 'name' => $validated['name'],
                 'last_name' => $validated['last_name'],
-                'middle_name' => $validated['middle_name'],
+                'middle_name' => $validated['middle_name'] ?? null,
                 'email' => $validated['email'],
                 'password' => bcrypt($validated['password']),
                 'role_id' => $validated['role_id'],
-                'group_id' => $validated['group_id'],
-                'address' => $validated['address'],
-                'phone' => $validated['phone'],
-                'dad_phone' => $validated['dad_phone'],
-                'mom_phone' => $validated['mom_phone'],
-                'email_verified_at' => now() // Автоматически подтверждаем email для админ-созданных пользователей
+                'group_id' => $validated['group_id'] ?? null,
+                'address' => $validated['address'] ?? null,
+                'phone' => $validated['phone'] ?? null,
+                'dad_phone' => $validated['dad_phone'] ?? null,
+                'mom_phone' => $validated['mom_phone'] ?? null,
+                'email_verified_at' => now(), // Автоматически подтверждаем email для админ-созданных пользователей
+                'must_change_password' => true // Требуем смену пароля при первом входе
             ]);
 
             \Log::info('Пользователь успешно создан', ['user_id' => $user->id, 'email' => $user->email]);

@@ -26,10 +26,29 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 });
 
+// Юридические страницы (доступны всем)
+Route::get('/privacy', function () {
+    return Inertia::render('Legal/PrivacyPolicy');
+})->name('privacy');
+
+Route::get('/terms', function () {
+    return Inertia::render('Legal/TermsOfService');
+})->name('terms');
+
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Маршруты для смены языка
+Route::post('/locale/change', [App\Http\Controllers\LocaleController::class, 'change'])->name('locale.change');
+Route::get('/locale/current', [App\Http\Controllers\LocaleController::class, 'getCurrent'])->name('locale.current');
+
+// Маршрут для смены пароля (доступен только авторизованным пользователям)
+Route::middleware('auth')->group(function () {
+    Route::get('/change-password', [App\Http\Controllers\ChangePasswordController::class, 'show'])->name('change-password');
+    Route::post('/change-password', [App\Http\Controllers\ChangePasswordController::class, 'update'])->name('change-password.update');
+});
+
 // Маршруты для студентов
-Route::prefix('student')->middleware(['auth', 'student'])->group(function () {
+Route::prefix('student')->middleware(['auth', 'student', 'check.password.change'])->group(function () {
     // Выход из системы
     Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('student.logout');
     
@@ -128,7 +147,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Админ панель (требует аутентификации и прав администратора)
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+Route::prefix('admin')->middleware(['auth', 'admin', 'check.password.change'])->group(function () {
     // Выход из системы
     Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('admin.logout');
     
@@ -351,7 +370,7 @@ Route::get('/test-export-schedule', function() {
 })->name('admin.test-export-schedule');
 
 // Маршруты для учителей
-Route::prefix('teacher')->middleware(['auth', 'teacher'])->group(function () {
+Route::prefix('teacher')->middleware(['auth', 'teacher', 'check.password.change'])->group(function () {
     // Выход из системы
     Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('teacher.logout');
     

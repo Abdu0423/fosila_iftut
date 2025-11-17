@@ -87,13 +87,16 @@
         v-if="!isMobile"
         density="compact"
         variant="solo"
-        label="Поиск..."
+        :label="translations.messages?.search || 'Ҷустуҷӯ...'"
         prepend-inner-icon="mdi-magnify"
         single-line
         hide-details
         class="mr-4 search-field"
         style="max-width: 300px;"
       ></v-text-field>
+      
+      <!-- Переключатель языка -->
+      <LanguageSwitcher :compact="isMobile" class="mr-2" />
       
       <!-- Уведомления -->
       <v-btn icon :color="appBarIconColor" class="mr-2 notification-btn">
@@ -143,14 +146,14 @@
             <template v-slot:prepend>
               <v-icon color="primary">mdi-account</v-icon>
             </template>
-            <v-list-item-title>Профиль</v-list-item-title>
+            <v-list-item-title>{{ translations.navigation?.profile || 'Профил' }}</v-list-item-title>
           </v-list-item>
           
           <v-list-item @click="goToSettings" class="menu-action-item">
             <template v-slot:prepend>
               <v-icon color="primary">mdi-cog</v-icon>
             </template>
-            <v-list-item-title>Настройки</v-list-item-title>
+            <v-list-item-title>{{ translations.navigation?.settings || 'Танзимот' }}</v-list-item-title>
           </v-list-item>
           
           <v-divider class="my-2"></v-divider>
@@ -159,7 +162,7 @@
             <template v-slot:prepend>
               <v-icon color="error">mdi-logout</v-icon>
             </template>
-            <v-list-item-title class="error--text">Выйти</v-list-item-title>
+            <v-list-item-title class="error--text">{{ translations.navigation?.logout || 'Баромад' }}</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -194,6 +197,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
 import { useDisplay } from 'vuetify'
 import NotificationSnackbar from '../Components/NotificationSnackbar.vue'
+import LanguageSwitcher from '../Components/LanguageSwitcher.vue'
 
 const page = usePage()
 const { mobile, xs, sm, mdAndDown } = useDisplay()
@@ -238,14 +242,16 @@ onUnmounted(() => {
 })
 
 // Данные пользователя
+const translations = computed(() => page.props.translations || {})
+
 const user = computed(() => page.props.auth?.user || {})
-const userName = computed(() => user.value.name || 'Пользователь')
+const userName = computed(() => user.value.name || translations.value.messages?.user || 'Корбар')
 const userAvatar = computed(() => user.value.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName.value)}`)
 const userRole = computed(() => {
   switch (props.role) {
-    case 'admin': return 'Администратор'
-    case 'teacher': return 'Преподаватель'
-    default: return 'Студент'
+    case 'admin': return translations.value.navigation?.admin_panel || 'Маъмур'
+    case 'teacher': return translations.value.navigation?.teacher || 'Муаллим'
+    default: return translations.value.navigation?.student || 'Донишҷӯ'
   }
 })
 
@@ -256,7 +262,7 @@ const unreadChatsCount = computed(() => {
 
 // Уведомления
 const notifications = ref([
-  { id: 1, message: 'Новое уведомление', time: '2 мин назад' }
+  { id: 1, message: translations.value.messages?.notification || 'Огоҳии нав', time: '2 дақиқа пеш' }
 ])
 
 // Текущий год
@@ -285,84 +291,78 @@ const headerIcon = computed(() => {
 
 const headerTitle = computed(() => {
   switch (props.role) {
-    case 'admin': return 'Админ панель'
-    case 'teacher': return 'Панель учителя'
-    default: return 'IFTUT - Дистанционное обучение'
+    case 'admin': return translations.value.navigation?.admin_panel || 'Панели маъмур'
+    case 'teacher': return translations.value.navigation?.teacher || 'Панели муаллим'
+    default: return 'ИФТУТ - Таълими масофавӣ'
   }
 })
 
 const headerSubtitle = computed(() => {
   switch (props.role) {
-    case 'admin': return 'Управление системой'
-    case 'teacher': return 'Управление курсами и студентами'
-    default: return 'Обучение'
+    case 'admin': return translations.value.navigation?.system_settings || 'Идоракунии система'
+    case 'teacher': return translations.value.navigation?.course_management || 'Идоракунии курсҳо ва донишҷӯён'
+    default: return translations.value.messages?.education || 'Таълим'
   }
 })
 
 const appBarTitle = computed(() => {
   switch (props.role) {
-    case 'admin': return 'ИФТУТ Админ'
-    case 'teacher': return 'ИФТУТ Преподаватель'
-    default: return 'ИФТУТ Студент'
+    case 'admin': return 'ИФТУТ ' + (translations.value.navigation?.admin_panel || 'Маъмур')
+    case 'teacher': return 'ИФТУТ ' + (translations.value.navigation?.teacher || 'Муаллим')
+    default: return 'ИФТУТ ' + (translations.value.students?.student || 'Донишҷӯ')
   }
 })
 
 const appBarTitleShort = computed(() => {
   switch (props.role) {
-    case 'admin': return 'Админ'
-    case 'teacher': return 'Препод'
+    case 'admin': return translations.value.navigation?.admin_panel || 'Маъмур'
+    case 'teacher': return translations.value.navigation?.teacher || 'Муаллим'
     default: return 'ИФТУТ'
   }
 })
 
 // Пункты меню в зависимости от роли
 const menuItems = computed(() => {
+  const t = translations.value
   switch (props.role) {
     case 'admin':
       return [
-        { title: 'Главная', icon: 'mdi-view-dashboard', route: '/admin' },
-        { title: 'Пользователи', icon: 'mdi-account-group', route: '/admin/users' },
-        //{ title: 'Курсы', icon: 'mdi-book-open-variant', route: '/admin/courses' },
-        { title: 'Предметы', icon: 'mdi-book-education', route: '/admin/subjects' },
-        { title: 'Силлабусы', icon: 'mdi-file-document-multiple', route: '/admin/syllabuses' },
-        { title: 'Уроки', icon: 'mdi-teach', route: '/admin/lessons' },
-        { title: 'Тесты', icon: 'mdi-help-circle', route: '/admin/tests' },
-        { title: 'Оценки', icon: 'mdi-star', route: '/admin/grades' },
-        { title: 'Расписание', icon: 'mdi-calendar-clock', route: '/admin/schedules' },
-        { title: 'Задания', icon: 'mdi-clipboard-text', route: '/admin/assignments' },
-        { title: 'Библиотека', icon: 'mdi-library', route: '/admin/library' },
-        { title: 'Отчеты', icon: 'mdi-chart-bar', route: '/admin/reports' },
-        { title: 'Чат', icon: 'mdi-chat', route: '/admin/chat' },
-        { title: 'Настройки', icon: 'mdi-cog', route: '/admin/settings' }
+        { title: t.navigation?.dashboard || 'Панели идоракунӣ', icon: 'mdi-view-dashboard', route: '/admin' },
+        { title: t.navigation?.users || 'Корбарон', icon: 'mdi-account-group', route: '/admin/users' },
+        { title: t.navigation?.subjects || 'Фанҳо', icon: 'mdi-book-education', route: '/admin/subjects' },
+        { title: t.navigation?.syllabuses || 'Силлабусҳо', icon: 'mdi-file-document-multiple', route: '/admin/syllabuses' },
+        { title: t.navigation?.lessons || 'Дарсҳо', icon: 'mdi-teach', route: '/admin/lessons' },
+        { title: t.navigation?.tests || 'Санҷишҳо', icon: 'mdi-help-circle', route: '/admin/tests' },
+        { title: t.navigation?.grades || 'Баҳоҳо', icon: 'mdi-star', route: '/admin/grades' },
+        { title: t.navigation?.schedule || 'Ҷадвал', icon: 'mdi-calendar-clock', route: '/admin/schedules' },
+        { title: t.navigation?.assignments || 'Супоришҳо', icon: 'mdi-clipboard-text', route: '/admin/assignments' },
+        { title: t.navigation?.library || 'Китобхона', icon: 'mdi-library', route: '/admin/library' },
+        { title: t.navigation?.reports || 'Ҳисоботҳо', icon: 'mdi-chart-bar', route: '/admin/reports' },
+        { title: t.navigation?.chat || 'Чат', icon: 'mdi-chat', route: '/admin/chat' },
+        { title: t.navigation?.settings || 'Танзимот', icon: 'mdi-cog', route: '/admin/settings' }
       ]
     
     case 'teacher':
       return [
-        { title: 'Главная', icon: 'mdi-view-dashboard', route: '/teacher' },
-        //{ title: 'Мои курсы', icon: 'mdi-book-open-variant', route: '/teacher/courses' },
-        { title: 'Мои уроки', icon: 'mdi-teach', route: '/teacher/lessons' },
-        { title: 'Мои тесты', icon: 'mdi-help-circle', route: '/teacher/tests' },
-        { title: 'Оценки', icon: 'mdi-star', route: '/teacher/grades' },
-        { title: 'Мои студенты', icon: 'mdi-account-group', route: '/teacher/students' },
-        { title: 'Расписание', icon: 'mdi-calendar-clock', route: '/teacher/schedule' },
-        { title: 'Силлабусы', icon: 'mdi-file-document-multiple', route: '/teacher/syllabuses' },
-        //{ title: 'Материалы', icon: 'mdi-file-multiple', route: '/teacher/materials' },
-        //{ title: 'Отчеты', icon: 'mdi-chart-bar', route: '/teacher/reports' },
-        //{ title: 'Профиль', icon: 'mdi-account', route: '/teacher/profile' },
-        //{ title: 'Настройки', icon: 'mdi-cog', route: '/teacher/settings' },
-        { title: 'Чат', icon: 'mdi-chat', route: '/teacher/chat' },
+        { title: t.navigation?.dashboard || 'Панели идоракунӣ', icon: 'mdi-view-dashboard', route: '/teacher' },
+        { title: t.navigation?.my_lessons || 'Дарсҳои ман', icon: 'mdi-teach', route: '/teacher/lessons' },
+        { title: t.navigation?.my_tests || 'Санҷишҳои ман', icon: 'mdi-help-circle', route: '/teacher/tests' },
+        { title: t.navigation?.grades || 'Баҳоҳо', icon: 'mdi-star', route: '/teacher/grades' },
+        { title: t.navigation?.my_students || 'Донишҷӯёни ман', icon: 'mdi-account-group', route: '/teacher/students' },
+        { title: t.navigation?.schedule || 'Ҷадвал', icon: 'mdi-calendar-clock', route: '/teacher/schedule' },
+        { title: t.navigation?.syllabuses || 'Силлабусҳо', icon: 'mdi-file-document-multiple', route: '/teacher/syllabuses' },
+        { title: t.navigation?.chat || 'Чат', icon: 'mdi-chat', route: '/teacher/chat' },
       ]
     
     default: // student
       return [
-        { title: 'Главная', icon: 'mdi-view-dashboard', route: '/student/' },
-        //{ title: 'Мои курсы', icon: 'mdi-book-open-variant', route: '/student/courses' },
-        { title: 'Расписание', icon: 'mdi-calendar-clock', route: '/student/schedule' },
-        { title: 'Экзамены', icon: 'mdi-file-document-edit', route: '/student/tests' },
-        { title: 'Задания', icon: 'mdi-clipboard-text', route: '/student/assignments' },
-        { title: 'Чат', icon: 'mdi-chat', route: '/student/chat' },
-        { title: 'Библиотека', icon: 'mdi-library', route: '/student/library' },
-        { title: 'Оценки', icon: 'mdi-star', route: '/student/grades' }
+        { title: t.navigation?.dashboard || 'Панели идоракунӣ', icon: 'mdi-view-dashboard', route: '/student/' },
+        { title: t.navigation?.schedule || 'Ҷадвал', icon: 'mdi-calendar-clock', route: '/student/schedule' },
+        { title: t.tests?.tests || 'Санҷишҳо', icon: 'mdi-file-document-edit', route: '/student/tests' },
+        { title: t.navigation?.assignments || 'Супоришҳо', icon: 'mdi-clipboard-text', route: '/student/assignments' },
+        { title: t.navigation?.chat || 'Чат', icon: 'mdi-chat', route: '/student/chat' },
+        { title: t.navigation?.library || 'Китобхона', icon: 'mdi-library', route: '/student/library' },
+        { title: t.navigation?.grades || 'Баҳоҳо', icon: 'mdi-star', route: '/student/grades' }
       ]
   }
 })

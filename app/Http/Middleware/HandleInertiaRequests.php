@@ -63,8 +63,11 @@ class HandleInertiaRequests extends Middleware
                     'name' => $user->name,
                     'email' => $user->email,
                     'role' => $user->role ? $user->role->name : null,
+                    'locale' => $user->locale ?? 'tg',
                 ] : null,
             ],
+            'locale' => app()->getLocale(),
+            'translations' => $this->getTranslations(),
             'unreadChatsCount' => $unreadChatsCount,
             'flash' => [
                 'success' => fn () => $request->session()->get('success') ?? null,
@@ -75,6 +78,34 @@ class HandleInertiaRequests extends Middleware
                     return $error[0];
                 })->toArray();
             },
+            'ziggy' => function () use ($request) {
+                return array_merge((new \Tightenco\Ziggy\Ziggy)->toArray(), [
+                    'location' => $request->url(),
+                ]);
+            },
         ];
+    }
+    
+    /**
+     * Получить переводы для текущей локали
+     */
+    protected function getTranslations(): array
+    {
+        $locale = app()->getLocale();
+        $translationFiles = ['auth', 'validation', 'messages', 'dashboard', 'navigation', 
+                            'courses', 'lessons', 'tests', 'grades', 'students', 
+                            'teachers', 'schedule'];
+        
+        $translations = [];
+        foreach ($translationFiles as $file) {
+            $filePath = base_path("lang/{$locale}/{$file}.php");
+            if (file_exists($filePath)) {
+                $translations[$file] = include $filePath;
+            } else {
+                $translations[$file] = [];
+            }
+        }
+        
+        return $translations;
     }
 }

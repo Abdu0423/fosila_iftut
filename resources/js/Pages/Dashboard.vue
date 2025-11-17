@@ -6,8 +6,8 @@
         <v-col cols="12">
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
-              <h1 class="text-h4 font-weight-bold mb-2">Добро пожаловать, студент!</h1>
-              <p class="text-body-1 text-medium-emphasis">Изучайте курсы и отслеживайте свой прогресс</p>
+              <h1 class="text-h4 font-weight-bold mb-2">{{ translations.dashboard?.welcome_student || 'Хуш омадед, донишҷӯ!' }}</h1>
+              <p class="text-body-1 text-medium-emphasis">{{ translations.dashboard?.subtitle_student || 'Курсҳоро омӯзед ва пешрафти худро пайгирӣ кунед' }}</p>
             </div>
             <v-btn
               color="primary"
@@ -15,7 +15,7 @@
               prepend-icon="mdi-play"
               @click="navigateTo('/student/courses')"
             >
-              Начать обучение
+              {{ translations.dashboard?.start_learning || 'Оғози таълим' }}
             </v-btn>
           </div>
         </v-col>
@@ -28,7 +28,7 @@
             <v-card-text class="text-center">
               <v-icon size="48" color="primary" class="mb-4">mdi-book-open-variant</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats.courses }}</div>
-              <div class="text-body-2 text-medium-emphasis">Мои курсы</div>
+              <div class="text-body-2 text-medium-emphasis">{{ translations.dashboard?.my_courses || 'Курсҳои ман' }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -37,7 +37,7 @@
             <v-card-text class="text-center">
               <v-icon size="48" color="success" class="mb-4">mdi-check-circle</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats.completedLessons }}</div>
-              <div class="text-body-2 text-medium-emphasis">Завершенных уроков</div>
+              <div class="text-body-2 text-medium-emphasis">{{ translations.dashboard?.completed_lessons || 'Дарсҳои анҷомёфта' }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -46,7 +46,7 @@
             <v-card-text class="text-center">
               <v-icon size="48" color="info" class="mb-4">mdi-clock</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats.studyHours }}</div>
-              <div class="text-body-2 text-medium-emphasis">Часов обучения</div>
+              <div class="text-body-2 text-medium-emphasis">{{ translations.dashboard?.study_hours || 'Соатҳои таълим' }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -55,7 +55,7 @@
             <v-card-text class="text-center">
               <v-icon size="48" color="warning" class="mb-4">mdi-star</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats.averageGrade }}</div>
-              <div class="text-body-2 text-medium-emphasis">Средний балл</div>
+              <div class="text-body-2 text-medium-emphasis">{{ translations.dashboard?.average_grade || 'Баҳои миёна' }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -68,7 +68,7 @@
           <v-card class="mb-6">
             <v-card-title class="text-h6">
               <v-icon start>mdi-book-open</v-icon>
-              Мои курсы
+              {{ translations.dashboard?.my_courses || 'Курсҳои ман' }}
             </v-card-title>
             <v-card-text>
               <v-list>
@@ -79,7 +79,7 @@
                 >
                   <v-list-item-title>{{ course.name }}</v-list-item-title>
                   <v-list-item-subtitle>
-                    {{ course.description }} • Прогресс: {{ course.progress }}%
+                    {{ course.description }} • {{ translations.dashboard?.progress || 'Пешрафт' }}: {{ course.progress }}%
                   </v-list-item-subtitle>
                   <template v-slot:append>
                     <v-btn
@@ -87,7 +87,7 @@
                       size="small"
                       @click="navigateTo(`/student/courses/${course.id}`)"
                     >
-                      Продолжить
+                      {{ translations.dashboard?.continue || 'Идома додан' }}
                     </v-btn>
                   </template>
                 </v-list-item>
@@ -99,7 +99,7 @@
           <v-card>
             <v-card-title class="text-h6">
               <v-icon start>mdi-star</v-icon>
-              Последние оценки
+              {{ translations.dashboard?.recent_grades || 'Баҳоҳои охирин' }}
             </v-card-title>
             <v-card-text>
               <v-list>
@@ -132,7 +132,7 @@
           <v-card class="mb-6">
             <v-card-title class="text-h6">
               <v-icon start>mdi-lightning-bolt</v-icon>
-              Быстрые действия
+              {{ translations.dashboard?.quick_actions || 'Амалҳои зуд' }}
             </v-card-title>
             <v-card-text>
               <v-list>
@@ -152,7 +152,7 @@
           <v-card class="mb-6">
             <v-card-title class="text-h6">
               <v-icon start>mdi-bell</v-icon>
-              Уведомления
+              {{ translations.messages?.notifications || 'Огоҳиҳо' }}
             </v-card-title>
             <v-card-text>
               <v-list>
@@ -171,7 +171,7 @@
           <v-card>
             <v-card-title class="text-h6">
               <v-icon start>mdi-trophy</v-icon>
-              Достижения
+              {{ translations.dashboard?.achievements || 'Дастовардҳо' }}
             </v-card-title>
             <v-card-text>
               <div v-for="achievement in achievements" :key="achievement.id" class="mb-4">
@@ -197,9 +197,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { ref, computed, onMounted } from 'vue'
+import { router, usePage } from '@inertiajs/vue3'
 import Layout from './Layout.vue'
+
+const page = usePage()
+const translations = computed(() => page.props.translations || {})
 
 // Статистика
 const stats = ref({
@@ -263,60 +266,69 @@ const recentGrades = ref([
 ])
 
 // Быстрые действия
-const quickActions = ref([
-  {
-    title: 'Мои курсы',
-    icon: 'mdi-book-open-variant',
-    route: '/student/courses'
-  },
-  {
-    title: 'Мое расписание',
-    icon: 'mdi-calendar',
-    route: '/student/schedule'
-  },
-  {
-    title: 'Мои задания',
-    icon: 'mdi-clipboard-text',
-    route: '/student/assignments'
-  },
-  {
-    title: 'Мои оценки',
-    icon: 'mdi-star',
-    route: '/student/grades'
-  }
-])
+const quickActions = computed(() => {
+  const t = translations.value.dashboard || {}
+  return [
+    {
+      title: t.my_courses || 'Курсҳои ман',
+      icon: 'mdi-book-open-variant',
+      route: '/student/courses'
+    },
+    {
+      title: t.my_schedule || 'Ҷадвали ман',
+      icon: 'mdi-calendar',
+      route: '/student/schedule'
+    },
+    {
+      title: t.my_assignments || 'Супоришҳои ман',
+      icon: 'mdi-clipboard-text',
+      route: '/student/assignments'
+    },
+    {
+      title: t.my_grades || 'Баҳоҳои ман',
+      icon: 'mdi-star',
+      route: '/student/grades'
+    }
+  ]
+})
 
 // Уведомления
-const notifications = ref([
-  { id: 1, message: 'Новый урок доступен в курсе "Программирование"', time: '2 часа назад' },
-  { id: 2, message: 'Получена оценка за задание "Переменные"', time: '1 день назад' },
-  { id: 3, message: 'Напоминание: дедлайн задания "Функции" завтра', time: '1 день назад' }
-])
+const notifications = computed(() => {
+  const t = translations.value.dashboard || {}
+  return [
+    { id: 1, message: t.notification_new_lesson || 'Дарси нав дар курс "Барномасозӣ" дастрас аст', time: t.time_hours_ago || '2 соат пеш' },
+    { id: 2, message: t.notification_grade || 'Баҳо барои супориши "Тағирёбандаҳо" гирифта шуд', time: t.time_day_ago || '1 рӯз пеш' },
+    { id: 3, message: t.notification_deadline || 'Ёдрасонӣ: мӯҳлати супориши "Функсияҳо" пагоҳ', time: t.time_day_ago || '1 рӯз пеш' }
+  ]
+})
 
 // Достижения
-const achievements = ref([
-  { 
-    id: 1, 
-    title: 'Первые шаги', 
-    description: 'Завершите первый урок',
-    icon: 'mdi-trophy',
-    unlocked: true
-  },
-  { 
-    id: 2, 
-    title: 'Отличник', 
-    description: 'Получите 5 отличных оценок',
-    icon: 'mdi-star',
-    unlocked: true
-  },
-  { 
-    id: 3, 
-    title: 'Трудолюбивый', 
-    description: 'Изучите 10 часов',
-    icon: 'mdi-clock',
-    unlocked: false
-  }
-])
+const achievements = computed(() => {
+  const t = translations.value.dashboard || {}
+  return [
+    { 
+      id: 1, 
+      title: t.achievement_first_steps || 'Қадамҳои аввалин', 
+      description: t.achievement_first_steps_desc || 'Дарси аввалро ба итмом расонед',
+      icon: 'mdi-trophy',
+      unlocked: true
+    },
+    { 
+      id: 2, 
+      title: t.achievement_excellent || 'Хубхон', 
+      description: t.achievement_excellent_desc || '5 баҳои аъло гиред',
+      icon: 'mdi-star',
+      unlocked: true
+    },
+    { 
+      id: 3, 
+      title: t.achievement_hardworking || 'Меҳнаткаш', 
+      description: t.achievement_hardworking_desc || '10 соат таълим бинед',
+      icon: 'mdi-clock',
+      unlocked: false
+    }
+  ]
+})
 
 // Методы
 const navigateTo = (route) => {
@@ -324,7 +336,8 @@ const navigateTo = (route) => {
 }
 
 const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('ru-RU')
+  const locale = page.props.locale || 'tg'
+  return new Date(date).toLocaleDateString(locale === 'tg' ? 'tg-TJ' : 'ru-RU')
 }
 
 const getGradeColor = (grade) => {
@@ -335,7 +348,7 @@ const getGradeColor = (grade) => {
 }
 
 onMounted(() => {
-  console.log('Страница студента загружена')
+  console.log('Dashboard loaded')
 })
 </script>
 

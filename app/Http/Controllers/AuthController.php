@@ -92,8 +92,18 @@ class AuthController extends Controller
             'email' => $user->email,
             'phone' => $user->phone,
             'role_id' => $user->role_id,
-            'role' => $user->role ? $user->role->name : 'no role'
+            'role' => $user->role ? $user->role->name : 'no role',
+            'must_change_password' => $user->must_change_password
         ]);
+        
+        // ВАЖНО: Проверяем, нужно ли пользователю сменить пароль
+        if ($user->must_change_password) {
+            Log::info('Пользователь должен сменить пароль, перенаправление на /change-password', [
+                'user_id' => $user->id
+            ]);
+            return redirect()->route('change-password')
+                ->with('warning', 'Для продолжения работы необходимо сменить ваш пароль.');
+        }
         
         Log::info('Проверка роли пользователя', [
             'role_id' => $user->role_id,
