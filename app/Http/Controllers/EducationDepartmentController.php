@@ -7,6 +7,8 @@ use Inertia\Inertia;
 use App\Models\User;
 use App\Models\Schedule;
 use App\Models\Subject;
+use App\Models\Group;
+use App\Models\Department;
 
 class EducationDepartmentController extends Controller
 {
@@ -134,6 +136,204 @@ class EducationDepartmentController extends Controller
             'subjects' => $subjects,
             'filters' => $request->only(['search']),
         ]);
+    }
+    
+    /**
+     * Показать форму создания предмета
+     */
+    public function createSubject()
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $departments = Department::all();
+        
+        return Inertia::render('EducationDepartment/Subjects/Create', [
+            'departments' => $departments,
+        ]);
+    }
+    
+    /**
+     * Сохранить новый предмет
+     */
+    public function storeSubject(Request $request)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:50|unique:subjects,code',
+            'department_id' => 'nullable|exists:departments,id',
+            'description' => 'nullable|string',
+            'credits' => 'nullable|integer|min:1|max:10',
+            'is_active' => 'boolean',
+        ]);
+        
+        Subject::create($validated);
+        
+        return redirect()->route('education.subjects.index')
+            ->with('success', __('messages.created_successfully', ['resource' => __('education_department.subjects_title')]));
+    }
+    
+    /**
+     * Показать форму редактирования предмета
+     */
+    public function editSubject(Subject $subject)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $subject->load('department');
+        $departments = Department::all();
+        
+        return Inertia::render('EducationDepartment/Subjects/Edit', [
+            'subject' => $subject,
+            'departments' => $departments,
+        ]);
+    }
+    
+    /**
+     * Обновить предмет
+     */
+    public function updateSubject(Request $request, Subject $subject)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:50|unique:subjects,code,' . $subject->id,
+            'department_id' => 'nullable|exists:departments,id',
+            'description' => 'nullable|string',
+            'credits' => 'nullable|integer|min:1|max:10',
+            'is_active' => 'boolean',
+        ]);
+        
+        $subject->update($validated);
+        
+        return redirect()->route('education.subjects.index')
+            ->with('success', __('messages.updated_successfully', ['resource' => __('education_department.subjects_title')]));
+    }
+    
+    /**
+     * Показать форму создания расписания
+     */
+    public function createSchedule()
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $subjects = Subject::where('is_active', true)->get();
+        $groups = Group::all();
+        $teachers = User::whereHas('role', function($q) {
+            $q->where('name', 'teacher');
+        })->get();
+        
+        return Inertia::render('EducationDepartment/Schedules/Create', [
+            'subjects' => $subjects,
+            'groups' => $groups,
+            'teachers' => $teachers,
+        ]);
+    }
+    
+    /**
+     * Сохранить новое расписание
+     */
+    public function storeSchedule(Request $request)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $validated = $request->validate([
+            'subject_id' => 'required|exists:subjects,id',
+            'teacher_id' => 'required|exists:users,id',
+            'group_id' => 'required|exists:groups,id',
+            'semester' => 'required|integer|in:1,2',
+            'credits' => 'required|integer|min:1|max:10',
+            'study_year' => 'required|integer|min:2020|max:2030',
+            'order' => 'required|integer|min:1',
+            'scheduled_at' => 'nullable|date',
+            'is_active' => 'boolean',
+        ]);
+        
+        Schedule::create($validated);
+        
+        return redirect()->route('education.schedules.index')
+            ->with('success', __('messages.created_successfully', ['resource' => __('education_department.schedules_title')]));
+    }
+    
+    /**
+     * Показать форму редактирования расписания
+     */
+    public function editSchedule(Schedule $schedule)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $schedule->load(['subject', 'teacher', 'group']);
+        $subjects = Subject::where('is_active', true)->get();
+        $groups = Group::all();
+        $teachers = User::whereHas('role', function($q) {
+            $q->where('name', 'teacher');
+        })->get();
+        
+        return Inertia::render('EducationDepartment/Schedules/Edit', [
+            'schedule' => $schedule,
+            'subjects' => $subjects,
+            'groups' => $groups,
+            'teachers' => $teachers,
+        ]);
+    }
+    
+    /**
+     * Обновить расписание
+     */
+    public function updateSchedule(Request $request, Schedule $schedule)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $validated = $request->validate([
+            'subject_id' => 'required|exists:subjects,id',
+            'teacher_id' => 'required|exists:users,id',
+            'group_id' => 'required|exists:groups,id',
+            'semester' => 'required|integer|in:1,2',
+            'credits' => 'required|integer|min:1|max:10',
+            'study_year' => 'required|integer|min:2020|max:2030',
+            'order' => 'required|integer|min:1',
+            'scheduled_at' => 'nullable|date',
+            'is_active' => 'boolean',
+        ]);
+        
+        $schedule->update($validated);
+        
+        return redirect()->route('education.schedules.index')
+            ->with('success', __('messages.updated_successfully', ['resource' => __('education_department.schedules_title')]));
     }
 }
 

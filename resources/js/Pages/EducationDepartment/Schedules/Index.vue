@@ -2,13 +2,22 @@
   <Layout role="education_department">
     <v-container fluid class="pa-6">
       <!-- Заголовок -->
-      <div class="mb-6">
-        <h1 class="text-h4 font-weight-bold mb-2">
-          {{ translations.education_department?.schedules_title || 'Расписания' }}
-        </h1>
-        <p class="text-body-1 text-medium-emphasis">
-          {{ translations.education_department?.schedules_subtitle || 'Просмотр всех расписаний' }}
-        </p>
+      <div class="d-flex justify-space-between align-center mb-6">
+        <div>
+          <h1 class="text-h4 font-weight-bold mb-2">
+            {{ translations.education_department?.schedules_title || 'Ҷадвалҳо' }}
+          </h1>
+          <p class="text-body-1 text-medium-emphasis">
+            {{ translations.education_department?.schedules_subtitle || 'Тамошои ҳамаи ҷадвалҳо' }}
+          </p>
+        </div>
+        <v-btn
+          color="primary"
+          prepend-icon="mdi-plus"
+          @click="router.visit(route('education.schedules.create'))"
+        >
+          {{ translations.messages?.add || 'Илова кардан' }}
+        </v-btn>
       </div>
 
       <!-- Фильтры -->
@@ -18,7 +27,7 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="dateFilter"
-                :label="translations.education_department?.filter_by_date || 'Фильтр по дате'"
+                :label="translations.education_department?.filter_by_date || 'Филтр аз рӯи сана'"
                 type="date"
                 prepend-inner-icon="mdi-calendar"
                 clearable
@@ -37,7 +46,7 @@
           <div class="text-center py-8">
             <v-icon size="64" color="grey-lighten-1">mdi-calendar-blank</v-icon>
             <p class="text-h6 text-medium-emphasis mt-4">
-              {{ translations.education_department?.no_schedules || 'Расписания не найдены' }}
+              {{ translations.education_department?.no_schedules || 'Ҷадвалҳо ёфт нашуданд' }}
             </p>
           </div>
         </v-card-text>
@@ -52,7 +61,7 @@
               </template>
 
               <v-list-item-title class="font-weight-medium">
-                {{ schedule.subject?.name || 'Без предмета' }}
+                {{ schedule.subject?.name || translations.education_department?.no_subject || 'Бе фан' }}
               </v-list-item-title>
 
               <v-list-item-subtitle>
@@ -71,6 +80,19 @@
                   </span>
                 </div>
               </v-list-item-subtitle>
+              
+              <template v-slot:append>
+                <v-btn
+                  icon
+                  variant="text"
+                  color="primary"
+                  size="small"
+                  @click="router.visit(route('education.schedules.edit', schedule.id))"
+                  :title="translations.messages?.edit || 'Таҳрир кардан'"
+                >
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+              </template>
             </v-list-item>
 
             <v-divider v-if="index < schedules.data.length - 1" :key="`divider-${schedule.id}`"></v-divider>

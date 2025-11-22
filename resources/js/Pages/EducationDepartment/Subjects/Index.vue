@@ -2,13 +2,22 @@
   <Layout role="education_department">
     <v-container fluid class="pa-6">
       <!-- Заголовок -->
-      <div class="mb-6">
-        <h1 class="text-h4 font-weight-bold mb-2">
-          {{ translations.education_department?.subjects_title || 'Предметы' }}
-        </h1>
-        <p class="text-body-1 text-medium-emphasis">
-          {{ translations.education_department?.subjects_subtitle || 'Список всех предметов' }}
-        </p>
+      <div class="d-flex justify-space-between align-center mb-6">
+        <div>
+          <h1 class="text-h4 font-weight-bold mb-2">
+            {{ translations.education_department?.subjects_title || 'Фанҳо' }}
+          </h1>
+          <p class="text-body-1 text-medium-emphasis">
+            {{ translations.education_department?.subjects_subtitle || 'Рӯйхати ҳамаи фанҳо' }}
+          </p>
+        </div>
+        <v-btn
+          color="primary"
+          prepend-icon="mdi-plus"
+          @click="router.visit(route('education.subjects.create'))"
+        >
+          {{ translations.messages?.add || 'Илова кардан' }}
+        </v-btn>
       </div>
 
       <!-- Поиск -->
@@ -16,7 +25,7 @@
         <v-card-text>
           <v-text-field
             v-model="searchQuery"
-            :label="translations.messages?.search || 'Поиск'"
+            :label="translations.messages?.search || 'Ҷустуҷӯ'"
             prepend-inner-icon="mdi-magnify"
             clearable
             variant="outlined"
@@ -49,9 +58,22 @@
                 </div>
               </div>
 
-              <p v-if="subject.description" class="text-body-2 text-medium-emphasis">
+              <p v-if="subject.description" class="text-body-2 text-medium-emphasis mb-3">
                 {{ subject.description }}
               </p>
+              
+              <div class="d-flex justify-end">
+                <v-btn
+                  icon
+                  variant="text"
+                  color="primary"
+                  size="small"
+                  @click="router.visit(route('education.subjects.edit', subject.id))"
+                  :title="translations.messages?.edit || 'Таҳрир кардан'"
+                >
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+              </div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -63,7 +85,7 @@
               <div class="text-center py-8">
                 <v-icon size="64" color="grey-lighten-1">mdi-book-open-page-variant-outline</v-icon>
                 <p class="text-h6 text-medium-emphasis mt-4">
-                  {{ translations.education_department?.no_subjects || 'Предметы не найдены' }}
+                  {{ translations.education_department?.no_subjects || 'Фанҳо ёфт нашуданд' }}
                 </p>
               </div>
             </v-card-text>

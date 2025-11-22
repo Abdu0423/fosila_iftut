@@ -495,9 +495,17 @@ Route::prefix('education')->middleware(['auth', 'education.department', 'check.p
     
     // Расписания
     Route::get('/schedules', [App\Http\Controllers\EducationDepartmentController::class, 'schedules'])->name('education.schedules.index');
+    Route::get('/schedules/create', [App\Http\Controllers\EducationDepartmentController::class, 'createSchedule'])->name('education.schedules.create');
+    Route::post('/schedules', [App\Http\Controllers\EducationDepartmentController::class, 'storeSchedule'])->name('education.schedules.store');
+    Route::get('/schedules/{schedule}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editSchedule'])->name('education.schedules.edit');
+    Route::put('/schedules/{schedule}', [App\Http\Controllers\EducationDepartmentController::class, 'updateSchedule'])->name('education.schedules.update');
     
     // Предметы
     Route::get('/subjects', [App\Http\Controllers\EducationDepartmentController::class, 'subjects'])->name('education.subjects.index');
+    Route::get('/subjects/create', [App\Http\Controllers\EducationDepartmentController::class, 'createSubject'])->name('education.subjects.create');
+    Route::post('/subjects', [App\Http\Controllers\EducationDepartmentController::class, 'storeSubject'])->name('education.subjects.store');
+    Route::get('/subjects/{subject}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editSubject'])->name('education.subjects.edit');
+    Route::put('/subjects/{subject}', [App\Http\Controllers\EducationDepartmentController::class, 'updateSubject'])->name('education.subjects.update');
 });
 
 // Тестовые маршруты для SMS (удалить в production или защитить middleware)

@@ -4,10 +4,10 @@
       <!-- Заголовок -->
       <div class="mb-6">
         <h1 class="text-h4 font-weight-bold mb-2">
-          {{ translations.education_department?.dashboard_title || 'Панель отдела образования' }}
+          {{ translations.education_department?.dashboard_title || 'Панели Шӯъбаи таълим' }}
         </h1>
         <p class="text-body-1 text-medium-emphasis">
-          {{ translations.education_department?.dashboard_subtitle || 'Управление образовательным процессом' }}
+          {{ translations.education_department?.dashboard_subtitle || 'Идоракунии раванди таълимӣ' }}
         </p>
       </div>
 
@@ -19,7 +19,7 @@
               <div class="d-flex align-center justify-space-between">
                 <div>
                   <p class="text-caption text-medium-emphasis mb-1">
-                    {{ translations.education_department?.total_users || 'Всего пользователей' }}
+                    {{ translations.education_department?.total_users || 'Ҳамаи корбарон' }}
                   </p>
                   <h2 class="text-h4 font-weight-bold">{{ stats.total_users }}</h2>
                 </div>
@@ -37,7 +37,7 @@
               <div class="d-flex align-center justify-space-between">
                 <div>
                   <p class="text-caption text-medium-emphasis mb-1">
-                    {{ translations.education_department?.total_teachers || 'Преподавателей' }}
+                    {{ translations.education_department?.total_teachers || 'Муаллимон' }}
                   </p>
                   <h2 class="text-h4 font-weight-bold">{{ stats.total_teachers }}</h2>
                 </div>
@@ -55,7 +55,7 @@
               <div class="d-flex align-center justify-space-between">
                 <div>
                   <p class="text-caption text-medium-emphasis mb-1">
-                    {{ translations.education_department?.total_students || 'Студентов' }}
+                    {{ translations.education_department?.total_students || 'Донишҷӯён' }}
                   </p>
                   <h2 class="text-h4 font-weight-bold">{{ stats.total_students }}</h2>
                 </div>
@@ -73,7 +73,7 @@
               <div class="d-flex align-center justify-space-between">
                 <div>
                   <p class="text-caption text-medium-emphasis mb-1">
-                    {{ translations.education_department?.total_subjects || 'Предметов' }}
+                    {{ translations.education_department?.total_subjects || 'Фанҳо' }}
                   </p>
                   <h2 class="text-h4 font-weight-bold">{{ stats.total_subjects }}</h2>
                 </div>
@@ -90,7 +90,7 @@
       <v-card class="mt-6">
         <v-card-title>
           <v-icon class="mr-2">mdi-lightning-bolt</v-icon>
-          {{ translations.education_department?.quick_access || 'Быстрый доступ' }}
+          {{ translations.education_department?.quick_access || 'Дастрасии тез' }}
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text>
@@ -104,7 +104,7 @@
               >
                 <v-card-text class="text-center pa-6">
                   <v-icon size="48" class="mb-3">mdi-account-group</v-icon>
-                  <h3 class="text-h6">{{ translations.education_department?.manage_users || 'Управление пользователями' }}</h3>
+                  <h3 class="text-h6">{{ translations.education_department?.manage_users || 'Идоракунии корбарон' }}</h3>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -118,7 +118,7 @@
               >
                 <v-card-text class="text-center pa-6">
                   <v-icon size="48" class="mb-3">mdi-calendar-clock</v-icon>
-                  <h3 class="text-h6">{{ translations.education_department?.view_schedules || 'Расписания' }}</h3>
+                  <h3 class="text-h6">{{ translations.education_department?.view_schedules || 'Ҷадвалҳо' }}</h3>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -132,7 +132,7 @@
               >
                 <v-card-text class="text-center pa-6">
                   <v-icon size="48" class="mb-3">mdi-book-open-page-variant</v-icon>
-                  <h3 class="text-h6">{{ translations.education_department?.manage_subjects || 'Управление предметами' }}</h3>
+                  <h3 class="text-h6">{{ translations.education_department?.manage_subjects || 'Идоракунии фанҳо' }}</h3>
                 </v-card-text>
               </v-card>
             </v-col>

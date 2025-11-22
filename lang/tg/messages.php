@@ -83,6 +83,7 @@ return [
     'status' => 'Ҳолат',
     'type' => 'Намуд',
     'category' => 'Категория',
+    'order' => 'Тартиб',
     'email' => 'Email',
     'phone' => 'Телефон',
     'address' => 'Суроға',

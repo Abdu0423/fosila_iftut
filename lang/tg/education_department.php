@@ -47,5 +47,25 @@ return [
     'subjects_subtitle' => 'Рӯйхати ҳамаи фанҳо',
     'no_subjects' => 'Фанҳо ёфт нашуданд',
     'courses' => 'курсҳо',
+    'create_subject' => 'Сохтани фан',
+    'edit_subject' => 'Таҳрири фан',
+    'subject_name' => 'Номи фан',
+    'subject_code' => 'Коди фан',
+    'subject_description' => 'Тавсифи фан',
+    'subject_credits' => 'Кредитҳо',
+    'subject_active' => 'Фаъол',
+    
+    // Расписания - дополнительные ключи
+    'create_schedule' => 'Сохтани ҷадвал',
+    'edit_schedule' => 'Таҳрири ҷадвал',
+    'schedule_subject' => 'Фан',
+    'schedule_teacher' => 'Муаллим',
+    'schedule_group' => 'Гурӯҳ',
+    'schedule_date' => 'Сана',
+    'schedule_time' => 'Вақт',
+    'schedule_semester' => 'Семестр',
+    'schedule_study_year' => 'Соли таҳсил',
+    'schedule_room' => 'Аудитория',
+    'no_subject' => 'Бе фан',
 ];
 
