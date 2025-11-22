@@ -71,6 +71,8 @@ class ChangePasswordController extends Controller
             return 'admin.dashboard';
         } elseif ($user->isTeacher()) {
             return 'teacher.dashboard';
+        } elseif ($user->isEducationDepartment()) {
+            return 'education.dashboard';
         } else {
             return 'student.dashboard';
         }

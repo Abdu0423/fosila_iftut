@@ -123,6 +123,8 @@ Route::middleware('auth')->group(function () {
             return redirect()->route('admin.dashboard');
         } elseif ($user->isTeacher()) {
             return redirect()->route('teacher.dashboard');
+        } elseif ($user->isEducationDepartment()) {
+            return redirect()->route('education.dashboard');
         } else {
             return redirect()->route('student.dashboard');
         }
@@ -480,6 +482,22 @@ Route::prefix('teacher')->middleware(['auth', 'teacher', 'check.password.change'
     Route::get('/chat/{chat}/messages', [App\Http\Controllers\ChatController::class, 'getMessages'])->name('teacher.chat.get-messages');
     Route::post('/chat/{chat}/read', [App\Http\Controllers\ChatController::class, 'markAsRead'])->name('teacher.chat.mark-read');
     Route::delete('/chat/{chat}/leave', [App\Http\Controllers\ChatController::class, 'leave'])->name('teacher.chat.leave');
+});
+
+// Маршруты для отдела образования
+Route::prefix('education')->middleware(['auth', 'education.department', 'check.password.change'])->group(function () {
+    // Dashboard
+    Route::get('/', [App\Http\Controllers\EducationDepartmentController::class, 'dashboard'])->name('education.dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\EducationDepartmentController::class, 'dashboard'])->name('education.dashboard.alternative');
+    
+    // Пользователи
+    Route::get('/users', [App\Http\Controllers\EducationDepartmentController::class, 'users'])->name('education.users.index');
+    
+    // Расписания
+    Route::get('/schedules', [App\Http\Controllers\EducationDepartmentController::class, 'schedules'])->name('education.schedules.index');
+    
+    // Предметы
+    Route::get('/subjects', [App\Http\Controllers\EducationDepartmentController::class, 'subjects'])->name('education.subjects.index');
 });
 
 // Тестовые маршруты для SMS (удалить в production или защитить middleware)

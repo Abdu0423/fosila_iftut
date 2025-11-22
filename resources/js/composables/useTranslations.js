@@ -1,58 +1,80 @@
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
 
-// Composable для использования переводов
 export function useTranslations() {
     const page = usePage()
     
-    // Получаем текущую локаль из данных страницы
     const locale = computed(() => {
         return page.props.locale || 'tg'
     })
     
-    // Получаем переводы из props
     const translations = computed(() => {
         return page.props.translations || {}
     })
     
-    // Функция для смены языка
     const changeLocale = async (newLocale) => {
         if (!['ru', 'tg'].includes(newLocale)) {
-            console.error('Invalid locale:', newLocale)
+            console.error('❌ Invalid locale:', newLocale)
             return
         }
         
+        console.log('🌍 Changing locale to:', newLocale)
+        
         try {
-            await router.post('/locale/change', {
-                locale: newLocale
-            }, {
-                preserveState: false,
-                preserveScroll: true,
-                onSuccess: () => {
-                    localStorage.setItem('locale', newLocale)
-                    // Страница перезагрузится автоматически с preserveState: false
-                }
+            // Получаем CSRF токен
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+            if (!csrfToken) {
+                console.error('❌ CSRF token not found')
+                return
+            }
+            
+            // Отправляем POST запрос
+            const response = await fetch('/locale/change', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({ locale: newLocale })
             })
+            
+            if (response.ok) {
+                const data = await response.json()
+                console.log('✅ Locale changed:', data)
+                
+                // Сохраняем в localStorage
+                localStorage.setItem('locale', newLocale)
+                
+                // Полная перезагрузка страницы с новым языком
+                const currentUrl = new URL(window.location.href)
+                currentUrl.searchParams.set('_locale', newLocale)
+                currentUrl.searchParams.set('_t', Date.now())
+                
+                window.location.href = currentUrl.toString()
+            } else {
+                const error = await response.json().catch(() => ({ message: 'Unknown error' }))
+                console.error('❌ Error changing locale:', error)
+                alert('Ошибка при смене языка: ' + (error.message || 'Неизвестная ошибка'))
+            }
         } catch (error) {
-            console.error('Error changing locale:', error)
+            console.error('❌ Exception changing locale:', error)
+            alert('Ошибка при смене языка: ' + error.message)
         }
     }
     
-    // Функция для получения перевода
     const __ = (key, replacements = {}) => {
-        // В Laravel используется формат 'file.key' или просто 'key'
         const parts = key.split('.')
         let translation = key
         
         if (parts.length === 2) {
             const [file, translationKey] = parts
-            
-            // Получаем перевод из translations
             if (translations.value[file] && translations.value[file][translationKey]) {
                 translation = translations.value[file][translationKey]
             }
         } else if (parts.length === 1) {
-            // Пробуем найти ключ во всех файлах
             for (const file in translations.value) {
                 if (translations.value[file][key]) {
                     translation = translations.value[file][key]
@@ -61,7 +83,6 @@ export function useTranslations() {
             }
         }
         
-        // Заменяем плейсхолдеры
         Object.keys(replacements).forEach(placeholder => {
             translation = String(translation).replace(`:${placeholder}`, replacements[placeholder])
         })
@@ -69,7 +90,6 @@ export function useTranslations() {
         return translation
     }
     
-    // Получаем название языка
     const getLocaleName = (loc) => {
         const names = {
             ru: 'Русский',
@@ -78,7 +98,6 @@ export function useTranslations() {
         return names[loc] || loc
     }
     
-    // Получаем флаг языка (эмодзи)
     const getLocaleFlag = (loc) => {
         const flags = {
             ru: '🇷🇺',
@@ -96,17 +115,3 @@ export function useTranslations() {
         translations
     }
 }
-
-// Экспортируем также простую функцию для использования вне composable
-export function trans(key, replacements = {}) {
-    // Это упрощенная версия, которая возвращает ключ как есть
-    // В реальном приложении здесь был бы доступ к хранилищу переводов
-    let translation = key
-    
-    Object.keys(replacements).forEach(placeholder => {
-        translation = translation.replace(`:${placeholder}`, replacements[placeholder])
-    })
-    
-    return translation
-}
-

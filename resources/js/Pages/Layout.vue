@@ -81,22 +81,9 @@
       </v-toolbar-title>
       
       <v-spacer></v-spacer>
-
-      <!-- Поиск (только на десктопе) -->
-      <v-text-field
-        v-if="!isMobile"
-        density="compact"
-        variant="solo"
-        :label="translations.messages?.search || 'Ҷустуҷӯ...'"
-        prepend-inner-icon="mdi-magnify"
-        single-line
-        hide-details
-        class="mr-4 search-field"
-        style="max-width: 300px;"
-      ></v-text-field>
       
       <!-- Переключатель языка -->
-      <LanguageSwitcher :compact="isMobile" class="mr-2" />
+      <LanguageSwitcher :compact="isMobile" class="mr-4" />
       
       <!-- Уведомления -->
       <v-btn icon :color="appBarIconColor" class="mr-2 notification-btn">
@@ -206,8 +193,8 @@ const { mobile, xs, sm, mdAndDown } = useDisplay()
 const props = defineProps({
   role: {
     type: String,
-    default: 'student',
-    validator: (value) => ['admin', 'teacher', 'student'].includes(value)
+    default: null, // Если не передан, берём из user.role
+    validator: (value) => !value || ['admin', 'teacher', 'student', 'education_department'].includes(value)
   }
 })
 
@@ -247,10 +234,29 @@ const translations = computed(() => page.props.translations || {})
 const user = computed(() => page.props.auth?.user || {})
 const userName = computed(() => user.value.name || translations.value.messages?.user || 'Корбар')
 const userAvatar = computed(() => user.value.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName.value)}`)
+
+// Определяем роль: сначала из props, если не передана - из user.role
+const currentRole = computed(() => {
+  // Логируем для отладки
+  console.log('🔍 Layout: Determining role - DEBUG', {
+    propsRole: props.role,
+    userValue: user.value,
+    userRole: user.value?.role,
+    pagePropsAuth: page.props.auth,
+    pagePropsAuthUser: page.props.auth?.user,
+    finalRole: props.role || user.value?.role || 'student'
+  })
+  
+  const role = props.role || user.value?.role || 'student'
+  
+  return role
+})
+
 const userRole = computed(() => {
-  switch (props.role) {
+  switch (currentRole.value) {
     case 'admin': return translations.value.navigation?.admin_panel || 'Маъмур'
     case 'teacher': return translations.value.navigation?.teacher || 'Муаллим'
+    case 'education_department': return translations.value.education_department?.role_name || 'Шӯъбаи таълим'
     default: return translations.value.navigation?.student || 'Донишҷӯ'
   }
 })
@@ -282,41 +288,46 @@ const footerTextClass = computed(() => 'text-grey-lighten-1')
 
 // Заголовки в зависимости от роли
 const headerIcon = computed(() => {
-  switch (props.role) {
+  switch (currentRole.value) {
     case 'admin': return 'mdi-shield-crown'
     case 'teacher': return 'mdi-teach'
+    case 'education_department': return 'mdi-domain'
     default: return 'mdi-school'
   }
 })
 
 const headerTitle = computed(() => {
-  switch (props.role) {
+  switch (currentRole.value) {
     case 'admin': return translations.value.navigation?.admin_panel || 'Панели маъмур'
     case 'teacher': return translations.value.navigation?.teacher || 'Панели муаллим'
-    default: return 'ИФТУТ - Таълими масофавӣ'
+    case 'education_department': return translations.value.education_department?.panel_title || 'Шӯъбаи таълим'
+    default: return 'ИФТУТ - Таълими фосилавӣ'
   }
 })
 
 const headerSubtitle = computed(() => {
-  switch (props.role) {
+  switch (currentRole.value) {
     case 'admin': return translations.value.navigation?.system_settings || 'Идоракунии система'
     case 'teacher': return translations.value.navigation?.course_management || 'Идоракунии курсҳо ва донишҷӯён'
+    case 'education_department': return translations.value.education_department?.panel_subtitle || 'Идоракунии раванди таълим'
     default: return translations.value.messages?.education || 'Таълим'
   }
 })
 
 const appBarTitle = computed(() => {
-  switch (props.role) {
+  switch (currentRole.value) {
     case 'admin': return 'ИФТУТ ' + (translations.value.navigation?.admin_panel || 'Маъмур')
     case 'teacher': return 'ИФТУТ ' + (translations.value.navigation?.teacher || 'Муаллим')
+    case 'education_department': return 'ИФТУТ ' + (translations.value.education_department?.role_name || 'Шӯъбаи таълим')
     default: return 'ИФТУТ ' + (translations.value.students?.student || 'Донишҷӯ')
   }
 })
 
 const appBarTitleShort = computed(() => {
-  switch (props.role) {
+  switch (currentRole.value) {
     case 'admin': return translations.value.navigation?.admin_panel || 'Маъмур'
     case 'teacher': return translations.value.navigation?.teacher || 'Муаллим'
+    case 'education_department': return translations.value.education_department?.role_name_short || 'ШМ'
     default: return 'ИФТУТ'
   }
 })
@@ -324,7 +335,7 @@ const appBarTitleShort = computed(() => {
 // Пункты меню в зависимости от роли
 const menuItems = computed(() => {
   const t = translations.value
-  switch (props.role) {
+  switch (currentRole.value) {
     case 'admin':
       return [
         { title: t.navigation?.dashboard || 'Панели идоракунӣ', icon: 'mdi-view-dashboard', route: '/admin' },
@@ -352,6 +363,14 @@ const menuItems = computed(() => {
         { title: t.navigation?.schedule || 'Ҷадвал', icon: 'mdi-calendar-clock', route: '/teacher/schedule' },
         { title: t.navigation?.syllabuses || 'Силлабусҳо', icon: 'mdi-file-document-multiple', route: '/teacher/syllabuses' },
         { title: t.navigation?.chat || 'Чат', icon: 'mdi-chat', route: '/teacher/chat' },
+      ]
+    
+    case 'education_department':
+      return [
+        { title: t.navigation?.dashboard || 'Панели идоракунӣ', icon: 'mdi-view-dashboard', route: '/education' },
+        { title: t.education_department?.users_menu || 'Корбарон', icon: 'mdi-account-group', route: '/education/users' },
+        { title: t.education_department?.schedules_menu || 'Ҷадвалҳо', icon: 'mdi-calendar-clock', route: '/education/schedules' },
+        { title: t.education_department?.subjects_menu || 'Фанҳо', icon: 'mdi-book-open-page-variant', route: '/education/subjects' },
       ]
     
     default: // student

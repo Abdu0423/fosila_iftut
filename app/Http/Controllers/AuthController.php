@@ -43,16 +43,16 @@ class AuthController extends Controller
             'normalized_phone' => $normalizedPhone
         ]);
 
-        // Ищем пользователя по email или телефону
+        // Ищем пользователя по email или телефону с загрузкой роли
         $user = null;
         if ($isEmail) {
-            $user = \App\Models\User::where('email', $login)->first();
+            $user = \App\Models\User::with('role')->where('email', $login)->first();
         } else {
             // Нормализуем телефон для поиска (убираем все кроме цифр)
             $phoneDigits = preg_replace('/[^0-9]/', '', $login);
             
             // Ищем по телефону (точное совпадение или нормализованное)
-            $user = \App\Models\User::where(function ($query) use ($login, $normalizedPhone, $phoneDigits) {
+            $user = \App\Models\User::with('role')->where(function ($query) use ($login, $normalizedPhone, $phoneDigits) {
                 $query->where('phone', $login)
                     ->orWhere('phone', $normalizedPhone)
                     ->orWhere('phone', $phoneDigits);
@@ -110,18 +110,23 @@ class AuthController extends Controller
             'role_name' => $user->role ? $user->role->name : 'no role'
         ]);
         
-        // Проверяем по role_id: 1 = admin, 2 = teacher, 3 = student
-        if ($user->role_id == 1) {
+        // Проверяем роль пользователя через методы модели
+        if ($user->isAdmin()) {
             Log::info('Перенаправление администратора на /admin');
             return redirect('/admin');
         }
 
-        if ($user->role_id == 2) {
-            Log::info('Перенаправление учителя на /teacher/');
+        if ($user->isTeacher()) {
+            Log::info('Перенаправление преподавателя на /teacher/');
             return redirect('/teacher/');
         }
 
-        if ($user->role_id == 3) {
+        if ($user->isEducationDepartment()) {
+            Log::info('Перенаправление отдела образования на /education');
+            return redirect('/education');
+        }
+
+        if ($user->isStudent()) {
             Log::info('Перенаправление студента на /student/');
             return redirect('/student/');
         }

@@ -83,7 +83,7 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'tg'),
+    'locale' => env('APP_LOCALE', 'tg'), // Default: tg (Tajik)
 
     /*
     |--------------------------------------------------------------------------

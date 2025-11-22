@@ -20,14 +20,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Устанавливаем локаль для приложения
-        app()->setLocale('en');
-        
-        // Устанавливаем локаль для Carbon
-        Carbon::setLocale('en');
-        
-        // Альтернативно, для русского языка:
-        // app()->setLocale('ru');
-        // Carbon::setLocale('ru');
+        // Локаль устанавливается в SetLocale middleware
+        // Не устанавливаем здесь, чтобы не перезаписывать middleware
+        // Carbon::setLocale будет установлен в SetLocale middleware вместе с app()->setLocale()
     }
 }

@@ -8,6 +8,7 @@ return [
     */
 
     // Common actions
+    'add' => 'Добавить',
     'create' => 'Создать',
     'edit' => 'Редактировать',
     'update' => 'Обновить',

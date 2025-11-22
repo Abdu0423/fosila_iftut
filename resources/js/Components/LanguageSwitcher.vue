@@ -1,8 +1,8 @@
 <template>
   <v-menu offset-y>
-    <template v-slot:activator="{ props }">
+    <template v-slot:activator="{ props: menuProps }">
       <v-btn
-        v-bind="props"
+        v-bind="menuProps"
         variant="text"
         :prepend-icon="compact ? undefined : 'mdi-translate'"
         class="language-switcher"
@@ -20,9 +20,10 @@
         :key="loc"
         @click="changeLanguage(loc)"
         :active="loc === currentLocale"
-        :prepend-icon="loc === currentLocale ? 'mdi-check' : undefined"
       >
         <template v-slot:prepend>
+          <v-icon v-if="loc === currentLocale" color="primary" class="mr-2">mdi-check</v-icon>
+          <span v-else class="mr-2" style="width: 24px; display: inline-block;"></span>
           <span class="mr-3 flag-emoji">{{ getLocaleFlag(loc) }}</span>
         </template>
         <v-list-item-title>{{ getLocaleName(loc) }}</v-list-item-title>
@@ -34,7 +35,6 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useTranslations } from '../composables/useTranslations'
-import { usePage } from '@inertiajs/vue3'
 
 const props = defineProps({
   compact: {
@@ -43,13 +43,12 @@ const props = defineProps({
   }
 })
 
-const page = usePage()
 const { locale, changeLocale, getLocaleName, getLocaleFlag } = useTranslations()
 
 const availableLocales = ref(['ru', 'tg'])
 
 const currentLocale = computed(() => {
-  return locale.value || 'ru'
+  return locale.value || 'tg'
 })
 
 const changeLanguage = async (newLocale) => {
@@ -88,4 +87,3 @@ const changeLanguage = async (newLocale) => {
   background-color: rgba(0, 0, 0, 0.04);
 }
 </style>
-

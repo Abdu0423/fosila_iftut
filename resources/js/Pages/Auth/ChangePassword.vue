@@ -20,23 +20,23 @@
               <v-card-text class="pa-6">
                 <!-- Уведомления -->
                 <v-alert
-                  v-if="$page.props.flash?.warning"
+                  v-if="page.props.flash?.warning"
                   type="warning"
                   variant="tonal"
                   class="mb-4"
                   closable
                 >
-                  {{ $page.props.flash.warning }}
+                  {{ page.props.flash.warning }}
                 </v-alert>
 
                 <v-alert
-                  v-if="$page.props.flash?.success"
+                  v-if="page.props.flash?.success"
                   type="success"
                   variant="tonal"
                   class="mb-4"
                   closable
                 >
-                  {{ $page.props.flash.success }}
+                  {{ page.props.flash.success }}
                 </v-alert>
 
                 <!-- Информация о пользователе -->
@@ -53,51 +53,57 @@
                 </div>
 
                 <!-- Форма смены пароля -->
-                <v-form @submit.prevent="submitForm" ref="form">
+                <v-form @submit.prevent="handleSubmit" ref="formRef">
                   <!-- Текущий пароль -->
                   <v-text-field
-                    v-model="form.current_password"
+                    :model-value="formData.current_password"
+                    @update:model-value="updateField('current_password', $event)"
                     label="Текущий пароль"
                     :type="showCurrentPassword ? 'text' : 'password'"
                     :append-inner-icon="showCurrentPassword ? 'mdi-eye-off' : 'mdi-eye'"
-                    @click:append-inner="showCurrentPassword = !showCurrentPassword"
+                    @click:append-inner="toggleShowCurrentPassword"
                     variant="outlined"
                     density="comfortable"
-                    :error-messages="getError('current_password')"
+                    :error-messages="getErrorMessage('current_password')"
                     prepend-inner-icon="mdi-lock"
                     class="mb-4"
                     required
+                    autocomplete="current-password"
                   />
 
                   <!-- Новый пароль -->
                   <v-text-field
-                    v-model="form.password"
+                    :model-value="formData.password"
+                    @update:model-value="updateField('password', $event)"
                     label="Новый пароль"
                     :type="showPassword ? 'text' : 'password'"
                     :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
-                    @click:append-inner="showPassword = !showPassword"
+                    @click:append-inner="toggleShowPassword"
                     variant="outlined"
                     density="comfortable"
-                    :error-messages="getError('password')"
+                    :error-messages="getErrorMessage('password')"
                     prepend-inner-icon="mdi-lock-plus"
                     hint="Минимум 4 символа"
                     class="mb-4"
                     required
+                    autocomplete="new-password"
                   />
 
                   <!-- Подтверждение пароля -->
                   <v-text-field
-                    v-model="form.password_confirmation"
+                    :model-value="formData.password_confirmation"
+                    @update:model-value="updateField('password_confirmation', $event)"
                     label="Подтвердите новый пароль"
                     :type="showPasswordConfirmation ? 'text' : 'password'"
                     :append-inner-icon="showPasswordConfirmation ? 'mdi-eye-off' : 'mdi-eye'"
-                    @click:append-inner="showPasswordConfirmation = !showPasswordConfirmation"
+                    @click:append-inner="toggleShowPasswordConfirmation"
                     variant="outlined"
                     density="comfortable"
-                    :error-messages="getError('password_confirmation')"
+                    :error-messages="getErrorMessage('password_confirmation')"
                     prepend-inner-icon="mdi-lock-check"
                     class="mb-4"
                     required
+                    autocomplete="new-password"
                   />
 
                   <!-- Кнопки действий -->
@@ -106,7 +112,7 @@
                       type="submit"
                       color="primary"
                       size="large"
-                      :loading="loading"
+                      :loading="isLoading"
                       block
                       class="text-none"
                     >
@@ -122,7 +128,7 @@
                     color="error"
                     variant="outlined"
                     size="large"
-                    @click="logout"
+                    @click="handleLogout"
                     block
                     class="text-none"
                   >
@@ -140,7 +146,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
 
 const props = defineProps({
@@ -152,43 +158,75 @@ const props = defineProps({
 
 const page = usePage()
 
-const form = ref({
+// Состояние формы - используем reactive для реактивности
+const formData = reactive({
   current_password: '',
   password: '',
   password_confirmation: ''
 })
 
+// Состояние UI
 const showCurrentPassword = ref(false)
 const showPassword = ref(false)
 const showPasswordConfirmation = ref(false)
-const loading = ref(false)
+const isLoading = ref(false)
+const formRef = ref(null)
 
-// Получаем ошибки из Inertia
-const getError = (field) => {
+// Методы для обновления полей формы
+const updateField = (field, value) => {
+  formData[field] = value
+}
+
+// Методы для переключения видимости паролей
+const toggleShowCurrentPassword = () => {
+  showCurrentPassword.value = !showCurrentPassword.value
+}
+
+const toggleShowPassword = () => {
+  showPassword.value = !showPassword.value
+}
+
+const toggleShowPasswordConfirmation = () => {
+  showPasswordConfirmation.value = !showPasswordConfirmation.value
+}
+
+// Метод для получения ошибок
+const getErrorMessage = (field) => {
   return page.props.errors?.[field] || null
 }
 
-// Отправка формы
-const submitForm = () => {
-  loading.value = true
+// Метод для отправки формы
+const handleSubmit = () => {
+  if (isLoading.value) return
   
-  // Отправляем только данные формы без реактивности Vue
-  router.post(route('change-password.update'), {
-    current_password: form.value.current_password,
-    password: form.value.password,
-    password_confirmation: form.value.password_confirmation
-  }, {
+  isLoading.value = true
+  
+  // Создаём копию данных для отправки
+  const submitData = {
+    current_password: formData.current_password,
+    password: formData.password,
+    password_confirmation: formData.password_confirmation
+  }
+  
+  router.post(route('change-password.update'), submitData, {
+    preserveState: true,
+    preserveScroll: true,
     onFinish: () => {
-      loading.value = false
+      isLoading.value = false
+    },
+    onSuccess: () => {
+      // При успехе форма очистится автоматически при редиректе
+      console.log('✅ Пароль успешно изменен')
     },
     onError: (errors) => {
-      console.error('Ошибки:', errors)
+      console.error('❌ Ошибки при смене пароля:', errors)
+      // При ошибке данные остаются в форме благодаря preserveState: true
     }
   })
 }
 
-// Выход из системы
-const logout = () => {
+// Метод для выхода
+const handleLogout = () => {
   router.post(route('logout'))
 }
 </script>
@@ -201,18 +239,6 @@ const logout = () => {
 
 .bg-primary {
   background: linear-gradient(135deg, #5e72e4 0%, #825ee4 100%) !important;
-}
-
-.requirement {
-  display: flex;
-  align-items: center;
-  margin-bottom: 8px;
-  opacity: 0.6;
-  transition: opacity 0.3s ease;
-}
-
-.requirement.met {
-  opacity: 1;
 }
 
 .v-card {

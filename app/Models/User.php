@@ -114,6 +114,15 @@ class User extends Authenticatable
         return $this->role && $this->role->name === 'student';
     }
 
+    public function isEducationDepartment()
+    {
+        // Если роль не загружена, загружаем её
+        if (!$this->relationLoaded('role')) {
+            $this->load('role');
+        }
+        return $this->role && $this->role->name === 'education_department';
+    }
+
     /**
      * Чаты пользователя
      */
