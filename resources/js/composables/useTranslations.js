@@ -48,12 +48,12 @@ export function useTranslations() {
                 // Сохраняем в localStorage
                 localStorage.setItem('locale', newLocale)
                 
-                // Полная перезагрузка страницы с новым языком
-                const currentUrl = new URL(window.location.href)
-                currentUrl.searchParams.set('_locale', newLocale)
-                currentUrl.searchParams.set('_t', Date.now())
-                
-                window.location.href = currentUrl.toString()
+                // Перезагружаем страницу через Inertia без добавления параметров к URL
+                router.reload({
+                    only: ['locale', 'translations'],
+                    preserveState: false,
+                    preserveScroll: false
+                })
             } else {
                 const error = await response.json().catch(() => ({ message: 'Unknown error' }))
                 console.error('❌ Error changing locale:', error)

@@ -45,6 +45,11 @@ class Group extends Model
         return $this->belongsToMany(User::class, 'group_student');
     }
 
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
     public function schedules()
     {
         return $this->hasMany(Schedule::class);

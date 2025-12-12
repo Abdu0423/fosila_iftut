@@ -493,6 +493,9 @@ Route::prefix('education')->middleware(['auth', 'education.department', 'check.p
     // Пользователи
     Route::get('/users', [App\Http\Controllers\EducationDepartmentController::class, 'users'])->name('education.users.index');
     
+    // Группы
+    Route::get('/groups', [App\Http\Controllers\EducationDepartmentController::class, 'groups'])->name('education.groups.index');
+    
     // Расписания
     Route::get('/schedules', [App\Http\Controllers\EducationDepartmentController::class, 'schedules'])->name('education.schedules.index');
     Route::get('/schedules/create', [App\Http\Controllers\EducationDepartmentController::class, 'createSchedule'])->name('education.schedules.create');

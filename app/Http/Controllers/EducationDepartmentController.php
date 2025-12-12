@@ -81,6 +81,41 @@ class EducationDepartmentController extends Controller
     }
     
     /**
+     * Страница групп
+     */
+    public function groups(Request $request)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $query = Group::query();
+        
+        // Поиск
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('full_name', 'like', "%{$search}%");
+            });
+        }
+        
+        // Фильтр по статусу
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+        
+        $groups = $query->withCount('users')->orderBy('name')->paginate(20);
+        
+        return Inertia::render('EducationDepartment/Groups/Index', [
+            'groups' => $groups,
+            'filters' => $request->only(['search', 'status']),
+        ]);
+    }
+    
+    /**
      * Страница расписаний
      */
     public function schedules(Request $request)

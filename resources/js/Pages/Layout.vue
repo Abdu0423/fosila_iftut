@@ -369,8 +369,9 @@ const menuItems = computed(() => {
       return [
         { title: t.navigation?.dashboard || 'Панели идоракунӣ', icon: 'mdi-view-dashboard', route: '/education' },
         { title: t.education_department?.users_menu || 'Корбарон', icon: 'mdi-account-group', route: '/education/users' },
-        { title: t.education_department?.schedules_menu || 'Ҷадвалҳо', icon: 'mdi-calendar-clock', route: '/education/schedules' },
+        { title: t.education_department?.groups_menu || 'Гурӯҳҳо', icon: 'mdi-account-multiple', route: '/education/groups' },
         { title: t.education_department?.subjects_menu || 'Фанҳо', icon: 'mdi-book-open-page-variant', route: '/education/subjects' },
+        { title: t.education_department?.schedules_menu || 'Ҷадвалҳо', icon: 'mdi-calendar-clock', route: '/education/schedules' },
       ]
     
     default: // student
