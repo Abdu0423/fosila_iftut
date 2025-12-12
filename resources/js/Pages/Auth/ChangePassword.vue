@@ -210,33 +210,26 @@ const handleSubmit = () => {
   
   // Используем прямой URL вместо route() для избежания проблем с инициализацией
   router.post('/change-password', submitData, {
-    preserveState: false, // Не сохраняем состояние для успешного редиректа
-    preserveScroll: false,
-    replace: true, // Заменяем текущую запись в истории
+    preserveState: true, // Сохраняем состояние для отображения ошибок
+    preserveScroll: true,
     onFinish: () => {
       isLoading.value = false
     },
-    onSuccess: (page) => {
-      // При успехе сервер делает редирект, Inertia обработает его автоматически
-      console.log('✅ Пароль успешно изменен, редирект выполняется...')
-      // Если редирект не произошел автоматически, делаем его вручную
-      if (page.url === '/change-password') {
-        // Определяем URL для редиректа на основе роли пользователя
-        const user = page.props.auth?.user
-        if (user) {
-          const role = user.role?.name || user.role
-          let redirectUrl = '/student/'
-          if (role === 'admin') redirectUrl = '/admin'
-          else if (role === 'teacher') redirectUrl = '/teacher/'
-          else if (role === 'education_department') redirectUrl = '/education'
-          
-          router.visit(redirectUrl, { replace: true })
-        }
+    onSuccess: (response) => {
+      // Проверяем, есть ли ошибки валидации
+      const hasErrors = response.props?.errors && Object.keys(response.props.errors).length > 0
+      
+      if (hasErrors) {
+        console.log('⚠️ Есть ошибки валидации:', response.props.errors)
+        return // Не делаем редирект, показываем ошибки
       }
+      
+      // Если нет ошибок - пароль успешно изменен
+      console.log('✅ Пароль успешно изменен!')
     },
     onError: (errors) => {
       console.error('❌ Ошибки при смене пароля:', errors)
-      // При ошибке данные остаются в форме
+      // При ошибке данные остаются в форме благодаря preserveState: true
     }
   })
 }
