@@ -212,12 +212,27 @@ const handleSubmit = () => {
   router.post('/change-password', submitData, {
     preserveState: false, // Не сохраняем состояние для успешного редиректа
     preserveScroll: false,
+    replace: true, // Заменяем текущую запись в истории
     onFinish: () => {
       isLoading.value = false
     },
     onSuccess: (page) => {
       // При успехе сервер делает редирект, Inertia обработает его автоматически
       console.log('✅ Пароль успешно изменен, редирект выполняется...')
+      // Если редирект не произошел автоматически, делаем его вручную
+      if (page.url === '/change-password') {
+        // Определяем URL для редиректа на основе роли пользователя
+        const user = page.props.auth?.user
+        if (user) {
+          const role = user.role?.name || user.role
+          let redirectUrl = '/student/'
+          if (role === 'admin') redirectUrl = '/admin'
+          else if (role === 'teacher') redirectUrl = '/teacher/'
+          else if (role === 'education_department') redirectUrl = '/education'
+          
+          router.visit(redirectUrl, { replace: true })
+        }
+      }
     },
     onError: (errors) => {
       console.error('❌ Ошибки при смене пароля:', errors)

@@ -52,7 +52,7 @@ class ChangePasswordController extends Controller
         // Обновляем пароль и снимаем флаг обязательной смены
         // Используем явное присваивание для гарантии обновления
         $user->password = Hash::make($request->password);
-        $user->must_change_password = false;
+        $user->must_change_password = 0;
         $user->save();
 
         // Перезагружаем пользователя с ролью для правильного определения роли
@@ -70,9 +70,10 @@ class ChangePasswordController extends Controller
         // Определяем куда перенаправить в зависимости от роли
         $redirectUrl = $this->getRedirectUrl($user);
 
-        // Используем Inertia::location() для принудительного редиректа
+        // Используем обычный redirect() для гарантированного редиректа
         // Это работает как обычный HTTP редирект и гарантирует переход
-        return Inertia::location($redirectUrl);
+        return redirect($redirectUrl)
+            ->with('success', __('auth.password_changed'));
     }
 
     /**
