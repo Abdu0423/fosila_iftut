@@ -21,6 +21,19 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
+                $user = Auth::guard($guard)->user();
+                
+                // Перенаправляем в зависимости от роли
+                if ($user->isAdmin()) {
+                    return redirect('/admin');
+                } elseif ($user->isTeacher()) {
+                    return redirect('/teacher/');
+                } elseif ($user->isEducationDepartment()) {
+                    return redirect('/education');
+                } elseif ($user->isStudent()) {
+                    return redirect('/student/');
+                }
+                
                 return redirect(RouteServiceProvider::HOME);
             }
         }

@@ -435,18 +435,18 @@ const goToSettings = () => {
 const logoutRoute = computed(() => {
   switch (props.role) {
     case 'admin':
-      return 'admin.logout'
+      return '/admin/logout'
     case 'teacher':
-      return 'teacher.logout'
+      return '/teacher/logout'
     case 'student':
-      return 'student.logout'
+      return '/student/logout'
     default:
-      return 'logout'
+      return '/logout'
   }
 })
 
 const logout = () => {
-  router.visit(route(logoutRoute.value), {
+  router.visit(logoutRoute.value, {
     method: 'post'
   })
 }

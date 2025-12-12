@@ -388,7 +388,7 @@ const page = usePage()
 const translations = computed(() => page.props.translations || {})
 
 const showPassword = ref(false)
-const agreeToTerms = ref(false)
+const agreeToTerms = ref(true)
 const showPrivacyDialog = ref(false)
 const showTermsDialog = ref(false)
 
