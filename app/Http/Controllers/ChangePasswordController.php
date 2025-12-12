@@ -50,14 +50,22 @@ class ChangePasswordController extends Controller
         }
 
         // Обновляем пароль и снимаем флаг обязательной смены
-        $user->update([
-            'password' => Hash::make($request->password),
-            'must_change_password' => false,
-        ]);
+        // Используем явное присваивание для гарантии обновления
+        $user->password = Hash::make($request->password);
+        $user->must_change_password = false;
+        $user->save();
 
         // Перезагружаем пользователя с ролью для правильного определения роли
         $user->refresh();
         $user->load('role');
+        
+        // Проверяем, что обновление прошло успешно
+        if ($user->must_change_password) {
+            \Log::error('Ошибка: must_change_password не обновлен', [
+                'user_id' => $user->id,
+                'must_change_password' => $user->must_change_password
+            ]);
+        }
 
         // Определяем куда перенаправить в зависимости от роли
         $redirectUrl = $this->getRedirectUrl($user);
