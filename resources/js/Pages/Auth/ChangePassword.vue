@@ -208,7 +208,8 @@ const handleSubmit = () => {
     password_confirmation: formData.password_confirmation
   }
   
-  router.post(route('change-password.update'), submitData, {
+  // Используем прямой URL вместо route() для избежания проблем с инициализацией
+  router.post('/change-password', submitData, {
     preserveState: true,
     preserveScroll: true,
     onFinish: () => {
@@ -227,7 +228,8 @@ const handleSubmit = () => {
 
 // Метод для выхода
 const handleLogout = () => {
-  router.post(route('logout'))
+  // Используем прямой URL вместо route() для избежания проблем с инициализацией
+  router.post('/logout')
 }
 </script>
 
