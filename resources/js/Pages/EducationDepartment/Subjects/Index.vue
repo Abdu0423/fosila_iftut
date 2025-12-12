@@ -5,18 +5,18 @@
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.subjects_title || 'Предметы' }}
+            {{ translations.education_department?.subjects_title }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.subjects_subtitle || 'Список всех предметов' }}
+            {{ translations.education_department?.subjects_subtitle }}
           </p>
         </div>
         <v-btn
           color="primary"
           prepend-icon="mdi-plus"
-          @click="router.visit('/education/subjects/create')"
+          @click="router.visit(route('education.subjects.create'))"
         >
-          {{ translations.messages?.add || 'Добавить' }}
+          {{ translations.messages?.add }}
         </v-btn>
       </div>
 
@@ -25,7 +25,7 @@
         <v-card-text>
           <v-text-field
             v-model="searchQuery"
-            :label="translations.messages?.search || 'Поиск'"
+            :label="translations.messages?.search"
             prepend-inner-icon="mdi-magnify"
             clearable
             variant="outlined"
@@ -41,7 +41,7 @@
           <div class="text-center py-8">
             <v-icon size="64" color="grey-lighten-1">mdi-book-open-page-variant-outline</v-icon>
             <p class="text-h6 text-medium-emphasis mt-4">
-              {{ translations.education_department?.no_subjects || 'Предметы не найдены' }}
+              {{ translations.education_department?.no_subjects }}
             </p>
           </div>
         </v-card-text>
@@ -80,7 +80,7 @@
               :color="item.is_active ? 'success' : 'default'"
               size="small"
             >
-              {{ item.is_active ? (translations.messages?.active || 'Активен') : (translations.messages?.inactive || 'Неактивен') }}
+              {{ item.is_active ? (translations.messages?.active) : (translations.messages?.inactive) }}
             </v-chip>
           </template>
 
@@ -90,8 +90,8 @@
               variant="text"
               color="primary"
               size="small"
-              @click="router.visit(`/education/subjects/${item.id}/edit`)"
-              :title="translations.messages?.edit || 'Редактировать'"
+              @click="router.visit(route('education.subjects.edit', item.id))"
+              :title="translations.messages?.edit"
             >
               <v-icon>mdi-pencil</v-icon>
             </v-btn>
@@ -135,16 +135,16 @@ const props = defineProps({
 const searchQuery = ref(props.filters.search)
 
 const headers = computed(() => [
-  { title: translations.value.education_department?.subject_name || 'Название', key: 'name', sortable: false },
-  { title: translations.value.education_department?.subject_code || 'Код', key: 'code', sortable: false },
-  { title: translations.value.education_department?.subject_description || 'Описание', key: 'description', sortable: false },
-  { title: translations.value.education_department?.subject_credits || 'Кредиты', key: 'credits', sortable: false },
-  { title: translations.value.messages?.status || 'Статус', key: 'is_active', sortable: false },
-  { title: translations.value.messages?.actions || 'Действия', key: 'actions', sortable: false }
+  { title: translations.value.education_department?.subject_name, key: 'name', sortable: false },
+  { title: translations.value.education_department?.subject_code, key: 'code', sortable: false },
+  { title: translations.value.education_department?.subject_description, key: 'description', sortable: false },
+  { title: translations.value.education_department?.subject_credits, key: 'credits', sortable: false },
+  { title: translations.value.messages?.status, key: 'is_active', sortable: false },
+  { title: translations.value.messages?.actions, key: 'actions', sortable: false }
 ])
 
 const handleSearch = () => {
-  router.get('/education/subjects', {
+  router.get(route('education.subjects.index'), {
     search: searchQuery.value
   }, {
     preserveState: true,
@@ -153,7 +153,7 @@ const handleSearch = () => {
 }
 
 const handlePageChange = (pageNum) => {
-  router.get('/education/subjects', {
+  router.get(route('education.subjects.index'), {
     page: pageNum,
     search: searchQuery.value
   }, {
@@ -162,3 +162,4 @@ const handlePageChange = (pageNum) => {
   })
 }
 </script>
+

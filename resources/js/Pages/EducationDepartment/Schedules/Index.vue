@@ -5,18 +5,18 @@
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.schedules_title || 'Расписания' }}
+            {{ translations.education_department?.schedules_title || 'Ҷадвалҳо' }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.schedules_subtitle || 'Просмотр всех расписаний' }}
+            {{ translations.education_department?.schedules_subtitle || 'Тамошои ҳамаи ҷадвалҳо' }}
           </p>
         </div>
         <v-btn
           color="primary"
           prepend-icon="mdi-plus"
-          @click="router.visit('/education/schedules/create')"
+          @click="router.visit(route('education.schedules.create'))"
         >
-          {{ translations.messages?.add || 'Добавить' }}
+          {{ translations.messages?.add || 'Илова кардан' }}
         </v-btn>
       </div>
 
@@ -27,7 +27,7 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="dateFilter"
-                :label="translations.education_department?.filter_by_date || 'Фильтр по дате'"
+                :label="translations.education_department?.filter_by_date || 'Филтр аз рӯи сана'"
                 type="date"
                 prepend-inner-icon="mdi-calendar"
                 clearable
@@ -46,7 +46,7 @@
           <div class="text-center py-8">
             <v-icon size="64" color="grey-lighten-1">mdi-calendar-blank</v-icon>
             <p class="text-h6 text-medium-emphasis mt-4">
-              {{ translations.education_department?.no_schedules || 'Расписания не найдены' }}
+              {{ translations.education_department?.no_schedules || 'Ҷадвалҳо ёфт нашуданд' }}
             </p>
           </div>
         </v-card-text>
@@ -61,7 +61,7 @@
               </template>
 
               <v-list-item-title class="font-weight-medium">
-                {{ schedule.subject?.name || translations.education_department?.no_subject || 'Без предмета' }}
+                {{ schedule.subject?.name || translations.education_department?.no_subject || 'Бе фан' }}
               </v-list-item-title>
 
               <v-list-item-subtitle>
@@ -87,8 +87,8 @@
                   variant="text"
                   color="primary"
                   size="small"
-                  @click="router.visit(`/education/schedules/${schedule.id}/edit`)"
-                  :title="translations.messages?.edit || 'Редактировать'"
+                  @click="router.visit(route('education.schedules.edit', schedule.id))"
+                  :title="translations.messages?.edit || 'Таҳрир кардан'"
                 >
                   <v-icon>mdi-pencil</v-icon>
                 </v-btn>
@@ -137,7 +137,7 @@ const props = defineProps({
   }
 })
 
-const dateFilter = ref(props.filters.date)
+const dateFilter = ref(props.filters.date || '')
 
 const formatDate = (date) => {
   const locale = page.props.locale || 'ru'
@@ -145,7 +145,7 @@ const formatDate = (date) => {
 }
 
 const handleDateFilter = () => {
-  router.get('/education/schedules', {
+  router.get(route('education.schedules.index'), {
     date: dateFilter.value
   }, {
     preserveState: true,
@@ -154,7 +154,7 @@ const handleDateFilter = () => {
 }
 
 const handlePageChange = (pageNum) => {
-  router.get('/education/schedules', {
+  router.get(route('education.schedules.index'), {
     page: pageNum,
     date: dateFilter.value
   }, {
@@ -163,3 +163,4 @@ const handlePageChange = (pageNum) => {
   })
 }
 </script>
+

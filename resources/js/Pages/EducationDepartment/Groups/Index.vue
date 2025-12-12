@@ -5,10 +5,10 @@
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.groups_title || 'Группы' }}
+            {{ translations.education_department?.groups_title || 'Гурӯҳҳо' }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.groups_subtitle || 'Просмотр всех групп' }}
+            {{ translations.education_department?.groups_subtitle || 'Тамошои ҳамаи гурӯҳҳо' }}
           </p>
         </div>
         <v-btn
@@ -16,7 +16,7 @@
           prepend-icon="mdi-plus"
           @click="createGroup"
         >
-          {{ translations.messages?.add || 'Добавить' }}
+          {{ translations.messages?.add || 'Илова кардан' }}
         </v-btn>
       </div>
 
@@ -27,7 +27,7 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="searchQuery"
-                :label="translations.messages?.search || 'Поиск'"
+                :label="translations.messages?.search || 'Ҷустуҷӯ'"
                 prepend-inner-icon="mdi-magnify"
                 clearable
                 variant="outlined"
@@ -39,7 +39,7 @@
               <v-select
                 v-model="statusFilter"
                 :items="statusOptions"
-                :label="translations.education_department?.filter_by_status || 'Фильтр по статусу'"
+                :label="translations.education_department?.filter_by_status || 'Филтр аз рӯи вазъият'"
                 prepend-inner-icon="mdi-filter"
                 clearable
                 variant="outlined"
@@ -85,7 +85,7 @@
               :color="item.status === 'active' ? 'success' : 'error'"
               size="small"
             >
-              {{ item.status === 'active' ? (translations.messages?.active || 'Активна') : (translations.messages?.inactive || 'Неактивна') }}
+              {{ item.status === 'active' ? (translations.messages?.active || 'Фаъол') : (translations.messages?.inactive || 'Ғайрифаъол') }}
             </v-chip>
           </template>
 
@@ -97,7 +97,7 @@
                 color="primary"
                 size="small"
                 @click="editGroup(item)"
-                :title="translations.messages?.edit || 'Редактировать'"
+                :title="translations.messages?.edit || 'Таҳрир кардан'"
               >
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
@@ -108,7 +108,7 @@
             <div class="text-center pa-8">
               <v-icon size="64" color="grey-lighten-1">mdi-account-group-off</v-icon>
               <p class="text-h6 mt-4 text-medium-emphasis">
-                {{ translations.education_department?.no_groups || 'Группы не найдены' }}
+                {{ translations.education_department?.no_groups || 'Гурӯҳҳо ёфт нашуданд' }}
               </p>
             </div>
           </template>
@@ -147,23 +147,23 @@ const props = defineProps({
   }
 })
 
-const searchQuery = ref(props.filters.search)
+const searchQuery = ref(props.filters.search || '')
 const statusFilter = ref(props.filters.status || null)
 
 const headers = computed(() => [
-  { title: translations.value.education_department?.group_name || 'Название группы', key: 'name', sortable: false },
-  { title: translations.value.education_department?.group_students_count || 'Студентов', key: 'users_count', sortable: false },
-  { title: translations.value.messages?.status || 'Статус', key: 'status', sortable: false },
-  { title: translations.value.messages?.actions || 'Действия', key: 'actions', sortable: false }
+  { title: translations.value.education_department?.group_name || 'Номи гурӯҳ', key: 'name', sortable: false },
+  { title: translations.value.education_department?.group_students_count || 'Шумораи донишҷӯён', key: 'users_count', sortable: false },
+  { title: translations.value.messages?.status || 'Вазъият', key: 'status', sortable: false },
+  { title: translations.value.messages?.actions || 'Амалҳо', key: 'actions', sortable: false }
 ])
 
-const statusOptions = computed(() => [
-  { title: translations.value.messages?.active || 'Активна', value: 'active' },
-  { title: translations.value.messages?.inactive || 'Неактивна', value: 'inactive' }
-])
+const statusOptions = [
+  { title: translations.value.messages?.active || 'Фаъол', value: 'active' },
+  { title: translations.value.messages?.inactive || 'Ғайрифаъол', value: 'inactive' }
+]
 
 const handleSearch = () => {
-  router.get('/education/groups', {
+  router.get(route('education.groups.index'), {
     search: searchQuery.value,
     status: statusFilter.value
   }, {
@@ -173,7 +173,7 @@ const handleSearch = () => {
 }
 
 const handleStatusFilter = () => {
-  router.get('/education/groups', {
+  router.get(route('education.groups.index'), {
     search: searchQuery.value,
     status: statusFilter.value
   }, {
@@ -183,7 +183,7 @@ const handleStatusFilter = () => {
 }
 
 const handlePageChange = (page) => {
-  router.get('/education/groups', {
+  router.get(route('education.groups.index'), {
     page: page,
     search: searchQuery.value,
     status: statusFilter.value
@@ -201,3 +201,4 @@ const editGroup = (group) => {
   router.visit(`/education/groups/${group.id}/edit`)
 }
 </script>
+

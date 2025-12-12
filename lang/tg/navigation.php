@@ -43,8 +43,5 @@ return [
     
     // Teacher
     'teacher' => 'Муаллим',
-    
-    // Education Department
-    'education_department' => 'Шӯъбаи таълим',
 ];
 

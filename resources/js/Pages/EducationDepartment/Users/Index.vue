@@ -5,10 +5,10 @@
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.users_title || 'Пользователи' }}
+            {{ translations.education_department?.users_title || 'Корбарон' }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.users_subtitle || 'Просмотр всех пользователей системы' }}
+            {{ translations.education_department?.users_subtitle || 'Тамошои ҳамаи корбарони система' }}
           </p>
         </div>
         <v-btn
@@ -16,7 +16,7 @@
           prepend-icon="mdi-plus"
           @click="createUser"
         >
-          {{ translations.messages?.add || 'Добавить' }}
+          {{ translations.messages?.add || 'Илова кардан' }}
         </v-btn>
       </div>
 
@@ -27,7 +27,7 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="searchQuery"
-                :label="translations.messages?.search || 'Поиск'"
+                :label="translations.messages?.search || 'Ҷустуҷӯ'"
                 prepend-inner-icon="mdi-magnify"
                 clearable
                 variant="outlined"
@@ -39,7 +39,7 @@
               <v-select
                 v-model="roleFilter"
                 :items="roleOptions"
-                :label="translations.education_department?.filter_by_role || 'Фильтр по роли'"
+                :label="translations.education_department?.filter_by_role || 'Филтр аз рӯи нақш'"
                 prepend-inner-icon="mdi-filter"
                 clearable
                 variant="outlined"
@@ -93,7 +93,7 @@
                 color="primary"
                 size="small"
                 @click="editUser(item)"
-                :title="translations.messages?.edit || 'Редактировать'"
+                :title="translations.messages?.edit || 'Таҳрир кардан'"
               >
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
@@ -134,26 +134,26 @@ const props = defineProps({
   }
 })
 
-const searchQuery = ref(props.filters.search)
+const searchQuery = ref(props.filters.search || '')
 const roleFilter = ref(props.filters.role || null)
 
 const headers = computed(() => [
-  { title: translations.value.education_department?.user_name || 'Имя', key: 'name', sortable: false },
-  { title: translations.value.education_department?.user_role || 'Роль', key: 'role', sortable: false },
-  { title: translations.value.education_department?.user_group || 'Группа', key: 'group', sortable: false },
+  { title: translations.value.education_department?.user_name || 'Ном', key: 'name', sortable: false },
+  { title: translations.value.education_department?.user_role || 'Нақш', key: 'role', sortable: false },
+  { title: translations.value.education_department?.user_group || 'Гурӯҳ', key: 'group', sortable: false },
   { title: translations.value.education_department?.user_phone || 'Телефон', key: 'phone', sortable: false },
-  { title: translations.value.messages?.actions || 'Действия', key: 'actions', sortable: false }
+  { title: translations.value.messages?.actions || 'Амалҳо', key: 'actions', sortable: false }
 ])
 
 // Только преподаватели и студенты для роли образования
-const roleOptions = computed(() => [
-  { title: translations.value.navigation?.teacher || 'Преподаватель', value: 'teacher' },
-  { title: translations.value.navigation?.student || 'Студент', value: 'student' }
-])
+const roleOptions = [
+  { title: translations.value.navigation?.teacher || 'Муаллим', value: 'teacher' },
+  { title: translations.value.navigation?.student || 'Донишҷӯ', value: 'student' }
+]
 
 const getInitials = (user) => {
-  const first = user.name?.charAt(0)
-  const last = user.last_name?.charAt(0)
+  const first = user.name?.charAt(0) || ''
+  const last = user.last_name?.charAt(0) || ''
   return (first + last).toUpperCase()
 }
 
@@ -164,15 +164,15 @@ const getRoleColor = (role) => {
     student: 'info',
     education_department: 'warning'
   }
-  return colors[role]
+  return colors[role] || 'default'
 }
 
 const getRoleLabel = (role) => {
   const labels = {
-    admin: translations.value.navigation?.admin_panel || 'Администратор',
-    teacher: translations.value.navigation?.teacher || 'Преподаватель',
-    student: translations.value.navigation?.student || 'Студент',
-    education_department: translations.value.education_department?.role_name || 'Отдел образования'
+    admin: translations.value.navigation?.admin_panel || 'Маъмур',
+    teacher: translations.value.navigation?.teacher || 'Муаллим',
+    student: translations.value.navigation?.student || 'Донишҷӯ',
+    education_department: translations.value.education_department?.role_name || 'Шӯъбаи таълим'
   }
   return labels[role] || role
 }

@@ -103,27 +103,5 @@ return [
     // General
     'user' => 'Корбар',
     'education' => 'Таълим',
-    
-    // Form fields
-    'basic_info' => 'Маълумоти асосӣ',
-    'contact_info' => 'Маълумоти тамос',
-    'system_info' => 'Маълумоти система',
-    'additional_info' => 'Маълумоти иловагӣ',
-    'last_name' => 'Насаб',
-    'middle_name' => 'Номи падар',
-    'dad_phone' => 'Телефони падар',
-    'mom_phone' => 'Телефони модар',
-    'role' => 'Нақш',
-    'group' => 'Гурӯҳ',
-    'select_group' => 'Гурӯҳро интихоб кунед',
-    'password' => 'Парол',
-    'password_confirmation' => 'Тасдиқи парол',
-    'change_password' => 'Тағйири парол',
-    'new_password' => 'Пароли нав',
-    'password_min' => 'Ақалан 8 аломат',
-    'password_hint' => 'Ихтиёрӣ, ба таври худкор тавлид мешавад',
-    'password_confirmation_hint' => 'Танҳо агар паролро дар боло нишон дода бошед',
-    'email_hint' => 'Ихтиёрӣ, ба таври худкор тавлид мешавад',
-    'optional' => 'ихтиёрӣ',
 ];
 

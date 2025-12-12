@@ -5,10 +5,10 @@
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.edit_user || 'Редактировать пользователя' }}
+            {{ translations.education_department?.edit_user || 'Таҳрири корбар' }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.edit_user_subtitle || 'Изменение данных пользователя' }}
+            {{ translations.education_department?.edit_user_subtitle || 'Тағйири маълумоти корбар' }}
           </p>
         </div>
         <v-btn
@@ -17,7 +17,7 @@
           @click="navigateTo('/education/users')"
           prepend-icon="mdi-arrow-left"
         >
-          {{ translations.messages?.back || 'Назад' }}
+          {{ translations.messages?.back || 'Бозгашт' }}
         </v-btn>
       </div>
 
@@ -27,17 +27,17 @@
           <v-card>
             <v-card-title class="text-h6">
               <v-icon start>mdi-account-edit</v-icon>
-              {{ translations.education_department?.user_info || 'Информация о пользователе' }}
+              {{ translations.education_department?.user_info || 'Маълумоти корбар' }}
             </v-card-title>
             <v-card-text>
               <v-form @submit.prevent="submitForm">
                 <!-- Основная информация -->
-                <h3 class="text-h6 mb-4">{{ translations.messages?.basic_info || 'Основная информация' }}</h3>
+                <h3 class="text-h6 mb-4">{{ translations.messages?.basic_info || 'Маълумоти асосӣ' }}</h3>
                 <v-row>
                   <v-col cols="12" md="4">
                     <v-text-field
                       v-model="form.name"
-                      :label="(translations.messages?.name || 'Имя') + ' *'"
+                      :label="(translations.messages?.name || 'Ном') + ' *'"
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.name"
@@ -47,7 +47,7 @@
                   <v-col cols="12" md="4">
                     <v-text-field
                       v-model="form.last_name"
-                      :label="(translations.messages?.last_name || 'Фамилия') + ' *'"
+                      :label="(translations.messages?.last_name || 'Насаб') + ' *'"
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.last_name"
@@ -57,7 +57,7 @@
                   <v-col cols="12" md="4">
                     <v-text-field
                       v-model="form.middle_name"
-                      :label="translations.messages?.middle_name || 'Отчество'"
+                      :label="translations.messages?.middle_name || 'Номи падар'"
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.middle_name"
@@ -66,7 +66,7 @@
                 </v-row>
 
                 <!-- Контактная информация -->
-                <h3 class="text-h6 mb-4 mt-6">{{ translations.messages?.contact_info || 'Контактная информация' }}</h3>
+                <h3 class="text-h6 mb-4 mt-6">{{ translations.messages?.contact_info || 'Маълумоти тамос' }}</h3>
                 <v-row>
                   <v-col cols="12" md="6">
                     <v-text-field
@@ -95,7 +95,7 @@
                   <v-col cols="12">
                     <v-text-field
                       v-model="form.address"
-                      :label="translations.messages?.address || 'Адрес'"
+                      :label="translations.messages?.address || 'Суроға'"
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.address"
@@ -108,7 +108,7 @@
                   <v-col cols="12" md="6">
                     <v-text-field
                       v-model="form.dad_phone"
-                      :label="translations.messages?.dad_phone || 'Телефон отца'"
+                      :label="translations.messages?.dad_phone || 'Телефони падар'"
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.dad_phone"
@@ -117,7 +117,7 @@
                   <v-col cols="12" md="6">
                     <v-text-field
                       v-model="form.mom_phone"
-                      :label="translations.messages?.mom_phone || 'Телефон матери'"
+                      :label="translations.messages?.mom_phone || 'Телефони модар'"
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.mom_phone"
@@ -126,7 +126,7 @@
                 </v-row>
 
                 <!-- Роль и группа -->
-                <h3 class="text-h6 mb-4 mt-6">{{ translations.messages?.system_info || 'Системная информация' }}</h3>
+                <h3 class="text-h6 mb-4 mt-6">{{ translations.messages?.system_info || 'Маълумоти система' }}</h3>
                 <v-row>
                   <v-col cols="12" md="6">
                     <v-select
@@ -134,7 +134,7 @@
                       :items="roles"
                       item-title="display_name"
                       item-value="id"
-                      :label="(translations.messages?.role || 'Роль') + ' *'"
+                      :label="(translations.messages?.role || 'Нақш') + ' *'"
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.role_id"
@@ -147,36 +147,36 @@
                       :items="groups"
                       item-title="display_name"
                       item-value="id"
-                      :label="translations.messages?.group || 'Группа'"
+                      :label="translations.messages?.group || 'Гурӯҳ'"
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.group_id"
                       clearable
-                      :placeholder="translations.messages?.select_group || 'Выберите группу'"
+                      :placeholder="translations.messages?.select_group || 'Гурӯҳро интихоб кунед'"
                     ></v-select>
                   </v-col>
                 </v-row>
 
                 <!-- Смена пароля -->
                 <v-divider class="my-6"></v-divider>
-                <h3 class="text-h6 mb-4">{{ translations.messages?.change_password || 'Смена пароля' }} ({{ translations.messages?.optional || 'необязательно' }})</h3>
+                <h3 class="text-h6 mb-4">{{ translations.messages?.change_password || 'Тағйири парол' }} ({{ translations.messages?.optional || 'ихтиёрӣ' }})</h3>
                 <v-row>
                   <v-col cols="12" md="6">
                     <v-text-field
                       v-model="form.password"
-                      :label="translations.messages?.new_password || 'Новый пароль'"
+                      :label="translations.messages?.new_password || 'Пароли нав'"
                       type="password"
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.password"
-                      :hint="translations.messages?.password_min || 'Минимум 4 символа'"
+                      :hint="translations.messages?.password_min || 'Ақалан 4 аломат'"
                       persistent-hint
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="6">
                     <v-text-field
                       v-model="form.password_confirmation"
-                      :label="translations.messages?.password_confirmation || 'Подтверждение пароля'"
+                      :label="translations.messages?.password_confirmation || 'Таъйиди парол'"
                       type="password"
                       variant="outlined"
                       density="comfortable"
@@ -204,7 +204,7 @@
                     variant="outlined"
                     @click="navigateTo('/education/users')"
                   >
-                    {{ translations.messages?.cancel || 'Отмена' }}
+                    {{ translations.messages?.cancel || 'Бекор кардан' }}
                   </v-btn>
                   <v-btn
                     color="primary"
@@ -212,7 +212,7 @@
                     :loading="form.processing"
                     :disabled="form.processing"
                   >
-                    {{ translations.messages?.save || 'Сохранить' }}
+                    {{ translations.messages?.save || 'Сабт кардан' }}
                   </v-btn>
                 </div>
               </v-form>
@@ -266,16 +266,16 @@ const form = useForm({
 
 // Заполняем форму данными пользователя
 onMounted(() => {
-  form.name = props.user.name
-  form.last_name = props.user.last_name
-  form.middle_name = props.user.middle_name
-  form.email = props.user.email
-  form.phone = props.user.phone
-  form.address = props.user.address
-  form.dad_phone = props.user.dad_phone
-  form.mom_phone = props.user.mom_phone
-  form.role_id = props.user.role_id
-  form.group_id = props.user.group_id
+  form.name = props.user.name || ''
+  form.last_name = props.user.last_name || ''
+  form.middle_name = props.user.middle_name || ''
+  form.email = props.user.email || ''
+  form.phone = props.user.phone || ''
+  form.address = props.user.address || ''
+  form.dad_phone = props.user.dad_phone || ''
+  form.mom_phone = props.user.mom_phone || ''
+  form.role_id = props.user.role_id || ''
+  form.group_id = props.user.group_id || ''
 })
 
 // Методы
@@ -300,3 +300,4 @@ const submitForm = () => {
   border-radius: 12px;
 }
 </style>
+

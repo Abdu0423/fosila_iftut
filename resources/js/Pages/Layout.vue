@@ -133,14 +133,14 @@
             <template v-slot:prepend>
               <v-icon color="primary">mdi-account</v-icon>
             </template>
-            <v-list-item-title>{{ translations.navigation?.profile || 'Профиль' }}</v-list-item-title>
+            <v-list-item-title>{{ translations.navigation?.profile || 'Профил' }}</v-list-item-title>
           </v-list-item>
           
           <v-list-item @click="goToSettings" class="menu-action-item">
             <template v-slot:prepend>
               <v-icon color="primary">mdi-cog</v-icon>
             </template>
-            <v-list-item-title>{{ translations.navigation?.settings || 'Настройки' }}</v-list-item-title>
+            <v-list-item-title>{{ translations.navigation?.settings || 'Танзимот' }}</v-list-item-title>
           </v-list-item>
           
           <v-divider class="my-2"></v-divider>
@@ -149,7 +149,7 @@
             <template v-slot:prepend>
               <v-icon color="error">mdi-logout</v-icon>
             </template>
-            <v-list-item-title class="error--text">{{ translations.navigation?.logout || 'Выход' }}</v-list-item-title>
+            <v-list-item-title class="error--text">{{ translations.navigation?.logout || 'Баромад' }}</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -232,7 +232,7 @@ onUnmounted(() => {
 const translations = computed(() => page.props.translations || {})
 
 const user = computed(() => page.props.auth?.user || {})
-const userName = computed(() => user.value.name || translations.value.messages?.user || 'Пользователь')
+const userName = computed(() => user.value.name || translations.value.messages?.user || 'Корбар')
 const userAvatar = computed(() => user.value.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName.value)}`)
 
 // Определяем роль: сначала из props, если не передана - из user.role
@@ -254,10 +254,10 @@ const currentRole = computed(() => {
 
 const userRole = computed(() => {
   switch (currentRole.value) {
-    case 'admin': return translations.value.navigation?.admin_panel || 'Администратор'
-    case 'teacher': return translations.value.navigation?.teacher || 'Преподаватель'
-    case 'education_department': return translations.value.education_department?.role_name || 'Отдел образования'
-    default: return translations.value.navigation?.student || 'Студент'
+    case 'admin': return translations.value.navigation?.admin_panel || 'Маъмур'
+    case 'teacher': return translations.value.navigation?.teacher || 'Муаллим'
+    case 'education_department': return translations.value.education_department?.role_name || 'Шӯъбаи таълим'
+    default: return translations.value.navigation?.student || 'Донишҷӯ'
   }
 })
 
@@ -268,7 +268,7 @@ const unreadChatsCount = computed(() => {
 
 // Уведомления
 const notifications = ref([
-  { id: 1, message: 'Новое уведомление', time: '2 минуты назад' }
+  { id: 1, message: translations.value.messages?.notification || 'Огоҳии нав', time: '2 дақиқа пеш' }
 ])
 
 // Текущий год
@@ -298,37 +298,36 @@ const headerIcon = computed(() => {
 
 const headerTitle = computed(() => {
   switch (currentRole.value) {
-    case 'admin': return translations.value.navigation?.admin_panel || 'Панель администратора'
-    case 'teacher': return translations.value.navigation?.teacher || 'Преподаватель'
-    case 'education_department': return translations.value.education_department?.panel_title || 'Отдел образования'
-    default: return 'ИФТУТ - Дистанционное обучение'
+    case 'admin': return translations.value.navigation?.admin_panel || 'Панели маъмур'
+    case 'teacher': return translations.value.navigation?.teacher || 'Панели муаллим'
+    case 'education_department': return translations.value.education_department?.panel_title || 'Шӯъбаи таълим'
+    default: return 'ИФТУТ - Таълими фосилавӣ'
   }
 })
 
 const headerSubtitle = computed(() => {
   switch (currentRole.value) {
-    case 'admin': return translations.value.navigation?.system_settings || 'Настройки системы'
-    case 'teacher': return translations.value.navigation?.course_management || 'Управление курсами'
-    case 'education_department': return translations.value.education_department?.panel_subtitle || 'Управление образовательным процессом'
-    default: return translations.value.messages?.education || 'Образование'
+    case 'admin': return translations.value.navigation?.system_settings || 'Идоракунии система'
+    case 'teacher': return translations.value.navigation?.course_management || 'Идоракунии курсҳо ва донишҷӯён'
+    case 'education_department': return translations.value.education_department?.panel_subtitle || 'Идоракунии раванди таълим'
+    default: return translations.value.messages?.education || 'Таълим'
   }
 })
 
 const appBarTitle = computed(() => {
-  const t = translations.value
   switch (currentRole.value) {
-    case 'admin': return `ИФТУТ ${t.navigation?.admin_panel || 'Администратор'}`
-    case 'teacher': return `ИФТУТ ${t.navigation?.teacher || 'Преподаватель'}`
-    case 'education_department': return `ИФТУТ ${t.education_department?.role_name || 'Отдел образования'}`
-    default: return `ИФТУТ ${t.students?.student || 'Студент'}`
+    case 'admin': return 'ИФТУТ ' + (translations.value.navigation?.admin_panel || 'Маъмур')
+    case 'teacher': return 'ИФТУТ ' + (translations.value.navigation?.teacher || 'Муаллим')
+    case 'education_department': return 'ИФТУТ ' + (translations.value.education_department?.role_name || 'Шӯъбаи таълим')
+    default: return 'ИФТУТ ' + (translations.value.students?.student || 'Донишҷӯ')
   }
 })
 
 const appBarTitleShort = computed(() => {
   switch (currentRole.value) {
-    case 'admin': return translations.value.navigation?.admin_panel || 'Админ'
-    case 'teacher': return translations.value.navigation?.teacher || 'Преподаватель'
-    case 'education_department': return translations.value.education_department?.role_name_short || 'ОО'
+    case 'admin': return translations.value.navigation?.admin_panel || 'Маъмур'
+    case 'teacher': return translations.value.navigation?.teacher || 'Муаллим'
+    case 'education_department': return translations.value.education_department?.role_name_short || 'ШМ'
     default: return 'ИФТУТ'
   }
 })
@@ -339,51 +338,51 @@ const menuItems = computed(() => {
   switch (currentRole.value) {
     case 'admin':
       return [
-        { title: t.navigation?.dashboard || 'Панель управления', icon: 'mdi-view-dashboard', route: '/admin' },
-        { title: t.navigation?.users || 'Пользователи', icon: 'mdi-account-group', route: '/admin/users' },
-        { title: t.navigation?.subjects || 'Предметы', icon: 'mdi-book-education', route: '/admin/subjects' },
-        { title: t.navigation?.syllabuses || 'Силлабусы', icon: 'mdi-file-document-multiple', route: '/admin/syllabuses' },
-        { title: t.navigation?.lessons || 'Уроки', icon: 'mdi-teach', route: '/admin/lessons' },
-        { title: t.navigation?.tests || 'Тесты', icon: 'mdi-help-circle', route: '/admin/tests' },
-        { title: t.navigation?.grades || 'Оценки', icon: 'mdi-star', route: '/admin/grades' },
-        { title: t.navigation?.schedule || 'Расписание', icon: 'mdi-calendar-clock', route: '/admin/schedules' },
-        { title: t.navigation?.assignments || 'Задания', icon: 'mdi-clipboard-text', route: '/admin/assignments' },
-        { title: t.navigation?.library || 'Библиотека', icon: 'mdi-library', route: '/admin/library' },
-        { title: t.navigation?.reports || 'Отчеты', icon: 'mdi-chart-bar', route: '/admin/reports' },
+        { title: t.navigation?.dashboard || 'Панели идоракунӣ', icon: 'mdi-view-dashboard', route: '/admin' },
+        { title: t.navigation?.users || 'Корбарон', icon: 'mdi-account-group', route: '/admin/users' },
+        { title: t.navigation?.subjects || 'Фанҳо', icon: 'mdi-book-education', route: '/admin/subjects' },
+        { title: t.navigation?.syllabuses || 'Силлабусҳо', icon: 'mdi-file-document-multiple', route: '/admin/syllabuses' },
+        { title: t.navigation?.lessons || 'Дарсҳо', icon: 'mdi-teach', route: '/admin/lessons' },
+        { title: t.navigation?.tests || 'Санҷишҳо', icon: 'mdi-help-circle', route: '/admin/tests' },
+        { title: t.navigation?.grades || 'Баҳоҳо', icon: 'mdi-star', route: '/admin/grades' },
+        { title: t.navigation?.schedule || 'Ҷадвал', icon: 'mdi-calendar-clock', route: '/admin/schedules' },
+        { title: t.navigation?.assignments || 'Супоришҳо', icon: 'mdi-clipboard-text', route: '/admin/assignments' },
+        { title: t.navigation?.library || 'Китобхона', icon: 'mdi-library', route: '/admin/library' },
+        { title: t.navigation?.reports || 'Ҳисоботҳо', icon: 'mdi-chart-bar', route: '/admin/reports' },
         { title: t.navigation?.chat || 'Чат', icon: 'mdi-chat', route: '/admin/chat' },
-        { title: t.navigation?.settings || 'Настройки', icon: 'mdi-cog', route: '/admin/settings' }
+        { title: t.navigation?.settings || 'Танзимот', icon: 'mdi-cog', route: '/admin/settings' }
       ]
     
     case 'teacher':
       return [
-        { title: t.navigation?.dashboard || 'Панель управления', icon: 'mdi-view-dashboard', route: '/teacher' },
-        { title: t.navigation?.my_lessons || 'Мои уроки', icon: 'mdi-teach', route: '/teacher/lessons' },
-        { title: t.navigation?.my_tests || 'Мои тесты', icon: 'mdi-help-circle', route: '/teacher/tests' },
-        { title: t.navigation?.grades || 'Оценки', icon: 'mdi-star', route: '/teacher/grades' },
-        { title: t.navigation?.my_students || 'Мои студенты', icon: 'mdi-account-group', route: '/teacher/students' },
-        { title: t.navigation?.schedule || 'Расписание', icon: 'mdi-calendar-clock', route: '/teacher/schedule' },
-        { title: t.navigation?.syllabuses || 'Силлабусы', icon: 'mdi-file-document-multiple', route: '/teacher/syllabuses' },
+        { title: t.navigation?.dashboard || 'Панели идоракунӣ', icon: 'mdi-view-dashboard', route: '/teacher' },
+        { title: t.navigation?.my_lessons || 'Дарсҳои ман', icon: 'mdi-teach', route: '/teacher/lessons' },
+        { title: t.navigation?.my_tests || 'Санҷишҳои ман', icon: 'mdi-help-circle', route: '/teacher/tests' },
+        { title: t.navigation?.grades || 'Баҳоҳо', icon: 'mdi-star', route: '/teacher/grades' },
+        { title: t.navigation?.my_students || 'Донишҷӯёни ман', icon: 'mdi-account-group', route: '/teacher/students' },
+        { title: t.navigation?.schedule || 'Ҷадвал', icon: 'mdi-calendar-clock', route: '/teacher/schedule' },
+        { title: t.navigation?.syllabuses || 'Силлабусҳо', icon: 'mdi-file-document-multiple', route: '/teacher/syllabuses' },
         { title: t.navigation?.chat || 'Чат', icon: 'mdi-chat', route: '/teacher/chat' },
       ]
     
     case 'education_department':
       return [
-        { title: t.navigation?.dashboard || 'Панель управления', icon: 'mdi-view-dashboard', route: '/education' },
-        { title: t.education_department?.users_menu || 'Пользователи', icon: 'mdi-account-group', route: '/education/users' },
-        { title: t.education_department?.groups_menu || 'Группы', icon: 'mdi-account-multiple', route: '/education/groups' },
-        { title: t.education_department?.subjects_menu || 'Предметы', icon: 'mdi-book-open-page-variant', route: '/education/subjects' },
-        { title: t.education_department?.schedules_menu || 'Расписания', icon: 'mdi-calendar-clock', route: '/education/schedules' },
+        { title: t.navigation?.dashboard || 'Панели идоракунӣ', icon: 'mdi-view-dashboard', route: '/education' },
+        { title: t.education_department?.users_menu || 'Корбарон', icon: 'mdi-account-group', route: '/education/users' },
+        { title: t.education_department?.groups_menu || 'Гурӯҳҳо', icon: 'mdi-account-multiple', route: '/education/groups' },
+        { title: t.education_department?.subjects_menu || 'Фанҳо', icon: 'mdi-book-open-page-variant', route: '/education/subjects' },
+        { title: t.education_department?.schedules_menu || 'Ҷадвалҳо', icon: 'mdi-calendar-clock', route: '/education/schedules' },
       ]
     
     default: // student
       return [
-        { title: t.navigation?.dashboard || 'Панель управления', icon: 'mdi-view-dashboard', route: '/student/' },
-        { title: t.navigation?.schedule || 'Расписание', icon: 'mdi-calendar-clock', route: '/student/schedule' },
-        { title: t.tests?.tests || 'Тесты', icon: 'mdi-file-document-edit', route: '/student/tests' },
-        { title: t.navigation?.assignments || 'Задания', icon: 'mdi-clipboard-text', route: '/student/assignments' },
+        { title: t.navigation?.dashboard || 'Панели идоракунӣ', icon: 'mdi-view-dashboard', route: '/student/' },
+        { title: t.navigation?.schedule || 'Ҷадвал', icon: 'mdi-calendar-clock', route: '/student/schedule' },
+        { title: t.tests?.tests || 'Санҷишҳо', icon: 'mdi-file-document-edit', route: '/student/tests' },
+        { title: t.navigation?.assignments || 'Супоришҳо', icon: 'mdi-clipboard-text', route: '/student/assignments' },
         { title: t.navigation?.chat || 'Чат', icon: 'mdi-chat', route: '/student/chat' },
-        { title: t.navigation?.library || 'Библиотека', icon: 'mdi-library', route: '/student/library' },
-        { title: t.navigation?.grades || 'Оценки', icon: 'mdi-star', route: '/student/grades' }
+        { title: t.navigation?.library || 'Китобхона', icon: 'mdi-library', route: '/student/library' },
+        { title: t.navigation?.grades || 'Баҳоҳо', icon: 'mdi-star', route: '/student/grades' }
       ]
   }
 })

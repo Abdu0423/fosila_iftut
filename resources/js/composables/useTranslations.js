@@ -5,7 +5,7 @@ export function useTranslations() {
     const page = usePage()
     
     const locale = computed(() => {
-        return page.props.locale
+        return page.props.locale || 'ru'
     })
     
     const translations = computed(() => {
@@ -18,13 +18,7 @@ export function useTranslations() {
             return
         }
         
-        const currentLocale = locale.value
-        if (newLocale === currentLocale) {
-            console.log('ℹ️ Locale already set to:', newLocale)
-            return
-        }
-        
-        console.log('🌍 Changing locale from', currentLocale, 'to', newLocale)
+        console.log('🌍 Changing locale to:', newLocale)
         
         try {
             // Получаем CSRF токен
@@ -49,18 +43,21 @@ export function useTranslations() {
             
             if (response.ok) {
                 const data = await response.json()
-                console.log('✅ Locale changed successfully:', data)
+                console.log('✅ Locale changed:', data)
                 
-                // Сохраняем в localStorage для будущих запросов
+                // Сохраняем в localStorage
                 localStorage.setItem('locale', newLocale)
                 
-                // Полная перезагрузка страницы для гарантированного обновления всех переводов
-                // Это необходимо, так как переводы загружаются на сервере через HandleInertiaRequests
-                window.location.reload()
+                // Перезагружаем страницу через Inertia без добавления параметров к URL
+                router.reload({
+                    only: ['locale', 'translations'],
+                    preserveState: false,
+                    preserveScroll: false
+                })
             } else {
                 const error = await response.json().catch(() => ({ message: 'Unknown error' }))
                 console.error('❌ Error changing locale:', error)
-                alert('Ошибка при смене языка: ' + (error.message))
+                alert('Ошибка при смене языка: ' + (error.message || 'Неизвестная ошибка'))
             }
         } catch (error) {
             console.error('❌ Exception changing locale:', error)
@@ -106,7 +103,7 @@ export function useTranslations() {
             ru: '🇷🇺',
             tg: '🇹🇯'
         }
-        return flags[loc]
+        return flags[loc] || '🌐'
     }
     
     return {
