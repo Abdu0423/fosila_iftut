@@ -115,10 +115,25 @@
                     density="comfortable"
                     :error-messages="getErrorMessage('password_confirmation')"
                     prepend-inner-icon="mdi-lock-check"
+                    :hint="isPasswordMismatch ? 'Пароли не совпадают!' : 'Повторите новый пароль'"
+                    :persistent-hint="isPasswordMismatch"
+                    :color="isPasswordMismatch ? 'error' : undefined"
                     class="mb-4"
                     required
                     autocomplete="new-password"
                   />
+                  
+                  <!-- Предупреждение о несовпадении паролей -->
+                  <v-alert
+                    v-if="isPasswordMismatch"
+                    type="error"
+                    variant="tonal"
+                    density="compact"
+                    class="mb-4"
+                  >
+                    <v-icon start>mdi-alert-circle</v-icon>
+                    Пароли не совпадают. Пожалуйста, убедитесь, что новый пароль и подтверждение совпадают.
+                  </v-alert>
 
                   <!-- Кнопки действий -->
                   <div class="d-flex gap-3">
@@ -181,7 +196,8 @@ const formData = reactive({
 
 // Локальные ошибки валидации
 const localErrors = reactive({
-  password: null
+  password: null,
+  password_confirmation: null
 })
 
 // Состояние UI
@@ -198,13 +214,23 @@ const isPasswordSame = computed(() => {
          formData.current_password === formData.password
 })
 
+// Проверка, что пароль и подтверждение совпадают
+const isPasswordMismatch = computed(() => {
+  return formData.password && 
+         formData.password_confirmation && 
+         formData.password !== formData.password_confirmation
+})
+
 // Методы для обновления полей формы
 const updateField = (field, value) => {
   formData[field] = value
   
-  // Сбрасываем локальную ошибку при изменении пароля
+  // Сбрасываем локальные ошибки при изменении полей
   if (field === 'password' || field === 'current_password') {
     localErrors.password = null
+  }
+  if (field === 'password_confirmation' || field === 'password') {
+    localErrors.password_confirmation = null
   }
 }
 
@@ -225,6 +251,9 @@ const toggleShowPasswordConfirmation = () => {
 const getErrorMessage = (field) => {
   if (field === 'password' && localErrors.password) {
     return localErrors.password
+  }
+  if (field === 'password_confirmation' && localErrors.password_confirmation) {
+    return localErrors.password_confirmation
   }
   return page.props.errors?.[field] || null
 }
@@ -247,15 +276,16 @@ const handleSubmit = () => {
     return
   }
   
-  // Проверяем совпадение паролей
+  // Проверяем совпадение пароля и подтверждения
   if (formData.password !== formData.password_confirmation) {
-    localErrors.password = 'Пароли не совпадают'
+    localErrors.password_confirmation = 'Пароли не совпадают'
     isLoading.value = false
     return
   }
   
   // Сбрасываем локальные ошибки перед отправкой
   localErrors.password = null
+  localErrors.password_confirmation = null
   isLoading.value = true
   
   // Создаём копию данных для отправки
@@ -294,6 +324,9 @@ const handleSubmit = () => {
       // Показываем серверные ошибки
       if (errors.password) {
         localErrors.password = Array.isArray(errors.password) ? errors.password[0] : errors.password
+      }
+      if (errors.password_confirmation) {
+        localErrors.password_confirmation = Array.isArray(errors.password_confirmation) ? errors.password_confirmation[0] : errors.password_confirmation
       }
     }
   })
