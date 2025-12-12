@@ -244,10 +244,10 @@ const currentRole = computed(() => {
     userRole: user.value?.role,
     pagePropsAuth: page.props.auth,
     pagePropsAuthUser: page.props.auth?.user,
-    finalRole: props.role || user.value?.role
+    finalRole: props.role || user.value?.role || 'student'
   })
   
-  const role = props.role || user.value?.role
+  const role = props.role || user.value?.role || 'student'
   
   return role
 })
@@ -315,11 +315,12 @@ const headerSubtitle = computed(() => {
 })
 
 const appBarTitle = computed(() => {
+  const t = translations.value
   switch (currentRole.value) {
-    case 'admin': return 'ИФТУТ ' + (translations.value.navigation?.admin_panel)
-    case 'teacher': return 'ИФТУТ ' + (translations.value.navigation?.teacher)
-    case 'education_department': return 'ИФТУТ ' + (translations.value.education_department?.role_name)
-    default: return 'ИФТУТ ' + (translations.value.students?.student)
+    case 'admin': return `ИФТУТ ${t.navigation?.admin_panel || ''}`
+    case 'teacher': return `ИФТУТ ${t.navigation?.teacher || ''}`
+    case 'education_department': return `ИФТУТ ${t.education_department?.role_name || ''}`
+    default: return `ИФТУТ ${t.students?.student || ''}`
   }
 })
 

@@ -102,5 +102,27 @@ return [
     // General
     'user' => 'Пользователь',
     'education' => 'Образование',
+    
+    // Form fields
+    'basic_info' => 'Основная информация',
+    'contact_info' => 'Контактная информация',
+    'system_info' => 'Системная информация',
+    'additional_info' => 'Дополнительная информация',
+    'last_name' => 'Фамилия',
+    'middle_name' => 'Отчество',
+    'dad_phone' => 'Телефон отца',
+    'mom_phone' => 'Телефон матери',
+    'role' => 'Роль',
+    'group' => 'Группа',
+    'select_group' => 'Выберите группу',
+    'password' => 'Пароль',
+    'password_confirmation' => 'Подтверждение пароля',
+    'change_password' => 'Смена пароля',
+    'new_password' => 'Новый пароль',
+    'password_min' => 'Минимум 8 символов',
+    'password_hint' => 'Необязательно, будет сгенерирован автоматически',
+    'password_confirmation_hint' => 'Только если указали пароль выше',
+    'email_hint' => 'Необязательно, будет сгенерирован автоматически',
+    'optional' => 'необязательно',
 ];
 

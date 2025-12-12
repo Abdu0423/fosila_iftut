@@ -43,5 +43,8 @@ return [
     
     // Teacher
     'teacher' => 'Преподаватель',
+    
+    // Education Department
+    'education_department' => 'Отдел образования',
 ];
 
