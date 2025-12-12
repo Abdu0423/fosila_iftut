@@ -55,26 +55,30 @@ class ChangePasswordController extends Controller
             'must_change_password' => false,
         ]);
 
-        // Определяем куда перенаправить в зависимости от роли
-        $redirectRoute = $this->getRedirectRoute($user);
+        // Перезагружаем пользователя с ролью для правильного определения роли
+        $user->refresh();
+        $user->load('role');
 
-        return redirect()->route($redirectRoute)
+        // Определяем куда перенаправить в зависимости от роли
+        $redirectUrl = $this->getRedirectUrl($user);
+
+        return redirect($redirectUrl)
             ->with('success', __('auth.password_changed'));
     }
 
     /**
-     * Определить маршрут для перенаправления в зависимости от роли
+     * Определить URL для перенаправления в зависимости от роли
      */
-    protected function getRedirectRoute($user)
+    protected function getRedirectUrl($user)
     {
         if ($user->isAdmin()) {
-            return 'admin.dashboard';
+            return '/admin';
         } elseif ($user->isTeacher()) {
-            return 'teacher.dashboard';
+            return '/teacher/';
         } elseif ($user->isEducationDepartment()) {
-            return 'education.dashboard';
+            return '/education';
         } else {
-            return 'student.dashboard';
+            return '/student/';
         }
     }
 }
