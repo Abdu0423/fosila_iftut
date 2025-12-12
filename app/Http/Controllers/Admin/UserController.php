@@ -191,7 +191,7 @@ class UserController extends Controller
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             \Log::error('Ошибка при создании пользователя', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
-            return back()->with('error', 'Ошибка при создании пользователя: ' . $e->getMessage())->withInput();
+            return back()->with('error', __('controllers.error_creating', ['message' => $e->getMessage()]))->withInput();
         }
     }
 

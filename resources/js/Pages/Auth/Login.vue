@@ -14,8 +14,8 @@
         <v-card class="login-card" elevation="24" rounded="xl">
           <div class="login-header">
             <v-icon size="64" color="primary" class="mb-4">mdi-school</v-icon>
-            <h1 class="text-h3 font-weight-bold text-primary mb-2">ИФТУТ</h1>
-            <p class="text-body-1 text-medium-emphasis">Система управления обучением</p>
+            <h1 class="text-h3 font-weight-bold text-primary mb-2">{{ t('auth.login_title') }}</h1>
+            <p class="text-body-1 text-medium-emphasis">{{ t('auth.login_subtitle') }}</p>
           </div>
 
           <v-card-text class="pa-8 pt-0">
@@ -23,7 +23,7 @@
               <!-- Email или телефон поле -->
               <v-text-field
                 v-model="form.login"
-                label="Email или номер телефона"
+                :label="t('auth.email_or_phone')"
                 prepend-inner-icon="mdi-account"
                 variant="outlined"
                 rounded="lg"
@@ -32,14 +32,14 @@
                 class="mb-4"
                 autocomplete="username"
                 required
-                hint="Введите email или номер телефона"
+                :hint="t('auth.email_or_phone_hint')"
                 persistent-hint
               ></v-text-field>
 
               <!-- Пароль поле -->
               <v-text-field
                 v-model="form.password"
-                label="Пароль"
+                :label="t('auth.password_label')"
                 :type="showPassword ? 'text' : 'password'"
                 prepend-inner-icon="mdi-lock"
                 :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
@@ -62,21 +62,21 @@
               >
                 <template v-slot:label>
                   <span class="text-body-2">
-                    Я согласен с
+                    {{ t('auth.agree_to_terms') }}
                     <a 
                       href="#" 
                       @click.prevent="showPrivacyDialog = true" 
                       class="text-primary text-decoration-none"
                     >
-                      Политикой конфиденциальности
+                      {{ t('auth.privacy_policy') }}
                     </a>
-                    и
+                    {{ t('auth.and') }}
                     <a 
                       href="#" 
                       @click.prevent="showTermsDialog = true" 
                       class="text-primary text-decoration-none"
                     >
-                      Условиями использования
+                      {{ t('auth.terms_of_service') }}
                     </a>
                   </span>
                 </template>
@@ -86,7 +86,7 @@
               <div class="d-flex justify-space-between align-center mb-6">
                 <v-checkbox
                   v-model="form.remember"
-                  label="Запомнить меня"
+                  :label="t('auth.remember_me')"
                   color="primary"
                   hide-details
                 ></v-checkbox>
@@ -97,7 +97,7 @@
                   size="small"
                   class="text-none"
                 >
-                  Забыли пароль?
+                  {{ t('auth.forgot_password') }}
                 </v-btn>
               </div>
 
@@ -114,7 +114,7 @@
                 elevation="4"
               >
                 <v-icon start>mdi-login</v-icon>
-                {{ form.processing ? 'Вход...' : 'Войти в систему' }}
+                {{ form.processing ? t('auth.logging_in') : t('auth.login_button') }}
               </v-btn>
               
               <!-- Предупреждение если не согласен -->
@@ -126,7 +126,7 @@
                 class="mb-4"
               >
                 <span class="text-caption">
-                  Для входа необходимо согласиться с политикой конфиденциальности и условиями использования
+                  {{ t('auth.must_agree') }}
                 </span>
               </v-alert>
 
@@ -154,7 +154,7 @@
           <v-card-actions class="pa-8 pt-0">
             <div class="text-center w-100">
               <p class="text-body-2 text-medium-emphasis mb-2">
-                © {{ currentYear }} ИФТУТ. Все права защищены.
+                © {{ currentYear }} ИФТУТ. {{ t('auth.all_rights_reserved') }}
               </p>
               <div class="d-flex justify-center gap-4">
                 <v-btn
@@ -164,7 +164,7 @@
                   color="primary"
                   class="text-none"
                 >
-                  Политика конфиденциальности
+                  {{ t('auth.privacy_policy') }}
                 </v-btn>
                 <v-btn
                   @click="showTermsDialog = true"
@@ -173,7 +173,7 @@
                   color="primary"
                   class="text-none"
                 >
-                  Условия использования
+                  {{ t('auth.terms_of_service') }}
                 </v-btn>
               </div>
             </div>
@@ -184,14 +184,18 @@
         <div class="login-info">
           <div class="info-card">
             <v-icon size="48" color="white" class="mb-4">mdi-lightbulb</v-icon>
-            <h3 class="text-h5 font-weight-bold text-white mb-2">Добро пожаловать!</h3>
+            <h3 class="text-h5 font-weight-bold text-white mb-2">{{ t('auth.welcome') }}</h3>
             <p class="text-body-1 text-white opacity-75">
-              Для доступа к панели управления войдите в систему управления обучением ИФТУТ.
+              {{ t('auth.welcome_message') }}
             </p>
           </div>
         </div>
       </div>
       
+      <!-- Переключатель языка в правом верхнем углу -->
+      <div class="language-switcher-wrapper">
+        <LanguageSwitcher />
+      </div>
     </v-main>
 
     <!-- Модальное окно - Политика конфиденциальности -->
@@ -378,6 +382,10 @@
 <script setup>
 import { ref } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
+import LanguageSwitcher from '../../Components/LanguageSwitcher.vue'
+
+const { t } = useI18n()
 
 const showPassword = ref(false)
 const agreeToTerms = ref(true)

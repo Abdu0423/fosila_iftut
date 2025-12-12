@@ -154,7 +154,7 @@ class EducationDepartmentController extends Controller
             $role = Role::find($validated['role_id']);
             if (!$role || !in_array($role->name, ['teacher', 'student'])) {
                 return back()->withErrors([
-                    'role_id' => 'Можно создавать только преподавателей и студентов'
+                    'role_id' => __('controllers.only_teachers_students')
                 ])->withInput();
             }
 
@@ -185,17 +185,17 @@ class EducationDepartmentController extends Controller
             ]);
 
             return redirect()->route('education.users.index')
-                ->with('success', 'Пользователь успешно создан');
+                ->with('success', __('controllers.user_created'));
         } catch (\Illuminate\Validation\ValidationException $e) {
             if (isset($e->errors()['email']) && str_contains($e->errors()['email'][0], 'already been taken')) {
                 return back()->withErrors([
-                    'email' => 'Пользователь с таким email уже существует в системе'
+                    'email' => __('controllers.email_exists')
                 ])->withInput();
             }
             
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            return back()->with('error', 'Ошибка при создании пользователя: ' . $e->getMessage())->withInput();
+            return back()->with('error', __('controllers.error_creating', ['message' => $e->getMessage()]))->withInput();
         }
     }
     
@@ -316,17 +316,17 @@ class EducationDepartmentController extends Controller
             }
 
             return redirect()->route('education.users.index')
-                ->with('success', 'Пользователь успешно обновлен');
+                ->with('success', __('controllers.user_updated'));
         } catch (\Illuminate\Validation\ValidationException $e) {
             if (isset($e->errors()['email']) && str_contains($e->errors()['email'][0], 'already been taken')) {
                 return back()->withErrors([
-                    'email' => 'Пользователь с таким email уже существует в системе'
+                    'email' => __('controllers.email_exists')
                 ])->withInput();
             }
             
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            return back()->with('error', 'Ошибка при обновлении пользователя: ' . $e->getMessage())->withInput();
+            return back()->with('error', __('controllers.error_updating', ['message' => $e->getMessage()]))->withInput();
         }
     }
     
@@ -437,7 +437,7 @@ class EducationDepartmentController extends Controller
         Group::create($validated);
         
         return redirect()->route('education.groups.index')
-            ->with('success', 'Группа успешно создана');
+            ->with('success', __('controllers.group_created'));
     }
     
     /**
@@ -508,7 +508,7 @@ class EducationDepartmentController extends Controller
         $group->update($validated);
         
         return redirect()->route('education.groups.index')
-            ->with('success', 'Группа успешно обновлена');
+            ->with('success', __('controllers.group_updated'));
     }
     
     /**

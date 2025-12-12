@@ -84,11 +84,17 @@ class HandleInertiaRequests extends Middleware
             ]);
         }
         
+        // Загружаем переводы для текущей локали
+        $locale = app()->getLocale();
+        $translations = $this->loadTranslations($locale);
+        
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $userData,
             ],
+            'locale' => $locale,
+            'translations' => $translations,
             'unreadChatsCount' => $unreadChatsCount,
             'flash' => [
                 'success' => fn () => $request->session()->get('success') ?? null,
@@ -107,4 +113,35 @@ class HandleInertiaRequests extends Middleware
         ];
     }
     
+    /**
+     * Загрузить переводы для указанной локали из JSON файла
+     */
+    protected function loadTranslations(string $locale): array
+    {
+        $locale = in_array($locale, ['ru', 'tg']) ? $locale : 'ru';
+        $filePath = lang_path("{$locale}.json");
+        
+        if (file_exists($filePath)) {
+            $content = file_get_contents($filePath);
+            $translations = json_decode($content, true);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                \Log::error('Failed to parse translation JSON', [
+                    'locale' => $locale,
+                    'file' => $filePath,
+                    'error' => json_last_error_msg()
+                ]);
+                return [];
+            }
+            
+            return $translations ?: [];
+        }
+        
+        \Log::warning('Translation file not found', [
+            'locale' => $locale,
+            'file' => $filePath
+        ]);
+        
+        return [];
+    }
 }
