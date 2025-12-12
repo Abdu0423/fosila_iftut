@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ChangePasswordController extends Controller
@@ -33,7 +35,9 @@ class ChangePasswordController extends Controller
             'password.min' => __('auth.password_min', ['min' => 4]),
         ]);
 
-        $user = auth()->user();
+        // Получаем свежую модель из базы данных (не кешированную)
+        $userId = auth()->id();
+        $user = User::find($userId);
 
         // Проверяем текущий пароль
         if (!Hash::check($request->current_password, $user->password)) {
@@ -49,29 +53,22 @@ class ChangePasswordController extends Controller
             ]);
         }
 
-        // Обновляем пароль и снимаем флаг обязательной смены
-        // Используем явное присваивание для гарантии обновления
-        $user->password = Hash::make($request->password);
-        $user->must_change_password = 0;
-        $user->save();
+        // Обновляем напрямую через DB для гарантии
+        DB::table('users')
+            ->where('id', $userId)
+            ->update([
+                'password' => Hash::make($request->password),
+                'must_change_password' => 0,
+                'updated_at' => now()
+            ]);
 
         // Перезагружаем пользователя с ролью для правильного определения роли
-        $user->refresh();
-        $user->load('role');
-        
-        // Проверяем, что обновление прошло успешно
-        if ($user->must_change_password) {
-            \Log::error('Ошибка: must_change_password не обновлен', [
-                'user_id' => $user->id,
-                'must_change_password' => $user->must_change_password
-            ]);
-        }
+        $user = User::with('role')->find($userId);
 
         // Определяем куда перенаправить в зависимости от роли
         $redirectUrl = $this->getRedirectUrl($user);
 
         // Используем обычный redirect() для гарантированного редиректа
-        // Это работает как обычный HTTP редирект и гарантирует переход
         return redirect($redirectUrl)
             ->with('success', __('auth.password_changed'));
     }
