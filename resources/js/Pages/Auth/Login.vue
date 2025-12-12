@@ -186,7 +186,7 @@
             <v-icon size="48" color="white" class="mb-4">mdi-lightbulb</v-icon>
             <h3 class="text-h5 font-weight-bold text-white mb-2">{{ translations.auth?.welcome || 'Хуш омадед!' }}</h3>
             <p class="text-body-1 text-white opacity-75">
-              {{ translations.auth?.welcome_message || 'Барои дастрасӣ ба панели идоракунӣ ба системаи идоракунии таълими ИФТУТ ворид шавед.' }}
+              {{ translations.auth?.welcome_message || 'Барои дастрасӣ ба панели идоракунӣ ба системаи идоракунии таълими ФДТТИ ворид шавед.' }}
             </p>
           </div>
         </div>
