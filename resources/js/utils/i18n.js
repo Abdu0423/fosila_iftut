@@ -1,32 +1,24 @@
 /**
- * i18n утилита для управления языками
- * Использует localStorage как основной источник хранения языка
+ * Простая утилита для управления языками
+ * Использует cookie как основной источник
  */
 
 const AVAILABLE_LOCALES = ['ru', 'tg']
 const DEFAULT_LOCALE = 'ru'
 
 /**
- * Получить текущий язык из localStorage, cookie или вернуть язык по умолчанию
+ * Получить текущий язык из cookie или вернуть язык по умолчанию
  */
 export function getCurrentLocale() {
   if (typeof window === 'undefined') {
     return DEFAULT_LOCALE
   }
   
-  // Сначала проверяем localStorage
-  const stored = localStorage.getItem('locale')
-  if (stored && AVAILABLE_LOCALES.includes(stored)) {
-    return stored
-  }
-  
-  // Затем проверяем cookie (для первой загрузки)
+  // Проверяем cookie
   const cookies = document.cookie.split(';')
   for (let cookie of cookies) {
     const [name, value] = cookie.trim().split('=')
     if (name === 'locale' && value && AVAILABLE_LOCALES.includes(value)) {
-      // Синхронизируем с localStorage
-      localStorage.setItem('locale', value)
       return value
     }
   }
@@ -35,7 +27,7 @@ export function getCurrentLocale() {
 }
 
 /**
- * Установить язык в localStorage и cookie
+ * Установить язык в cookie
  */
 export function setLocale(locale) {
   if (!AVAILABLE_LOCALES.includes(locale)) {
@@ -44,19 +36,9 @@ export function setLocale(locale) {
   }
   
   if (typeof window !== 'undefined') {
-    // Сохраняем в localStorage
-    localStorage.setItem('locale', locale)
-    console.log(`✅ Locale saved to localStorage: ${locale}`)
-    
-    // Сохраняем в cookie для передачи на сервер при первой загрузке
+    // Сохраняем в cookie
     document.cookie = `locale=${locale}; path=/; max-age=31536000; SameSite=Lax`
     console.log(`✅ Locale saved to cookie: ${locale}`)
-    
-    // Обновляем заголовок axios для всех последующих запросов
-    if (window.axios) {
-      window.axios.defaults.headers.common['X-Locale'] = locale
-      console.log(`✅ Axios header X-Locale updated to: ${locale}`)
-    }
   }
   
   return locale
@@ -97,32 +79,3 @@ export function getLocaleFlag(locale) {
 export function getAvailableLocales() {
   return AVAILABLE_LOCALES
 }
-
-/**
- * Инициализировать язык при загрузке страницы
- * Синхронизирует localStorage с сервером
- */
-export function initLocale() {
-  const currentLocale = getCurrentLocale()
-  
-  // Устанавливаем заголовок для всех последующих запросов (axios и fetch)
-  if (typeof window !== 'undefined') {
-    // Убеждаемся, что язык сохранен в localStorage и cookie
-    if (!localStorage.getItem('locale')) {
-      localStorage.setItem('locale', currentLocale)
-    }
-    
-    // Устанавливаем cookie
-    document.cookie = `locale=${currentLocale}; path=/; max-age=31536000; SameSite=Lax`
-    
-    // Устанавливаем заголовок axios
-    if (window.axios) {
-      window.axios.defaults.headers.common['X-Locale'] = currentLocale
-    }
-    
-    console.log(`🌍 i18n initialized with locale: ${currentLocale}`)
-  }
-  
-  return currentLocale
-}
-

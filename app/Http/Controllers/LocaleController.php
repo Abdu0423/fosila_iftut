@@ -10,6 +10,7 @@ class LocaleController extends Controller
 {
     /**
      * Сменить язык
+     * Простая реализация: сохраняем в сессию и cookie, возвращаем редирект
      */
     public function change(Request $request)
     {
@@ -19,34 +20,30 @@ class LocaleController extends Controller
         
         $locale = $request->locale;
         
-        // Также проверяем заголовок X-Locale (может быть отправлен из localStorage)
-        $headerLocale = $request->header('X-Locale');
-        if ($headerLocale && in_array($headerLocale, ['ru', 'tg'])) {
-            $locale = $headerLocale;
-        }
-        
-        \Log::info('Locale change requested', [
-            'locale' => $locale,
-            'header_locale' => $headerLocale,
-            'body_locale' => $request->locale,
-            'user_id' => $request->user()?->id
-        ]);
-        
-        // Сохраняем в сессии (для синхронизации с сервером)
+        // Сохраняем в сессии
         Session::put('locale', $locale);
         Session::save();
         
         // Устанавливаем текущий язык
         App::setLocale($locale);
         
-        // Возвращаем JSON ответ с cookie для установки на клиенте
-        $response = response()->json([
-            'success' => true,
-            'locale' => $locale,
-            'message' => 'Locale changed successfully'
-        ]);
+        // Возвращаем редирект на текущую страницу с параметром языка
+        // Это гарантирует, что язык будет применен сразу
+        $redirectUrl = $request->header('Referer') ?: '/';
         
-        // Устанавливаем cookie в ответе (для следующей загрузки страницы)
+        // Убираем старые параметры lang из URL
+        $parsedUrl = parse_url($redirectUrl);
+        $path = $parsedUrl['path'] ?? '/';
+        $query = [];
+        if (isset($parsedUrl['query'])) {
+            parse_str($parsedUrl['query'], $query);
+            unset($query['lang']); // Убираем старый параметр
+        }
+        $query['lang'] = $locale; // Добавляем новый
+        $newUrl = $path . '?' . http_build_query($query);
+        
+        // Устанавливаем cookie в ответе
+        $response = redirect($newUrl);
         $response->cookie('locale', $locale, 60 * 24 * 365, '/', null, false, false); // 1 год
         
         return $response;

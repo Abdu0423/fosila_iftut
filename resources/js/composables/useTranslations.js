@@ -1,18 +1,18 @@
 ﻿import { computed } from 'vue'
-import { usePage, router } from '@inertiajs/vue3'
+import { usePage } from '@inertiajs/vue3'
 import { getCurrentLocale, setLocale, isValidLocale, getLocaleName, getLocaleFlag } from '../utils/i18n'
 
 export function useTranslations() {
     const page = usePage()
     
-    // Используем серверный locale как основной источник (он уже учитывает cookie/localStorage)
+    // Используем серверный locale как основной источник
     const locale = computed(() => {
         const serverLocale = page.props.locale
-        const localLocale = getCurrentLocale()
         
-        // Если серверный язык есть и валидный - используем его (он уже учитывает все источники)
+        // Если серверный язык есть и валидный - используем его
         if (serverLocale && isValidLocale(serverLocale)) {
-            // Синхронизируем localStorage с сервером
+            // Синхронизируем cookie с сервером
+            const localLocale = getCurrentLocale()
             if (localLocale !== serverLocale) {
                 setLocale(serverLocale)
             }
@@ -20,6 +20,7 @@ export function useTranslations() {
         }
         
         // Если серверного нет, используем локальный
+        const localLocale = getCurrentLocale()
         if (localLocale && isValidLocale(localLocale)) {
             return localLocale
         }
@@ -29,27 +30,7 @@ export function useTranslations() {
     })
     
     const translations = computed(() => {
-        const trans = page.props.translations || {}
-        const currentServerLocale = page.props.locale
-        
-        // КРИТИЧЕСКИ ВАЖНО: Если серверный язык отличается от локального,
-        // значит нужно синхронизировать localStorage с сервером
-        const localLocale = getCurrentLocale()
-        if (currentServerLocale && currentServerLocale !== localLocale && isValidLocale(currentServerLocale)) {
-            console.log('🔄 Syncing locale: server says', currentServerLocale, 'but localStorage has', localLocale)
-            setLocale(currentServerLocale)
-        }
-        
-        // Отладочный вывод
-        console.log('📚 Translations loaded:', {
-            serverLocale: currentServerLocale,
-            localLocale: localLocale,
-            hasTranslations: Object.keys(trans).length > 0,
-            sampleKey: trans.navigation?.dashboard || 'NOT FOUND',
-            navigationKeys: trans.navigation ? Object.keys(trans.navigation) : []
-        })
-        
-        return trans
+        return page.props.translations || {}
     })
     
     const changeLocale = async (newLocale) => {
@@ -66,21 +47,19 @@ export function useTranslations() {
         
         console.log('🌍 Changing locale from', currentLocale, 'to', newLocale)
         
-        // Сразу сохраняем в localStorage для быстрого отклика
+        // Сохраняем в cookie
         setLocale(newLocale)
-        
-        // Обновляем заголовок axios для последующих запросов
-        if (typeof window !== 'undefined' && window.axios) {
-            window.axios.defaults.headers.common['X-Locale'] = newLocale
-        }
         
         try {
             // Получаем CSRF токен
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
             if (!csrfToken) {
                 console.error('❌ CSRF token not found')
-                // Используем полную перезагрузку страницы
-                window.location.reload()
+                // Используем простой редирект с параметром языка
+                const currentUrl = window.location.href
+                const url = new URL(currentUrl)
+                url.searchParams.set('lang', newLocale)
+                window.location.href = url.toString()
                 return
             }
             
@@ -90,7 +69,6 @@ export function useTranslations() {
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken,
-                    'X-Locale': newLocale, // Отправляем язык в заголовке
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
@@ -98,22 +76,32 @@ export function useTranslations() {
                 body: JSON.stringify({ locale: newLocale })
             })
             
-            if (response.ok) {
-                const data = await response.json()
-                console.log('✅ Locale synchronized with server:', data)
-                
-                // Используем полную перезагрузку страницы для гарантии обновления переводов
-                // Это гарантирует, что сервер получит заголовок X-Locale и вернет правильные переводы
-                window.location.reload()
+            if (response.redirected || response.ok) {
+                // Сервер вернет редирект, просто следуем ему
+                if (response.redirected) {
+                    window.location.href = response.url
+                } else {
+                    // Если нет редиректа, используем простой редирект с параметром
+                    const currentUrl = window.location.href
+                    const url = new URL(currentUrl)
+                    url.searchParams.set('lang', newLocale)
+                    window.location.href = url.toString()
+                }
             } else {
-                console.warn('⚠️ Failed to sync locale with server, but locale saved locally')
-                // Используем полную перезагрузку страницы
-                window.location.reload()
+                console.warn('⚠️ Failed to sync locale with server')
+                // Используем простой редирект с параметром языка
+                const currentUrl = window.location.href
+                const url = new URL(currentUrl)
+                url.searchParams.set('lang', newLocale)
+                window.location.href = url.toString()
             }
         } catch (error) {
             console.error('❌ Exception changing locale:', error)
-            // Используем полную перезагрузку страницы
-            window.location.reload()
+            // Используем простой редирект с параметром языка
+            const currentUrl = window.location.href
+            const url = new URL(currentUrl)
+            url.searchParams.set('lang', newLocale)
+            window.location.href = url.toString()
         }
     }
     

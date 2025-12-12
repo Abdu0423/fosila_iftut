@@ -6,33 +6,10 @@
 
 import axios from 'axios';
 import { Ziggy } from './ziggy.js';
-import { getCurrentLocale } from './utils/i18n';
 
 window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-
-// Устанавливаем заголовок X-Locale для всех axios запросов
-window.axios.defaults.headers.common['X-Locale'] = getCurrentLocale();
-
-// Обновляем заголовок при изменении языка в localStorage
-if (typeof window !== 'undefined') {
-  // Слушаем изменения localStorage (через событие storage)
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'locale' && e.newValue) {
-      window.axios.defaults.headers.common['X-Locale'] = e.newValue;
-    }
-  });
-  
-  // Также обновляем при прямом изменении через setItem
-  const originalSetItem = Storage.prototype.setItem;
-  Storage.prototype.setItem = function(key, value) {
-    originalSetItem.apply(this, arguments);
-    if (key === 'locale' && window.axios) {
-      window.axios.defaults.headers.common['X-Locale'] = value;
-    }
-  };
-}
 
 // Добавляем функцию route в глобальную область
 window.route = (name, params, absolute, config = Ziggy) => {
