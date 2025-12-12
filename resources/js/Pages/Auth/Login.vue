@@ -14,8 +14,8 @@
         <v-card class="login-card" elevation="24" rounded="xl">
           <div class="login-header">
             <v-icon size="64" color="primary" class="mb-4">mdi-school</v-icon>
-            <h1 class="text-h3 font-weight-bold text-primary mb-2">{{ translations.auth?.login_title || 'ИФТУТ' }}</h1>
-            <p class="text-body-1 text-medium-emphasis">{{ translations.auth?.login_subtitle || 'Системаи идоракунии таълим' }}</p>
+            <h1 class="text-h3 font-weight-bold text-primary mb-2">ИФТУТ</h1>
+            <p class="text-body-1 text-medium-emphasis">Система управления обучением</p>
           </div>
 
           <v-card-text class="pa-8 pt-0">
@@ -23,7 +23,7 @@
               <!-- Email или телефон поле -->
               <v-text-field
                 v-model="form.login"
-                :label="translations.auth?.email_or_phone || 'Email ё рақами телефон'"
+                label="Email или номер телефона"
                 prepend-inner-icon="mdi-account"
                 variant="outlined"
                 rounded="lg"
@@ -32,14 +32,14 @@
                 class="mb-4"
                 autocomplete="username"
                 required
-                :hint="translations.auth?.email_or_phone_hint || 'Email ё рақами телефонро ворид кунед'"
+                hint="Введите email или номер телефона"
                 persistent-hint
               ></v-text-field>
 
               <!-- Пароль поле -->
               <v-text-field
                 v-model="form.password"
-                :label="translations.auth?.password_label || 'Парол'"
+                label="Пароль"
                 :type="showPassword ? 'text' : 'password'"
                 prepend-inner-icon="mdi-lock"
                 :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
@@ -62,21 +62,21 @@
               >
                 <template v-slot:label>
                   <span class="text-body-2">
-                    {{ translations.auth?.agree_to_terms || 'Ман розӣ ҳастам' }}
+                    Я согласен с
                     <a 
                       href="#" 
                       @click.prevent="showPrivacyDialog = true" 
                       class="text-primary text-decoration-none"
                     >
-                      {{ translations.auth?.privacy_policy || 'Сиёсати махфият' }}
+                      Политикой конфиденциальности
                     </a>
-                    {{ translations.auth?.and || 'ва' }}
+                    и
                     <a 
                       href="#" 
                       @click.prevent="showTermsDialog = true" 
                       class="text-primary text-decoration-none"
                     >
-                      {{ translations.auth?.terms_of_service || 'Шартҳои истифода' }}
+                      Условиями использования
                     </a>
                   </span>
                 </template>
@@ -86,7 +86,7 @@
               <div class="d-flex justify-space-between align-center mb-6">
                 <v-checkbox
                   v-model="form.remember"
-                  :label="translations.auth?.remember_me || 'Маро ба хотир гиред'"
+                  label="Запомнить меня"
                   color="primary"
                   hide-details
                 ></v-checkbox>
@@ -97,7 +97,7 @@
                   size="small"
                   class="text-none"
                 >
-                  {{ translations.auth?.forgot_password || 'Паролро фаромӯш кардед?' }}
+                  Забыли пароль?
                 </v-btn>
               </div>
 
@@ -114,7 +114,7 @@
                 elevation="4"
               >
                 <v-icon start>mdi-login</v-icon>
-                {{ form.processing ? (translations.auth?.logging_in || 'Вуруд...') : (translations.auth?.login_button || 'Ворид шудан ба система') }}
+                {{ form.processing ? 'Вход...' : 'Войти в систему' }}
               </v-btn>
               
               <!-- Предупреждение если не согласен -->
@@ -126,7 +126,7 @@
                 class="mb-4"
               >
                 <span class="text-caption">
-                  {{ translations.auth?.must_agree || 'Барои вуруд зарур аст, ки бо сиёсати махфият ва шартҳои истифода розӣ шавед' }}
+                  Для входа необходимо согласиться с политикой конфиденциальности и условиями использования
                 </span>
               </v-alert>
 
@@ -154,7 +154,7 @@
           <v-card-actions class="pa-8 pt-0">
             <div class="text-center w-100">
               <p class="text-body-2 text-medium-emphasis mb-2">
-                © {{ currentYear }} ИФТУТ. {{ translations.auth?.all_rights_reserved || 'Ҳамаи ҳуқуқҳо ҳифз шудаанд.' }}
+                © {{ currentYear }} ИФТУТ. Все права защищены.
               </p>
               <div class="d-flex justify-center gap-4">
                 <v-btn
@@ -164,7 +164,7 @@
                   color="primary"
                   class="text-none"
                 >
-                  {{ translations.auth?.privacy_policy || 'Сиёсати махфият' }}
+                  Политика конфиденциальности
                 </v-btn>
                 <v-btn
                   @click="showTermsDialog = true"
@@ -173,7 +173,7 @@
                   color="primary"
                   class="text-none"
                 >
-                  {{ translations.auth?.terms_of_service || 'Шартҳои истифода' }}
+                  Условия использования
                 </v-btn>
               </div>
             </div>
@@ -184,18 +184,14 @@
         <div class="login-info">
           <div class="info-card">
             <v-icon size="48" color="white" class="mb-4">mdi-lightbulb</v-icon>
-            <h3 class="text-h5 font-weight-bold text-white mb-2">{{ translations.auth?.welcome || 'Хуш омадед!' }}</h3>
+            <h3 class="text-h5 font-weight-bold text-white mb-2">Добро пожаловать!</h3>
             <p class="text-body-1 text-white opacity-75">
-              {{ translations.auth?.welcome_message || 'Барои дастрасӣ ба панели идоракунӣ ба системаи идоракунии таълими ФДТТИ ворид шавед.' }}
+              Для доступа к панели управления войдите в систему управления обучением ИФТУТ.
             </p>
           </div>
         </div>
       </div>
       
-      <!-- Переключатель языка в правом верхнем углу -->
-      <div class="language-switcher-wrapper">
-        <LanguageSwitcher />
-      </div>
     </v-main>
 
     <!-- Модальное окно - Политика конфиденциальности -->
@@ -380,12 +376,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useForm, router, usePage } from '@inertiajs/vue3'
-import LanguageSwitcher from '../../Components/LanguageSwitcher.vue'
-
-const page = usePage()
-const translations = computed(() => page.props.translations || {})
+import { ref } from 'vue'
+import { useForm, router } from '@inertiajs/vue3'
 
 const showPassword = ref(false)
 const agreeToTerms = ref(true)
