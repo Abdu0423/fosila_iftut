@@ -34,31 +34,67 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks: (id) => {
-                    // Разделяем Vuetify в отдельный чанк
+                    // Разделяем Vuetify на более мелкие части
                     if (id.includes('vuetify')) {
-                        return 'vuetify';
+                        // Стили Vuetify отдельно
+                        if (id.includes('vuetify/styles') || id.includes('vuetify/lib/styles')) {
+                            return 'vuetify-styles';
+                        }
+                        // Компоненты Vuetify (самая большая часть)
+                        if (id.includes('vuetify/components')) {
+                            return 'vuetify-components';
+                        }
+                        // Директивы Vuetify
+                        if (id.includes('vuetify/directives')) {
+                            return 'vuetify-directives';
+                        }
+                        // Остальные части Vuetify
+                        return 'vuetify-core';
                     }
                     
-                    // Разделяем Vue и Inertia в отдельный чанк
-                    if (id.includes('vue') || id.includes('@inertiajs')) {
-                        return 'vue-core';
+                    // Разделяем Vue отдельно
+                    if (id.includes('vue') && !id.includes('vuetify') && !id.includes('vuedraggable')) {
+                        return 'vue-runtime';
+                    }
+                    
+                    // Inertia отдельно
+                    if (id.includes('@inertiajs')) {
+                        return 'inertia';
+                    }
+                    
+                    // Ziggy отдельно (может быть большим)
+                    if (id.includes('ziggy') || id.includes('ziggy.js')) {
+                        return 'ziggy';
                     }
                     
                     // Разделяем другие большие библиотеки
                     if (id.includes('node_modules')) {
+                        // Иконки MDI
+                        if (id.includes('@mdi/font')) {
+                            return 'mdi-icons';
+                        }
+                        // Real-time библиотеки
                         if (id.includes('pusher-js') || id.includes('laravel-echo')) {
                             return 'realtime';
                         }
+                        // Drag and drop
                         if (id.includes('vuedraggable')) {
                             return 'drag-drop';
                         }
-                        // Остальные node_modules библиотеки
+                        // Axios
+                        if (id.includes('axios')) {
+                            return 'axios';
+                        }
+                        // Остальные vendor библиотеки
                         return 'vendor';
                     }
                 },
             },
         },
-        // Увеличиваем лимит предупреждения до 1000 KB (1 MB)
-        chunkSizeWarningLimit: 1000,
+        // Увеличиваем лимит предупреждения до 1500 KB (1.5 MB)
+        // Это нормально для больших UI библиотек в production
+        chunkSizeWarningLimit: 1500,
+        // Включаем source maps только для отладки (можно отключить в production)
+        sourcemap: false,
     },
 });
