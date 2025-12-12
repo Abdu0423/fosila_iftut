@@ -145,8 +145,8 @@ const headers = computed(() => [
   { title: translations.value.messages?.actions || 'Амалҳо', key: 'actions', sortable: false }
 ])
 
+// Только преподаватели и студенты для роли образования
 const roleOptions = [
-  { title: translations.value.navigation?.admin_panel || 'Маъмур', value: 'admin' },
   { title: translations.value.navigation?.teacher || 'Муаллим', value: 'teacher' },
   { title: translations.value.navigation?.student || 'Донишҷӯ', value: 'student' }
 ]
@@ -209,15 +209,11 @@ const handlePageChange = (page) => {
 }
 
 const createUser = () => {
-  // TODO: Переход на страницу создания пользователя
-  console.log('Create user')
-  // router.visit(route('education.users.create'))
+  router.visit('/education/users/create')
 }
 
 const editUser = (user) => {
-  // TODO: Переход на страницу редактирования пользователя
-  console.log('Edit user:', user)
-  // router.visit(route('education.users.edit', user.id))
+  router.visit(`/education/users/${user.id}/edit`)
 }
 </script>
 

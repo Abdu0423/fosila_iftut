@@ -492,6 +492,10 @@ Route::prefix('education')->middleware(['auth', 'education.department', 'check.p
     
     // Пользователи
     Route::get('/users', [App\Http\Controllers\EducationDepartmentController::class, 'users'])->name('education.users.index');
+    Route::get('/users/create', [App\Http\Controllers\EducationDepartmentController::class, 'createUser'])->name('education.users.create');
+    Route::post('/users', [App\Http\Controllers\EducationDepartmentController::class, 'storeUser'])->name('education.users.store');
+    Route::get('/users/{user}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editUser'])->name('education.users.edit');
+    Route::put('/users/{user}', [App\Http\Controllers\EducationDepartmentController::class, 'updateUser'])->name('education.users.update');
     
     // Группы
     Route::get('/groups', [App\Http\Controllers\EducationDepartmentController::class, 'groups'])->name('education.groups.index');
