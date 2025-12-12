@@ -83,11 +83,25 @@
                     density="comfortable"
                     :error-messages="getErrorMessage('password')"
                     prepend-inner-icon="mdi-lock-plus"
-                    hint="Минимум 4 символа"
+                    :hint="isPasswordSame ? 'Новый пароль должен отличаться от текущего!' : 'Минимум 4 символа'"
+                    :persistent-hint="isPasswordSame"
+                    :color="isPasswordSame ? 'error' : undefined"
                     class="mb-4"
                     required
                     autocomplete="new-password"
                   />
+                  
+                  <!-- Предупреждение о совпадении паролей -->
+                  <v-alert
+                    v-if="isPasswordSame"
+                    type="warning"
+                    variant="tonal"
+                    density="compact"
+                    class="mb-4"
+                  >
+                    <v-icon start>mdi-alert</v-icon>
+                    Новый пароль должен отличаться от текущего пароля. Пожалуйста, введите другой пароль.
+                  </v-alert>
 
                   <!-- Подтверждение пароля -->
                   <v-text-field
@@ -146,7 +160,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
 
 const props = defineProps({
@@ -165,6 +179,11 @@ const formData = reactive({
   password_confirmation: ''
 })
 
+// Локальные ошибки валидации
+const localErrors = reactive({
+  password: null
+})
+
 // Состояние UI
 const showCurrentPassword = ref(false)
 const showPassword = ref(false)
@@ -172,9 +191,21 @@ const showPasswordConfirmation = ref(false)
 const isLoading = ref(false)
 const formRef = ref(null)
 
+// Проверка, что новый пароль отличается от старого
+const isPasswordSame = computed(() => {
+  return formData.current_password && 
+         formData.password && 
+         formData.current_password === formData.password
+})
+
 // Методы для обновления полей формы
 const updateField = (field, value) => {
   formData[field] = value
+  
+  // Сбрасываем локальную ошибку при изменении пароля
+  if (field === 'password' || field === 'current_password') {
+    localErrors.password = null
+  }
 }
 
 // Методы для переключения видимости паролей
@@ -190,8 +221,11 @@ const toggleShowPasswordConfirmation = () => {
   showPasswordConfirmation.value = !showPasswordConfirmation.value
 }
 
-// Метод для получения ошибок
+// Метод для получения ошибок (приоритет: локальные ошибки, затем серверные)
 const getErrorMessage = (field) => {
+  if (field === 'password' && localErrors.password) {
+    return localErrors.password
+  }
   return page.props.errors?.[field] || null
 }
 
@@ -199,6 +233,29 @@ const getErrorMessage = (field) => {
 const handleSubmit = () => {
   if (isLoading.value) return
   
+  // Валидация на фронтенде: проверяем, что новый пароль отличается от старого
+  if (isPasswordSame.value) {
+    localErrors.password = 'Новый пароль должен отличаться от текущего пароля'
+    isLoading.value = false
+    return
+  }
+  
+  // Проверяем минимальную длину пароля
+  if (formData.password.length < 4) {
+    localErrors.password = 'Пароль должен содержать минимум 4 символа'
+    isLoading.value = false
+    return
+  }
+  
+  // Проверяем совпадение паролей
+  if (formData.password !== formData.password_confirmation) {
+    localErrors.password = 'Пароли не совпадают'
+    isLoading.value = false
+    return
+  }
+  
+  // Сбрасываем локальные ошибки перед отправкой
+  localErrors.password = null
   isLoading.value = true
   
   // Создаём копию данных для отправки
@@ -216,11 +273,15 @@ const handleSubmit = () => {
       isLoading.value = false
     },
     onSuccess: (response) => {
-      // Проверяем, есть ли ошибки валидации
+      // Проверяем, есть ли ошибки валидации с сервера
       const hasErrors = response.props?.errors && Object.keys(response.props.errors).length > 0
       
       if (hasErrors) {
         console.log('⚠️ Есть ошибки валидации:', response.props.errors)
+        // Если сервер вернул ошибку о совпадении паролей, показываем её
+        if (response.props.errors.password) {
+          localErrors.password = response.props.errors.password[0]
+        }
         return // Не делаем редирект, показываем ошибки
       }
       
@@ -230,6 +291,10 @@ const handleSubmit = () => {
     onError: (errors) => {
       console.error('❌ Ошибки при смене пароля:', errors)
       // При ошибке данные остаются в форме благодаря preserveState: true
+      // Показываем серверные ошибки
+      if (errors.password) {
+        localErrors.password = Array.isArray(errors.password) ? errors.password[0] : errors.password
+      }
     }
   })
 }
