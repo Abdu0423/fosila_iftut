@@ -6,12 +6,12 @@
         <v-btn
           icon="mdi-arrow-left"
           variant="text"
-          @click="router.visit(route('education.schedules.index'))"
+          @click="router.visit('/education/schedules')"
           class="mr-3"
         />
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.edit_schedule }}
+            {{ translations.education_department?.edit_schedule || 'Редактировать расписание' }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
             {{ schedule?.subject?.name }}
@@ -24,7 +24,7 @@
         <v-col cols="12" lg="8">
           <v-card>
             <v-card-title class="text-h5 pa-6">
-              {{ translations.education_department?.schedules_title }}
+              {{ translations.education_department?.schedules_title || 'Расписания' }}
             </v-card-title>
             <v-card-text class="pa-6">
               <v-form @submit.prevent="submit">
@@ -37,7 +37,7 @@
                       :items="subjects || []"
                       item-title="name"
                       item-value="id"
-                      :label="(translations.education_department?.schedule_subject) + ' *'"
+                      :label="(translations.education_department?.schedule_subject || 'Предмет') + ' *'"
                       variant="outlined"
                       :error-messages="errors.subject_id"
                       required
@@ -52,7 +52,7 @@
                       :items="teachers || []"
                       item-title="name"
                       item-value="id"
-                      :label="(translations.education_department?.schedule_teacher) + ' *'"
+                      :label="(translations.education_department?.schedule_teacher || 'Преподаватель') + ' *'"
                       variant="outlined"
                       :error-messages="errors.teacher_id"
                       required
@@ -67,7 +67,7 @@
                       :items="groups || []"
                       item-title="name"
                       item-value="id"
-                      :label="(translations.education_department?.schedule_group) + ' *'"
+                      :label="(translations.education_department?.schedule_group || 'Группа') + ' *'"
                       variant="outlined"
                       :error-messages="errors.group_id"
                       required
@@ -80,7 +80,7 @@
                       :model-value="form.semester"
                       @update:model-value="form.semester = $event"
                       :items="semesterItems"
-                      :label="(translations.education_department?.schedule_semester) + ' *'"
+                      :label="(translations.education_department?.schedule_semester || 'Семестр') + ' *'"
                       variant="outlined"
                       :error-messages="errors.semester"
                       required
@@ -92,7 +92,7 @@
                     <v-text-field
                       :model-value="form.credits"
                       @update:model-value="form.credits = $event ? parseInt($event) : null"
-                      :label="(translations.education_department?.subject_credits) + ' *'"
+                      :label="(translations.education_department?.subject_credits || 'Кредиты') + ' *'"
                       type="number"
                       min="1"
                       max="10"
@@ -107,7 +107,7 @@
                     <v-text-field
                       :model-value="form.study_year"
                       @update:model-value="form.study_year = $event ? parseInt($event) : null"
-                      :label="(translations.education_department?.schedule_study_year) + ' *'"
+                      :label="(translations.education_department?.schedule_study_year || 'Год обучения') + ' *'"
                       type="number"
                       min="2020"
                       max="2030"
@@ -122,7 +122,7 @@
                     <v-text-field
                       :model-value="form.order"
                       @update:model-value="form.order = $event ? parseInt($event) : null"
-                      :label="translations.messages?.order + ' *'"
+                      :label="(translations.messages?.order || 'Порядок') + ' *'"
                       type="number"
                       min="1"
                       variant="outlined"
@@ -136,7 +136,7 @@
                     <v-text-field
                       :model-value="form.scheduled_at"
                       @update:model-value="form.scheduled_at = $event"
-                      :label="translations.education_department?.schedule_date"
+                      :label="translations.education_department?.schedule_date || 'Дата и время'"
                       type="datetime-local"
                       variant="outlined"
                       :error-messages="errors.scheduled_at"
@@ -148,7 +148,7 @@
                     <v-switch
                       :model-value="form.is_active"
                       @update:model-value="form.is_active = $event"
-                      :label="translations.messages?.active"
+                      :label="translations.messages?.active || 'Активен'"
                       color="primary"
                     />
                   </v-col>
@@ -163,14 +163,14 @@
                     :loading="form.processing"
                     :disabled="form.processing"
                   >
-                    {{ translations.messages?.update }}
+                    {{ translations.messages?.update || 'Обновить' }}
                   </v-btn>
                   <v-btn
                     variant="outlined"
-                    @click="router.visit(route('education.schedules.index'))"
+                    @click="router.visit('/education/schedules')"
                     :disabled="form.processing"
                   >
-                    {{ translations.messages?.cancel }}
+                    {{ translations.messages?.cancel || 'Отмена' }}
                   </v-btn>
                 </div>
               </v-form>
@@ -229,12 +229,11 @@ const semesterItems = [
 ]
 
 const submit = () => {
-  form.put(route('education.schedules.update', props.schedule.id), {
+  form.put(`/education/schedules/${props.schedule.id}`, {
     preserveScroll: true,
     onSuccess: () => {
-      router.visit(route('education.schedules.index'))
+      router.visit('/education/schedules')
     }
   })
 }
 </script>
-

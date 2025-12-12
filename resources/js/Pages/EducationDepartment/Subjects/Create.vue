@@ -6,15 +6,15 @@
         <v-btn
           icon="mdi-arrow-left"
           variant="text"
-          @click="router.visit(route('education.subjects.index'))"
+          @click="router.visit('/education/subjects')"
           class="mr-3"
         />
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.create_subject }}
+            {{ translations.education_department?.create_subject || 'Создать предмет' }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.subjects_subtitle }}
+            {{ translations.education_department?.subjects_subtitle || 'Добавление нового предмета' }}
           </p>
         </div>
       </div>
@@ -24,7 +24,7 @@
         <v-col cols="12" lg="8">
           <v-card>
             <v-card-title class="text-h5 pa-6">
-              {{ translations.education_department?.subjects_title }}
+              {{ translations.education_department?.subjects_title || 'Предметы' }}
             </v-card-title>
             <v-card-text class="pa-6">
               <v-form @submit.prevent="submit">
@@ -34,7 +34,7 @@
                     <v-text-field
                       :model-value="form.name"
                       @update:model-value="form.name = $event"
-                      :label="(translations.education_department?.subject_name) + ' *'"
+                      :label="(translations.education_department?.subject_name || 'Название предмета') + ' *'"
                       variant="outlined"
                       :error-messages="errors.name"
                       required
@@ -46,7 +46,7 @@
                     <v-text-field
                       :model-value="form.code"
                       @update:model-value="form.code = $event"
-                      :label="translations.education_department?.subject_code"
+                      :label="translations.education_department?.subject_code || 'Код предмета'"
                       variant="outlined"
                       :error-messages="errors.code"
                     />
@@ -57,7 +57,7 @@
                     <v-select
                       :model-value="form.department_id"
                       @update:model-value="form.department_id = $event"
-                      :label="translations.messages?.category"
+                      :label="translations.messages?.category || 'Категория'"
                       :items="departments || []"
                       item-title="name"
                       item-value="id"
@@ -72,7 +72,7 @@
                     <v-text-field
                       :model-value="form.credits"
                       @update:model-value="form.credits = $event ? parseInt($event) : null"
-                      :label="translations.education_department?.subject_credits"
+                      :label="translations.education_department?.subject_credits || 'Кредиты'"
                       type="number"
                       min="1"
                       max="10"
@@ -86,7 +86,7 @@
                     <v-textarea
                       :model-value="form.description"
                       @update:model-value="form.description = $event"
-                      :label="translations.education_department?.subject_description"
+                      :label="translations.education_department?.subject_description || 'Описание'"
                       variant="outlined"
                       rows="3"
                       :error-messages="errors.description"
@@ -98,7 +98,7 @@
                     <v-switch
                       :model-value="form.is_active"
                       @update:model-value="form.is_active = $event"
-                      :label="translations.education_department?.subject_active"
+                      :label="translations.education_department?.subject_active || 'Активен'"
                       color="primary"
                     />
                   </v-col>
@@ -113,14 +113,14 @@
                     :loading="form.processing"
                     :disabled="form.processing"
                   >
-                    {{ translations.messages?.save }}
+                    {{ translations.messages?.save || 'Сохранить' }}
                   </v-btn>
                   <v-btn
                     variant="outlined"
-                    @click="router.visit(route('education.subjects.index'))"
+                    @click="router.visit('/education/subjects')"
                     :disabled="form.processing"
                   >
-                    {{ translations.messages?.cancel }}
+                    {{ translations.messages?.cancel || 'Отмена' }}
                   </v-btn>
                 </div>
               </v-form>
@@ -159,12 +159,11 @@ const form = useForm({
 const errors = computed(() => page.props.errors || {})
 
 const submit = () => {
-  form.post(route('education.subjects.store'), {
+  form.post('/education/subjects', {
     preserveScroll: true,
     onSuccess: () => {
-      router.visit(route('education.subjects.index'))
+      router.visit('/education/subjects')
     }
   })
 }
 </script>
-

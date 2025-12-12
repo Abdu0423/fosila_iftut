@@ -83,6 +83,7 @@ return [
     'status' => 'Статус',
     'type' => 'Тип',
     'category' => 'Категория',
+    'order' => 'Порядок',
     'email' => 'Email',
     'phone' => 'Телефон',
     'address' => 'Адрес',

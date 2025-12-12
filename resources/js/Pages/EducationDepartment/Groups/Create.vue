@@ -5,10 +5,10 @@
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.create_group }}
+            {{ translations.education_department?.create_group || 'Создать группу' }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.create_group_subtitle }}
+            {{ translations.education_department?.create_group_subtitle || 'Добавление новой группы' }}
           </p>
         </div>
         <v-btn
@@ -17,7 +17,7 @@
           @click="navigateTo('/education/groups')"
           prepend-icon="mdi-arrow-left"
         >
-          {{ translations.messages?.back }}
+          {{ translations.messages?.back || 'Назад' }}
         </v-btn>
       </div>
 
@@ -27,17 +27,17 @@
           <v-card>
             <v-card-title class="text-h6">
               <v-icon start>mdi-account-multiple-plus</v-icon>
-              {{ translations.education_department?.group_info }}
+              {{ translations.education_department?.group_info || 'Информация о группе' }}
             </v-card-title>
             <v-card-text>
               <v-form @submit.prevent="submitForm">
                 <!-- Основная информация -->
-                <h3 class="text-h6 mb-4">{{ translations.messages?.basic_info }}</h3>
+                <h3 class="text-h6 mb-4">{{ translations.messages?.basic_info || 'Основная информация' }}</h3>
                 <v-row>
                   <v-col cols="12" md="6">
                     <v-text-field
                       v-model="form.name"
-                      :label="(translations.education_department?.group_name) + ' *'"
+                      :label="(translations.education_department?.group_name || 'Название группы') + ' *'"
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.name"
@@ -48,7 +48,7 @@
                     <v-select
                       v-model="form.status"
                       :items="statusOptions"
-                      :label="(translations.messages?.status) + ' *'"
+                      :label="(translations.messages?.status || 'Статус') + ' *'"
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.status"
@@ -58,12 +58,12 @@
                 </v-row>
 
                 <!-- Годы -->
-                <h3 class="text-h6 mb-4 mt-6">{{ translations.education_department?.years }}</h3>
+                <h3 class="text-h6 mb-4 mt-6">{{ translations.education_department?.years || 'Годы' }}</h3>
                 <v-row>
                   <v-col cols="12" md="6">
                     <v-text-field
                       v-model="form.enrollment_year"
-                      :label="(translations.education_department?.enrollment_year) + ' *'"
+                      :label="(translations.education_department?.enrollment_year || 'Год поступления') + ' *'"
                       type="number"
                       variant="outlined"
                       density="comfortable"
@@ -76,7 +76,7 @@
                   <v-col cols="12" md="6">
                     <v-text-field
                       v-model="form.graduation_year"
-                      :label="(translations.education_department?.graduation_year) + ' *'"
+                      :label="(translations.education_department?.graduation_year || 'Год выпуска') + ' *'"
                       type="number"
                       variant="outlined"
                       density="comfortable"
@@ -89,12 +89,12 @@
                 </v-row>
 
                 <!-- Дополнительная информация -->
-                <h3 class="text-h6 mb-4 mt-6">{{ translations.messages?.additional_info }}</h3>
+                <h3 class="text-h6 mb-4 mt-6">{{ translations.messages?.additional_info || 'Дополнительная информация' }}</h3>
                 <v-row>
                   <v-col cols="12" md="4">
                     <v-text-field
                       v-model="form.course"
-                      :label="translations.education_department?.course"
+                      :label="translations.education_department?.course || 'Курс'"
                       type="number"
                       variant="outlined"
                       density="comfortable"
@@ -109,7 +109,7 @@
                       :items="departments"
                       item-title="display_name"
                       item-value="id"
-                      :label="translations.education_department?.department"
+                      :label="translations.education_department?.department || 'Кафедра'"
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.department_id"
@@ -122,7 +122,7 @@
                       :items="specialties"
                       item-title="display_name"
                       item-value="id"
-                      :label="translations.education_department?.specialty"
+                      :label="translations.education_department?.specialty || 'Специальность'"
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.specialty_id"
@@ -148,7 +148,7 @@
                     variant="outlined"
                     @click="navigateTo('/education/groups')"
                   >
-                    {{ translations.messages?.cancel }}
+                    {{ translations.messages?.cancel || 'Отмена' }}
                   </v-btn>
                   <v-btn
                     color="primary"
@@ -156,7 +156,7 @@
                     :loading="form.processing"
                     :disabled="form.processing"
                   >
-                    {{ translations.messages?.create }}
+                    {{ translations.messages?.create || 'Создать' }}
                   </v-btn>
                 </div>
               </v-form>
@@ -199,11 +199,11 @@ const form = useForm({
   specialty_id: null
 })
 
-const statusOptions = [
-  { title: translations.value.messages?.active, value: 'active' },
-  { title: translations.value.education_department?.graduated, value: 'graduated' },
-  { title: translations.value.education_department?.suspended, value: 'suspended' }
-]
+const statusOptions = computed(() => [
+  { title: translations.value.messages?.active || 'Активна', value: 'active' },
+  { title: translations.value.education_department?.graduated || 'Выпущена', value: 'graduated' },
+  { title: translations.value.education_department?.suspended || 'Приостановлена', value: 'suspended' }
+])
 
 // Методы
 const navigateTo = (path) => {
@@ -227,4 +227,3 @@ const submitForm = () => {
   border-radius: 12px;
 }
 </style>
-

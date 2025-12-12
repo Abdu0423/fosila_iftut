@@ -5,10 +5,10 @@
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.users_title }}
+            {{ translations.education_department?.users_title || 'Пользователи' }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.users_subtitle }}
+            {{ translations.education_department?.users_subtitle || 'Просмотр всех пользователей системы' }}
           </p>
         </div>
         <v-btn
@@ -16,7 +16,7 @@
           prepend-icon="mdi-plus"
           @click="createUser"
         >
-          {{ translations.messages?.add }}
+          {{ translations.messages?.add || 'Добавить' }}
         </v-btn>
       </div>
 
@@ -27,7 +27,7 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="searchQuery"
-                :label="translations.messages?.search"
+                :label="translations.messages?.search || 'Поиск'"
                 prepend-inner-icon="mdi-magnify"
                 clearable
                 variant="outlined"
@@ -39,7 +39,7 @@
               <v-select
                 v-model="roleFilter"
                 :items="roleOptions"
-                :label="translations.education_department?.filter_by_role"
+                :label="translations.education_department?.filter_by_role || 'Фильтр по роли'"
                 prepend-inner-icon="mdi-filter"
                 clearable
                 variant="outlined"
@@ -93,7 +93,7 @@
                 color="primary"
                 size="small"
                 @click="editUser(item)"
-                :title="translations.messages?.edit"
+                :title="translations.messages?.edit || 'Редактировать'"
               >
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
@@ -138,18 +138,18 @@ const searchQuery = ref(props.filters.search)
 const roleFilter = ref(props.filters.role || null)
 
 const headers = computed(() => [
-  { title: translations.value.education_department?.user_name, key: 'name', sortable: false },
-  { title: translations.value.education_department?.user_role, key: 'role', sortable: false },
-  { title: translations.value.education_department?.user_group, key: 'group', sortable: false },
-  { title: translations.value.education_department?.user_phone, key: 'phone', sortable: false },
-  { title: translations.value.messages?.actions, key: 'actions', sortable: false }
+  { title: translations.value.education_department?.user_name || 'Имя', key: 'name', sortable: false },
+  { title: translations.value.education_department?.user_role || 'Роль', key: 'role', sortable: false },
+  { title: translations.value.education_department?.user_group || 'Группа', key: 'group', sortable: false },
+  { title: translations.value.education_department?.user_phone || 'Телефон', key: 'phone', sortable: false },
+  { title: translations.value.messages?.actions || 'Действия', key: 'actions', sortable: false }
 ])
 
 // Только преподаватели и студенты для роли образования
-const roleOptions = [
-  { title: translations.value.navigation?.teacher, value: 'teacher' },
-  { title: translations.value.navigation?.student, value: 'student' }
-]
+const roleOptions = computed(() => [
+  { title: translations.value.navigation?.teacher || 'Преподаватель', value: 'teacher' },
+  { title: translations.value.navigation?.student || 'Студент', value: 'student' }
+])
 
 const getInitials = (user) => {
   const first = user.name?.charAt(0)
@@ -169,10 +169,10 @@ const getRoleColor = (role) => {
 
 const getRoleLabel = (role) => {
   const labels = {
-    admin: translations.value.navigation?.admin_panel,
-    teacher: translations.value.navigation?.teacher,
-    student: translations.value.navigation?.student,
-    education_department: translations.value.education_department?.role_name
+    admin: translations.value.navigation?.admin_panel || 'Администратор',
+    teacher: translations.value.navigation?.teacher || 'Преподаватель',
+    student: translations.value.navigation?.student || 'Студент',
+    education_department: translations.value.education_department?.role_name || 'Отдел образования'
   }
   return labels[role] || role
 }

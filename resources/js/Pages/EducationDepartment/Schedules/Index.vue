@@ -5,18 +5,18 @@
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.schedules_title }}
+            {{ translations.education_department?.schedules_title || 'Расписания' }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.schedules_subtitle }}
+            {{ translations.education_department?.schedules_subtitle || 'Просмотр всех расписаний' }}
           </p>
         </div>
         <v-btn
           color="primary"
           prepend-icon="mdi-plus"
-          @click="router.visit(route('education.schedules.create'))"
+          @click="router.visit('/education/schedules/create')"
         >
-          {{ translations.messages?.add }}
+          {{ translations.messages?.add || 'Добавить' }}
         </v-btn>
       </div>
 
@@ -27,7 +27,7 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="dateFilter"
-                :label="translations.education_department?.filter_by_date"
+                :label="translations.education_department?.filter_by_date || 'Фильтр по дате'"
                 type="date"
                 prepend-inner-icon="mdi-calendar"
                 clearable
@@ -46,7 +46,7 @@
           <div class="text-center py-8">
             <v-icon size="64" color="grey-lighten-1">mdi-calendar-blank</v-icon>
             <p class="text-h6 text-medium-emphasis mt-4">
-              {{ translations.education_department?.no_schedules }}
+              {{ translations.education_department?.no_schedules || 'Расписания не найдены' }}
             </p>
           </div>
         </v-card-text>
@@ -61,7 +61,7 @@
               </template>
 
               <v-list-item-title class="font-weight-medium">
-                {{ schedule.subject?.name || translations.education_department?.no_subject }}
+                {{ schedule.subject?.name || translations.education_department?.no_subject || 'Без предмета' }}
               </v-list-item-title>
 
               <v-list-item-subtitle>
@@ -87,8 +87,8 @@
                   variant="text"
                   color="primary"
                   size="small"
-                  @click="router.visit(route('education.schedules.edit', schedule.id))"
-                  :title="translations.messages?.edit"
+                  @click="router.visit(`/education/schedules/${schedule.id}/edit`)"
+                  :title="translations.messages?.edit || 'Редактировать'"
                 >
                   <v-icon>mdi-pencil</v-icon>
                 </v-btn>
@@ -140,12 +140,12 @@ const props = defineProps({
 const dateFilter = ref(props.filters.date)
 
 const formatDate = (date) => {
-  const locale = page.props.locale
+  const locale = page.props.locale || 'ru'
   return new Date(date).toLocaleDateString(locale === 'tg' ? 'tg-TJ' : 'ru-RU')
 }
 
 const handleDateFilter = () => {
-  router.get(route('education.schedules.index'), {
+  router.get('/education/schedules', {
     date: dateFilter.value
   }, {
     preserveState: true,
@@ -154,7 +154,7 @@ const handleDateFilter = () => {
 }
 
 const handlePageChange = (pageNum) => {
-  router.get(route('education.schedules.index'), {
+  router.get('/education/schedules', {
     page: pageNum,
     date: dateFilter.value
   }, {
@@ -163,4 +163,3 @@ const handlePageChange = (pageNum) => {
   })
 }
 </script>
-
