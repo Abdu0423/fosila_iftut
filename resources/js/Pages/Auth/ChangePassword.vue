@@ -142,6 +142,7 @@
                       color="primary"
                       size="large"
                       :loading="isLoading"
+                      :disabled="!isFormValid || isLoading"
                       block
                       class="text-none"
                     >
@@ -219,6 +220,36 @@ const isPasswordMismatch = computed(() => {
   return formData.password && 
          formData.password_confirmation && 
          formData.password !== formData.password_confirmation
+})
+
+// Проверка всех требований для активации кнопки
+const isFormValid = computed(() => {
+  // Все поля должны быть заполнены
+  if (!formData.current_password || !formData.password || !formData.password_confirmation) {
+    return false
+  }
+  
+  // Новый пароль должен отличаться от старого
+  if (isPasswordSame.value) {
+    return false
+  }
+  
+  // Пароль и подтверждение должны совпадать
+  if (isPasswordMismatch.value) {
+    return false
+  }
+  
+  // Минимальная длина пароля - 4 символа
+  if (formData.password.length < 4) {
+    return false
+  }
+  
+  // Нет локальных ошибок
+  if (localErrors.password || localErrors.password_confirmation) {
+    return false
+  }
+  
+  return true
 })
 
 // Методы для обновления полей формы
