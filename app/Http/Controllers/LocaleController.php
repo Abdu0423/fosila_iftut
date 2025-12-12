@@ -25,16 +25,27 @@ class LocaleController extends Controller
         Session::put('locale', $locale);
         Session::save(); // Принудительно сохраняем сессию
         
-        \Log::info('Locale saved to session', ['session_locale' => Session::get('locale')]);
-        
         // Если пользователь авторизован, сохраняем в БД
         if ($request->user()) {
-            $request->user()->update(['locale' => $locale]);
-            \Log::info('Locale saved to user', ['user_locale' => $request->user()->locale]);
+            $user = $request->user();
+            $user->locale = $locale;
+            $user->save();
+            \Log::info('Locale saved to user', [
+                'user_id' => $user->id,
+                'user_locale' => $user->locale,
+                'user_refreshed' => $user->refresh()->locale
+            ]);
         }
         
         // Устанавливаем текущий язык
         App::setLocale($locale);
+        
+        \Log::info('Locale change completed', [
+            'locale' => $locale,
+            'session_locale' => Session::get('locale'),
+            'app_locale' => App::getLocale(),
+            'user_id' => $request->user()?->id
+        ]);
         
         // Возвращаем JSON ответ вместо редиректа для fetch API
         return response()->json([

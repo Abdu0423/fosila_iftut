@@ -18,7 +18,13 @@ export function useTranslations() {
             return
         }
         
-        console.log('🌍 Changing locale to:', newLocale)
+        const currentLocale = locale.value
+        if (newLocale === currentLocale) {
+            console.log('ℹ️ Locale already set to:', newLocale)
+            return
+        }
+        
+        console.log('🌍 Changing locale from', currentLocale, 'to', newLocale)
         
         try {
             // Получаем CSRF токен
@@ -43,17 +49,14 @@ export function useTranslations() {
             
             if (response.ok) {
                 const data = await response.json()
-                console.log('✅ Locale changed:', data)
+                console.log('✅ Locale changed successfully:', data)
                 
-                // Сохраняем в localStorage
+                // Сохраняем в localStorage для будущих запросов
                 localStorage.setItem('locale', newLocale)
                 
-                // Перезагружаем страницу через Inertia без добавления параметров к URL
-                router.reload({
-                    only: ['locale', 'translations'],
-                    preserveState: false,
-                    preserveScroll: false
-                })
+                // Полная перезагрузка страницы для гарантированного обновления всех переводов
+                // Это необходимо, так как переводы загружаются на сервере через HandleInertiaRequests
+                window.location.reload()
             } else {
                 const error = await response.json().catch(() => ({ message: 'Unknown error' }))
                 console.error('❌ Error changing locale:', error)
