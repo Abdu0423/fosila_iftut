@@ -34,22 +34,9 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks: (id) => {
-                    // Разделяем Vuetify на более мелкие части
+                    // Vuetify должен быть в одном чанке (избегаем проблем с инициализацией)
                     if (id.includes('vuetify')) {
-                        // Стили Vuetify отдельно
-                        if (id.includes('vuetify/styles') || id.includes('vuetify/lib/styles')) {
-                            return 'vuetify-styles';
-                        }
-                        // Компоненты Vuetify (самая большая часть)
-                        if (id.includes('vuetify/components')) {
-                            return 'vuetify-components';
-                        }
-                        // Директивы Vuetify
-                        if (id.includes('vuetify/directives')) {
-                            return 'vuetify-directives';
-                        }
-                        // Остальные части Vuetify
-                        return 'vuetify-core';
+                        return 'vuetify';
                     }
                     
                     // Разделяем Vue отдельно
@@ -91,9 +78,9 @@ export default defineConfig({
                 },
             },
         },
-        // Увеличиваем лимит предупреждения до 1500 KB (1.5 MB)
-        // Это нормально для больших UI библиотек в production
-        chunkSizeWarningLimit: 1500,
+        // Увеличиваем лимит предупреждения до 2000 KB (2 MB)
+        // Vuetify - большая библиотека, это нормально
+        chunkSizeWarningLimit: 2000,
         // Включаем source maps только для отладки (можно отключить в production)
         sourcemap: false,
     },
