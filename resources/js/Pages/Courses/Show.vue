@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout>
     <v-container fluid>
       <div class="course-show-page">
@@ -82,10 +82,10 @@ export default {
     return {
       course: {
         id: this.course?.id || 1,
-        name: this.course?.name || 'Введение в программирование',
-        description: this.course?.description || 'Базовые концепции программирования на примере Python',
+        name: this.course?.name,
+        description: this.course?.description,
         credits: this.course?.credits || 3,
-        teacher: this.course?.teacher || 'Иванов И.И.',
+        teacher: this.course?.teacher,
         materials: [
           { id: 1, title: 'Лекция 1: Введение', type: 'Видео' },
           { id: 2, title: 'Практическая работа 1', type: 'Задание' },

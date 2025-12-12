@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="teacher">
     <v-container fluid>
       <!-- Заголовок -->
@@ -139,8 +139,8 @@
                       <v-icon color="white" size="16">mdi-calendar-clock</v-icon>
                     </v-avatar>
                   </template>
-                  <v-list-item-title>{{ schedule.subject?.name || 'Без предмета' }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ schedule.group?.name || 'Без группы' }}</v-list-item-subtitle>
+                  <v-list-item-title>{{ schedule.subject?.name }}</v-list-item-title>
+                  <v-list-item-subtitle>{{ schedule.group?.name }}</v-list-item-subtitle>
                   <template v-slot:append>
                     <v-btn
                       icon="mdi-eye"
@@ -176,7 +176,7 @@
                       <v-icon color="white" size="16">mdi-chat</v-icon>
                     </v-avatar>
                   </template>
-                  <v-list-item-title>{{ message.user?.name || 'Неизвестный' }}</v-list-item-title>
+                  <v-list-item-title>{{ message.user?.name }}</v-list-item-title>
                   <v-list-item-subtitle>{{ message.message }}</v-list-item-subtitle>
                   <template v-slot:append>
                     <v-btn

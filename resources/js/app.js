@@ -1,4 +1,4 @@
-import './bootstrap';
+﻿import './bootstrap';
 import '../css/app.css';
 
 import { createApp, h } from 'vue';
@@ -21,7 +21,7 @@ const vuetify = createVuetify({
     }
 });
 
-const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
+const appName = window.document.getElementsByTagName('title')[0]?.innerText;
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

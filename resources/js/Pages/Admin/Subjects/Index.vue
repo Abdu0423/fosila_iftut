@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -243,7 +243,7 @@ const props = defineProps({
 })
 
 // Reactive data (инициализированные из server-side)
-const search = ref(props.filters?.search || '')
+const search = ref(props.filters?.search)
 const statusFilter = ref(props.filters?.is_active !== '' ? props.filters?.is_active : null)
 const departmentFilter = ref(props.filters?.department_id || null)
 const loading = ref(false)

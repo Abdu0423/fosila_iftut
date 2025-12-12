@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout>
     <v-container fluid>
       <div class="settings-page">
@@ -25,7 +25,7 @@
                       label="Email"
                       outlined
                       dense
-                      :rules="[v => !!v || 'Email обязателен', v => /.+@.+\..+/.test(v) || 'Неверный формат email']"
+                      :rules="[v => !!v, v => /.+@.+\..+/.test(v)]"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="6">
@@ -72,7 +72,7 @@
                       type="password"
                       outlined
                       dense
-                      :rules="[v => !!v || 'Текущий пароль обязателен']"
+                      :rules="[v => !!v]"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="6">
@@ -82,7 +82,7 @@
                       type="password"
                       outlined
                       dense
-                      :rules="[v => !!v || 'Новый пароль обязателен', v => v.length >= 8 || 'Пароль должен содержать минимум 8 символов']"
+                      :rules="[v => !!v, v => v.length >= 8]"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="6">
@@ -92,7 +92,7 @@
                       type="password"
                       outlined
                       dense
-                      :rules="[v => !!v || 'Подтверждение пароля обязательно', v => v === passwordForm.newPassword || 'Пароли не совпадают']"
+                      :rules="[v => !!v, v => v === passwordForm.newPassword]"
                     ></v-text-field>
                   </v-col>
                 </v-row>

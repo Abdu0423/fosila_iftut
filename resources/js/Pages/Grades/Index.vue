@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout>
     <v-container fluid>
       <div class="grades-page">
@@ -179,7 +179,7 @@
             <v-divider class="my-4"></v-divider>
             
             <h3 class="text-h6 mb-3">Комментарий преподавателя</h3>
-            <p>{{ selectedAssignment.comment || 'Комментарий отсутствует' }}</p>
+            <p>{{ selectedAssignment.comment }}</p>
           </div>
         </v-card-text>
       </v-card>
@@ -214,7 +214,7 @@ const gradeHeaders = [
 ]
 
 const averageGrade = computed(() => {
-  return props.stats?.average_grade?.toFixed(1) || '0.0'
+  return props.stats?.average_grade?.toFixed(1)
 })
 
 const completedAssignments = computed(() => {

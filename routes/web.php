@@ -499,6 +499,10 @@ Route::prefix('education')->middleware(['auth', 'education.department', 'check.p
     
     // Группы
     Route::get('/groups', [App\Http\Controllers\EducationDepartmentController::class, 'groups'])->name('education.groups.index');
+    Route::get('/groups/create', [App\Http\Controllers\EducationDepartmentController::class, 'createGroup'])->name('education.groups.create');
+    Route::post('/groups', [App\Http\Controllers\EducationDepartmentController::class, 'storeGroup'])->name('education.groups.store');
+    Route::get('/groups/{group}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editGroup'])->name('education.groups.edit');
+    Route::put('/groups/{group}', [App\Http\Controllers\EducationDepartmentController::class, 'updateGroup'])->name('education.groups.update');
     
     // Расписания
     Route::get('/schedules', [App\Http\Controllers\EducationDepartmentController::class, 'schedules'])->name('education.schedules.index');

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -109,7 +109,7 @@
                   <div>
                     <div class="text-body-2">{{ item.file_name }}</div>
                     <div class="text-caption text-medium-emphasis">
-                      {{ item.file_size_formatted || 'Размер неизвестен' }}
+                      {{ item.file_size_formatted }}
                     </div>
                   </div>
                 </div>
@@ -237,7 +237,7 @@ const props = defineProps({
 })
 
 // Состояние
-const search = ref(props.filters.search || '')
+const search = ref(props.filters.search)
 const selectedSubject = ref(props.filters.subject_id || null)
 const loading = ref(false)
 const deleteDialog = ref(false)

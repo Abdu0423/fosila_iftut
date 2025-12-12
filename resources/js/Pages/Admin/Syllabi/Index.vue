@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -337,7 +337,7 @@ const getStatusColor = (status) => {
     draft: 'warning',
     archived: 'grey'
   }
-  return colors[status] || 'grey'
+  return colors[status]
 }
 
 const getStatusText = (status) => {

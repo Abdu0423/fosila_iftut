@@ -76,7 +76,7 @@ class HandleInertiaRequests extends Middleware
                 'name' => $user->name,
                 'email' => $user->email,
                 'role' => $user->role ? $user->role->name : null,
-                'locale' => $user->locale ?? 'tg',
+                'locale' => $user->locale ?? 'ru',
             ];
             
             \Log::info('HandleInertiaRequests: Sharing user data', [
@@ -127,13 +127,13 @@ class HandleInertiaRequests extends Middleware
         
         // Проверяем, что locale валидный
         if (!in_array($locale, ['ru', 'tg'])) {
-            \Log::warning('Invalid locale detected, falling back to tg', [
+            \Log::warning('Invalid locale detected, falling back to ru', [
                 'invalid_locale' => $locale,
                 'app_locale' => app()->getLocale(),
                 'config_locale' => config('app.locale'),
                 'env_locale' => env('APP_LOCALE')
             ]);
-            $locale = 'tg';
+            $locale = 'ru';
         }
         
         $translationFiles = ['auth', 'validation', 'messages', 'dashboard', 'navigation', 

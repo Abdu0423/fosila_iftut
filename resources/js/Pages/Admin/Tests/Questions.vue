@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -390,7 +390,7 @@ const getQuestionTypeColor = (type) => {
     multiple_choice: 'success',
     matching: 'warning'
   }
-  return colors[type] || 'grey'
+  return colors[type]
 }
 
 const updateCorrectAnswer = () => {
@@ -444,13 +444,13 @@ const editQuestion = (question) => {
   questionForm.question = question.question
   questionForm.type = question.type
   questionForm.order = question.order
-  questionForm.explanation = question.explanation || ''
+  questionForm.explanation = question.explanation
   questionForm.answers = question.answers.map(answer => ({
     answer: answer.answer,
     is_correct: answer.is_correct,
     order: answer.order,
-    matching_key: answer.matching_key || '',
-    matching_value: answer.matching_value || ''
+    matching_key: answer.matching_key,
+    matching_value: answer.matching_value
   }))
   
   // Устанавливаем правильный ответ для single_choice
@@ -467,13 +467,13 @@ const duplicateQuestion = (question) => {
   questionForm.question = question.question + ' (копия)'
   questionForm.type = question.type
   questionForm.order = questions.value.length + 1
-  questionForm.explanation = question.explanation || ''
+  questionForm.explanation = question.explanation
   questionForm.answers = question.answers.map(answer => ({
     answer: answer.answer,
     is_correct: answer.is_correct,
     order: answer.order,
-    matching_key: answer.matching_key || '',
-    matching_value: answer.matching_value || ''
+    matching_key: answer.matching_key,
+    matching_value: answer.matching_value
   }))
   
   // Устанавливаем правильный ответ для single_choice

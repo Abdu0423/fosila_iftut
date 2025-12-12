@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminLayout>
     <v-row>
       <v-col cols="12">
@@ -119,12 +119,12 @@
             </template>
 
             <template v-slot:item.group="{ item }">
-              {{ item.raw.group?.name || 'Не указана' }}
+              {{ item.raw.group?.name }}
             </template>
 
             <template v-slot:item.course="{ item }">
               <v-chip color="primary" size="small">
-                {{ item.raw.course || 'Не указан' }} курс
+                {{ item.raw.course }} курс
               </v-chip>
             </template>
 
@@ -209,7 +209,7 @@ const headers = [
 ]
 
 const filters = reactive({
-  search: props.filters?.search || '',
+  search: props.filters?.search,
   group_id: props.filters?.group_id || null,
   course: props.filters?.course || null,
   status: props.filters?.status || null,

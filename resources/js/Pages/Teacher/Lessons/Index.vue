@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="teacher">
     <v-container fluid>
       <!-- Заголовок -->
@@ -45,9 +45,9 @@
             >
               <v-card-title class="d-flex justify-space-between align-center">
                 <div>
-                  <h3 class="text-h6">{{ schedule.subject?.name || 'Без предмета' }}</h3>
+                  <h3 class="text-h6">{{ schedule.subject?.name }}</h3>
                   <p class="text-body-2 text-medium-emphasis mb-0">
-                    {{ schedule.group?.name || 'Группа не указана' }}
+                    {{ schedule.group?.name }}
                   </p>
                 </div>
                 <v-chip

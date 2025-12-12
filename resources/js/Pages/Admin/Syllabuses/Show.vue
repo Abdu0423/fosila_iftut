@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -67,7 +67,7 @@
                   
                   <div class="text-body-2 mb-4">
                     <strong>Описание:</strong>
-                    <div class="mt-1">{{ syllabus.description || 'Не указано' }}</div>
+                    <div class="mt-1">{{ syllabus.description }}</div>
                   </div>
                   
                   <div class="text-body-2 mb-4">
@@ -139,7 +139,7 @@
                 
                 <div class="text-body-2 mb-4">
                   <strong>Тип:</strong>
-                  <div class="mt-1">{{ syllabus.file_type || 'Неизвестный тип' }}</div>
+                  <div class="mt-1">{{ syllabus.file_type }}</div>
                 </div>
                 
                                  <div class="d-flex flex-column gap-2">
@@ -563,7 +563,7 @@ const loadFileContent = async () => {
     const data = await response.json()
     
     if (!response.ok) {
-      throw new Error(data.error || 'Ошибка загрузки файла')
+      throw new Error(data.error)
     }
     
     fileContent.value = data.content
@@ -618,7 +618,7 @@ const getFileTypeClass = () => {
     'md': 'language-markdown'
   }
   
-  return classMap[fileExtension] || ''
+  return classMap[fileExtension]
 }
 
 const openPdfViewer = async () => {
@@ -632,7 +632,7 @@ const openPdfViewer = async () => {
     const data = await response.json()
     
     if (!response.ok) {
-      throw new Error(data.error || 'Ошибка загрузки PDF')
+      throw new Error(data.error)
     }
     
     pdfViewerInfo.value = {
@@ -679,7 +679,7 @@ const openWordViewer = async () => {
       const data = await response.json()
       
       if (!response.ok) {
-        throw new Error(data.error || 'Ошибка загрузки Word документа')
+        throw new Error(data.error)
       }
       
       wordViewerInfo.value = {
@@ -692,7 +692,7 @@ const openWordViewer = async () => {
       }
       
       // Устанавливаем основной просмотрщик
-      currentWordViewer.value = data.primary_viewer || 'google'
+      currentWordViewer.value = data.primary_viewer
     }
     
   } catch (error) {

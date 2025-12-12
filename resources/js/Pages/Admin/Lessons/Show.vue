@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -97,10 +97,10 @@
                 <div class="flex-grow-1">
                   <div class="text-h6 font-weight-medium">{{ lesson.file_name }}</div>
                   <div class="text-body-2 text-medium-emphasis">
-                    Размер: {{ lesson.file_size_formatted || 'Неизвестно' }}
+                    Размер: {{ lesson.file_size_formatted }}
                   </div>
                   <div class="text-body-2 text-medium-emphasis">
-                    Тип: {{ lesson.file_type || 'Неизвестно' }}
+                    Тип: {{ lesson.file_type }}
                   </div>
                   <div class="text-body-2 text-medium-emphasis">
                     Загружен: {{ formatDate(lesson.updated_at) }}

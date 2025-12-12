@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="min-h-screen flex items-center justify-center bg-gray-50">
     <div class="max-w-md w-full space-y-8">
       <div class="text-center">
@@ -11,7 +11,7 @@
           Доступ запрещен
         </h2>
         <p class="mt-2 text-sm text-gray-600">
-          {{ message || 'У вас нет прав для доступа к этой странице.' }}
+          {{ message }}
         </p>
         <div class="mt-6">
           <button

@@ -83,7 +83,7 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'tg'), // Default: tg (Tajik)
+    'locale' => env('APP_LOCALE', 'ru'), // Default: ru (Russian)
 
     /*
     |--------------------------------------------------------------------------
@@ -96,7 +96,7 @@ return [
     |
     */
 
-    'fallback_locale' => 'tg',
+    'fallback_locale' => 'ru',
     
     /*
     |--------------------------------------------------------------------------

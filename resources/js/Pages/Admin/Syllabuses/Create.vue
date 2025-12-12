@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -133,7 +133,7 @@
                               <strong>Название:</strong> {{ form.name }}
                             </div>
                             <div class="text-body-2 mt-2">
-                              <strong>Описание:</strong> {{ form.description || 'Не указано' }}
+                              <strong>Описание:</strong> {{ form.description }}
                             </div>
                             <div class="text-body-2 mt-2">
                               <strong>Предмет:</strong> {{ selectedSubjectName }}
@@ -252,7 +252,7 @@ const handleFileChange = (file) => {
     previewData.value = {
       fileName: file.name,
       fileSize: formatFileSize(file.size),
-      fileType: file.type || 'Неизвестный тип',
+      fileType: file.type,
       creationDate: new Date().toLocaleDateString('ru-RU')
     }
   } else {

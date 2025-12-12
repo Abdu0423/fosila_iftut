@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -219,19 +219,19 @@
             <v-card-text>
               <div class="mb-3">
                 <div class="text-body-2 text-medium-emphasis">Версия системы</div>
-                <div class="text-body-1 font-weight-medium">{{ systemInfo?.version || '1.0.0' }}</div>
+                <div class="text-body-1 font-weight-medium">{{ systemInfo?.version }}</div>
               </div>
               <div class="mb-3">
                 <div class="text-body-2 text-medium-emphasis">Laravel</div>
-                <div class="text-body-1 font-weight-medium">{{ systemInfo?.laravelVersion || 'N/A' }}</div>
+                <div class="text-body-1 font-weight-medium">{{ systemInfo?.laravelVersion }}</div>
               </div>
               <div class="mb-3">
                 <div class="text-body-2 text-medium-emphasis">PHP</div>
-                <div class="text-body-1 font-weight-medium">{{ systemInfo?.phpVersion || 'N/A' }}</div>
+                <div class="text-body-1 font-weight-medium">{{ systemInfo?.phpVersion }}</div>
               </div>
               <div class="mb-3">
                 <div class="text-body-2 text-medium-emphasis">База данных</div>
-                <div class="text-body-1 font-weight-medium">{{ systemInfo?.dbConnection || 'N/A' }}</div>
+                <div class="text-body-1 font-weight-medium">{{ systemInfo?.dbConnection }}</div>
               </div>
               <div class="mb-3">
                 <div class="text-body-2 text-medium-emphasis">Последнее обновление</div>
@@ -334,7 +334,7 @@ const getActionColor = (type) => {
     delete: 'error',
     user: 'primary'
   }
-  return colors[type] || 'grey'
+  return colors[type]
 }
 
 const getActionText = (type) => {
@@ -354,7 +354,7 @@ const getNotificationColor = (level) => {
     error: 'error',
     success: 'success'
   }
-  return colors[level] || 'grey'
+  return colors[level]
 }
 
 const getNotificationText = (level) => {

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="teacher">
     <v-container fluid>
       <!-- Заголовок -->
@@ -87,10 +87,10 @@
                         <v-icon class="mr-2" color="primary">mdi-calendar-clock</v-icon>
                         <div v-if="selectedSchedule">
                           <div class="text-body-1 font-weight-medium">
-                            {{ selectedSchedule.subject?.name || 'Расписание' }}
+                            {{ selectedSchedule.subject?.name }}
                           </div>
                           <div class="text-caption text-medium-emphasis">
-                            Группа: {{ selectedSchedule.group?.name || 'Не указана' }}
+                            Группа: {{ selectedSchedule.group?.name }}
                           </div>
                         </div>
                         <div v-else>
@@ -229,14 +229,14 @@ const selectedSchedule = computed(() => {
 
 // Computed свойства для формы
 const formTitle = computed({
-  get: () => form.value?.title || '',
+  get: () => form.value?.title,
   set: (value) => {
     if (form.value) form.value.title = value
   }
 })
 
 const formDescription = computed({
-  get: () => form.value?.description || '',
+  get: () => form.value?.description,
   set: (value) => {
     if (form.value) form.value.description = value
   }
@@ -269,9 +269,9 @@ const createLesson = async () => {
 
   try {
     const formData = new FormData()
-    formData.append('title', form.value?.title || '')
-    formData.append('description', form.value?.description || '')
-    formData.append('schedule_id', form.value?.schedule_id || '')
+    formData.append('title', form.value?.title)
+    formData.append('description', form.value?.description)
+    formData.append('schedule_id', form.value?.schedule_id)
     if (form.value?.file) {
       console.log('Добавляем файл в FormData:', form.value.file)
       console.log('Тип файла:', form.value.file.type)

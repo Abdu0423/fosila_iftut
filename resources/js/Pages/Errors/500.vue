@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="min-h-screen flex items-center justify-center bg-gray-50">
     <div class="max-w-md w-full space-y-8">
       <div class="text-center">
@@ -11,7 +11,7 @@
           Произошла ошибка
         </h2>
         <p class="mt-2 text-sm text-gray-600">
-          {{ message || 'Произошла непредвиденная ошибка. Попробуйте еще раз или обратитесь к администратору.' }}
+          {{ message }}
         </p>
         <div class="mt-6 space-y-4">
           <button

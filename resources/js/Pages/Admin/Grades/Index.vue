@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -567,7 +567,7 @@ const getStatusColor = (status) => {
     pending: 'warning',
     overdue: 'error'
   }
-  return colors[status] || 'grey'
+  return colors[status]
 }
 
 const getStatusText = (status) => {

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="teacher">
     <v-container fluid>
       <!-- Заголовок -->
@@ -211,7 +211,7 @@ const props = defineProps({
 // Форма
 const form = useForm({
   name: props.syllabus.name,
-  description: props.syllabus.description || '',
+  description: props.syllabus.description,
   subject_id: props.syllabus.subject_id,
   creation_year: props.syllabus.creation_year,
   file: null
@@ -245,7 +245,7 @@ const handleFileChange = (file) => {
     previewData.value = {
       fileName: file.name,
       fileSize: formatFileSize(file.size),
-      fileType: file.type || 'Неизвестный тип',
+      fileType: file.type,
       creationDate: new Date().toLocaleDateString('ru-RU')
     }
   } else {

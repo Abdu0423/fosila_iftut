@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -270,16 +270,16 @@ const form = useForm({
 
 // Заполняем форму данными пользователя
 onMounted(() => {
-  form.name = props.user.name || ''
-  form.last_name = props.user.last_name || ''
-  form.middle_name = props.user.middle_name || ''
-  form.email = props.user.email || ''
-  form.phone = props.user.phone || ''
-  form.address = props.user.address || ''
-  form.dad_phone = props.user.dad_phone || ''
-  form.mom_phone = props.user.mom_phone || ''
-  form.role_id = props.user.role_id || ''
-  form.group_id = props.user.group_id || ''
+  form.name = props.user.name
+  form.last_name = props.user.last_name
+  form.middle_name = props.user.middle_name
+  form.email = props.user.email
+  form.phone = props.user.phone
+  form.address = props.user.address
+  form.dad_phone = props.user.dad_phone
+  form.mom_phone = props.user.mom_phone
+  form.role_id = props.user.role_id
+  form.group_id = props.user.group_id
 })
 
 // Методы

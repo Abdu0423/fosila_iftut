@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout>
     <v-container fluid>
       <div class="library-page">
@@ -161,7 +161,7 @@ const props = defineProps({
   types: Array
 })
 
-const searchQuery = ref(props.filters?.search || '')
+const searchQuery = ref(props.filters?.search)
 const selectedCategory = ref(props.filters?.category || null)
 const selectedType = ref(props.filters?.type || null)
 const previewDialog = ref(false)
@@ -191,7 +191,7 @@ const getResourceIcon = (type) => {
     'archive': 'mdi-archive',
     'other': 'mdi-file'
   }
-  return icons[type] || 'mdi-file'
+  return icons[type]
 }
 
 const getResourceColor = (type) => {
@@ -203,7 +203,7 @@ const getResourceColor = (type) => {
     'archive': 'secondary',
     'other': 'grey'
   }
-  return colors[type] || 'grey'
+  return colors[type]
 }
 
 const formatFileSize = (bytes) => {

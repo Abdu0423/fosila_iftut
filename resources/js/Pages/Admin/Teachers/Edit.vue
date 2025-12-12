@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminLayout>
     <v-row>
       <v-col cols="12">
@@ -210,8 +210,8 @@ const form = useForm({
   password: '',
   password_confirmation: '',
   department_id: props.teacher.department_id,
-  phone: props.teacher.phone || '',
-  bio: props.teacher.bio || '',
+  phone: props.teacher.phone,
+  bio: props.teacher.bio,
   is_active: props.teacher.is_active,
 })
 

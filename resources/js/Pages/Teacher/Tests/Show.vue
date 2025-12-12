@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="teacher">
     <v-container fluid>
       <!-- Заголовок -->
@@ -49,7 +49,7 @@
                       label="Текст вопроса *"
                       variant="outlined"
                       rows="3"
-                      :rules="[v => !!v || 'Обязательное поле']"
+                      :rules="[v => !!v]"
                     ></v-textarea>
                   </v-col>
 
@@ -95,7 +95,7 @@
                               hide-details
                               class="flex-grow-1"
                               style="width: 100%;"
-                              :rules="[v => !!v || 'Обязательное поле']"
+                              :rules="[v => !!v]"
                             ></v-text-field>
                             <v-btn
                               v-if="questionForm.answers.length > 4"
@@ -399,8 +399,8 @@ const removeAnswer = (index) => {
 const editQuestion = (question) => {
   editingQuestion.value = question
   questionForm.question = question.question
-  questionForm.type = question.type || 'single_choice'
-  questionForm.explanation = question.explanation || ''
+  questionForm.type = question.type
+  questionForm.explanation = question.explanation
   questionForm.answers = question.answers.map(a => ({
     id: a.id,
     answer: a.answer,
@@ -435,7 +435,7 @@ const saveQuestion = () => {
   const formData = {
     question: questionForm.question,
     type: questionForm.type,
-    explanation: questionForm.explanation || '',
+    explanation: questionForm.explanation,
     answers: validAnswers
   }
 

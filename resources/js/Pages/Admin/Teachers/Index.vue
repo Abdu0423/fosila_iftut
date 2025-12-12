@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminLayout>
     <v-row>
       <v-col cols="12">
@@ -110,7 +110,7 @@
             </template>
 
             <template v-slot:item.department="{ item }">
-              {{ item.raw.department?.name || 'Не указана' }}
+              {{ item.raw.department?.name }}
             </template>
 
             <template v-slot:item.is_active="{ item }">
@@ -193,7 +193,7 @@ const headers = [
 ]
 
 const filters = reactive({
-  search: props.filters?.search || '',
+  search: props.filters?.search,
   department_id: props.filters?.department_id || null,
   status: props.filters?.status || null,
 })

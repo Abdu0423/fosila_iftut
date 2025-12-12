@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="education_department">
     <v-container fluid class="pa-6">
       <!-- Заголовок -->
@@ -11,10 +11,10 @@
         />
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.create_schedule || 'Сохтани ҷадвал' }}
+            {{ translations.education_department?.create_schedule }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.schedules_subtitle || 'Тамошои ҳамаи ҷадвалҳо' }}
+            {{ translations.education_department?.schedules_subtitle }}
           </p>
         </div>
       </div>
@@ -24,7 +24,7 @@
         <v-col cols="12" lg="8">
           <v-card>
             <v-card-title class="text-h5 pa-6">
-              {{ translations.education_department?.schedules_title || 'Ҷадвалҳо' }}
+              {{ translations.education_department?.schedules_title }}
             </v-card-title>
             <v-card-text class="pa-6">
               <v-form @submit.prevent="submit">
@@ -37,7 +37,7 @@
                       :items="subjects || []"
                       item-title="name"
                       item-value="id"
-                      :label="(translations.education_department?.schedule_subject || 'Фан') + ' *'"
+                      :label="(translations.education_department?.schedule_subject) + ' *'"
                       variant="outlined"
                       :error-messages="errors.subject_id"
                       required
@@ -52,7 +52,7 @@
                       :items="teachers || []"
                       item-title="name"
                       item-value="id"
-                      :label="(translations.education_department?.schedule_teacher || 'Муаллим') + ' *'"
+                      :label="(translations.education_department?.schedule_teacher) + ' *'"
                       variant="outlined"
                       :error-messages="errors.teacher_id"
                       required
@@ -67,7 +67,7 @@
                       :items="groups || []"
                       item-title="name"
                       item-value="id"
-                      :label="(translations.education_department?.schedule_group || 'Гурӯҳ') + ' *'"
+                      :label="(translations.education_department?.schedule_group) + ' *'"
                       variant="outlined"
                       :error-messages="errors.group_id"
                       required
@@ -80,7 +80,7 @@
                       :model-value="form.semester"
                       @update:model-value="form.semester = $event"
                       :items="semesterItems"
-                      :label="(translations.education_department?.schedule_semester || 'Семестр') + ' *'"
+                      :label="(translations.education_department?.schedule_semester) + ' *'"
                       variant="outlined"
                       :error-messages="errors.semester"
                       required
@@ -92,7 +92,7 @@
                     <v-text-field
                       :model-value="form.credits"
                       @update:model-value="form.credits = $event ? parseInt($event) : null"
-                      :label="(translations.education_department?.subject_credits || 'Кредитҳо') + ' *'"
+                      :label="(translations.education_department?.subject_credits) + ' *'"
                       type="number"
                       min="1"
                       max="10"
@@ -107,7 +107,7 @@
                     <v-text-field
                       :model-value="form.study_year"
                       @update:model-value="form.study_year = $event ? parseInt($event) : null"
-                      :label="(translations.education_department?.schedule_study_year || 'Соли таҳсил') + ' *'"
+                      :label="(translations.education_department?.schedule_study_year) + ' *'"
                       type="number"
                       min="2020"
                       max="2030"
@@ -122,7 +122,7 @@
                     <v-text-field
                       :model-value="form.order"
                       @update:model-value="form.order = $event ? parseInt($event) : null"
-                      :label="translations.messages?.order || 'Тартиб' + ' *'"
+                      :label="translations.messages?.order + ' *'"
                       type="number"
                       min="1"
                       variant="outlined"
@@ -136,7 +136,7 @@
                     <v-text-field
                       :model-value="form.scheduled_at"
                       @update:model-value="form.scheduled_at = $event"
-                      :label="translations.education_department?.schedule_date || 'Сана'"
+                      :label="translations.education_department?.schedule_date"
                       type="datetime-local"
                       variant="outlined"
                       :error-messages="errors.scheduled_at"
@@ -148,7 +148,7 @@
                     <v-switch
                       :model-value="form.is_active"
                       @update:model-value="form.is_active = $event"
-                      :label="translations.messages?.active || 'Фаъол'"
+                      :label="translations.messages?.active"
                       color="primary"
                     />
                   </v-col>
@@ -163,14 +163,14 @@
                     :loading="form.processing"
                     :disabled="form.processing"
                   >
-                    {{ translations.messages?.save || 'Нигоҳ доштан' }}
+                    {{ translations.messages?.save }}
                   </v-btn>
                   <v-btn
                     variant="outlined"
                     @click="router.visit(route('education.schedules.index'))"
                     :disabled="form.processing"
                   >
-                    {{ translations.messages?.cancel || 'Бекор кардан' }}
+                    {{ translations.messages?.cancel }}
                   </v-btn>
                 </div>
               </v-form>

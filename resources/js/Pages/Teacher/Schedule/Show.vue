@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="teacher">
     <v-container fluid>
       <!-- Заголовок -->
@@ -8,7 +8,7 @@
             <div>
               <h1 class="text-h4 font-weight-bold mb-2">Расписание</h1>
               <p class="text-body-1 text-medium-emphasis">
-                {{ schedule.subject?.name || 'Без предмета' }} - {{ schedule.group?.name || 'Без группы' }}
+                {{ schedule.subject?.name }} - {{ schedule.group?.name }}
               </p>
             </div>
             <v-btn
@@ -349,7 +349,7 @@ const editForm = useForm({
   group_id: props.schedule.group_id,
   start_date: props.schedule.start_date,
   end_date: props.schedule.end_date,
-  description: props.schedule.description || ''
+  description: props.schedule.description
 })
 
 // Методы
@@ -363,7 +363,7 @@ const resetForm = () => {
   editForm.group_id = props.schedule.group_id
   editForm.start_date = props.schedule.start_date
   editForm.end_date = props.schedule.end_date
-  editForm.description = props.schedule.description || ''
+  editForm.description = props.schedule.description
 }
 
 const updateSchedule = () => {

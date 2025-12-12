@@ -1,13 +1,13 @@
-<template>
+﻿<template>
   <Layout role="education_department">
     <v-container fluid class="pa-6">
       <!-- Заголовок -->
       <div class="mb-6">
         <h1 class="text-h4 font-weight-bold mb-2">
-          {{ translations.education_department?.dashboard_title || 'Панели Шӯъбаи таълим' }}
+          {{ translations.education_department?.dashboard_title }}
         </h1>
         <p class="text-body-1 text-medium-emphasis">
-          {{ translations.education_department?.dashboard_subtitle || 'Идоракунии раванди таълимӣ' }}
+          {{ translations.education_department?.dashboard_subtitle }}
         </p>
       </div>
 
@@ -19,7 +19,7 @@
               <div class="d-flex align-center justify-space-between">
                 <div>
                   <p class="text-caption text-medium-emphasis mb-1">
-                    {{ translations.education_department?.total_users || 'Ҳамаи корбарон' }}
+                    {{ translations.education_department?.total_users }}
                   </p>
                   <h2 class="text-h4 font-weight-bold">{{ stats.total_users }}</h2>
                 </div>
@@ -37,7 +37,7 @@
               <div class="d-flex align-center justify-space-between">
                 <div>
                   <p class="text-caption text-medium-emphasis mb-1">
-                    {{ translations.education_department?.total_teachers || 'Муаллимон' }}
+                    {{ translations.education_department?.total_teachers }}
                   </p>
                   <h2 class="text-h4 font-weight-bold">{{ stats.total_teachers }}</h2>
                 </div>
@@ -55,7 +55,7 @@
               <div class="d-flex align-center justify-space-between">
                 <div>
                   <p class="text-caption text-medium-emphasis mb-1">
-                    {{ translations.education_department?.total_students || 'Донишҷӯён' }}
+                    {{ translations.education_department?.total_students }}
                   </p>
                   <h2 class="text-h4 font-weight-bold">{{ stats.total_students }}</h2>
                 </div>
@@ -73,7 +73,7 @@
               <div class="d-flex align-center justify-space-between">
                 <div>
                   <p class="text-caption text-medium-emphasis mb-1">
-                    {{ translations.education_department?.total_subjects || 'Фанҳо' }}
+                    {{ translations.education_department?.total_subjects }}
                   </p>
                   <h2 class="text-h4 font-weight-bold">{{ stats.total_subjects }}</h2>
                 </div>
@@ -90,7 +90,7 @@
       <v-card class="mt-6">
         <v-card-title>
           <v-icon class="mr-2">mdi-lightning-bolt</v-icon>
-          {{ translations.education_department?.quick_access || 'Дастрасии тез' }}
+          {{ translations.education_department?.quick_access }}
         </v-card-title>
         <v-divider></v-divider>
         <v-card-text>
@@ -104,7 +104,7 @@
               >
                 <v-card-text class="text-center pa-6">
                   <v-icon size="48" class="mb-3">mdi-account-group</v-icon>
-                  <h3 class="text-h6">{{ translations.education_department?.manage_users || 'Идоракунии корбарон' }}</h3>
+                  <h3 class="text-h6">{{ translations.education_department?.manage_users }}</h3>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -118,7 +118,7 @@
               >
                 <v-card-text class="text-center pa-6">
                   <v-icon size="48" class="mb-3">mdi-calendar-clock</v-icon>
-                  <h3 class="text-h6">{{ translations.education_department?.view_schedules || 'Ҷадвалҳо' }}</h3>
+                  <h3 class="text-h6">{{ translations.education_department?.view_schedules }}</h3>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -132,7 +132,7 @@
               >
                 <v-card-text class="text-center pa-6">
                   <v-icon size="48" class="mb-3">mdi-book-open-page-variant</v-icon>
-                  <h3 class="text-h6">{{ translations.education_department?.manage_subjects || 'Идоракунии фанҳо' }}</h3>
+                  <h3 class="text-h6">{{ translations.education_department?.manage_subjects }}</h3>
                 </v-card-text>
               </v-card>
             </v-col>

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -111,18 +111,18 @@
         >
           <template v-slot:item.subject="{ item }">
             <div class="font-weight-medium">
-              {{ item.subject?.name || 'Не указан' }}
+              {{ item.subject?.name }}
               <div class="text-caption text-medium-emphasis">
-                {{ item.subject?.code || '' }}
+                {{ item.subject?.code }}
               </div>
             </div>
           </template>
 
           <template v-slot:item.teacher="{ item }">
             <div class="font-weight-medium">
-              {{ item.teacher?.name || 'Не указан' }}
+              {{ item.teacher?.name }}
               <div class="text-caption text-medium-emphasis">
-                {{ item.teacher?.email || '' }}
+                {{ item.teacher?.email }}
               </div>
             </div>
           </template>
@@ -133,7 +133,7 @@
               color="primary"
               variant="tonal"
             >
-              {{ item.group?.name || 'Не указана' }}
+              {{ item.group?.name }}
             </v-chip>
           </template>
 
@@ -309,7 +309,7 @@ const props = defineProps({
 })
 
 // Reactive data (инициализированные из server-side)
-const search = ref(props.filters?.search || '')
+const search = ref(props.filters?.search)
 const subjectFilter = ref(props.filters?.subject_id || null)
 const groupFilter = ref(props.filters?.group_id || null)
 const semesterFilter = ref(props.filters?.semester || null)

@@ -10,6 +10,7 @@ use App\Models\Schedule;
 use App\Models\Subject;
 use App\Models\Group;
 use App\Models\Department;
+use App\Models\Specialty;
 
 class EducationDepartmentController extends Controller
 {
@@ -377,6 +378,137 @@ class EducationDepartmentController extends Controller
             'groups' => $groups,
             'filters' => $request->only(['search', 'status']),
         ]);
+    }
+    
+    /**
+     * Показать форму создания группы
+     */
+    public function createGroup()
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $departments = Department::all()->map(function ($dept) {
+            return [
+                'id' => $dept->id,
+                'name' => $dept->name,
+                'display_name' => $dept->name
+            ];
+        });
+        
+        $specialties = Specialty::all()->map(function ($spec) {
+            return [
+                'id' => $spec->id,
+                'name' => $spec->name,
+                'display_name' => $spec->name
+            ];
+        });
+
+        return Inertia::render('EducationDepartment/Groups/Create', [
+            'departments' => $departments,
+            'specialties' => $specialties
+        ]);
+    }
+    
+    /**
+     * Сохранить новую группу
+     */
+    public function storeGroup(Request $request)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'enrollment_year' => 'required|integer|min:2020|max:2030',
+            'graduation_year' => 'required|integer|min:2020|max:2030|gte:enrollment_year',
+            'status' => 'required|in:active,graduated,suspended',
+            'department_id' => 'nullable|exists:departments,id',
+            'course' => 'nullable|integer|min:1|max:6',
+            'specialty_id' => 'nullable|exists:specialties,id'
+        ]);
+        
+        Group::create($validated);
+        
+        return redirect()->route('education.groups.index')
+            ->with('success', 'Группа успешно создана');
+    }
+    
+    /**
+     * Показать форму редактирования группы
+     */
+    public function editGroup(Group $group)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $departments = Department::all()->map(function ($dept) {
+            return [
+                'id' => $dept->id,
+                'name' => $dept->name,
+                'display_name' => $dept->name
+            ];
+        });
+        
+        $specialties = Specialty::all()->map(function ($spec) {
+            return [
+                'id' => $spec->id,
+                'name' => $spec->name,
+                'display_name' => $spec->name
+            ];
+        });
+
+        return Inertia::render('EducationDepartment/Groups/Edit', [
+            'group' => [
+                'id' => $group->id,
+                'name' => $group->name,
+                'enrollment_year' => $group->enrollment_year,
+                'graduation_year' => $group->graduation_year,
+                'status' => $group->status,
+                'department_id' => $group->department_id,
+                'course' => $group->course,
+                'specialty_id' => $group->specialty_id,
+                'full_name' => $group->full_name
+            ],
+            'departments' => $departments,
+            'specialties' => $specialties
+        ]);
+    }
+    
+    /**
+     * Обновить группу
+     */
+    public function updateGroup(Request $request, Group $group)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'enrollment_year' => 'required|integer|min:2020|max:2030',
+            'graduation_year' => 'required|integer|min:2020|max:2030|gte:enrollment_year',
+            'status' => 'required|in:active,graduated,suspended',
+            'department_id' => 'nullable|exists:departments,id',
+            'course' => 'nullable|integer|min:1|max:6',
+            'specialty_id' => 'nullable|exists:specialties,id'
+        ]);
+        
+        $group->update($validated);
+        
+        return redirect()->route('education.groups.index')
+            ->with('success', 'Группа успешно обновлена');
     }
     
     /**

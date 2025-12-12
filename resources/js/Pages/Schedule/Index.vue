@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout>
     <v-container fluid>
       <div class="schedule-page">
@@ -220,7 +220,7 @@ export default {
         ...event,
         start: event.start,
         end: event.end,
-        color: event.color || 'primary'
+        color: event.color
       }))
     }
   },
@@ -266,7 +266,7 @@ export default {
         'Семинар': 'warning',
         'Консультация': 'info'
       }
-      return colors[type] || 'primary'
+      return colors[type]
     }
   }
 }

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -7,7 +7,7 @@
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
               <h1 class="text-h4 font-weight-bold mb-2">Детали расписания</h1>
-              <p class="text-body-1 text-medium-emphasis">{{ schedule?.subject?.name || 'Загрузка...' }}</p>
+              <p class="text-body-1 text-medium-emphasis">{{ schedule?.subject?.name }}</p>
             </div>
             <div class="d-flex gap-2">
               <v-btn
@@ -43,16 +43,16 @@
                 <v-col cols="12" md="6">
                   <div class="mb-4">
                     <div class="text-subtitle-2 text-medium-emphasis mb-1">Предмет</div>
-                    <div class="text-h6">{{ schedule.subject?.name || 'Не указан' }}</div>
-                    <div class="text-caption text-medium-emphasis">{{ schedule.subject?.code || '' }}</div>
+                    <div class="text-h6">{{ schedule.subject?.name }}</div>
+                    <div class="text-caption text-medium-emphasis">{{ schedule.subject?.code }}</div>
                   </div>
                 </v-col>
                 
                 <v-col cols="12" md="6">
                   <div class="mb-4">
                     <div class="text-subtitle-2 text-medium-emphasis mb-1">Преподаватель</div>
-                    <div class="text-h6">{{ schedule.teacher?.name || 'Не указан' }}</div>
-                    <div class="text-caption text-medium-emphasis">{{ schedule.teacher?.email || '' }}</div>
+                    <div class="text-h6">{{ schedule.teacher?.name }}</div>
+                    <div class="text-caption text-medium-emphasis">{{ schedule.teacher?.email }}</div>
                   </div>
                 </v-col>
 
@@ -65,7 +65,7 @@
                       size="large"
                       class="font-weight-medium"
                     >
-                      {{ schedule.group?.name || 'Не указана' }}
+                      {{ schedule.group?.name }}
                     </v-chip>
                   </div>
                 </v-col>
@@ -94,14 +94,14 @@
                 <v-col cols="12" md="6">
                   <div class="mb-4">
                     <div class="text-subtitle-2 text-medium-emphasis mb-1">Год обучения</div>
-                    <div class="text-h6">{{ schedule.study_year || 'Не указан' }}</div>
+                    <div class="text-h6">{{ schedule.study_year }}</div>
                   </div>
                 </v-col>
 
                 <v-col cols="12" md="6">
                   <div class="mb-4">
                     <div class="text-subtitle-2 text-medium-emphasis mb-1">Порядковый номер</div>
-                    <div class="text-h6">{{ schedule.order || 'Не указан' }}</div>
+                    <div class="text-h6">{{ schedule.order }}</div>
                   </div>
                 </v-col>
 

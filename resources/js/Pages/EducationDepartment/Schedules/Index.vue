@@ -1,14 +1,14 @@
-<template>
+﻿<template>
   <Layout role="education_department">
     <v-container fluid class="pa-6">
       <!-- Заголовок -->
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.schedules_title || 'Ҷадвалҳо' }}
+            {{ translations.education_department?.schedules_title }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.schedules_subtitle || 'Тамошои ҳамаи ҷадвалҳо' }}
+            {{ translations.education_department?.schedules_subtitle }}
           </p>
         </div>
         <v-btn
@@ -16,7 +16,7 @@
           prepend-icon="mdi-plus"
           @click="router.visit(route('education.schedules.create'))"
         >
-          {{ translations.messages?.add || 'Илова кардан' }}
+          {{ translations.messages?.add }}
         </v-btn>
       </div>
 
@@ -27,7 +27,7 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="dateFilter"
-                :label="translations.education_department?.filter_by_date || 'Филтр аз рӯи сана'"
+                :label="translations.education_department?.filter_by_date"
                 type="date"
                 prepend-inner-icon="mdi-calendar"
                 clearable
@@ -46,7 +46,7 @@
           <div class="text-center py-8">
             <v-icon size="64" color="grey-lighten-1">mdi-calendar-blank</v-icon>
             <p class="text-h6 text-medium-emphasis mt-4">
-              {{ translations.education_department?.no_schedules || 'Ҷадвалҳо ёфт нашуданд' }}
+              {{ translations.education_department?.no_schedules }}
             </p>
           </div>
         </v-card-text>
@@ -61,7 +61,7 @@
               </template>
 
               <v-list-item-title class="font-weight-medium">
-                {{ schedule.subject?.name || translations.education_department?.no_subject || 'Бе фан' }}
+                {{ schedule.subject?.name || translations.education_department?.no_subject }}
               </v-list-item-title>
 
               <v-list-item-subtitle>
@@ -88,7 +88,7 @@
                   color="primary"
                   size="small"
                   @click="router.visit(route('education.schedules.edit', schedule.id))"
-                  :title="translations.messages?.edit || 'Таҳрир кардан'"
+                  :title="translations.messages?.edit"
                 >
                   <v-icon>mdi-pencil</v-icon>
                 </v-btn>
@@ -137,10 +137,10 @@ const props = defineProps({
   }
 })
 
-const dateFilter = ref(props.filters.date || '')
+const dateFilter = ref(props.filters.date)
 
 const formatDate = (date) => {
-  const locale = page.props.locale || 'tg'
+  const locale = page.props.locale
   return new Date(date).toLocaleDateString(locale === 'tg' ? 'tg-TJ' : 'ru-RU')
 }
 

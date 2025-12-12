@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="teacher">
     <v-container fluid>
       <!-- Заголовок -->
@@ -16,10 +16,10 @@
                 Назад к расписаниям
               </v-btn>
               <h1 class="text-h4 font-weight-bold mb-2">
-                {{ schedule.subject?.name || 'Расписание' }}
+                {{ schedule.subject?.name }}
               </h1>
               <p class="text-body-1 text-medium-emphasis">
-                Группа: {{ schedule.group?.name || 'Не указана' }} | 
+                Группа: {{ schedule.group?.name }} | 
                 Уроков: {{ lessons.length }}
               </p>
             </div>

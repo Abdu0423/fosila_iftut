@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -46,7 +46,7 @@
                   </div>
                   
                   <div class="text-body-2 mb-4">
-                    <strong>Описание:</strong> {{ test.description || 'Не указано' }}
+                    <strong>Описание:</strong> {{ test.description }}
                   </div>
                   
                   <div class="text-body-2 mb-4">
@@ -103,11 +103,11 @@
               <v-row>
                 <v-col cols="12" md="6">
                   <div class="text-body-2 mb-4">
-                    <strong>Дата начала:</strong> {{ test.start_date || 'Не указано' }}
+                    <strong>Дата начала:</strong> {{ test.start_date }}
                   </div>
                   
                   <div class="text-body-2 mb-4">
-                    <strong>Дата окончания:</strong> {{ test.end_date || 'Не указано' }}
+                    <strong>Дата окончания:</strong> {{ test.end_date }}
                   </div>
                 </v-col>
                 
@@ -357,7 +357,7 @@ const getTypeColor = (type) => {
     homework: 'success',
     practice: 'info'
   }
-  return colors[type] || 'grey'
+  return colors[type]
 }
 
 const getTypeText = (type) => {
@@ -372,7 +372,7 @@ const getStatusColor = (status) => {
     'Ожидает': 'info',
     'Завершен': 'grey'
   }
-  return colors[status] || 'grey'
+  return colors[status]
 }
 
 const previewTest = () => {

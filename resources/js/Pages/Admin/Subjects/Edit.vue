@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -13,7 +13,7 @@
             />
             <div>
               <h1 class="text-h4 font-weight-bold mb-2">Редактирование предмета</h1>
-              <p class="text-body-1 text-medium-emphasis">{{ subject?.name || 'Загрузка...' }}</p>
+              <p class="text-body-1 text-medium-emphasis">{{ subject?.name }}</p>
             </div>
           </div>
         </v-col>
@@ -24,7 +24,7 @@
       <v-row>
         <v-col cols="12">
           <v-alert type="info" class="mb-4">
-            Subject ID: {{ subject?.id || 'Не загружен' }}
+            Subject ID: {{ subject?.id }}
             | Отделений загружено: {{ departments?.length || 0 }}
             | Ошибок: {{ Object.keys(errors || {}).length }}
           </v-alert>
@@ -266,11 +266,11 @@ const props = defineProps({
 
 // Form data
 const form = useForm({
-  name: props.subject?.name || '',
-  code: props.subject?.code || '',
+  name: props.subject?.name,
+  code: props.subject?.code,
   department_id: props.subject?.department_id || null,
-  content: props.subject?.content || '',
-  description: props.subject?.description || '',
+  content: props.subject?.content,
+  description: props.subject?.description,
   credits: props.subject?.credits || 3,
   is_active: props.subject?.is_active ?? true
 })

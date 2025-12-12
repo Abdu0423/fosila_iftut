@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminApp>
     <div class="admin-reports">
       <v-row>
@@ -303,7 +303,7 @@ export default {
         'Снижение': 'warning',
         'Улучшение': 'success'
       }
-      return colors[status] || 'grey'
+      return colors[status]
     },
     
     exportPDF() {

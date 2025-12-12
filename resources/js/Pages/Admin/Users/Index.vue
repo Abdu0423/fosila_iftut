@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -351,7 +351,7 @@ const getRoleColor = (role) => {
     'teacher': 'warning',
     'student': 'primary'
   }
-  return colors[role] || 'grey'
+  return colors[role]
 }
 
 const getRoleDisplayName = (role) => {

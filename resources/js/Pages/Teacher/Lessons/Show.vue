@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="teacher">
     <v-container fluid>
       <!-- Заголовок -->
@@ -70,7 +70,7 @@
                 <v-col cols="12">
                   <div class="mb-4">
                     <div class="text-subtitle-2 text-medium-emphasis mb-1">Описание</div>
-                    <div class="text-body-1">{{ lesson.description || 'Описание не указано' }}</div>
+                    <div class="text-body-1">{{ lesson.description }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">

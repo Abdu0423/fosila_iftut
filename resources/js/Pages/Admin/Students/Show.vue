@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminLayout>
     <v-row>
       <v-col cols="12">
@@ -63,7 +63,7 @@
                   <v-list-item>
                     <v-list-item-title class="font-weight-bold">Группа</v-list-item-title>
                     <v-list-item-subtitle>
-                      {{ student.group?.name || 'Не указана' }}
+                      {{ student.group?.name }}
                     </v-list-item-subtitle>
                   </v-list-item>
                   
@@ -71,7 +71,7 @@
                     <v-list-item-title class="font-weight-bold">Курс</v-list-item-title>
                     <v-list-item-subtitle>
                       <v-chip color="primary" size="small">
-                        {{ student.course || 'Не указан' }} курс
+                        {{ student.course }} курс
                       </v-chip>
                     </v-list-item-subtitle>
                   </v-list-item>
@@ -133,7 +133,7 @@
               </template>
               
               <template v-slot:item.teacher="{ item }">
-                {{ item.raw.teacher?.name || 'Не назначен' }}
+                {{ item.raw.teacher?.name }}
               </template>
               
               <template v-slot:item.day_of_week="{ item }">
@@ -281,6 +281,6 @@ const getDayName = (dayNumber) => {
     'Суббота',
     'Воскресенье'
   ]
-  return days[dayNumber - 1] || 'Неизвестно'
+  return days[dayNumber - 1]
 }
 </script>

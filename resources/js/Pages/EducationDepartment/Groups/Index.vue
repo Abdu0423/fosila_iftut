@@ -1,16 +1,23 @@
-<template>
+﻿<template>
   <Layout role="education_department">
     <v-container fluid class="pa-6">
       <!-- Заголовок -->
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.groups_title || 'Гурӯҳҳо' }}
+            {{ translations.education_department?.groups_title }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.groups_subtitle || 'Тамошои ҳамаи гурӯҳҳо' }}
+            {{ translations.education_department?.groups_subtitle }}
           </p>
         </div>
+        <v-btn
+          color="primary"
+          prepend-icon="mdi-plus"
+          @click="createGroup"
+        >
+          {{ translations.messages?.add }}
+        </v-btn>
       </div>
 
       <!-- Фильтры и поиск -->
@@ -20,7 +27,7 @@
             <v-col cols="12" md="6">
               <v-text-field
                 v-model="searchQuery"
-                :label="translations.messages?.search || 'Ҷустуҷӯ'"
+                :label="translations.messages?.search"
                 prepend-inner-icon="mdi-magnify"
                 clearable
                 variant="outlined"
@@ -32,7 +39,7 @@
               <v-select
                 v-model="statusFilter"
                 :items="statusOptions"
-                :label="translations.education_department?.filter_by_status || 'Филтр аз рӯи вазъият'"
+                :label="translations.education_department?.filter_by_status"
                 prepend-inner-icon="mdi-filter"
                 clearable
                 variant="outlined"
@@ -78,15 +85,30 @@
               :color="item.status === 'active' ? 'success' : 'error'"
               size="small"
             >
-              {{ item.status === 'active' ? (translations.messages?.active || 'Фаъол') : (translations.messages?.inactive || 'Ғайрифаъол') }}
+              {{ item.status === 'active' ? (translations.messages?.active) : (translations.messages?.inactive) }}
             </v-chip>
+          </template>
+
+          <template v-slot:item.actions="{ item }">
+            <div class="d-flex gap-2">
+              <v-btn
+                icon
+                variant="text"
+                color="primary"
+                size="small"
+                @click="editGroup(item)"
+                :title="translations.messages?.edit"
+              >
+                <v-icon>mdi-pencil</v-icon>
+              </v-btn>
+            </div>
           </template>
 
           <template v-slot:no-data>
             <div class="text-center pa-8">
               <v-icon size="64" color="grey-lighten-1">mdi-account-group-off</v-icon>
               <p class="text-h6 mt-4 text-medium-emphasis">
-                {{ translations.education_department?.no_groups || 'Гурӯҳҳо ёфт нашуданд' }}
+                {{ translations.education_department?.no_groups }}
               </p>
             </div>
           </template>
@@ -125,18 +147,19 @@ const props = defineProps({
   }
 })
 
-const searchQuery = ref(props.filters.search || '')
+const searchQuery = ref(props.filters.search)
 const statusFilter = ref(props.filters.status || null)
 
 const headers = computed(() => [
-  { title: translations.value.education_department?.group_name || 'Номи гурӯҳ', key: 'name', sortable: false },
-  { title: translations.value.education_department?.group_students_count || 'Шумораи донишҷӯён', key: 'users_count', sortable: false },
-  { title: translations.value.messages?.status || 'Вазъият', key: 'status', sortable: false }
+  { title: translations.value.education_department?.group_name, key: 'name', sortable: false },
+  { title: translations.value.education_department?.group_students_count, key: 'users_count', sortable: false },
+  { title: translations.value.messages?.status, key: 'status', sortable: false },
+  { title: translations.value.messages?.actions, key: 'actions', sortable: false }
 ])
 
 const statusOptions = [
-  { title: translations.value.messages?.active || 'Фаъол', value: 'active' },
-  { title: translations.value.messages?.inactive || 'Ғайрифаъол', value: 'inactive' }
+  { title: translations.value.messages?.active, value: 'active' },
+  { title: translations.value.messages?.inactive, value: 'inactive' }
 ]
 
 const handleSearch = () => {
@@ -168,6 +191,14 @@ const handlePageChange = (page) => {
     preserveState: true,
     preserveScroll: true
   })
+}
+
+const createGroup = () => {
+  router.visit('/education/groups/create')
+}
+
+const editGroup = (group) => {
+  router.visit(`/education/groups/${group.id}/edit`)
 }
 </script>
 

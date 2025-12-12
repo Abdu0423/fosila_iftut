@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -77,8 +77,8 @@
                         <v-list-item v-bind="props">
                           <v-list-item-title>{{ item.raw.display_name }}</v-list-item-title>
                           <v-list-item-subtitle>
-                            Группа: {{ item.raw.group?.name || 'Не указана' }} | 
-                            Учитель: {{ item.raw.teacher?.name || 'Не указан' }}
+                            Группа: {{ item.raw.group?.name }} | 
+                            Учитель: {{ item.raw.teacher?.name }}
                           </v-list-item-subtitle>
                         </v-list-item>
                       </template>
@@ -131,16 +131,16 @@
                               <strong>Название:</strong> {{ form.title }}
                             </div>
                             <div class="text-body-2 mt-2">
-                              <strong>Описание:</strong> {{ form.description || 'Не указано' }}
+                              <strong>Описание:</strong> {{ form.description }}
                             </div>
                             <div class="text-body-2 mt-2">
-                              <strong>Расписание:</strong> {{ selectedScheduleInfo?.subjectName || 'Не выбрано' }}
+                              <strong>Расписание:</strong> {{ selectedScheduleInfo?.subjectName }}
                             </div>
                             <div class="text-body-2 mt-2">
-                              <strong>Группа:</strong> {{ selectedScheduleInfo?.groupName || 'Не указана' }}
+                              <strong>Группа:</strong> {{ selectedScheduleInfo?.groupName }}
                             </div>
                             <div class="text-body-2 mt-2">
-                              <strong>Учитель:</strong> {{ selectedScheduleInfo?.teacherName || 'Не указан' }}
+                              <strong>Учитель:</strong> {{ selectedScheduleInfo?.teacherName }}
                             </div>
                           </v-col>
                           <v-col cols="12" md="6">
@@ -282,9 +282,9 @@ const selectedScheduleInfo = computed(() => {
   if (!schedule) return null
   
   return {
-    subjectName: schedule.subject?.name || 'Не указан',
-    groupName: schedule.group?.name || 'Не указана',
-    teacherName: schedule.teacher?.name || 'Не указан'
+    subjectName: schedule.subject?.name,
+    groupName: schedule.group?.name,
+    teacherName: schedule.teacher?.name
   }
 })
 
@@ -294,7 +294,7 @@ const handleFileChange = (file) => {
     previewData.value = {
       fileName: file.name,
       fileSize: formatFileSize(file.size),
-      fileType: file.type || 'Неизвестный тип'
+      fileType: file.type
     }
   } else {
     previewData.value = null

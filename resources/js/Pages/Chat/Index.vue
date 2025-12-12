@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout :role="userRole">
     <v-container fluid>
       <!-- Заголовок -->
@@ -233,7 +233,7 @@
               >
                 <template v-slot:item="{ props, item }">
                   <v-list-item v-bind="props">
-                    <v-list-item-title>{{ item.raw.name }} {{ item.raw.last_name || '' }}</v-list-item-title>
+                    <v-list-item-title>{{ item.raw.name }} {{ item.raw.last_name }}</v-list-item-title>
                     <v-list-item-subtitle>{{ item.raw.email }}</v-list-item-subtitle>
                   </v-list-item>
                 </template>
@@ -319,20 +319,20 @@ const filteredUsers = computed(() => {
   if (!searchUser.value || searchUser.value.trim() === '') {
     return props.users.map(user => ({
       ...user,
-      displayName: `${user.name} ${user.last_name || ''}`.trim()
+      displayName: `${user.name} ${user.last_name}`.trim()
     }))
   }
   
   const search = searchUser.value.toLowerCase().trim()
   return props.users
     .filter(user => {
-      const fullName = `${user.name} ${user.last_name || ''}`.toLowerCase()
-      const email = (user.email || '').toLowerCase()
+      const fullName = `${user.name} ${user.last_name}`.toLowerCase()
+      const email = (user.email).toLowerCase()
       return fullName.includes(search) || email.includes(search)
     })
     .map(user => ({
       ...user,
-      displayName: `${user.name} ${user.last_name || ''}`.trim()
+      displayName: `${user.name} ${user.last_name}`.trim()
     }))
 })
 
@@ -372,7 +372,7 @@ const chatPartnerName = computed(() => {
   }
   
   // Для групповых чатов показываем название чата
-  return selectedChat.value.display_name || 'Чат'
+  return selectedChat.value.display_name
 })
 
 // Методы
@@ -637,7 +637,7 @@ const getChatPartnerName = (chat) => {
   }
   
   // Для групповых чатов показываем название чата
-  return chat.display_name || 'Чат'
+  return chat.display_name
 }
 
 // Жизненный цикл

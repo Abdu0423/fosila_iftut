@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -388,7 +388,7 @@ const getDifficultyColor = (difficulty) => {
     intermediate: 'warning',
     advanced: 'error'
   }
-  return colors[difficulty] || 'grey'
+  return colors[difficulty]
 }
 
 const getDifficultyText = (difficulty) => {
@@ -402,7 +402,7 @@ const getStatusColor = (status) => {
     draft: 'warning',
     archived: 'grey'
   }
-  return colors[status] || 'grey'
+  return colors[status]
 }
 
 const getStatusText = (status) => {

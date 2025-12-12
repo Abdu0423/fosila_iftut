@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="teacher">
     <v-container fluid>
       <!-- Заголовок -->
@@ -205,7 +205,7 @@ const props = defineProps({
 // Форма
 const form = useForm({
   title: props.lesson.title,
-  description: props.lesson.description || '',
+  description: props.lesson.description,
   schedule_id: props.lesson.schedules?.[0]?.id || null,
   file: null
 })

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="teacher">
     <v-container fluid>
       <!-- Заголовок -->
@@ -36,9 +36,9 @@
           <v-card class="mb-4">
             <v-card-title class="d-flex justify-space-between align-center">
               <div>
-                <h3 class="text-h6">{{ schedule.subject?.name || 'Без предмета' }}</h3>
+                <h3 class="text-h6">{{ schedule.subject?.name }}</h3>
                 <p class="text-body-2 text-medium-emphasis mb-0">
-                  Группа: {{ schedule.group?.name || 'Не указана' }}
+                  Группа: {{ schedule.group?.name }}
                 </p>
             </div>
               <v-chip
@@ -58,7 +58,7 @@
                     <div>
                       <div class="text-caption text-medium-emphasis">Группа</div>
                       <div class="text-body-1 font-weight-medium">
-                        {{ schedule.group?.name || 'Не указана' }}
+                        {{ schedule.group?.name }}
                       </div>
                     </div>
                   </div>
@@ -69,7 +69,7 @@
                     <div>
                       <div class="text-caption text-medium-emphasis">Предмет</div>
                       <div class="text-body-1 font-weight-medium">
-                        {{ schedule.subject?.name || 'Не указан' }}
+                        {{ schedule.subject?.name }}
                       </div>
                     </div>
                   </div>
@@ -113,7 +113,7 @@
                 <v-col cols="6" md="3">
                   <v-card variant="outlined" class="text-center pa-3">
                     <v-icon size="32" color="success" class="mb-2">mdi-calendar-check</v-icon>
-                    <div class="text-h6 font-weight-bold">{{ schedule.semester || '-' }}</div>
+                    <div class="text-h6 font-weight-bold">{{ schedule.semester }}</div>
                     <div class="text-caption text-medium-emphasis">Семестр</div>
           </v-card>
         </v-col>
@@ -547,7 +547,7 @@ const addSyllabus = (schedule) => {
     },
     onError: (errors) => {
       console.error('Ошибка при добавлении силлабуса:', errors)
-      showError('Ошибка при добавлении силлабуса: ' + (errors.message || 'Неизвестная ошибка'))
+      showError('Ошибка при добавлении силлабуса: ' + (errors.message))
     }
   })
 }
@@ -656,7 +656,7 @@ const uploadSyllabus = async (schedule) => {
   try {
     const formData = new FormData()
     formData.append('name', form.name.trim())
-    formData.append('description', form.description || '')
+    formData.append('description', form.description)
     formData.append('file', fileToUpload)
 
     const response = await axios.post(
@@ -683,7 +683,7 @@ const uploadSyllabus = async (schedule) => {
       router.reload({ only: ['schedules'] })
       showSuccess('Силлабус успешно загружен и добавлен к расписанию')
     } else {
-      showError('Ошибка: ' + (response.data?.message || 'Не удалось загрузить силлабус'))
+      showError('Ошибка: ' + (response.data?.message))
     }
   } catch (error) {
     console.error('Ошибка при загрузке силлабуса:', error)
@@ -701,7 +701,7 @@ const uploadSyllabus = async (schedule) => {
         showError('Ошибка при загрузке силлабуса: ' + error.message)
       }
     } else {
-      showError('Ошибка при загрузке силлабуса: ' + (error.message || 'Неизвестная ошибка'))
+      showError('Ошибка при загрузке силлабуса: ' + (error.message))
     }
   } finally {
     form.processing = false

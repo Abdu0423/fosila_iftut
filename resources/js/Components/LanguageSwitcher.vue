@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <v-menu offset-y>
     <template v-slot:activator="{ props: menuProps }">
       <v-btn
@@ -48,7 +48,7 @@ const { locale, changeLocale, getLocaleName, getLocaleFlag } = useTranslations()
 const availableLocales = ref(['ru', 'tg'])
 
 const currentLocale = computed(() => {
-  return locale.value || 'tg'
+  return locale.value
 })
 
 const changeLanguage = async (newLocale) => {

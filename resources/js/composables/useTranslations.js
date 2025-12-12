@@ -1,11 +1,11 @@
-import { computed } from 'vue'
+﻿import { computed } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
 
 export function useTranslations() {
     const page = usePage()
     
     const locale = computed(() => {
-        return page.props.locale || 'tg'
+        return page.props.locale
     })
     
     const translations = computed(() => {
@@ -57,7 +57,7 @@ export function useTranslations() {
             } else {
                 const error = await response.json().catch(() => ({ message: 'Unknown error' }))
                 console.error('❌ Error changing locale:', error)
-                alert('Ошибка при смене языка: ' + (error.message || 'Неизвестная ошибка'))
+                alert('Ошибка при смене языка: ' + (error.message))
             }
         } catch (error) {
             console.error('❌ Exception changing locale:', error)
@@ -103,7 +103,7 @@ export function useTranslations() {
             ru: '🇷🇺',
             tg: '🇹🇯'
         }
-        return flags[loc] || '🌐'
+        return flags[loc]
     }
     
     return {

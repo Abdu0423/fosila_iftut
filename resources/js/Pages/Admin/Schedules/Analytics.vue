@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -102,7 +102,7 @@
                 <div class="d-flex justify-space-between align-center">
                   <div class="d-flex align-center">
                     <v-chip size="small" color="primary" class="mr-2">{{ index + 1 }}</v-chip>
-                    <span class="text-body-1">{{ stat.teacher?.name || 'Неизвестно' }}</span>
+                    <span class="text-body-1">{{ stat.teacher?.name }}</span>
                   </div>
                   <span class="text-h6 font-weight-bold">{{ stat.count }}</span>
                 </div>
@@ -132,7 +132,7 @@
                 <div class="d-flex justify-space-between align-center">
                   <div class="d-flex align-center">
                     <v-chip size="small" color="warning" class="mr-2">{{ index + 1 }}</v-chip>
-                    <span class="text-body-1">{{ stat.group?.name || 'Неизвестно' }}</span>
+                    <span class="text-body-1">{{ stat.group?.name }}</span>
                   </div>
                   <span class="text-h6 font-weight-bold">{{ stat.count }}</span>
                 </div>
@@ -330,7 +330,7 @@ const getMonthName = (month) => {
     'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
     'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
   ]
-  return months[month - 1] || 'Неизвестно'
+  return months[month - 1]
 }
 
 const exportAnalytics = () => {

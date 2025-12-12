@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="student">
     <div class="assignment-show-page">
       <v-row>
@@ -152,12 +152,12 @@ export default {
       submissionComment: '',
       assignment: {
         id: this.assignment?.id || 1,
-        title: this.assignment?.title || 'Лабораторная работа №1',
-        description: this.assignment?.description || '<p>Создайте простой калькулятор на Python, который может выполнять основные математические операции.</p>',
-        course: this.assignment?.course || 'Введение в программирование',
-        dueDate: this.assignment?.dueDate || '2024-01-20',
+        title: this.assignment?.title,
+        description: this.assignment?.description,
+        course: this.assignment?.course,
+        dueDate: this.assignment?.dueDate,
         weight: this.assignment?.weight || 15,
-        teacher: this.assignment?.teacher || 'Иванов И.И.',
+        teacher: this.assignment?.teacher,
         requirements: [
           { id: 1, text: 'Программа должна поддерживать операции +, -, *, /' },
           { id: 2, text: 'Должна быть обработка ошибок деления на ноль' },

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -15,7 +15,7 @@
               <div>
                 <h1 class="text-h4 font-weight-bold mb-2">{{ subject.name }}</h1>
                 <p class="text-body-1 text-medium-emphasis">
-                  Код: {{ subject.code || 'Не указан' }} | 
+                  Код: {{ subject.code }} | 
                   Кредиты: {{ subject.credits }} | 
                   Статус: {{ subject.is_active ? 'Активный' : 'Неактивный' }}
                 </p>
@@ -74,7 +74,7 @@
                 <v-col cols="12" md="6">
                   <div class="mb-4">
                     <div class="text-subtitle-2 text-medium-emphasis mb-1">Отделение</div>
-                    <div class="text-h6">{{ subject.department?.name || 'Не указано' }}</div>
+                    <div class="text-h6">{{ subject.department?.name }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">
@@ -88,13 +88,13 @@
                 <v-col cols="12">
                   <div class="mb-4">
                     <div class="text-subtitle-2 text-medium-emphasis mb-1">Краткое описание</div>
-                    <div class="text-body-1">{{ subject.content || 'Не указано' }}</div>
+                    <div class="text-body-1">{{ subject.content }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12">
                   <div class="mb-4">
                     <div class="text-subtitle-2 text-medium-emphasis mb-1">Подробное описание</div>
-                    <div class="text-body-1">{{ subject.description || 'Не указано' }}</div>
+                    <div class="text-body-1">{{ subject.description }}</div>
                   </div>
                 </v-col>
                 <v-col cols="12">
@@ -157,8 +157,8 @@
                   class="border rounded mb-2"
                 >
                   <v-list-item-title>
-                    {{ schedule.group?.name || 'Группа не указана' }} - 
-                    {{ schedule.teacher?.name || 'Преподаватель не указан' }}
+                    {{ schedule.group?.name }} - 
+                    {{ schedule.teacher?.name }}
                   </v-list-item-title>
                   <v-list-item-subtitle>
                     Семестр {{ schedule.semester }}, {{ schedule.study_year }} год обучения
@@ -345,7 +345,7 @@ const getDifficultyColor = (difficulty) => {
     medium: 'warning',
     hard: 'error'
   }
-  return colors[difficulty] || 'grey'
+  return colors[difficulty]
 }
 
 const getDifficultyText = (difficulty) => {

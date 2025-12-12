@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="student">
     <v-container fluid>
       <!-- Заголовок -->
@@ -33,7 +33,7 @@
             </v-card-title>
             <v-card-text>
               <div class="text-body-2 mb-3">
-                <strong>Описание:</strong> {{ test.description || 'Не указано' }}
+                <strong>Описание:</strong> {{ test.description }}
               </div>
               <div class="text-body-2 mb-3">
                 <strong>Время:</strong> {{ test.time_limit ? `${test.time_limit} минут` : 'Не ограничено' }}

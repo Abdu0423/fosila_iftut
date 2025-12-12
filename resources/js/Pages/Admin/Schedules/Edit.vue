@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -7,7 +7,7 @@
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
               <h1 class="text-h4 font-weight-bold mb-2">Редактирование расписания</h1>
-              <p class="text-body-1 text-medium-emphasis">{{ schedule?.subject?.name || 'Загрузка...' }}</p>
+              <p class="text-body-1 text-medium-emphasis">{{ schedule?.subject?.name }}</p>
             </div>
             <v-btn
               color="secondary"

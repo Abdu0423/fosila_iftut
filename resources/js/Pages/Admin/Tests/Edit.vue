@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -402,7 +402,7 @@ const getStatusColor = (status) => {
     'Ожидает': 'info',
     'Завершен': 'grey'
   }
-  return colors[status] || 'grey'
+  return colors[status]
 }
 
 const previewTest = () => {

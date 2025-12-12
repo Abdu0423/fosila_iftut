@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -423,7 +423,7 @@ const getTypeColor = (type) => {
     homework: 'success',
     practice: 'info'
   }
-  return colors[type] || 'grey'
+  return colors[type]
 }
 
 const getTypeText = (type) => {
@@ -438,7 +438,7 @@ const getStatusColor = (status) => {
     'Ожидает': 'info',
     'Завершен': 'grey'
   }
-  return colors[status] || 'grey'
+  return colors[status]
 }
 
 const getStatusText = (status) => {

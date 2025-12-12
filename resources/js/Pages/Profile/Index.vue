@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Layout>
     <v-container fluid>
       <div class="profile-page">
@@ -210,7 +210,7 @@
                   label="Имя"
                   outlined
                   dense
-                  :rules="[v => !!v || 'Имя обязательно']"
+                  :rules="[v => !!v]"
                 ></v-text-field>
               </v-col>
               <v-col cols="12" md="6">
@@ -219,7 +219,7 @@
                   label="Фамилия"
                   outlined
                   dense
-                  :rules="[v => !!v || 'Фамилия обязательна']"
+                  :rules="[v => !!v]"
                 ></v-text-field>
               </v-col>
               <v-col cols="12" md="6">

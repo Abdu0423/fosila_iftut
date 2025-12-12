@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -239,7 +239,7 @@
                 <v-col cols="12" md="6">
                   <div class="mb-4">
                     <div class="text-body-2 text-medium-emphasis mb-1">ID группы:</div>
-                    <div class="text-body-1 font-weight-medium">{{ user.group_id || 'Не назначена' }}</div>
+                    <div class="text-body-1 font-weight-medium">{{ user.group_id }}</div>
                   </div>
                 </v-col>
               </v-row>
@@ -314,7 +314,7 @@ const getRoleColor = (role) => {
     'teacher': 'warning',
     'student': 'primary'
   }
-  return colors[role] || 'grey'
+  return colors[role]
 }
 
 const editUser = () => {

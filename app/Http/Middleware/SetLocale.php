@@ -39,7 +39,7 @@ class SetLocale
         // 4. Язык по умолчанию из конфига
         $sessionLocale = Session::get('locale');
         $userLocale = $request->user() ? $request->user()->locale : null;
-        $configLocale = config('app.locale', 'tg');
+        $configLocale = config('app.locale', 'ru');
         
         \Log::info('SetLocale middleware', [
             'request_locale' => $requestLocale,
@@ -70,7 +70,7 @@ class SetLocale
         
         // Проверяем, что язык поддерживается
         if (!in_array($locale, ['ru', 'tg'])) {
-            $locale = 'tg';
+            $locale = 'ru';
         }
         
         // Устанавливаем локаль

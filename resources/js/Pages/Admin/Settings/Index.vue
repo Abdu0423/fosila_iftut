@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -647,8 +647,8 @@ onMounted(() => {
   // Загружаем данные профиля пользователя
   const user = page.props.auth?.user
   if (user) {
-    profileForm.name = user.name || ''
-    profileForm.email = user.email || ''
+    profileForm.name = user.name
+    profileForm.email = user.email
   }
 })
 </script>

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminApp>
     <div class="admin-courses">
       <v-row>
@@ -271,7 +271,7 @@ export default {
         inactive: 'grey',
         draft: 'warning'
       }
-      return colors[status] || 'grey'
+      return colors[status]
     },
     
     getStatusName(status) {
@@ -280,7 +280,7 @@ export default {
         inactive: 'Неактивный',
         draft: 'В разработке'
       }
-      return names[status] || 'Неизвестно'
+      return names[status]
     },
     
     formatDate(date) {

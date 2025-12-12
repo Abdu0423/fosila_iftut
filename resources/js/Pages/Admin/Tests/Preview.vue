@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -44,7 +44,7 @@
               </div>
               
               <div class="text-body-2 mb-4">
-                <strong>Описание:</strong> {{ test.description || 'Не указано' }}
+                <strong>Описание:</strong> {{ test.description }}
               </div>
               
               <div class="text-body-2 mb-4">
@@ -415,7 +415,7 @@ const getQuestionTypeColor = (type) => {
     multiple_choice: 'success',
     matching: 'warning'
   }
-  return colors[type] || 'grey'
+  return colors[type]
 }
 
 const formatTime = (seconds) => {
