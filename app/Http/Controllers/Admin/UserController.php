@@ -327,7 +327,8 @@ class UserController extends Controller
         $displayNames = [
             'admin' => 'Администратор',
             'teacher' => 'Учитель',
-            'student' => 'Студент'
+            'student' => 'Студент',
+            'education_department' => 'Отдел образования'
         ];
 
         return $displayNames[$roleName] ?? $roleName;
