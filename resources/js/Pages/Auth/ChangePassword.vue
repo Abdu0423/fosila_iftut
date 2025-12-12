@@ -210,18 +210,18 @@ const handleSubmit = () => {
   
   // Используем прямой URL вместо route() для избежания проблем с инициализацией
   router.post('/change-password', submitData, {
-    preserveState: true,
-    preserveScroll: true,
+    preserveState: false, // Не сохраняем состояние для успешного редиректа
+    preserveScroll: false,
     onFinish: () => {
       isLoading.value = false
     },
-    onSuccess: () => {
-      // При успехе форма очистится автоматически при редиректе
-      console.log('✅ Пароль успешно изменен')
+    onSuccess: (page) => {
+      // При успехе сервер делает редирект, Inertia обработает его автоматически
+      console.log('✅ Пароль успешно изменен, редирект выполняется...')
     },
     onError: (errors) => {
       console.error('❌ Ошибки при смене пароля:', errors)
-      // При ошибке данные остаются в форме благодаря preserveState: true
+      // При ошибке данные остаются в форме
     }
   })
 }

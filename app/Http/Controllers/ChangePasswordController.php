@@ -62,8 +62,9 @@ class ChangePasswordController extends Controller
         // Определяем куда перенаправить в зависимости от роли
         $redirectUrl = $this->getRedirectUrl($user);
 
-        return redirect($redirectUrl)
-            ->with('success', __('auth.password_changed'));
+        // Используем Inertia::location() для принудительного редиректа
+        // Это работает как обычный HTTP редирект и гарантирует переход
+        return Inertia::location($redirectUrl);
     }
 
     /**
