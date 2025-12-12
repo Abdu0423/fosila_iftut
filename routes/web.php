@@ -37,10 +37,6 @@ Route::get('/terms', function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Маршруты для смены языка
-Route::post('/locale/change', [App\Http\Controllers\LocaleController::class, 'change'])->name('locale.change');
-Route::get('/locale/current', [App\Http\Controllers\LocaleController::class, 'getCurrent'])->name('locale.current');
-
 // Маршрут для смены пароля (доступен только авторизованным пользователям)
 Route::middleware('auth')->group(function () {
     Route::get('/change-password', [App\Http\Controllers\ChangePasswordController::class, 'show'])->name('change-password');
