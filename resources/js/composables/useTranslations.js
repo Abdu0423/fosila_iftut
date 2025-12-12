@@ -1,11 +1,29 @@
 ﻿import { computed } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
+import { getCurrentLocale, setLocale, isValidLocale, getLocaleName, getLocaleFlag } from '../utils/i18n'
 
 export function useTranslations() {
     const page = usePage()
     
+    // Используем localStorage как основной источник, но синхронизируем с сервером
     const locale = computed(() => {
-        return page.props.locale || 'ru'
+        // Приоритет: props (с сервера) > localStorage > default
+        const serverLocale = page.props.locale
+        const localLocale = getCurrentLocale()
+        
+        // Если серверный язык отличается от локального, синхронизируем
+        if (serverLocale && serverLocale !== localLocale && isValidLocale(serverLocale)) {
+            setLocale(serverLocale)
+            return serverLocale
+        }
+        
+        // Используем локальный язык
+        if (localLocale && isValidLocale(localLocale)) {
+            return localLocale
+        }
+        
+        // Fallback на серверный или default
+        return serverLocale || 'ru'
     })
     
     const translations = computed(() => {
@@ -13,27 +31,49 @@ export function useTranslations() {
     })
     
     const changeLocale = async (newLocale) => {
-        if (!['ru', 'tg'].includes(newLocale)) {
+        if (!isValidLocale(newLocale)) {
             console.error('❌ Invalid locale:', newLocale)
             return
         }
         
-        console.log('🌍 Changing locale to:', newLocale)
+        const currentLocale = locale.value
+        if (newLocale === currentLocale) {
+            console.log('ℹ️ Locale already set to:', newLocale)
+            return
+        }
+        
+        console.log('🌍 Changing locale from', currentLocale, 'to', newLocale)
+        
+        // Сразу сохраняем в localStorage для быстрого отклика
+        setLocale(newLocale)
+        
+        // Обновляем заголовок axios для последующих запросов
+        if (typeof window !== 'undefined' && window.axios) {
+            window.axios.defaults.headers.common['X-Locale'] = newLocale
+        }
         
         try {
             // Получаем CSRF токен
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
             if (!csrfToken) {
                 console.error('❌ CSRF token not found')
+                // Все равно перезагружаем, так как язык уже в localStorage
+                // Заголовок X-Locale уже установлен в axios через setLocale()
+                router.reload({ 
+                    only: ['locale', 'translations'], 
+                    preserveState: false, 
+                    preserveScroll: false
+                })
                 return
             }
             
-            // Отправляем POST запрос
+            // Отправляем POST запрос для синхронизации с сервером
             const response = await fetch('/locale/change', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': csrfToken,
+                    'X-Locale': newLocale, // Отправляем язык в заголовке
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
@@ -43,25 +83,37 @@ export function useTranslations() {
             
             if (response.ok) {
                 const data = await response.json()
-                console.log('✅ Locale changed:', data)
+                console.log('✅ Locale synchronized with server:', data)
                 
-                // Сохраняем в localStorage
-                localStorage.setItem('locale', newLocale)
-                
-                // Перезагружаем страницу через Inertia без добавления параметров к URL
+                // Перезагружаем страницу через Inertia для получения новых переводов
+                // Заголовок X-Locale уже установлен в axios через setLocale()
                 router.reload({
                     only: ['locale', 'translations'],
                     preserveState: false,
-                    preserveScroll: false
+                    preserveScroll: false,
+                    onSuccess: () => {
+                        console.log('✅ Page reloaded with new locale')
+                    }
                 })
             } else {
-                const error = await response.json().catch(() => ({ message: 'Unknown error' }))
-                console.error('❌ Error changing locale:', error)
-                alert('Ошибка при смене языка: ' + (error.message || 'Неизвестная ошибка'))
+                console.warn('⚠️ Failed to sync locale with server, but locale saved locally')
+                // Все равно перезагружаем, так как язык уже в localStorage
+                // Заголовок X-Locale уже установлен в axios через setLocale()
+                router.reload({ 
+                    only: ['locale', 'translations'], 
+                    preserveState: false, 
+                    preserveScroll: false
+                })
             }
         } catch (error) {
             console.error('❌ Exception changing locale:', error)
-            alert('Ошибка при смене языка: ' + error.message)
+            // Все равно перезагружаем, так как язык уже в localStorage
+            // Заголовок X-Locale уже установлен в axios через setLocale()
+            router.reload({ 
+                only: ['locale', 'translations'], 
+                preserveState: false, 
+                preserveScroll: false
+            })
         }
     }
     
@@ -88,22 +140,6 @@ export function useTranslations() {
         })
         
         return translation
-    }
-    
-    const getLocaleName = (loc) => {
-        const names = {
-            ru: 'Русский',
-            tg: 'Тоҷикӣ'
-        }
-        return names[loc] || loc
-    }
-    
-    const getLocaleFlag = (loc) => {
-        const flags = {
-            ru: '🇷🇺',
-            tg: '🇹🇯'
-        }
-        return flags[loc] || '🌐'
     }
     
     return {

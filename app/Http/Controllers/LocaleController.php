@@ -19,24 +19,30 @@ class LocaleController extends Controller
         
         $locale = $request->locale;
         
-        \Log::info('Locale change requested', ['locale' => $locale, 'user_id' => $request->user()?->id]);
-        
-        // Сохраняем в сессии
-        Session::put('locale', $locale);
-        Session::save(); // Принудительно сохраняем сессию
-        
-        \Log::info('Locale saved to session', ['session_locale' => Session::get('locale')]);
-        
-        // Если пользователь авторизован, сохраняем в БД
-        if ($request->user()) {
-            $request->user()->update(['locale' => $locale]);
-            \Log::info('Locale saved to user', ['user_locale' => $request->user()->locale]);
+        // Также проверяем заголовок X-Locale (может быть отправлен из localStorage)
+        $headerLocale = $request->header('X-Locale');
+        if ($headerLocale && in_array($headerLocale, ['ru', 'tg'])) {
+            $locale = $headerLocale;
         }
+        
+        \Log::info('Locale change requested', [
+            'locale' => $locale,
+            'header_locale' => $headerLocale,
+            'body_locale' => $request->locale,
+            'user_id' => $request->user()?->id
+        ]);
+        
+        // Сохраняем в сессии (для синхронизации с сервером)
+        Session::put('locale', $locale);
+        Session::save();
+        
+        // НЕ сохраняем в БД - используем только localStorage на клиенте
+        // Это позволяет быстрее переключать язык без запросов к БД
         
         // Устанавливаем текущий язык
         App::setLocale($locale);
         
-        // Возвращаем JSON ответ вместо редиректа для fetch API
+        // Возвращаем JSON ответ
         return response()->json([
             'success' => true,
             'locale' => $locale,

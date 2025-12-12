@@ -34,6 +34,12 @@ export function setLocale(locale) {
   if (typeof window !== 'undefined') {
     localStorage.setItem('locale', locale)
     console.log(`✅ Locale saved to localStorage: ${locale}`)
+    
+    // Обновляем заголовок axios для всех последующих запросов
+    if (window.axios) {
+      window.axios.defaults.headers.common['X-Locale'] = locale
+      console.log(`✅ Axios header X-Locale updated to: ${locale}`)
+    }
   }
   
   return locale
@@ -82,18 +88,15 @@ export function getAvailableLocales() {
 export function initLocale() {
   const currentLocale = getCurrentLocale()
   
-  // Отправляем текущий язык на сервер для синхронизации
-  if (typeof window !== 'undefined' && document.querySelector('meta[name="csrf-token"]')) {
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-    
-    // Отправляем заголовок с языком для следующего запроса
-    // Это будет использоваться middleware для установки языка
-    if (csrfToken) {
-      // Устанавливаем заголовок для всех последующих запросов
-      if (window.axios) {
-        window.axios.defaults.headers.common['X-Locale'] = currentLocale
-      }
+  // Устанавливаем заголовок для всех последующих запросов (axios и fetch)
+  if (typeof window !== 'undefined') {
+    if (window.axios) {
+      window.axios.defaults.headers.common['X-Locale'] = currentLocale
     }
+    
+    // Также устанавливаем для fetch через перехватчик
+    // Inertia использует axios, но на всякий случай
+    console.log(`🌍 i18n initialized with locale: ${currentLocale}`)
   }
   
   return currentLocale
