@@ -36,71 +36,79 @@
       </v-card>
 
       <!-- Список предметов -->
-      <v-row>
-        <v-col
-          v-for="subject in subjects.data"
-          :key="subject.id"
-          cols="12"
-          md="6"
-          lg="4"
+      <v-card>
+        <v-card-text v-if="subjects.data.length === 0">
+          <div class="text-center py-8">
+            <v-icon size="64" color="grey-lighten-1">mdi-book-open-page-variant-outline</v-icon>
+            <p class="text-h6 text-medium-emphasis mt-4">
+              {{ translations.education_department?.no_subjects || 'Фанҳо ёфт нашуданд' }}
+            </p>
+          </div>
+        </v-card-text>
+
+        <v-data-table
+          v-else
+          :headers="headers"
+          :items="subjects.data"
+          :items-per-page="subjects.per_page"
+          hide-default-footer
         >
-          <v-card class="h-100">
-            <v-card-text>
-              <div class="d-flex align-center mb-3">
-                <v-avatar color="primary" size="48" class="mr-3">
-                  <v-icon size="28">mdi-book-open-page-variant</v-icon>
-                </v-avatar>
-                <div class="flex-grow-1">
-                  <h3 class="text-h6 font-weight-medium">{{ subject.name }}</h3>
-                  <p v-if="subject.code" class="text-caption text-medium-emphasis">
-                    {{ subject.code }}
-                  </p>
-                </div>
+          <template v-slot:item.name="{ item }">
+            <div class="d-flex align-center py-2">
+              <v-avatar color="primary" size="40" class="mr-3">
+                <v-icon color="white">mdi-book-open-page-variant</v-icon>
+              </v-avatar>
+              <div>
+                <div class="font-weight-medium">{{ item.name }}</div>
+                <div v-if="item.code" class="text-caption text-medium-emphasis">{{ item.code }}</div>
               </div>
+            </div>
+          </template>
 
-              <p v-if="subject.description" class="text-body-2 text-medium-emphasis mb-3">
-                {{ subject.description }}
-              </p>
-              
-              <div class="d-flex justify-end">
-                <v-btn
-                  icon
-                  variant="text"
-                  color="primary"
-                  size="small"
-                  @click="router.visit(route('education.subjects.edit', subject.id))"
-                  :title="translations.messages?.edit || 'Таҳрир кардан'"
-                >
-                  <v-icon>mdi-pencil</v-icon>
-                </v-btn>
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-col>
+          <template v-slot:item.description="{ item }">
+            <span v-if="item.description" class="text-body-2">{{ item.description }}</span>
+            <span v-else class="text-medium-emphasis">—</span>
+          </template>
 
-        <!-- Пустое состояние -->
-        <v-col v-if="subjects.data.length === 0" cols="12">
-          <v-card>
-            <v-card-text>
-              <div class="text-center py-8">
-                <v-icon size="64" color="grey-lighten-1">mdi-book-open-page-variant-outline</v-icon>
-                <p class="text-h6 text-medium-emphasis mt-4">
-                  {{ translations.education_department?.no_subjects || 'Фанҳо ёфт нашуданд' }}
-                </p>
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
+          <template v-slot:item.credits="{ item }">
+            <span v-if="item.credits">{{ item.credits }}</span>
+            <span v-else class="text-medium-emphasis">—</span>
+          </template>
 
-      <!-- Пагинация -->
-      <div v-if="subjects.data.length > 0" class="d-flex justify-center mt-6">
-        <v-pagination
-          :length="Math.ceil(subjects.total / subjects.per_page)"
-          :model-value="subjects.current_page"
-          @update:model-value="handlePageChange"
-        ></v-pagination>
-      </div>
+          <template v-slot:item.is_active="{ item }">
+            <v-chip
+              :color="item.is_active ? 'success' : 'default'"
+              size="small"
+            >
+              {{ item.is_active ? (translations.messages?.active || 'Фаъол') : (translations.messages?.inactive || 'Ғайрифаъол') }}
+            </v-chip>
+          </template>
+
+          <template v-slot:item.actions="{ item }">
+            <v-btn
+              icon
+              variant="text"
+              color="primary"
+              size="small"
+              @click="router.visit(route('education.subjects.edit', item.id))"
+              :title="translations.messages?.edit || 'Таҳрир кардан'"
+            >
+              <v-icon>mdi-pencil</v-icon>
+            </v-btn>
+          </template>
+        </v-data-table>
+
+        <!-- Пагинация -->
+        <v-divider v-if="subjects.data.length > 0"></v-divider>
+        <div v-if="subjects.data.length > 0" class="d-flex justify-center pa-4">
+          <v-pagination
+            :length="Math.ceil(subjects.total / subjects.per_page)"
+            :model-value="subjects.current_page"
+            @update:model-value="handlePageChange"
+          ></v-pagination>
+        </div>
+      </v-card>
+
     </v-container>
   </Layout>
 </template>
@@ -125,6 +133,15 @@ const props = defineProps({
 })
 
 const searchQuery = ref(props.filters.search || '')
+
+const headers = computed(() => [
+  { title: translations.value.education_department?.subject_name || 'Номи фан', key: 'name', sortable: false },
+  { title: translations.value.education_department?.subject_code || 'Коди фан', key: 'code', sortable: false },
+  { title: translations.value.education_department?.subject_description || 'Тавсиф', key: 'description', sortable: false },
+  { title: translations.value.education_department?.subject_credits || 'Кредитҳо', key: 'credits', sortable: false },
+  { title: translations.value.messages?.status || 'Ҳолат', key: 'is_active', sortable: false },
+  { title: translations.value.messages?.actions || 'Амалҳо', key: 'actions', sortable: false }
+])
 
 const handleSearch = () => {
   router.get(route('education.subjects.index'), {
