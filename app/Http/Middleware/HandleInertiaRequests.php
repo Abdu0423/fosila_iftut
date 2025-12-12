@@ -87,14 +87,16 @@ class HandleInertiaRequests extends Middleware
         $currentLocale = app()->getLocale();
         
         // Логируем для отладки (можно убрать после проверки)
-        \Log::info('HandleInertiaRequests: Sharing props', [
-            'locale' => $currentLocale,
-            'header_locale' => $request->header('X-Locale'),
-            'cookie_locale' => $request->cookie('locale'),
-            'config_locale' => config('app.locale'),
-            'user_locale' => $user ? $user->locale : null,
-            'session_locale' => $request->session()->get('locale'),
-        ]);
+        if (config('app.debug')) {
+            \Log::info('HandleInertiaRequests: Sharing props', [
+                'locale' => $currentLocale,
+                'header_locale' => $request->header('X-Locale'),
+                'cookie_locale' => $request->cookie('locale'),
+                'config_locale' => config('app.locale'),
+                'user_locale' => $user ? $user->locale : null,
+                'session_locale' => $request->session()->get('locale'),
+            ]);
+        }
         
         return [
             ...parent::share($request),
@@ -143,30 +145,36 @@ class HandleInertiaRequests extends Middleware
                             'courses', 'lessons', 'tests', 'grades', 'students', 
                             'teachers', 'schedule', 'education_department'];
         
-        \Log::info('HandleInertiaRequests: Loading translations', [
-            'locale' => $locale,
-            'app_locale' => app()->getLocale(),
-            'config_locale' => config('app.locale'),
-            'files' => $translationFiles
-        ]);
+        if (config('app.debug')) {
+            \Log::info('HandleInertiaRequests: Loading translations', [
+                'locale' => $locale,
+                'app_locale' => app()->getLocale(),
+                'config_locale' => config('app.locale'),
+                'files' => $translationFiles
+            ]);
+        }
         
         $translations = [];
         foreach ($translationFiles as $file) {
             $filePath = base_path("lang/{$locale}/{$file}.php");
             if (file_exists($filePath)) {
                 $translations[$file] = include $filePath;
-                $keysCount = is_array($translations[$file]) ? count($translations[$file]) : 0;
-                \Log::info("Loaded translation file: {$file}", [
-                    'locale' => $locale,
-                    'keys_count' => $keysCount,
-                    'sample_key' => $file === 'navigation' ? ($translations[$file]['dashboard'] ?? 'NOT FOUND') : 'N/A'
-                ]);
+                if (config('app.debug')) {
+                    $keysCount = is_array($translations[$file]) ? count($translations[$file]) : 0;
+                    \Log::info("Loaded translation file: {$file}", [
+                        'locale' => $locale,
+                        'keys_count' => $keysCount,
+                        'sample_key' => $file === 'navigation' ? ($translations[$file]['dashboard'] ?? 'NOT FOUND') : 'N/A'
+                    ]);
+                }
             } else {
                 $translations[$file] = [];
-                \Log::warning("Translation file not found: {$file}", [
-                    'locale' => $locale,
-                    'path' => $filePath
-                ]);
+                if (config('app.debug')) {
+                    \Log::warning("Translation file not found: {$file}", [
+                        'locale' => $locale,
+                        'path' => $filePath
+                    ]);
+                }
             }
         }
         

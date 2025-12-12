@@ -36,18 +36,20 @@ class LocaleController extends Controller
         Session::put('locale', $locale);
         Session::save();
         
-        // НЕ сохраняем в БД - используем только localStorage на клиенте
-        // Это позволяет быстрее переключать язык без запросов к БД
-        
         // Устанавливаем текущий язык
         App::setLocale($locale);
         
-        // Возвращаем JSON ответ
-        return response()->json([
+        // Возвращаем JSON ответ с cookie для установки на клиенте
+        $response = response()->json([
             'success' => true,
             'locale' => $locale,
             'message' => 'Locale changed successfully'
         ]);
+        
+        // Устанавливаем cookie в ответе (для следующей загрузки страницы)
+        $response->cookie('locale', $locale, 60 * 24 * 365, '/', null, false, false); // 1 год
+        
+        return $response;
     }
     
     /**

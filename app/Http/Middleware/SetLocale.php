@@ -50,6 +50,18 @@ class SetLocale
             $locale = $configLocale;
         }
         
+        // Логируем для отладки (можно убрать после проверки)
+        if (config('app.debug')) {
+            \Log::info('SetLocale middleware', [
+                'header_locale' => $headerLocale,
+                'cookie_locale' => $cookieLocale,
+                'request_locale' => $requestLocale,
+                'session_locale' => $sessionLocale,
+                'config_locale' => $configLocale,
+                'final_locale' => $locale,
+            ]);
+        }
+        
         // Проверяем, что язык поддерживается
         if (!in_array($locale, ['ru', 'tg'])) {
             $locale = 'ru';

@@ -6,16 +6,27 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         
         <script>
-            // Устанавливаем cookie с языком из localStorage перед загрузкой страницы
-            // Это нужно для первой загрузки, когда axios еще не настроен
+            // КРИТИЧЕСКИ ВАЖНО: Устанавливаем cookie с языком из localStorage СРАЗУ
+            // Это должно быть выполнено ДО того, как Laravel обработает запрос
+            // Но так как это выполняется на клиенте, нужно использовать другой подход
+            
+            // Устанавливаем cookie при первой загрузке, если она есть в localStorage
             (function() {
                 try {
                     const storedLocale = localStorage.getItem('locale');
                     if (storedLocale && (storedLocale === 'ru' || storedLocale === 'tg')) {
+                        // Устанавливаем cookie с максимальным приоритетом
                         document.cookie = 'locale=' + storedLocale + '; path=/; max-age=31536000; SameSite=Lax';
+                        console.log('🌍 Locale cookie set from localStorage:', storedLocale);
+                    } else {
+                        // Если нет в localStorage, устанавливаем default
+                        const defaultLocale = 'ru';
+                        document.cookie = 'locale=' + defaultLocale + '; path=/; max-age=31536000; SameSite=Lax';
+                        localStorage.setItem('locale', defaultLocale);
+                        console.log('🌍 Default locale cookie set:', defaultLocale);
                     }
                 } catch (e) {
-                    console.warn('Failed to set locale cookie:', e);
+                    console.error('❌ Failed to set locale cookie:', e);
                 }
             })();
         </script>

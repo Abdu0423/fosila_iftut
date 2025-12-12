@@ -5,29 +5,51 @@ import { getCurrentLocale, setLocale, isValidLocale, getLocaleName, getLocaleFla
 export function useTranslations() {
     const page = usePage()
     
-    // Используем localStorage как основной источник, но синхронизируем с сервером
+    // Используем серверный locale как основной источник (он уже учитывает cookie/localStorage)
     const locale = computed(() => {
-        // Приоритет: props (с сервера) > localStorage > default
         const serverLocale = page.props.locale
         const localLocale = getCurrentLocale()
         
-        // Если серверный язык отличается от локального, синхронизируем
-        if (serverLocale && serverLocale !== localLocale && isValidLocale(serverLocale)) {
-            setLocale(serverLocale)
+        // Если серверный язык есть и валидный - используем его (он уже учитывает все источники)
+        if (serverLocale && isValidLocale(serverLocale)) {
+            // Синхронизируем localStorage с сервером
+            if (localLocale !== serverLocale) {
+                setLocale(serverLocale)
+            }
             return serverLocale
         }
         
-        // Используем локальный язык
+        // Если серверного нет, используем локальный
         if (localLocale && isValidLocale(localLocale)) {
             return localLocale
         }
         
-        // Fallback на серверный или default
-        return serverLocale || 'ru'
+        // Fallback на default
+        return 'ru'
     })
     
     const translations = computed(() => {
-        return page.props.translations || {}
+        const trans = page.props.translations || {}
+        const currentServerLocale = page.props.locale
+        
+        // КРИТИЧЕСКИ ВАЖНО: Если серверный язык отличается от локального,
+        // значит нужно синхронизировать localStorage с сервером
+        const localLocale = getCurrentLocale()
+        if (currentServerLocale && currentServerLocale !== localLocale && isValidLocale(currentServerLocale)) {
+            console.log('🔄 Syncing locale: server says', currentServerLocale, 'but localStorage has', localLocale)
+            setLocale(currentServerLocale)
+        }
+        
+        // Отладочный вывод
+        console.log('📚 Translations loaded:', {
+            serverLocale: currentServerLocale,
+            localLocale: localLocale,
+            hasTranslations: Object.keys(trans).length > 0,
+            sampleKey: trans.navigation?.dashboard || 'NOT FOUND',
+            navigationKeys: trans.navigation ? Object.keys(trans.navigation) : []
+        })
+        
+        return trans
     })
     
     const changeLocale = async (newLocale) => {
