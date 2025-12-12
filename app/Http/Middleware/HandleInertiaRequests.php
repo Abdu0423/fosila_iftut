@@ -86,8 +86,11 @@ class HandleInertiaRequests extends Middleware
         
         $currentLocale = app()->getLocale();
         
+        // Логируем для отладки (можно убрать после проверки)
         \Log::info('HandleInertiaRequests: Sharing props', [
             'locale' => $currentLocale,
+            'header_locale' => $request->header('X-Locale'),
+            'cookie_locale' => $request->cookie('locale'),
             'config_locale' => config('app.locale'),
             'user_locale' => $user ? $user->locale : null,
             'session_locale' => $request->session()->get('locale'),

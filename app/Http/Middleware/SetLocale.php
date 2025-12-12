@@ -16,11 +16,13 @@ class SetLocale
     {
         // Приоритет получения языка:
         // 1. Заголовок X-Locale (отправляется из localStorage на фронтенде) - самый высокий приоритет
-        // 2. URL параметр (?lang=ru или ?_locale=tg)
-        // 3. Сессия
-        // 4. Язык по умолчанию из конфига
+        // 2. Cookie (для первой загрузки страницы)
+        // 3. URL параметр (?lang=ru или ?_locale=tg)
+        // 4. Сессия
+        // 5. Язык по умолчанию из конфига
         
         $headerLocale = $request->header('X-Locale');
+        $cookieLocale = $request->cookie('locale');
         $requestLocale = $request->get('lang') ?? $request->get('_locale');
         $sessionLocale = Session::get('locale');
         $configLocale = config('app.locale', 'ru');
@@ -30,15 +32,14 @@ class SetLocale
         // Проверяем заголовок X-Locale (из localStorage) - самый высокий приоритет
         if ($headerLocale && in_array($headerLocale, ['ru', 'tg'])) {
             $locale = $headerLocale;
-            // Сохраняем в сессию для последующих запросов
-            Session::put('locale', $locale);
-            Session::save();
+        }
+        // Проверяем cookie (для первой загрузки страницы)
+        elseif ($cookieLocale && in_array($cookieLocale, ['ru', 'tg'])) {
+            $locale = $cookieLocale;
         }
         // Проверяем URL параметр
         elseif ($requestLocale && in_array($requestLocale, ['ru', 'tg'])) {
             $locale = $requestLocale;
-            Session::put('locale', $locale);
-            Session::save();
         }
         // Используем сессию
         elseif ($sessionLocale && in_array($sessionLocale, ['ru', 'tg'])) {
@@ -54,7 +55,7 @@ class SetLocale
             $locale = 'ru';
         }
         
-        // Сохраняем в сессию для последующих запросов (если еще не сохранен)
+        // Сохраняем в сессию для последующих запросов
         if (Session::get('locale') !== $locale) {
             Session::put('locale', $locale);
             Session::save();

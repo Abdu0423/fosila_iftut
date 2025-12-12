@@ -4,6 +4,21 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        
+        <script>
+            // Устанавливаем cookie с языком из localStorage перед загрузкой страницы
+            // Это нужно для первой загрузки, когда axios еще не настроен
+            (function() {
+                try {
+                    const storedLocale = localStorage.getItem('locale');
+                    if (storedLocale && (storedLocale === 'ru' || storedLocale === 'tg')) {
+                        document.cookie = 'locale=' + storedLocale + '; path=/; max-age=31536000; SameSite=Lax';
+                    }
+                } catch (e) {
+                    console.warn('Failed to set locale cookie:', e);
+                }
+            })();
+        </script>
 
         <title inertia>{{ config('app.name', 'IFTUT - Дистанционное обучение') }}</title>
 

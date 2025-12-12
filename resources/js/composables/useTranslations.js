@@ -57,13 +57,8 @@ export function useTranslations() {
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
             if (!csrfToken) {
                 console.error('❌ CSRF token not found')
-                // Все равно перезагружаем, так как язык уже в localStorage
-                // Заголовок X-Locale уже установлен в axios через setLocale()
-                router.reload({ 
-                    only: ['locale', 'translations'], 
-                    preserveState: false, 
-                    preserveScroll: false
-                })
+                // Используем полную перезагрузку страницы
+                window.location.reload()
                 return
             }
             
@@ -85,35 +80,18 @@ export function useTranslations() {
                 const data = await response.json()
                 console.log('✅ Locale synchronized with server:', data)
                 
-                // Перезагружаем страницу через Inertia для получения новых переводов
-                // Заголовок X-Locale уже установлен в axios через setLocale()
-                router.reload({
-                    only: ['locale', 'translations'],
-                    preserveState: false,
-                    preserveScroll: false,
-                    onSuccess: () => {
-                        console.log('✅ Page reloaded with new locale')
-                    }
-                })
+                // Используем полную перезагрузку страницы для гарантии обновления переводов
+                // Это гарантирует, что сервер получит заголовок X-Locale и вернет правильные переводы
+                window.location.reload()
             } else {
                 console.warn('⚠️ Failed to sync locale with server, but locale saved locally')
-                // Все равно перезагружаем, так как язык уже в localStorage
-                // Заголовок X-Locale уже установлен в axios через setLocale()
-                router.reload({ 
-                    only: ['locale', 'translations'], 
-                    preserveState: false, 
-                    preserveScroll: false
-                })
+                // Используем полную перезагрузку страницы
+                window.location.reload()
             }
         } catch (error) {
             console.error('❌ Exception changing locale:', error)
-            // Все равно перезагружаем, так как язык уже в localStorage
-            // Заголовок X-Locale уже установлен в axios через setLocale()
-            router.reload({ 
-                only: ['locale', 'translations'], 
-                preserveState: false, 
-                preserveScroll: false
-            })
+            // Используем полную перезагрузку страницы
+            window.location.reload()
         }
     }
     
