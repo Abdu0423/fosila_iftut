@@ -176,7 +176,7 @@
                   <v-col cols="12" md="6">
                     <v-text-field
                       v-model="form.password_confirmation"
-                      :label="translations.messages?.password_confirmation || 'Таъйиди парол'"
+                      :label="translations.messages?.password_confirmation || 'Такрори парол'"
                       type="password"
                       variant="outlined"
                       density="comfortable"
