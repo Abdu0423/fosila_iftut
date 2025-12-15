@@ -1,0 +1,11 @@
+{
+  "name": "IFTUT - Дистанционное обучение",
+  "short_name": "IFTUT",
+  "description": "Система дистанционного обучения",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1976d2",
+  "orientation": "portrait-primary"
+}
+
