@@ -380,7 +380,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
 import { useI18n } from 'vue-i18n'
 import LanguageSwitcher from '../../Components/LanguageSwitcher.vue'
