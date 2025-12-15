@@ -10,9 +10,9 @@
               <v-card-title class="text-center pa-6 bg-primary">
                 <div class="d-flex flex-column align-center w-100">
                   <v-icon size="64" color="white" class="mb-3">mdi-lock-reset</v-icon>
-                  <h2 class="text-h5 text-white font-weight-bold">Смена пароля</h2>
+                  <h2 class="text-h5 text-white font-weight-bold">{{ t('auth.change_password') }}</h2>
                   <p class="text-caption text-white mt-2 opacity-90">
-                    Для продолжения работы необходимо сменить пароль
+                    {{ t('auth.password_required') }}
                   </p>
                 </div>
               </v-card-title>
@@ -58,7 +58,7 @@
                   <v-text-field
                     :model-value="formData.current_password"
                     @update:model-value="updateField('current_password', $event)"
-                    label="Текущий пароль"
+                    :label="t('auth.current_password')"
                     :type="showCurrentPassword ? 'text' : 'password'"
                     :append-inner-icon="showCurrentPassword ? 'mdi-eye-off' : 'mdi-eye'"
                     @click:append-inner="toggleShowCurrentPassword"
@@ -75,7 +75,7 @@
                   <v-text-field
                     :model-value="formData.password"
                     @update:model-value="updateField('password', $event)"
-                    label="Новый пароль"
+                    :label="t('auth.new_password')"
                     :type="showPassword ? 'text' : 'password'"
                     :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye'"
                     @click:append-inner="toggleShowPassword"
@@ -83,7 +83,7 @@
                     density="comfortable"
                     :error-messages="getErrorMessage('password')"
                     prepend-inner-icon="mdi-lock-plus"
-                    :hint="isPasswordSame ? 'Новый пароль должен отличаться от текущего!' : 'Минимум 4 символа'"
+                    :hint="isPasswordSame ? t('auth.password_must_differ') : t('auth.password_min', { min: 4 })"
                     :persistent-hint="isPasswordSame"
                     :color="isPasswordSame ? 'error' : undefined"
                     class="mb-4"
@@ -100,14 +100,14 @@
                     class="mb-4"
                   >
                     <v-icon start>mdi-alert</v-icon>
-                    Новый пароль должен отличаться от текущего пароля. Пожалуйста, введите другой пароль.
+                    {{ t('auth.password_must_differ') }}
                   </v-alert>
 
                   <!-- Подтверждение пароля -->
                   <v-text-field
                     :model-value="formData.password_confirmation"
                     @update:model-value="updateField('password_confirmation', $event)"
-                    label="Подтвердите новый пароль"
+                    :label="t('auth.confirm_password')"
                     :type="showPasswordConfirmation ? 'text' : 'password'"
                     :append-inner-icon="showPasswordConfirmation ? 'mdi-eye-off' : 'mdi-eye'"
                     @click:append-inner="toggleShowPasswordConfirmation"
@@ -115,7 +115,7 @@
                     density="comfortable"
                     :error-messages="getErrorMessage('password_confirmation')"
                     prepend-inner-icon="mdi-lock-check"
-                    :hint="isPasswordMismatch ? 'Пароли не совпадают!' : 'Повторите новый пароль'"
+                    :hint="isPasswordMismatch ? t('auth.password_confirmed') : t('auth.confirm_password')"
                     :persistent-hint="isPasswordMismatch"
                     :color="isPasswordMismatch ? 'error' : undefined"
                     class="mb-4"
@@ -132,7 +132,7 @@
                     class="mb-4"
                   >
                     <v-icon start>mdi-alert-circle</v-icon>
-                    Пароли не совпадают. Пожалуйста, убедитесь, что новый пароль и подтверждение совпадают.
+                    {{ t('auth.password_confirmed') }}
                   </v-alert>
 
                   <!-- Кнопки действий -->
@@ -147,7 +147,7 @@
                       class="text-none"
                     >
                       <v-icon left>mdi-content-save</v-icon>
-                      Сменить пароль
+                      {{ t('auth.change_password') }}
                     </v-btn>
                   </div>
 
@@ -163,7 +163,7 @@
                     class="text-none"
                   >
                     <v-icon left>mdi-logout</v-icon>
-                    Выйти из системы
+                    {{ t('navigation.logout') }}
                   </v-btn>
                 </v-form>
               </v-card-text>
@@ -178,6 +178,9 @@
 <script setup>
 import { ref, reactive, computed } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   user: {
@@ -295,21 +298,21 @@ const handleSubmit = () => {
   
   // Валидация на фронтенде: проверяем, что новый пароль отличается от старого
   if (isPasswordSame.value) {
-    localErrors.password = 'Новый пароль должен отличаться от текущего пароля'
+    localErrors.password = t('auth.password_must_differ')
     isLoading.value = false
     return
   }
   
   // Проверяем минимальную длину пароля
   if (formData.password.length < 4) {
-    localErrors.password = 'Пароль должен содержать минимум 4 символа'
+    localErrors.password = t('auth.password_min', { min: 4 })
     isLoading.value = false
     return
   }
   
   // Проверяем совпадение пароля и подтверждения
   if (formData.password !== formData.password_confirmation) {
-    localErrors.password_confirmation = 'Пароли не совпадают'
+    localErrors.password_confirmation = t('auth.password_confirmed')
     isLoading.value = false
     return
   }

@@ -20,6 +20,19 @@
         <!-- Web App Manifest -->
         <link rel="manifest" href="/manifest.json">
 
+        <!-- Глобальные переводы для Vue i18n -->
+        @php
+            $locale = app()->getLocale();
+            $translationsPath = lang_path("{$locale}.json");
+            $translations = file_exists($translationsPath) 
+                ? json_decode(file_get_contents($translationsPath), true) 
+                : [];
+        @endphp
+        <script>
+            window.__LOCALE__ = '{{ $locale }}';
+            window.__TRANSLATIONS__ = @json($translations);
+        </script>
+
         <!-- Scripts -->
         @routes
         @vite(['resources/css/app.css', 'resources/js/app.js'])

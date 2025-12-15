@@ -6,8 +6,8 @@
         <v-col cols="12">
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
-              <h1 class="text-h4 font-weight-bold mb-2">{{ translations.dashboard?.welcome_student }}</h1>
-              <p class="text-body-1 text-medium-emphasis">{{ translations.dashboard?.subtitle_student }}</p>
+              <h1 class="text-h4 font-weight-bold mb-2">{{ t('panels.student_title') }}</h1>
+              <p class="text-body-1 text-medium-emphasis">{{ t('panels.student_subtitle') }}</p>
             </div>
             <v-btn
               color="primary"
@@ -15,7 +15,7 @@
               prepend-icon="mdi-play"
               @click="navigateTo('/student/courses')"
             >
-              {{ translations.dashboard?.start_learning }}
+              {{ t('navigation.courses') }}
             </v-btn>
           </div>
         </v-col>
@@ -28,7 +28,7 @@
             <v-card-text class="text-center">
               <v-icon size="48" color="primary" class="mb-4">mdi-book-open-variant</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats.courses }}</div>
-              <div class="text-body-2 text-medium-emphasis">{{ translations.dashboard?.my_courses }}</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('navigation.courses') }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -37,7 +37,7 @@
             <v-card-text class="text-center">
               <v-icon size="48" color="success" class="mb-4">mdi-check-circle</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats.completedLessons }}</div>
-              <div class="text-body-2 text-medium-emphasis">{{ translations.dashboard?.completed_lessons }}</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('navigation.lessons') }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -46,7 +46,7 @@
             <v-card-text class="text-center">
               <v-icon size="48" color="info" class="mb-4">mdi-clock</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats.studyHours }}</div>
-              <div class="text-body-2 text-medium-emphasis">{{ translations.dashboard?.study_hours }}</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('navigation.schedule') }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -55,7 +55,7 @@
             <v-card-text class="text-center">
               <v-icon size="48" color="warning" class="mb-4">mdi-star</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats.averageGrade }}</div>
-              <div class="text-body-2 text-medium-emphasis">{{ translations.dashboard?.average_grade }}</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('navigation.grades') }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -68,7 +68,7 @@
           <v-card class="mb-6">
             <v-card-title class="text-h6">
               <v-icon start>mdi-book-open</v-icon>
-              {{ translations.dashboard?.my_courses }}
+              {{ t('navigation.courses') }}
             </v-card-title>
             <v-card-text>
               <v-list>
@@ -79,7 +79,7 @@
                 >
                   <v-list-item-title>{{ course.name }}</v-list-item-title>
                   <v-list-item-subtitle>
-                    {{ course.description }} • {{ translations.dashboard?.progress }}: {{ course.progress }}%
+                    {{ course.description }} • {{ t('messages.progress') || 'Прогресс' }}: {{ course.progress }}%
                   </v-list-item-subtitle>
                   <template v-slot:append>
                     <v-btn
@@ -87,7 +87,7 @@
                       size="small"
                       @click="navigateTo(`/student/courses/${course.id}`)"
                     >
-                      {{ translations.dashboard?.continue }}
+                      {{ t('messages.view') }}
                     </v-btn>
                   </template>
                 </v-list-item>
@@ -99,7 +99,7 @@
           <v-card>
             <v-card-title class="text-h6">
               <v-icon start>mdi-star</v-icon>
-              {{ translations.dashboard?.recent_grades }}
+              {{ t('navigation.grades') }}
             </v-card-title>
             <v-card-text>
               <v-list>
@@ -132,7 +132,7 @@
           <v-card class="mb-6">
             <v-card-title class="text-h6">
               <v-icon start>mdi-lightning-bolt</v-icon>
-              {{ translations.dashboard?.quick_actions }}
+              {{ t('messages.actions') }}
             </v-card-title>
             <v-card-text>
               <v-list>
@@ -152,7 +152,7 @@
           <v-card class="mb-6">
             <v-card-title class="text-h6">
               <v-icon start>mdi-bell</v-icon>
-              {{ translations.messages?.notifications }}
+              {{ t('messages.notification') }}
             </v-card-title>
             <v-card-text>
               <v-list>
@@ -171,7 +171,7 @@
           <v-card>
             <v-card-title class="text-h6">
               <v-icon start>mdi-trophy</v-icon>
-              {{ translations.dashboard?.achievements }}
+              {{ t('messages.info') }}
             </v-card-title>
             <v-card-text>
               <div v-for="achievement in achievements" :key="achievement.id" class="mb-4">
@@ -199,10 +199,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from './Layout.vue'
 
 const page = usePage()
-const translations = computed(() => page.props.translations || {})
+const { t } = useI18n()
 
 // Статистика
 const stats = ref({
@@ -267,25 +268,24 @@ const recentGrades = ref([
 
 // Быстрые действия
 const quickActions = computed(() => {
-  const t = translations.value.dashboard || {}
   return [
     {
-      title: t.my_courses,
+      title: t('navigation.courses'),
       icon: 'mdi-book-open-variant',
       route: '/student/courses'
     },
     {
-      title: t.my_schedule,
+      title: t('navigation.schedule'),
       icon: 'mdi-calendar',
       route: '/student/schedule'
     },
     {
-      title: t.my_assignments,
+      title: t('navigation.assignments'),
       icon: 'mdi-clipboard-text',
       route: '/student/assignments'
     },
     {
-      title: t.my_grades,
+      title: t('navigation.grades'),
       icon: 'mdi-star',
       route: '/student/grades'
     }
@@ -294,36 +294,34 @@ const quickActions = computed(() => {
 
 // Уведомления
 const notifications = computed(() => {
-  const t = translations.value.dashboard || {}
   return [
-    { id: 1, message: t.notification_new_lesson, time: t.time_hours_ago },
-    { id: 2, message: t.notification_grade, time: t.time_day_ago },
-    { id: 3, message: t.notification_deadline, time: t.time_day_ago }
+    { id: 1, message: t('messages.notification'), time: '2 часа назад' },
+    { id: 2, message: t('messages.notification'), time: '1 день назад' },
+    { id: 3, message: t('messages.notification'), time: '1 день назад' }
   ]
 })
 
 // Достижения
 const achievements = computed(() => {
-  const t = translations.value.dashboard || {}
   return [
     { 
       id: 1, 
-      title: t.achievement_first_steps, 
-      description: t.achievement_first_steps_desc,
+      title: t('messages.info'), 
+      description: t('messages.details'),
       icon: 'mdi-trophy',
       unlocked: true
     },
     { 
       id: 2, 
-      title: t.achievement_excellent, 
-      description: t.achievement_excellent_desc,
+      title: t('messages.info'), 
+      description: t('messages.details'),
       icon: 'mdi-star',
       unlocked: true
     },
     { 
       id: 3, 
-      title: t.achievement_hardworking, 
-      description: t.achievement_hardworking_desc,
+      title: t('messages.info'), 
+      description: t('messages.details'),
       icon: 'mdi-clock',
       unlocked: false
     }

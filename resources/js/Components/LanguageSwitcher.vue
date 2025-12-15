@@ -74,12 +74,13 @@ const changeLanguage = async (newLocale) => {
     return
   }
   
-  // Отправляем POST запрос для смены языка
+  // Отправляем POST запрос для смены языка и делаем полную перезагрузку
   router.post('/set-locale', { locale: newLocale }, {
     preserveState: false,
-    preserveScroll: true,
+    preserveScroll: false,
     onSuccess: () => {
-      // Страница перезагрузится автоматически с новым языком
+      // Полная перезагрузка страницы для обновления переводов из window.__TRANSLATIONS__
+      window.location.reload()
     }
   })
 }

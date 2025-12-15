@@ -316,10 +316,10 @@ const headerSubtitle = computed(() => {
 
 const appBarTitle = computed(() => {
   switch (currentRole.value) {
-    case 'admin': return `ИФТУТ ${t('roles.admin')}`
-    case 'teacher': return `ИФТУТ ${t('roles.teacher')}`
-    case 'education_department': return `ИФТУТ ${t('roles.education_department')}`
-    default: return `ИФТУТ ${t('roles.student')}`
+    case 'admin': return t('panels.admin_title')
+    case 'teacher': return t('panels.teacher_title')
+    case 'education_department': return t('panels.education_title')
+    default: return t('panels.student_title')
   }
 })
 
@@ -328,7 +328,7 @@ const appBarTitleShort = computed(() => {
     case 'admin': return t('roles.admin_short')
     case 'teacher': return t('roles.teacher')
     case 'education_department': return t('roles.education_department_short')
-    default: return 'ИФТУТ'
+    default: return t('panels.student_title')
   }
 })
 

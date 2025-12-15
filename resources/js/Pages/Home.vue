@@ -4,7 +4,7 @@
       <v-row>
         <v-col cols="12" class="text-center">
           <v-progress-circular indeterminate color="primary" size="64" class="mb-4"></v-progress-circular>
-          <p class="text-body-1">{{ translations.dashboard?.loading || 'Загрузка...' }}</p>
+          <p class="text-body-1">{{ t('messages.info') }}</p>
         </v-col>
       </v-row>
     </v-container>
@@ -14,10 +14,11 @@
 <script setup>
 import { computed, onMounted } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from './Layout.vue'
 
 const page = usePage()
-const translations = computed(() => page.props.translations || {})
+const { t } = useI18n()
 
 onMounted(() => {
   // Перенаправляем на Dashboard
