@@ -230,7 +230,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { usePage } from '@inertiajs/vue3'
+import { usePage, router } from '@inertiajs/vue3'
 import Layout from '../../Layout.vue'
 
 const page = usePage()
@@ -289,7 +289,7 @@ const filteredSchedules = computed(() => {
 
 // Методы
 const openTest = (schedule) => {
-  window.location.href = `/teacher/schedules/${schedule.id}/test`
+  router.visit(`/teacher/schedules/${schedule.id}/test`)
 }
 </script>
 

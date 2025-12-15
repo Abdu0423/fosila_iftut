@@ -269,6 +269,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { router } from '@inertiajs/vue3'
 import AdminApp from '../AdminApp.vue'
 
 // Props из Inertia
@@ -321,8 +322,8 @@ const averageTeacherLoad = computed(() => {
 })
 
 // Методы
-const navigateTo = (route) => {
-  window.location.href = route
+const navigateTo = (path) => {
+  router.visit(path)
 }
 
 const getMonthName = (month) => {
@@ -342,7 +343,7 @@ const printAnalytics = () => {
 }
 
 const refreshAnalytics = () => {
-  window.location.reload()
+  router.reload()
 }
 
 const shareAnalytics = () => {

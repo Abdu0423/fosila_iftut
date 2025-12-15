@@ -198,6 +198,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { router } from '@inertiajs/vue3'
 import Layout from '../Layout.vue'
 
 // Props
@@ -217,13 +218,13 @@ const props = defineProps({
 })
 
 // Методы
-const navigateTo = (route) => {
-  window.location.href = route
+const navigateTo = (path) => {
+  router.visit(path)
 }
 
 // Жизненный цикл
 onMounted(() => {
-  console.log('Панель учителя загружена')
+  // Dashboard loaded
 })
 </script>
 

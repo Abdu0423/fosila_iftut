@@ -297,7 +297,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useForm } from '@inertiajs/vue3'
+import { useForm, router } from '@inertiajs/vue3'
 import AdminApp from '../AdminApp.vue'
 
 // Props из Inertia
@@ -342,8 +342,8 @@ const recentResults = ref([
 const form = useForm({})
 
 // Методы
-const navigateTo = (route) => {
-  window.location.href = route
+const navigateTo = (path) => {
+  router.visit(path)
 }
 
 const formatDate = (date) => {

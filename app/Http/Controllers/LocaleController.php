@@ -30,12 +30,24 @@ class LocaleController extends Controller
         // Создаем cookie через очередь cookie
         Cookie::queue('locale', $locale, 60 * 24 * 365); // 1 год
         
-        // Если пользователь авторизован, сохраняем в базу
-        if ($request->user()) {
-            $request->user()->update(['locale' => $locale]);
+        // Если пользователь авторизован, пробуем сохранить в базу
+        try {
+            $user = $request->user();
+            if ($user && method_exists($user, 'update')) {
+                $user->locale = $locale;
+                $user->save();
+            }
+        } catch (\Exception $e) {
+            // Игнорируем ошибки сохранения в базу - cookie и session достаточно
+            \Log::warning('Failed to save user locale to database', ['error' => $e->getMessage()]);
         }
         
-        // Возвращаем редирект
+        // Для axios запроса возвращаем JSON
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'locale' => $locale]);
+        }
+        
+        // Для обычного запроса - редирект
         return redirect()->back();
     }
 }

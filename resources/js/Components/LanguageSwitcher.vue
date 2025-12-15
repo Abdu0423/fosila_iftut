@@ -33,24 +33,23 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
-import { useI18n } from 'vue-i18n'
 
-const props = defineProps({
+defineProps({
   compact: {
     type: Boolean,
     default: false
   }
 })
 
-const { locale } = useI18n()
 const page = usePage()
+const isChanging = ref(false)
 
-const availableLocales = ref(['ru', 'tg'])
+const availableLocales = ['ru', 'tg']
 
 const currentLocale = computed(() => {
-  return page.props.locale || locale.value || 'ru'
+  return page.props.locale || window.__LOCALE__ || 'ru'
 })
 
 const getLocaleName = (loc) => {
@@ -69,18 +68,21 @@ const getLocaleFlag = (loc) => {
   return flags[loc] || '🌐'
 }
 
-const changeLanguage = async (newLocale) => {
-  if (newLocale === currentLocale.value) {
+const changeLanguage = (newLocale) => {
+  if (newLocale === currentLocale.value || isChanging.value) {
     return
   }
   
-  // Отправляем POST запрос для смены языка и делаем полную перезагрузку
+  isChanging.value = true
+  
   router.post('/set-locale', { locale: newLocale }, {
-    preserveState: false,
-    preserveScroll: false,
+    preserveScroll: true,
     onSuccess: () => {
-      // Полная перезагрузка страницы для обновления переводов из window.__TRANSLATIONS__
+      // Перезагружаем страницу для обновления переводов
       window.location.reload()
+    },
+    onError: () => {
+      isChanging.value = false
     }
   })
 }
@@ -110,4 +112,3 @@ const changeLanguage = async (newLocale) => {
   cursor: pointer;
 }
 </style>
-

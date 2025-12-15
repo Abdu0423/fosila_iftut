@@ -44,15 +44,6 @@ class HandleInertiaRequests extends Middleware
                 $user->load('role');
             }
             
-            // Логируем для отладки
-            \Log::info('HandleInertiaRequests: User role check', [
-                'user_id' => $user->id,
-                'role_loaded' => $user->relationLoaded('role'),
-                'role_id' => $user->role_id,
-                'role_name' => $user->role ? $user->role->name : 'NULL',
-                'role_object' => $user->role ? get_class($user->role) : 'NULL'
-            ]);
-            
             // Подсчитываем непрочитанные сообщения для всех чатов пользователя
             $chats = $user->chats()
                 ->wherePivot('is_active', true)
@@ -78,10 +69,6 @@ class HandleInertiaRequests extends Middleware
                 'role' => $user->role ? $user->role->name : null,
                 'locale' => $user->locale ?? 'ru',
             ];
-            
-            \Log::info('HandleInertiaRequests: Sharing user data', [
-                'user_data' => $userData
-            ]);
         }
         
         // Загружаем переводы для текущей локали

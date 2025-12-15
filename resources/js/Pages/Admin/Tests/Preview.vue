@@ -348,6 +348,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { router } from '@inertiajs/vue3'
 import AdminApp from '../AdminApp.vue'
 
 // Props из Inertia
@@ -400,8 +401,8 @@ const progress = computed(() => {
 })
 
 // Методы
-const navigateTo = (route) => {
-  window.location.href = route
+const navigateTo = (path) => {
+  router.visit(path)
 }
 
 const getTypeText = (type) => {

@@ -346,7 +346,7 @@ const getGradeColor = (grade) => {
 }
 
 onMounted(() => {
-  console.log('Dashboard loaded')
+  // Dashboard loaded
 })
 </script>
 

@@ -284,7 +284,7 @@
 </template>
 
 <script setup>
-import { usePage } from '@inertiajs/vue3'
+import { usePage, router } from '@inertiajs/vue3'
 import Layout from '../../Layout.vue'
 
 const page = usePage()
@@ -310,8 +310,8 @@ const props = defineProps({
 })
 
 // Методы
-const navigateTo = (route) => {
-  window.location.href = route
+const navigateTo = (path) => {
+  router.visit(path)
 }
 
 const getDayOfWeekText = (day) => {

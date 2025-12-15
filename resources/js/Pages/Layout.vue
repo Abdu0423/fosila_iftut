@@ -237,19 +237,7 @@ const userAvatar = computed(() => user.value.avatar || `https://ui-avatars.com/a
 
 // Определяем роль: сначала из props, если не передана - из user.role
 const currentRole = computed(() => {
-  // Логируем для отладки
-  console.log('🔍 Layout: Determining role - DEBUG', {
-    propsRole: props.role,
-    userValue: user.value,
-    userRole: user.value?.role,
-    pagePropsAuth: page.props.auth,
-    pagePropsAuthUser: page.props.auth?.user,
-    finalRole: props.role || user.value?.role || 'student'
-  })
-  
-  const role = props.role || user.value?.role || 'student'
-  
-  return role
+  return props.role || user.value?.role || 'student'
 })
 
 const userRole = computed(() => {
@@ -387,8 +375,8 @@ const menuItems = computed(() => {
 })
 
 // Методы
-const navigateTo = (route) => {
-  router.visit(route)
+const navigateTo = (path) => {
+  router.visit(path, { preserveScroll: true })
 }
 
 const isActiveRoute = (route) => {
@@ -407,13 +395,16 @@ const isActiveRoute = (route) => {
 const goToProfile = () => {
   switch (props.role) {
     case 'admin':
-      router.visit(route('admin.profile'))
+      router.visit('/admin/profile')
       break
     case 'teacher':
-      router.visit(route('teacher.profile.index'))
+      router.visit('/teacher/profile')
+      break
+    case 'education_department':
+      router.visit('/education/profile')
       break
     default:
-      router.visit(route('profile.index'))
+      router.visit('/student/profile')
   }
 }
 

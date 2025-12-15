@@ -202,7 +202,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { usePage } from '@inertiajs/vue3'
+import { usePage, router } from '@inertiajs/vue3'
 import Layout from '../../Layout.vue'
 
 const page = usePage()
@@ -263,8 +263,8 @@ const averageStudentsPerGroup = computed(() =>
 )
 
 // Методы
-const navigateTo = (route) => {
-  window.location.href = route
+const navigateTo = (path) => {
+  router.visit(path)
 }
 
 const viewGroup = (group) => {
