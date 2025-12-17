@@ -147,6 +147,14 @@ class UserController extends Controller
                 'mom_phone' => 'nullable|string|max:255'
             ]);
 
+            // Проверяем, что хотя бы email или phone указан
+            if (empty($validated['email']) && empty($validated['phone'])) {
+                return back()->withErrors([
+                    'email' => 'Необходимо указать хотя бы email или телефон',
+                    'phone' => 'Необходимо указать хотя бы email или телефон'
+                ])->withInput();
+            }
+
             \Log::info('Валидация прошла успешно', ['validated_data' => array_keys($validated)]);
 
             // Генерируем email, если не указан
@@ -251,7 +259,7 @@ class UserController extends Controller
                 'name' => 'required|string|max:255',
                 'last_name' => 'required|string|max:255',
                 'middle_name' => 'nullable|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+                'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
                 'phone' => 'nullable|string|max:255',
                 'address' => 'nullable|string|max:255',
                 'dad_phone' => 'nullable|string|max:255',
@@ -260,6 +268,14 @@ class UserController extends Controller
                 'group_id' => 'nullable|integer',
                 'password' => 'nullable|string|min:8|confirmed'
             ]);
+
+            // Проверяем, что хотя бы email или phone указан
+            if (empty($validated['email']) && empty($validated['phone'])) {
+                return back()->withErrors([
+                    'email' => 'Необходимо указать хотя бы email или телефон',
+                    'phone' => 'Необходимо указать хотя бы email или телефон'
+                ])->withInput();
+            }
 
             $user->update([
                 'name' => $validated['name'],

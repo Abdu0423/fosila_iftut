@@ -376,7 +376,7 @@ const menuItems = computed(() => {
 
 // Методы
 const navigateTo = (path) => {
-  router.visit(path, { preserveScroll: true })
+  router.visit(path, { preserveState: true, preserveScroll: true })
 }
 
 const isActiveRoute = (route) => {

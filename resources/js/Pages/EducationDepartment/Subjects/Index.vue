@@ -14,7 +14,7 @@
         <v-btn
           color="primary"
           prepend-icon="mdi-plus"
-          @click="router.visit(route('education.subjects.create'))"
+          @click="router.visit('/education/subjects/create')"
         >
           {{ translations.messages?.add }}
         </v-btn>
@@ -90,7 +90,7 @@
               variant="text"
               color="primary"
               size="small"
-              @click="router.visit(route('education.subjects.edit', item.id))"
+              @click="router.visit(`/education/subjects/${item.id}/edit`)"
               :title="translations.messages?.edit"
             >
               <v-icon>mdi-pencil</v-icon>
@@ -144,7 +144,7 @@ const headers = computed(() => [
 ])
 
 const handleSearch = () => {
-  router.get(route('education.subjects.index'), {
+  router.get('/education/subjects', {
     search: searchQuery.value
   }, {
     preserveState: true,
@@ -153,7 +153,7 @@ const handleSearch = () => {
 }
 
 const handlePageChange = (pageNum) => {
-  router.get(route('education.subjects.index'), {
+  router.get('/education/subjects', {
     page: pageNum,
     search: searchQuery.value
   }, {

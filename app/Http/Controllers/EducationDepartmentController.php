@@ -150,6 +150,14 @@ class EducationDepartmentController extends Controller
                 'mom_phone' => 'nullable|string|max:255'
             ]);
 
+            // Проверяем, что хотя бы email или phone указан
+            if (empty($validated['email']) && empty($validated['phone'])) {
+                return back()->withErrors([
+                    'email' => 'Необходимо указать хотя бы email или телефон',
+                    'phone' => 'Необходимо указать хотя бы email или телефон'
+                ])->withInput();
+            }
+
             // Проверяем, что роль - teacher или student
             $role = Role::find($validated['role_id']);
             if (!$role || !in_array($role->name, ['teacher', 'student'])) {
@@ -278,7 +286,7 @@ class EducationDepartmentController extends Controller
                 'name' => 'required|string|max:255',
                 'last_name' => 'required|string|max:255',
                 'middle_name' => 'nullable|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+                'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
                 'phone' => 'nullable|string|max:255',
                 'address' => 'nullable|string|max:255',
                 'dad_phone' => 'nullable|string|max:255',
@@ -287,6 +295,14 @@ class EducationDepartmentController extends Controller
                 'group_id' => 'nullable|integer',
                 'password' => 'nullable|string|min:4|confirmed'
             ]);
+
+            // Проверяем, что хотя бы email или phone указан
+            if (empty($validated['email']) && empty($validated['phone'])) {
+                return back()->withErrors([
+                    'email' => 'Необходимо указать хотя бы email или телефон',
+                    'phone' => 'Необходимо указать хотя бы email или телефон'
+                ])->withInput();
+            }
 
             // Проверяем, что роль - teacher или student
             $role = Role::find($validated['role_id']);

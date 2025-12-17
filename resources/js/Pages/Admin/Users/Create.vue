@@ -76,7 +76,7 @@
                        variant="outlined"
                        density="compact"
                        :error-messages="form.errors.email"
-                       hint="Необязательно, будет сгенерирован автоматически"
+                       hint="Необязательно, но необходимо указать хотя бы email или телефон"
                        persistent-hint
                      ></v-text-field>
                    </v-col>
@@ -87,6 +87,8 @@
                        variant="outlined"
                        density="compact"
                        :error-messages="form.errors.phone"
+                       hint="Необязательно, но необходимо указать хотя бы email или телефон"
+                       persistent-hint
                      ></v-text-field>
                    </v-col>
                  </v-row>
@@ -100,28 +102,6 @@
                        variant="outlined"
                        density="compact"
                        :error-messages="form.errors.address"
-                     ></v-text-field>
-                   </v-col>
-                 </v-row>
-
-                 <!-- Телефоны родителей -->
-                 <v-row>
-                   <v-col cols="12" md="6">
-                     <v-text-field
-                       v-model="form.dad_phone"
-                       label="Телефон отца"
-                       variant="outlined"
-                       density="compact"
-                       :error-messages="form.errors.dad_phone"
-                     ></v-text-field>
-                   </v-col>
-                   <v-col cols="12" md="6">
-                     <v-text-field
-                       v-model="form.mom_phone"
-                       label="Телефон матери"
-                       variant="outlined"
-                       density="compact"
-                       :error-messages="form.errors.mom_phone"
                      ></v-text-field>
                    </v-col>
                  </v-row>
@@ -142,20 +122,42 @@
                        required
                      ></v-select>
                    </v-col>
-                                       <v-col cols="12" md="6">
-                      <v-select
-                        v-model="form.group_id"
-                        :items="groups"
-                        item-title="display_name"
-                        item-value="id"
-                        label="Группа"
-                        variant="outlined"
-                        density="compact"
-                        :error-messages="form.errors.group_id"
-                        clearable
-                        placeholder="Выберите группу"
-                      ></v-select>
-                    </v-col>
+                   <v-col v-if="isStudent" cols="12" md="6">
+                     <v-select
+                       v-model="form.group_id"
+                       :items="groups"
+                       item-title="display_name"
+                       item-value="id"
+                       label="Группа"
+                       variant="outlined"
+                       density="compact"
+                       :error-messages="form.errors.group_id"
+                       clearable
+                       placeholder="Выберите группу"
+                     ></v-select>
+                   </v-col>
+                 </v-row>
+
+                 <!-- Телефоны родителей (только для студентов) -->
+                 <v-row v-if="isStudent">
+                   <v-col cols="12" md="6">
+                     <v-text-field
+                       v-model="form.dad_phone"
+                       label="Телефон отца"
+                       variant="outlined"
+                       density="compact"
+                       :error-messages="form.errors.dad_phone"
+                     ></v-text-field>
+                   </v-col>
+                   <v-col cols="12" md="6">
+                     <v-text-field
+                       v-model="form.mom_phone"
+                       label="Телефон матери"
+                       variant="outlined"
+                       density="compact"
+                       :error-messages="form.errors.mom_phone"
+                     ></v-text-field>
+                   </v-col>
                  </v-row>
 
                  <!-- Пароль -->
@@ -225,7 +227,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
 import AdminApp from '../AdminApp.vue'
 import { routes } from '../../../utils/routes'
@@ -258,6 +260,13 @@ const form = useForm({
   password_confirmation: ''
 })
 
+// Проверяем, является ли выбранная роль студентом
+const isStudent = computed(() => {
+  if (!form.role_id) return false
+  const role = props.roles.find(r => r.id === form.role_id)
+  return role?.name === 'student'
+})
+
 // Методы
 const navigateTo = (path) => {
   // Гарантируем абсолютный путь
@@ -266,20 +275,20 @@ const navigateTo = (path) => {
 }
 
 const submitForm = () => {
-  console.log('Отправка формы:', form.data())
-  console.log('URL для отправки:', routes.admin.users.store())
+  // Валидация: хотя бы email или phone должен быть заполнен
+  if (!form.email && !form.phone) {
+    form.setError('email', 'Необходимо указать хотя бы email или телефон')
+    form.setError('phone', 'Необходимо указать хотя бы email или телефон')
+    return
+  }
   
   // ЯВНЫЙ абсолютный путь
   form.post(routes.admin.users.store(), {
     onSuccess: () => {
-      console.log('Пользователь успешно создан')
       // Форма автоматически перенаправит на список пользователей
     },
     onError: (errors) => {
       console.error('Ошибки валидации:', errors)
-    },
-    onFinish: () => {
-      console.log('Запрос завершен')
     }
   })
 }

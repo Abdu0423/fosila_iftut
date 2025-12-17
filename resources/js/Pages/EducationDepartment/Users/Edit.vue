@@ -71,12 +71,13 @@
                   <v-col cols="12" md="6">
                     <v-text-field
                       v-model="form.email"
-                      label="Email *"
+                      :label="translations.messages?.email || 'Email'"
                       type="email"
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.email"
-                      required
+                      :hint="translations.messages?.email_hint || 'Ихтиёрӣ, аммо бояд ягон email ё телефон бошад'"
+                      persistent-hint
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="6">
@@ -86,6 +87,8 @@
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.phone"
+                      :hint="translations.messages?.phone_hint || 'Ихтиёрӣ, аммо бояд ягон email ё телефон бошад'"
+                      persistent-hint
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -99,28 +102,6 @@
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.address"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-
-                <!-- Телефоны родителей -->
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="form.dad_phone"
-                      :label="translations.messages?.dad_phone || 'Телефони падар'"
-                      variant="outlined"
-                      density="comfortable"
-                      :error-messages="form.errors.dad_phone"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="form.mom_phone"
-                      :label="translations.messages?.mom_phone || 'Телефони модар'"
-                      variant="outlined"
-                      density="comfortable"
-                      :error-messages="form.errors.mom_phone"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -141,7 +122,7 @@
                       required
                     ></v-select>
                   </v-col>
-                  <v-col cols="12" md="6">
+                  <v-col v-if="isStudent" cols="12" md="6">
                     <v-select
                       v-model="form.group_id"
                       :items="groups"
@@ -154,6 +135,28 @@
                       clearable
                       :placeholder="translations.messages?.select_group || 'Гурӯҳро интихоб кунед'"
                     ></v-select>
+                  </v-col>
+                </v-row>
+
+                <!-- Телефоны родителей (только для студентов) -->
+                <v-row v-if="isStudent">
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      v-model="form.dad_phone"
+                      :label="translations.messages?.dad_phone || 'Телефони падар'"
+                      variant="outlined"
+                      density="comfortable"
+                      :error-messages="form.errors.dad_phone"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      v-model="form.mom_phone"
+                      :label="translations.messages?.mom_phone || 'Телефони модар'"
+                      variant="outlined"
+                      density="comfortable"
+                      :error-messages="form.errors.mom_phone"
+                    ></v-text-field>
                   </v-col>
                 </v-row>
 
@@ -264,6 +267,13 @@ const form = useForm({
   password_confirmation: ''
 })
 
+// Проверяем, является ли выбранная роль студентом
+const isStudent = computed(() => {
+  if (!form.role_id) return false
+  const role = props.roles.find(r => r.id === form.role_id)
+  return role?.name === 'student'
+})
+
 // Заполняем форму данными пользователя
 onMounted(() => {
   form.name = props.user.name || ''
@@ -284,6 +294,13 @@ const navigateTo = (path) => {
 }
 
 const submitForm = () => {
+  // Валидация: хотя бы email или phone должен быть заполнен
+  if (!form.email && !form.phone) {
+    form.setError('email', 'Необходимо указать хотя бы email или телефон')
+    form.setError('phone', 'Необходимо указать хотя бы email или телефон')
+    return
+  }
+  
   form.put(`/education/users/${props.user.id}`, {
     onSuccess: () => {
       // Форма автоматически перенаправит на список пользователей
