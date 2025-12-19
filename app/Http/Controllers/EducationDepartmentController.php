@@ -166,11 +166,6 @@ class EducationDepartmentController extends Controller
                 ])->withInput();
             }
 
-            // Генерируем email, если не указан
-            if (empty($validated['email'])) {
-                $validated['email'] = strtolower($validated['name']) . '.' . strtolower($validated['last_name']) . '@fosila.local';
-            }
-            
             // Генерируем случайный пароль, если не указан
             if (empty($validated['password'])) {
                 $validated['password'] = \Str::random(12);
@@ -180,7 +175,7 @@ class EducationDepartmentController extends Controller
                 'name' => $validated['name'],
                 'last_name' => $validated['last_name'],
                 'middle_name' => $validated['middle_name'] ?? null,
-                'email' => $validated['email'],
+                'email' => $validated['email'] ?? null,
                 'password' => bcrypt($validated['password']),
                 'role_id' => $validated['role_id'],
                 'group_id' => $validated['group_id'] ?? null,
@@ -286,7 +281,7 @@ class EducationDepartmentController extends Controller
                 'name' => 'required|string|max:255',
                 'last_name' => 'required|string|max:255',
                 'middle_name' => 'nullable|string|max:255',
-                'email' => 'nullable|string|email|max:255|unique:users,email,' . $user->id,
+                'email' => 'nullable|string|email|max:255',
                 'phone' => 'nullable|string|max:255',
                 'address' => 'nullable|string|max:255',
                 'dad_phone' => 'nullable|string|max:255',
@@ -295,6 +290,18 @@ class EducationDepartmentController extends Controller
                 'group_id' => 'nullable|integer',
                 'password' => 'nullable|string|min:4|confirmed'
             ]);
+
+            // Проверяем уникальность email, если он указан
+            if (!empty($validated['email'])) {
+                $existingUser = \App\Models\User::where('email', $validated['email'])
+                    ->where('id', '!=', $user->id)
+                    ->first();
+                if ($existingUser) {
+                    return back()->withErrors([
+                        'email' => 'Email уже используется другим пользователем'
+                    ])->withInput();
+                }
+            }
 
             // Проверяем, что хотя бы email или phone указан
             if (empty($validated['email']) && empty($validated['phone'])) {
@@ -315,14 +322,14 @@ class EducationDepartmentController extends Controller
             $user->update([
                 'name' => $validated['name'],
                 'last_name' => $validated['last_name'],
-                'middle_name' => $validated['middle_name'],
-                'email' => $validated['email'],
-                'phone' => $validated['phone'],
-                'address' => $validated['address'],
-                'dad_phone' => $validated['dad_phone'],
-                'mom_phone' => $validated['mom_phone'],
+                'middle_name' => $validated['middle_name'] ?? null,
+                'email' => !empty($validated['email']) ? $validated['email'] : null,
+                'phone' => $validated['phone'] ?? null,
+                'address' => $validated['address'] ?? null,
+                'dad_phone' => $validated['dad_phone'] ?? null,
+                'mom_phone' => $validated['mom_phone'] ?? null,
                 'role_id' => $validated['role_id'],
-                'group_id' => $validated['group_id']
+                'group_id' => $validated['group_id'] ?? null
             ]);
 
             if ($request->filled('password')) {
@@ -342,6 +349,11 @@ class EducationDepartmentController extends Controller
             
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
+            \Log::error('Ошибка при обновлении пользователя', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return back()->with('error', __('controllers.error_updating', ['message' => $e->getMessage()]))->withInput();
         }
     }

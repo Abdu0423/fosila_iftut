@@ -171,7 +171,7 @@
                        variant="outlined"
                        density="compact"
                        :error-messages="form.errors.password"
-                       hint="Необязательно, будет сгенерирован автоматически (минимум 4 символа)"
+                       hint="Необязательно, минимум 4 символа"
                        persistent-hint
                      ></v-text-field>
                    </v-col>

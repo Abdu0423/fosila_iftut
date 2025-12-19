@@ -157,11 +157,6 @@ class UserController extends Controller
 
             \Log::info('Валидация прошла успешно', ['validated_data' => array_keys($validated)]);
 
-            // Генерируем email, если не указан
-            if (empty($validated['email'])) {
-                $validated['email'] = strtolower($validated['name']) . '.' . strtolower($validated['last_name']) . '@fosila.local';
-            }
-            
             // Генерируем случайный пароль, если не указан
             if (empty($validated['password'])) {
                 $validated['password'] = \Str::random(12);
@@ -171,7 +166,7 @@ class UserController extends Controller
                 'name' => $validated['name'],
                 'last_name' => $validated['last_name'],
                 'middle_name' => $validated['middle_name'] ?? null,
-                'email' => $validated['email'],
+                'email' => $validated['email'] ?? null,
                 'password' => bcrypt($validated['password']),
                 'role_id' => $validated['role_id'],
                 'group_id' => $validated['group_id'] ?? null,
