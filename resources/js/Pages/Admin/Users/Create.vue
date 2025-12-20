@@ -80,17 +80,19 @@
                        persistent-hint
                      ></v-text-field>
                    </v-col>
-                   <v-col cols="12" md="6">
-                     <v-text-field
-                       v-model="form.phone"
-                       label="Телефон"
-                       variant="outlined"
-                       density="compact"
-                       :error-messages="form.errors.phone"
-                       hint="Необязательно, но необходимо указать хотя бы email или телефон"
-                       persistent-hint
-                     ></v-text-field>
-                   </v-col>
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      v-model="form.phone"
+                      label="Телефон"
+                      variant="outlined"
+                      density="compact"
+                      :error-messages="form.errors.phone"
+                      hint="Необязательно, но необходимо указать хотя бы email или телефон"
+                      persistent-hint
+                      v-mask="'+992#########'"
+                      placeholder="+992XXXXXXXXX"
+                    ></v-text-field>
+                  </v-col>
                  </v-row>
 
                  <!-- Адрес -->
@@ -140,24 +142,28 @@
 
                  <!-- Телефоны родителей (только для студентов) -->
                  <v-row v-if="isStudent">
-                   <v-col cols="12" md="6">
-                     <v-text-field
-                       v-model="form.dad_phone"
-                       label="Телефон отца"
-                       variant="outlined"
-                       density="compact"
-                       :error-messages="form.errors.dad_phone"
-                     ></v-text-field>
-                   </v-col>
-                   <v-col cols="12" md="6">
-                     <v-text-field
-                       v-model="form.mom_phone"
-                       label="Телефон матери"
-                       variant="outlined"
-                       density="compact"
-                       :error-messages="form.errors.mom_phone"
-                     ></v-text-field>
-                   </v-col>
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      v-model="form.dad_phone"
+                      label="Телефон отца"
+                      variant="outlined"
+                      density="compact"
+                      :error-messages="form.errors.dad_phone"
+                      v-mask="'+992#########'"
+                      placeholder="+992XXXXXXXXX"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      v-model="form.mom_phone"
+                      label="Телефон матери"
+                      variant="outlined"
+                      density="compact"
+                      :error-messages="form.errors.mom_phone"
+                      v-mask="'+992#########'"
+                      placeholder="+992XXXXXXXXX"
+                    ></v-text-field>
+                  </v-col>
                  </v-row>
 
                  <!-- Пароль -->
@@ -250,10 +256,10 @@ const form = useForm({
   last_name: '',
   middle_name: '',
   email: '',
-  phone: '',
+  phone: '+992',
   address: '',
-  dad_phone: '',
-  mom_phone: '',
+  dad_phone: '+992',
+  mom_phone: '+992',
   role_id: '',
   group_id: '',
   password: '',

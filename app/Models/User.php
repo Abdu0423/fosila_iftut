@@ -32,6 +32,7 @@ class User extends Authenticatable
         'email_verified_at',
         'last_login_at',
         'must_change_password',
+        'credentials_sent',
         'locale',
     ];
 
@@ -55,6 +56,7 @@ class User extends Authenticatable
         'password' => 'hashed',
         'last_login_at' => 'datetime',
         'must_change_password' => 'boolean',
+        'credentials_sent' => 'boolean',
     ];
 
     public function role()

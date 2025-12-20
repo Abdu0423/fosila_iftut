@@ -212,6 +212,11 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.password.change'])->
     Route::post('/settings/clear-cache', [App\Http\Controllers\Admin\SettingsController::class, 'clearCache'])->name('admin.settings.clear-cache');
     Route::post('/settings/backup-database', [App\Http\Controllers\Admin\SettingsController::class, 'backupDatabase'])->name('admin.settings.backup-database');
     
+    // Отправка SMS
+    Route::get('/sms', [App\Http\Controllers\Admin\SmsController::class, 'index'])->name('admin.sms.index');
+    Route::post('/sms/send-credentials', [App\Http\Controllers\Admin\SmsController::class, 'sendCredentials'])->name('admin.sms.send-credentials');
+    Route::post('/sms/send-custom', [App\Http\Controllers\Admin\SmsController::class, 'sendCustom'])->name('admin.sms.send-custom');
+    
     // Управление силлабусами
     Route::get('/syllabuses', [App\Http\Controllers\Admin\SyllabusController::class, 'index'])->name('admin.syllabuses.index');
     Route::get('/syllabuses/create', [App\Http\Controllers\Admin\SyllabusController::class, 'create'])->name('admin.syllabuses.create');

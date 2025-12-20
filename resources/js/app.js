@@ -7,6 +7,7 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { Ziggy } from './ziggy.js';
 import ZiggyVue from './ziggy-vue.js';
 import { createI18n } from 'vue-i18n';
+import { VueMaskDirective } from 'v-mask';
 
 // Vuetify
 import 'vuetify/styles';
@@ -47,6 +48,8 @@ createInertiaApp({
     resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
         const app = createApp({ render: () => h(App, props) });
+        
+        app.directive('mask', VueMaskDirective);
         
         return app
             .use(plugin)

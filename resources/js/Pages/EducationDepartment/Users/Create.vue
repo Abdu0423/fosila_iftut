@@ -89,6 +89,8 @@
                       :error-messages="form.errors.phone"
                       :hint="translations.messages?.phone_hint || 'Ихтиёрӣ, аммо бояд ягон email ё телефон бошад'"
                       persistent-hint
+                      v-mask="'+992#########'"
+                      placeholder="+992XXXXXXXXX"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -147,6 +149,8 @@
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.dad_phone"
+                      v-mask="'+992#########'"
+                      placeholder="+992XXXXXXXXX"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="6">
@@ -156,6 +160,8 @@
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.mom_phone"
+                      v-mask="'+992#########'"
+                      placeholder="+992XXXXXXXXX"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -252,10 +258,10 @@ const form = useForm({
   last_name: '',
   middle_name: '',
   email: '',
-  phone: '',
+  phone: '+992',
   address: '',
-  dad_phone: '',
-  mom_phone: '',
+  dad_phone: '+992',
+  mom_phone: '+992',
   role_id: '',
   group_id: '',
   password: '',

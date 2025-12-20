@@ -337,6 +337,7 @@ const menuItems = computed(() => {
         { title: t('navigation.library'), icon: 'mdi-library', route: '/admin/library' },
         { title: t('navigation.reports'), icon: 'mdi-chart-bar', route: '/admin/reports' },
         { title: t('navigation.chat'), icon: 'mdi-chat', route: '/admin/chat' },
+        { title: t('navigation.sms'), icon: 'mdi-message-text', route: '/admin/sms' },
         { title: t('navigation.settings'), icon: 'mdi-cog', route: '/admin/settings' }
       ]
     

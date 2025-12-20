@@ -97,6 +97,8 @@
                       :error-messages="form.errors.phone"
                       hint="Необязательно, но необходимо указать хотя бы email или телефон"
                       persistent-hint
+                      v-mask="'+992#########'"
+                      placeholder="+992XXXXXXXXX"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -154,6 +156,8 @@
                       variant="outlined"
                       density="compact"
                       :error-messages="form.errors.dad_phone"
+                      v-mask="'+992#########'"
+                      placeholder="+992XXXXXXXXX"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="6">
@@ -163,6 +167,8 @@
                       variant="outlined"
                       density="compact"
                       :error-messages="form.errors.mom_phone"
+                      v-mask="'+992#########'"
+                      placeholder="+992XXXXXXXXX"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -255,6 +261,9 @@ const props = defineProps({
   }
 })
 
+// Сохраняем ID пользователя
+const userId = ref(null)
+
 // Форма
 const form = useForm({
   name: '',
@@ -280,14 +289,15 @@ const isStudent = computed(() => {
 
 // Заполняем форму данными пользователя
 onMounted(() => {
+  userId.value = props.user.id
   form.name = props.user.name
   form.last_name = props.user.last_name
   form.middle_name = props.user.middle_name
   form.email = props.user.email
-  form.phone = props.user.phone
+  form.phone = props.user.phone || '+992'
   form.address = props.user.address
-  form.dad_phone = props.user.dad_phone
-  form.mom_phone = props.user.mom_phone
+  form.dad_phone = props.user.dad_phone || '+992'
+  form.mom_phone = props.user.mom_phone || '+992'
   form.role_id = props.user.role_id
   form.group_id = props.user.group_id
 })
@@ -305,9 +315,22 @@ const submitForm = () => {
     return
   }
   
-  form.put(`/admin/users/${props.user.id}`, {
+  // Проверяем наличие ID пользователя
+  const id = userId.value || props.user?.id
+  if (!id) {
+    console.error('ID пользователя не найден')
+    return
+  }
+  
+  // Используем form.transform().post() с _method: 'PUT' для правильной отправки
+  form.transform((data) => ({
+    ...data,
+    _method: 'PUT'
+  })).post(`/admin/users/${id}`, {
+    preserveState: false,
+    preserveScroll: false,
     onSuccess: () => {
-      // Форма автоматически перенаправит на список пользователей
+      router.visit('/admin/users')
     },
     onError: (errors) => {
       console.error('Ошибки валидации:', errors)

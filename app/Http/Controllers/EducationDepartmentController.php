@@ -171,6 +171,11 @@ class EducationDepartmentController extends Controller
                 $validated['password'] = \Str::random(12);
             }
 
+            // Нормализуем телефоны
+            $normalizedPhone = $this->normalizePhone($validated['phone'] ?? null);
+            $normalizedDadPhone = $this->normalizePhone($validated['dad_phone'] ?? null);
+            $normalizedMomPhone = $this->normalizePhone($validated['mom_phone'] ?? null);
+
             User::create([
                 'name' => $validated['name'],
                 'last_name' => $validated['last_name'],
@@ -180,9 +185,9 @@ class EducationDepartmentController extends Controller
                 'role_id' => $validated['role_id'],
                 'group_id' => $validated['group_id'] ?? null,
                 'address' => $validated['address'] ?? null,
-                'phone' => $validated['phone'] ?? null,
-                'dad_phone' => $validated['dad_phone'] ?? null,
-                'mom_phone' => $validated['mom_phone'] ?? null,
+                'phone' => $normalizedPhone,
+                'dad_phone' => $normalizedDadPhone,
+                'mom_phone' => $normalizedMomPhone,
                 'email_verified_at' => now(),
                 'must_change_password' => true
             ]);
@@ -319,15 +324,20 @@ class EducationDepartmentController extends Controller
                 ])->withInput();
             }
 
+            // Нормализуем телефоны
+            $normalizedPhone = $this->normalizePhone($validated['phone'] ?? null);
+            $normalizedDadPhone = $this->normalizePhone($validated['dad_phone'] ?? null);
+            $normalizedMomPhone = $this->normalizePhone($validated['mom_phone'] ?? null);
+
             $user->update([
                 'name' => $validated['name'],
                 'last_name' => $validated['last_name'],
                 'middle_name' => $validated['middle_name'] ?? null,
                 'email' => !empty($validated['email']) ? $validated['email'] : null,
-                'phone' => $validated['phone'] ?? null,
+                'phone' => $normalizedPhone,
                 'address' => $validated['address'] ?? null,
-                'dad_phone' => $validated['dad_phone'] ?? null,
-                'mom_phone' => $validated['mom_phone'] ?? null,
+                'dad_phone' => $normalizedDadPhone,
+                'mom_phone' => $normalizedMomPhone,
                 'role_id' => $validated['role_id'],
                 'group_id' => $validated['group_id'] ?? null
             ]);
@@ -338,8 +348,8 @@ class EducationDepartmentController extends Controller
                 ]);
             }
 
-            return redirect()->route('education.users.index')
-                ->with('success', __('controllers.user_updated'));
+            // Возвращаем back() чтобы onSuccess на фронтенде обработал редирект
+            return back()->with('success', __('controllers.user_updated'));
         } catch (\Illuminate\Validation\ValidationException $e) {
             if (isset($e->errors()['email']) && str_contains($e->errors()['email'][0], 'already been taken')) {
                 return back()->withErrors([
@@ -371,6 +381,75 @@ class EducationDepartmentController extends Controller
         ];
 
         return $displayNames[$roleName] ?? $roleName;
+    }
+
+    /**
+     * Нормализовать номер телефона
+     * Добавляет +992 в начало, если его нет
+     */
+    private function normalizePhone($phone)
+    {
+        if (empty($phone) || $phone === '+992' || $phone === '992') {
+            return null;
+        }
+
+        // Удаляем все символы кроме цифр и +
+        $phone = preg_replace('/[^0-9+]/', '', $phone);
+
+        // Если пусто после очистки или только +992, возвращаем null
+        if (empty($phone) || $phone === '+992' || $phone === '992') {
+            return null;
+        }
+
+        // Если номер уже начинается с +992, возвращаем как есть
+        if (str_starts_with($phone, '+992')) {
+            // Проверяем, что после +992 идет 9 цифр
+            $digits = substr($phone, 4);
+            if (preg_match('/^\d{9}$/', $digits)) {
+                return $phone;
+            }
+            // Если после +992 нет 9 цифр, возвращаем null
+            return null;
+        }
+
+        // Если номер начинается с 992 (без +), добавляем +
+        if (str_starts_with($phone, '992')) {
+            $digits = substr($phone, 3);
+            if (preg_match('/^\d{9}$/', $digits)) {
+                return '+' . $phone;
+            }
+            // Если после 992 нет 9 цифр, возвращаем null
+            return null;
+        }
+
+        // Если номер начинается с 0, заменяем на +992
+        if (str_starts_with($phone, '0')) {
+            $digits = substr($phone, 1);
+            if (preg_match('/^\d{9}$/', $digits)) {
+                return '+992' . $digits;
+            }
+            return null;
+        }
+
+        // Если номер начинается с 9 и имеет 9 цифр, добавляем +992
+        if (str_starts_with($phone, '9') && preg_match('/^\d{9}$/', $phone)) {
+            return '+992' . $phone;
+        }
+
+        // Если номер состоит только из цифр (9 цифр), добавляем +992
+        if (preg_match('/^\d{9}$/', $phone)) {
+            return '+992' . $phone;
+        }
+
+        // Если номер не соответствует формату, но содержит цифры, пытаемся извлечь 9 последних цифр
+        $digits = preg_replace('/\D/', '', $phone);
+        if (strlen($digits) >= 9) {
+            $last9 = substr($digits, -9);
+            return '+992' . $last9;
+        }
+
+        // Если ничего не подошло, возвращаем null (не валидный номер)
+        return null;
     }
     
     /**

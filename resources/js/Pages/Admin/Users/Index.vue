@@ -198,38 +198,32 @@
 
           <!-- Действия -->
           <template v-slot:item.actions="{ item }">
-            <v-menu>
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  icon="mdi-dots-vertical"
-                  size="small"
-                  variant="text"
-                  v-bind="props"
-                ></v-btn>
-              </template>
-              <v-list>
-                <v-list-item
-                  @click="viewUser(item)"
-                  prepend-icon="mdi-eye"
-                >
-                  <v-list-item-title>Просмотр</v-list-item-title>
-                </v-list-item>
-                <v-list-item
-                  @click="editUser(item)"
-                  prepend-icon="mdi-pencil"
-                >
-                  <v-list-item-title>Редактировать</v-list-item-title>
-                </v-list-item>
-                <v-divider></v-divider>
-                <v-list-item
-                  @click="deleteUser(item)"
-                  prepend-icon="mdi-delete"
-                  color="error"
-                >
-                  <v-list-item-title>Удалить</v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
+            <div class="d-flex gap-2">
+              <v-btn
+                icon="mdi-eye"
+                variant="text"
+                size="small"
+                color="info"
+                @click="viewUser(item)"
+                title="Просмотр"
+              ></v-btn>
+              <v-btn
+                icon="mdi-pencil"
+                variant="text"
+                size="small"
+                color="primary"
+                @click="editUser(item)"
+                title="Редактировать"
+              ></v-btn>
+              <v-btn
+                icon="mdi-delete"
+                variant="text"
+                size="small"
+                color="error"
+                @click="deleteUser(item)"
+                title="Удалить"
+              ></v-btn>
+            </div>
           </template>
         </v-data-table>
       </v-card>
