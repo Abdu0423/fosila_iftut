@@ -1022,7 +1022,8 @@ class EducationDepartmentController extends Controller
             $query->where('is_active', $request->status);
         }
         
-        $specialties = $query->withCount('groups')
+        $specialties = $query->with('department:id,name')
+            ->withCount('groups')
             ->orderBy('name')
             ->paginate(15);
         
@@ -1042,7 +1043,13 @@ class EducationDepartmentController extends Controller
             abort(403, 'Доступ запрещен');
         }
         
-        return Inertia::render('EducationDepartment/Specialties/Create');
+        $departments = Department::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+        
+        return Inertia::render('EducationDepartment/Specialties/Create', [
+            'departments' => $departments
+        ]);
     }
     
     /**
@@ -1062,7 +1069,8 @@ class EducationDepartmentController extends Controller
             'code' => 'nullable|string|max:50|unique:specialties,code',
             'description' => 'nullable|string',
             'duration_years' => 'nullable|integer|min:1|max:10',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
+            'department_id' => 'nullable|exists:departments,id'
         ]);
         
         Specialty::create($validated);
@@ -1082,6 +1090,10 @@ class EducationDepartmentController extends Controller
             abort(403, 'Доступ запрещен');
         }
         
+        $departments = Department::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+        
         return Inertia::render('EducationDepartment/Specialties/Edit', [
             'specialty' => [
                 'id' => $specialty->id,
@@ -1091,7 +1103,9 @@ class EducationDepartmentController extends Controller
                 'description' => $specialty->description,
                 'duration_years' => $specialty->duration_years,
                 'is_active' => $specialty->is_active,
-            ]
+                'department_id' => $specialty->department_id,
+            ],
+            'departments' => $departments
         ]);
     }
     

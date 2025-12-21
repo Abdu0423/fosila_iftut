@@ -15,12 +15,18 @@ class Specialty extends Model
         'code',
         'description',
         'duration_years',
-        'is_active'
+        'is_active',
+        'department_id'
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
 
     public function groups()
     {

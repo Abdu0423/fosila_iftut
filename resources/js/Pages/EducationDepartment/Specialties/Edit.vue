@@ -59,6 +59,19 @@
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="6">
+                    <v-select
+                      v-model="form.department_id"
+                      :label="translations.messages?.category || 'Кафедра'"
+                      :items="departments || []"
+                      item-title="name"
+                      item-value="id"
+                      variant="outlined"
+                      density="comfortable"
+                      clearable
+                      :error-messages="form.errors.department_id"
+                    ></v-select>
+                  </v-col>
+                  <v-col cols="12" md="6">
                     <v-text-field
                       v-model="form.duration_years"
                       :label="translations.education_department?.duration_years || 'Длительность (лет)'"
@@ -137,6 +150,10 @@ const props = defineProps({
   specialty: {
     type: Object,
     required: true
+  },
+  departments: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -148,7 +165,8 @@ const form = useForm({
   code: '',
   description: '',
   duration_years: null,
-  is_active: true
+  is_active: true,
+  department_id: null
 })
 
 onMounted(() => {
@@ -159,6 +177,7 @@ onMounted(() => {
   form.description = props.specialty.description || ''
   form.duration_years = props.specialty.duration_years || null
   form.is_active = props.specialty.is_active !== undefined ? props.specialty.is_active : true
+  form.department_id = props.specialty.department_id || null
 })
 
 const navigateTo = (path) => {

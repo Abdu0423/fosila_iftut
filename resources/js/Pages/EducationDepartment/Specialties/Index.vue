@@ -75,6 +75,10 @@
             <span class="font-weight-medium">{{ item.short_name || '-' }}</span>
           </template>
 
+          <template v-slot:item.department="{ item }">
+            <span class="font-weight-medium">{{ item.department?.name || '-' }}</span>
+          </template>
+
           <template v-slot:item.duration_years="{ item }">
             <v-chip
               color="info"
@@ -164,6 +168,7 @@ const statusFilter = ref(props.filters.status !== undefined ? props.filters.stat
 const headers = computed(() => [
   { title: translations.value.education_department?.specialty_name || 'Название', key: 'name', sortable: false },
   { title: translations.value.education_department?.short_name || 'Короткое имя', key: 'short_name', sortable: false },
+  { title: translations.value.messages?.category || 'Кафедра', key: 'department', sortable: false },
   { title: translations.value.education_department?.duration || 'Длительность', key: 'duration_years', sortable: false },
   { title: translations.value.education_department?.groups_count || 'Количество групп', key: 'groups_count', sortable: false },
   { title: translations.value.messages?.status || 'Статус', key: 'is_active', sortable: false },

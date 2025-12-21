@@ -59,6 +59,19 @@
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="6">
+                    <v-select
+                      v-model="form.department_id"
+                      :label="translations.messages?.category || 'Кафедра'"
+                      :items="departments || []"
+                      item-title="name"
+                      item-value="id"
+                      variant="outlined"
+                      density="comfortable"
+                      clearable
+                      :error-messages="form.errors.department_id"
+                    ></v-select>
+                  </v-col>
+                  <v-col cols="12" md="6">
                     <v-text-field
                       v-model="form.duration_years"
                       :label="translations.education_department?.duration_years || 'Длительность (лет)'"
@@ -133,13 +146,21 @@ import Layout from '../../Layout.vue'
 const page = usePage()
 const translations = computed(() => page.props.translations || {})
 
+const props = defineProps({
+  departments: {
+    type: Array,
+    default: () => []
+  }
+})
+
 const form = useForm({
   name: '',
   short_name: '',
   code: '',
   description: '',
   duration_years: null,
-  is_active: true
+  is_active: true,
+  department_id: null
 })
 
 const navigateTo = (path) => {
