@@ -5,10 +5,10 @@
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.subjects_title }}
+            {{ translations.education_department?.subjects_title || 'Предметы' }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.subjects_subtitle }}
+            {{ translations.education_department?.subjects_subtitle || 'Список всех предметов' }}
           </p>
         </div>
         <v-btn
@@ -16,7 +16,7 @@
           prepend-icon="mdi-plus"
           @click="router.visit('/education/subjects/create')"
         >
-          {{ translations.messages?.add }}
+          {{ translations.messages?.add || 'Добавить' }}
         </v-btn>
       </div>
 
@@ -25,7 +25,7 @@
         <v-card-text>
           <v-text-field
             v-model="searchQuery"
-            :label="translations.messages?.search"
+            :label="translations.messages?.search || 'Поиск'"
             prepend-inner-icon="mdi-magnify"
             clearable
             variant="outlined"
@@ -41,7 +41,7 @@
           <div class="text-center py-8">
             <v-icon size="64" color="grey-lighten-1">mdi-book-open-page-variant-outline</v-icon>
             <p class="text-h6 text-medium-emphasis mt-4">
-              {{ translations.education_department?.no_subjects }}
+              {{ translations.education_department?.no_subjects || 'Предметы не найдены' }}
             </p>
           </div>
         </v-card-text>
@@ -135,12 +135,12 @@ const props = defineProps({
 const searchQuery = ref(props.filters.search)
 
 const headers = computed(() => [
-  { title: translations.value.education_department?.subject_name, key: 'name', sortable: false },
-  { title: translations.value.education_department?.subject_code, key: 'code', sortable: false },
-  { title: translations.value.education_department?.subject_description, key: 'description', sortable: false },
-  { title: translations.value.education_department?.subject_credits, key: 'credits', sortable: false },
-  { title: translations.value.messages?.status, key: 'is_active', sortable: false },
-  { title: translations.value.messages?.actions, key: 'actions', sortable: false }
+  { title: translations.value.education_department?.subject_name || 'Название', key: 'name', sortable: false },
+  { title: translations.value.education_department?.subject_code || 'Код', key: 'code', sortable: false },
+  { title: translations.value.education_department?.subject_description || 'Описание', key: 'description', sortable: false },
+  { title: translations.value.education_department?.subject_credits || 'Кредиты', key: 'credits', sortable: false },
+  { title: translations.value.messages?.status || 'Статус', key: 'is_active', sortable: false },
+  { title: translations.value.messages?.actions || 'Действия', key: 'actions', sortable: false }
 ])
 
 const handleSearch = () => {

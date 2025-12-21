@@ -80,7 +80,8 @@
     "inactive": "Ғайрифаъол",
     "status": "Вазъият",
     "actions": "Амалҳо",
-    "order": "Тартиб"
+    "order": "Тартиб",
+    "category": "Кафедра"
   },
   "roles": {
     "admin": "Маъмур",
@@ -125,6 +126,12 @@
     "schedule_date": "Сана",
     "subject_credits": "Кредитҳо",
     "subjects_title": "Фанҳо",
+    "subjects_subtitle": "Рӯйхати ҳамаи фанҳо",
+    "no_subjects": "Фанҳо ёфт нашуданд",
+    "subject_name": "Номи фан",
+    "subject_code": "Коди фан",
+    "subject_description": "Тавсифи фан",
+    "subject_active": "Фаъол",
     "schedules_title": "Ҷадвал",
     "departments_menu": "Кафедраҳо",
     "specialties_menu": "Ихтисосҳо",

@@ -80,7 +80,8 @@
     "inactive": "Неактивен",
     "status": "Статус",
     "actions": "Действия",
-    "order": "Порядок"
+    "order": "Порядок",
+    "category": "Кафедра"
   },
   "roles": {
     "admin": "Администратор",
@@ -125,6 +126,14 @@
     "schedule_date": "Дата",
     "subject_credits": "Кредиты",
     "subjects_title": "Предметы",
+    "subjects_subtitle": "Список всех предметов",
+    "no_subjects": "Предметы не найдены",
+    "create_subject": "Создание предмета",
+    "edit_subject": "Редактирование предмета",
+    "subject_name": "Название предмета",
+    "subject_code": "Код предмета",
+    "subject_description": "Описание предмета",
+    "subject_active": "Активен",
     "schedules_title": "Расписание",
     "departments_menu": "Кафедры",
     "specialties_menu": "Специальности",
