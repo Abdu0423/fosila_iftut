@@ -873,5 +873,251 @@ class EducationDepartmentController extends Controller
         return redirect()->route('education.schedules.index')
             ->with('success', __('messages.updated_successfully', ['resource' => __('education_department.schedules_title')]));
     }
+    
+    /**
+     * Страница кафедр
+     */
+    public function departments(Request $request)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $query = Department::query();
+        
+        // Поиск
+        if ($request->has('search') && $request->search) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('code', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%');
+            });
+        }
+        
+        // Фильтр по статусу
+        if ($request->has('status') && $request->status !== null) {
+            $query->where('is_active', $request->status);
+        }
+        
+        $departments = $query->withCount('groups')
+            ->orderBy('name')
+            ->paginate(15);
+        
+        return Inertia::render('EducationDepartment/Departments/Index', [
+            'departments' => $departments,
+        ]);
+    }
+    
+    /**
+     * Показать форму создания кафедры
+     */
+    public function createDepartment()
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        return Inertia::render('EducationDepartment/Departments/Create');
+    }
+    
+    /**
+     * Сохранить новую кафедру
+     */
+    public function storeDepartment(Request $request)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:50|unique:departments,code',
+            'description' => 'nullable|string',
+            'is_active' => 'boolean',
+            'faculty_id' => 'nullable|exists:faculties,id'
+        ]);
+        
+        Department::create($validated);
+        
+        return redirect()->route('education.departments.index')
+            ->with('success', __('messages.created_successfully', ['resource' => __('education_department.departments_title')]));
+    }
+    
+    /**
+     * Показать форму редактирования кафедры
+     */
+    public function editDepartment(Department $department)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        return Inertia::render('EducationDepartment/Departments/Edit', [
+            'department' => [
+                'id' => $department->id,
+                'name' => $department->name,
+                'code' => $department->code,
+                'description' => $department->description,
+                'is_active' => $department->is_active,
+                'faculty_id' => $department->faculty_id,
+            ]
+        ]);
+    }
+    
+    /**
+     * Обновить кафедру
+     */
+    public function updateDepartment(Request $request, Department $department)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:50|unique:departments,code,' . $department->id,
+            'description' => 'nullable|string',
+            'is_active' => 'boolean',
+            'faculty_id' => 'nullable|exists:faculties,id'
+        ]);
+        
+        $department->update($validated);
+        
+        return redirect()->route('education.departments.index')
+            ->with('success', __('messages.updated_successfully', ['resource' => __('education_department.departments_title')]));
+    }
+    
+    /**
+     * Страница специальностей
+     */
+    public function specialties(Request $request)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $query = Specialty::query();
+        
+        // Поиск
+        if ($request->has('search') && $request->search) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('code', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%');
+            });
+        }
+        
+        // Фильтр по статусу
+        if ($request->has('status') && $request->status !== null) {
+            $query->where('is_active', $request->status);
+        }
+        
+        $specialties = $query->withCount('groups')
+            ->orderBy('name')
+            ->paginate(15);
+        
+        return Inertia::render('EducationDepartment/Specialties/Index', [
+            'specialties' => $specialties,
+        ]);
+    }
+    
+    /**
+     * Показать форму создания специальности
+     */
+    public function createSpecialty()
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        return Inertia::render('EducationDepartment/Specialties/Create');
+    }
+    
+    /**
+     * Сохранить новую специальность
+     */
+    public function storeSpecialty(Request $request)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:50|unique:specialties,code',
+            'description' => 'nullable|string',
+            'duration_years' => 'nullable|integer|min:1|max:10',
+            'is_active' => 'boolean'
+        ]);
+        
+        Specialty::create($validated);
+        
+        return redirect()->route('education.specialties.index')
+            ->with('success', __('messages.created_successfully', ['resource' => __('education_department.specialties_title')]));
+    }
+    
+    /**
+     * Показать форму редактирования специальности
+     */
+    public function editSpecialty(Specialty $specialty)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        return Inertia::render('EducationDepartment/Specialties/Edit', [
+            'specialty' => [
+                'id' => $specialty->id,
+                'name' => $specialty->name,
+                'code' => $specialty->code,
+                'description' => $specialty->description,
+                'duration_years' => $specialty->duration_years,
+                'is_active' => $specialty->is_active,
+            ]
+        ]);
+    }
+    
+    /**
+     * Обновить специальность
+     */
+    public function updateSpecialty(Request $request, Specialty $specialty)
+    {
+        $user = auth()->user();
+        
+        if (!$user->isEducationDepartment()) {
+            abort(403, 'Доступ запрещен');
+        }
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:50|unique:specialties,code,' . $specialty->id,
+            'description' => 'nullable|string',
+            'duration_years' => 'nullable|integer|min:1|max:10',
+            'is_active' => 'boolean'
+        ]);
+        
+        $specialty->update($validated);
+        
+        return redirect()->route('education.specialties.index')
+            ->with('success', __('messages.updated_successfully', ['resource' => __('education_department.specialties_title')]));
+    }
 }
 

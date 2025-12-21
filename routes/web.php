@@ -521,6 +521,20 @@ Route::prefix('education')->middleware(['auth', 'education.department', 'check.p
     Route::post('/subjects', [App\Http\Controllers\EducationDepartmentController::class, 'storeSubject'])->name('education.subjects.store');
     Route::get('/subjects/{subject}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editSubject'])->name('education.subjects.edit');
     Route::put('/subjects/{subject}', [App\Http\Controllers\EducationDepartmentController::class, 'updateSubject'])->name('education.subjects.update');
+    
+    // Кафедры
+    Route::get('/departments', [App\Http\Controllers\EducationDepartmentController::class, 'departments'])->name('education.departments.index');
+    Route::get('/departments/create', [App\Http\Controllers\EducationDepartmentController::class, 'createDepartment'])->name('education.departments.create');
+    Route::post('/departments', [App\Http\Controllers\EducationDepartmentController::class, 'storeDepartment'])->name('education.departments.store');
+    Route::get('/departments/{department}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editDepartment'])->name('education.departments.edit');
+    Route::put('/departments/{department}', [App\Http\Controllers\EducationDepartmentController::class, 'updateDepartment'])->name('education.departments.update');
+    
+    // Специальности
+    Route::get('/specialties', [App\Http\Controllers\EducationDepartmentController::class, 'specialties'])->name('education.specialties.index');
+    Route::get('/specialties/create', [App\Http\Controllers\EducationDepartmentController::class, 'createSpecialty'])->name('education.specialties.create');
+    Route::post('/specialties', [App\Http\Controllers\EducationDepartmentController::class, 'storeSpecialty'])->name('education.specialties.store');
+    Route::get('/specialties/{specialty}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editSpecialty'])->name('education.specialties.edit');
+    Route::put('/specialties/{specialty}', [App\Http\Controllers\EducationDepartmentController::class, 'updateSpecialty'])->name('education.specialties.update');
 });
 
 // Тестовые маршруты для SMS (удалить в production или защитить middleware)
