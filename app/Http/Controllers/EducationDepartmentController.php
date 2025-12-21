@@ -939,8 +939,7 @@ class EducationDepartmentController extends Controller
             'name' => 'required|string|max:255',
             'code' => 'nullable|string|max:50|unique:departments,code',
             'description' => 'nullable|string',
-            'is_active' => 'boolean',
-            'faculty_id' => 'nullable|exists:faculties,id'
+            'is_active' => 'boolean'
         ]);
         
         Department::create($validated);
@@ -967,7 +966,6 @@ class EducationDepartmentController extends Controller
                 'code' => $department->code,
                 'description' => $department->description,
                 'is_active' => $department->is_active,
-                'faculty_id' => $department->faculty_id,
             ]
         ]);
     }
@@ -987,8 +985,7 @@ class EducationDepartmentController extends Controller
             'name' => 'required|string|max:255',
             'code' => 'nullable|string|max:50|unique:departments,code,' . $department->id,
             'description' => 'nullable|string',
-            'is_active' => 'boolean',
-            'faculty_id' => 'nullable|exists:faculties,id'
+            'is_active' => 'boolean'
         ]);
         
         $department->update($validated);

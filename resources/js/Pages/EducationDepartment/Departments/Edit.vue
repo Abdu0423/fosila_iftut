@@ -125,8 +125,7 @@ const form = useForm({
   name: '',
   code: '',
   description: '',
-  is_active: true,
-  faculty_id: null
+  is_active: true
 })
 
 onMounted(() => {
@@ -135,7 +134,6 @@ onMounted(() => {
   form.code = props.department.code || ''
   form.description = props.department.description || ''
   form.is_active = props.department.is_active !== undefined ? props.department.is_active : true
-  form.faculty_id = props.department.faculty_id || null
 })
 
 const navigateTo = (path) => {

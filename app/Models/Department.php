@@ -13,8 +13,7 @@ class Department extends Model
         'name',
         'code',
         'description',
-        'is_active',
-        'faculty_id'
+        'is_active'
     ];
 
     protected $casts = [

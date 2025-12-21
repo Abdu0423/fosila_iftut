@@ -116,8 +116,7 @@ const form = useForm({
   name: '',
   code: '',
   description: '',
-  is_active: true,
-  faculty_id: null
+  is_active: true
 })
 
 const navigateTo = (path) => {
