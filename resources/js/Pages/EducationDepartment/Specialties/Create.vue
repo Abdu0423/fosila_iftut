@@ -42,6 +42,15 @@
                   </v-col>
                   <v-col cols="12" md="6">
                     <v-text-field
+                      v-model="form.short_name"
+                      :label="translations.education_department?.short_name || 'Короткое имя'"
+                      variant="outlined"
+                      density="comfortable"
+                      :error-messages="form.errors.short_name"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="6">
+                    <v-text-field
                       v-model="form.code"
                       :label="translations.education_department?.specialty_code || 'Код'"
                       variant="outlined"
@@ -126,6 +135,7 @@ const translations = computed(() => page.props.translations || {})
 
 const form = useForm({
   name: '',
+  short_name: '',
   code: '',
   description: '',
   duration_years: null,

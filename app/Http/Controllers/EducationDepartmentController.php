@@ -1014,6 +1014,7 @@ class EducationDepartmentController extends Controller
         if ($request->has('search') && $request->search) {
             $query->where(function($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('short_name', 'like', '%' . $request->search . '%')
                   ->orWhere('code', 'like', '%' . $request->search . '%')
                   ->orWhere('description', 'like', '%' . $request->search . '%');
             });
@@ -1060,6 +1061,7 @@ class EducationDepartmentController extends Controller
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'short_name' => 'nullable|string|max:100',
             'code' => 'nullable|string|max:50|unique:specialties,code',
             'description' => 'nullable|string',
             'duration_years' => 'nullable|integer|min:1|max:10',
@@ -1087,6 +1089,7 @@ class EducationDepartmentController extends Controller
             'specialty' => [
                 'id' => $specialty->id,
                 'name' => $specialty->name,
+                'short_name' => $specialty->short_name,
                 'code' => $specialty->code,
                 'description' => $specialty->description,
                 'duration_years' => $specialty->duration_years,
@@ -1108,6 +1111,7 @@ class EducationDepartmentController extends Controller
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
+            'short_name' => 'nullable|string|max:100',
             'code' => 'nullable|string|max:50|unique:specialties,code,' . $specialty->id,
             'description' => 'nullable|string',
             'duration_years' => 'nullable|integer|min:1|max:10',

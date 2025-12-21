@@ -144,6 +144,7 @@
     "specialties_title": "Специальности",
     "specialties_subtitle": "Управление специальностями",
     "specialty_name": "Название",
+    "short_name": "Короткое имя",
     "specialty_code": "Код",
     "duration": "Длительность",
     "duration_years": "Длительность (лет)",

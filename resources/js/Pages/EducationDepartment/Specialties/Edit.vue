@@ -42,6 +42,15 @@
                   </v-col>
                   <v-col cols="12" md="6">
                     <v-text-field
+                      v-model="form.short_name"
+                      :label="translations.education_department?.short_name || 'Короткое имя'"
+                      variant="outlined"
+                      density="comfortable"
+                      :error-messages="form.errors.short_name"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" md="6">
+                    <v-text-field
                       v-model="form.code"
                       :label="translations.education_department?.specialty_code || 'Код'"
                       variant="outlined"
@@ -135,6 +144,7 @@ const specialtyId = ref(null)
 
 const form = useForm({
   name: '',
+  short_name: '',
   code: '',
   description: '',
   duration_years: null,
@@ -144,6 +154,7 @@ const form = useForm({
 onMounted(() => {
   specialtyId.value = props.specialty.id
   form.name = props.specialty.name || ''
+  form.short_name = props.specialty.short_name || ''
   form.code = props.specialty.code || ''
   form.description = props.specialty.description || ''
   form.duration_years = props.specialty.duration_years || null
