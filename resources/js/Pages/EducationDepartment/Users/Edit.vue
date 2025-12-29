@@ -5,10 +5,10 @@
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.edit_user || 'Таҳрири корбар' }}
+            {{ translations.education_department?.edit_student || 'Таҳрири донишҷӯ' }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.edit_user_subtitle || 'Тағйири маълумоти корбар' }}
+            {{ translations.education_department?.edit_student_subtitle || 'Тағйири маълумоти донишҷӯ' }}
           </p>
         </div>
         <v-btn
@@ -27,7 +27,7 @@
           <v-card>
             <v-card-title class="text-h6">
               <v-icon start>mdi-account-edit</v-icon>
-              {{ translations.education_department?.user_info || 'Маълумоти корбар' }}
+              {{ translations.education_department?.student_info || 'Маълумоти донишҷӯ' }}
             </v-card-title>
             <v-card-text>
               <v-form @submit.prevent="submitForm">

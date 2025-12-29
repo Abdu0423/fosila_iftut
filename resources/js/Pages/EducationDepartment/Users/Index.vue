@@ -5,10 +5,10 @@
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.users_title || 'Корбарон' }}
+            {{ translations.education_department?.students_title || 'Донишҷӯён' }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.users_subtitle || 'Тамошои ҳамаи корбарони система' }}
+            {{ translations.education_department?.students_subtitle || 'Тамошои ҳамаи донишҷӯён' }}
           </p>
         </div>
         <v-btn
@@ -37,14 +37,16 @@
             </v-col>
             <v-col cols="12" md="6">
               <v-select
-                v-model="roleFilter"
-                :items="roleOptions"
-                :label="translations.education_department?.filter_by_role || 'Филтр аз рӯи нақш'"
+                v-model="groupFilter"
+                :items="groupOptions"
+                :label="translations.education_department?.filter_by_group || 'Филтр аз рӯи гурӯҳ'"
                 prepend-inner-icon="mdi-filter"
                 clearable
                 variant="outlined"
                 density="comfortable"
-                @update:model-value="handleRoleFilter"
+                item-title="display_name"
+                item-value="id"
+                @update:model-value="handleGroupFilter"
               ></v-select>
             </v-col>
           </v-row>
@@ -128,6 +130,10 @@ const props = defineProps({
     type: Object,
     required: true
   },
+  groups: {
+    type: Array,
+    default: () => []
+  },
   filters: {
     type: Object,
     default: () => ({})
@@ -135,7 +141,7 @@ const props = defineProps({
 })
 
 const searchQuery = ref(props.filters.search || '')
-const roleFilter = ref(props.filters.role || null)
+const groupFilter = ref(props.filters.group || null)
 
 const headers = computed(() => [
   { title: translations.value.education_department?.user_name || 'Ном', key: 'name', sortable: false },
@@ -145,11 +151,8 @@ const headers = computed(() => [
   { title: translations.value.messages?.actions || 'Амалҳо', key: 'actions', sortable: false }
 ])
 
-// Только преподаватели и студенты для роли образования
-const roleOptions = [
-  { title: translations.value.navigation?.teacher || 'Муаллим', value: 'teacher' },
-  { title: translations.value.navigation?.student || 'Донишҷӯ', value: 'student' }
-]
+// Опции групп для фильтра
+const groupOptions = computed(() => props.groups || [])
 
 const getInitials = (user) => {
   const first = user.name?.charAt(0) || ''
@@ -180,17 +183,17 @@ const getRoleLabel = (role) => {
 const handleSearch = () => {
   router.get(route('education.users.index'), {
     search: searchQuery.value,
-    role: roleFilter.value
+    group: groupFilter.value
   }, {
     preserveState: true,
     preserveScroll: true
   })
 }
 
-const handleRoleFilter = () => {
+const handleGroupFilter = () => {
   router.get(route('education.users.index'), {
     search: searchQuery.value,
-    role: roleFilter.value
+    group: groupFilter.value
   }, {
     preserveState: true,
     preserveScroll: true
@@ -201,7 +204,7 @@ const handlePageChange = (page) => {
   router.get(route('education.users.index'), {
     page: page,
     search: searchQuery.value,
-    role: roleFilter.value
+    group: groupFilter.value
   }, {
     preserveState: true,
     preserveScroll: true

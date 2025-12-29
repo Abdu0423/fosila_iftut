@@ -72,18 +72,29 @@ class EducationDepartmentController extends Controller
             });
         }
         
-        // Фильтр по роли (только teacher или student)
-        if ($request->has('role') && in_array($request->role, ['teacher', 'student'])) {
-            $query->whereHas('role', function($q) use ($request) {
-                $q->where('name', $request->role);
-            });
+        // Фильтр по группе
+        if ($request->has('group') && $request->group) {
+            $query->where('group_id', $request->group);
         }
         
         $users = $query->paginate(20);
         
+        // Получаем список групп для фильтра
+        $groups = Group::where('status', 'active')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($group) {
+                return [
+                    'id' => $group->id,
+                    'name' => $group->full_name,
+                    'display_name' => $group->full_name
+                ];
+            });
+        
         return Inertia::render('EducationDepartment/Users/Index', [
             'users' => $users,
-            'filters' => $request->only(['search', 'role']),
+            'groups' => $groups,
+            'filters' => $request->only(['search', 'group']),
         ]);
     }
     
