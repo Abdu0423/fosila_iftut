@@ -5,6 +5,7 @@
         <v-select
           v-model="selectedPrefix"
           :items="countryOptions"
+          item-title="label"
           item-value="prefix"
           variant="outlined"
           :density="density"
@@ -16,7 +17,7 @@
             <span class="text-body-2">{{ item.raw.flag }} {{ item.raw.prefix }}</span>
           </template>
           <template v-slot:item="{ props, item }">
-            <v-list-item v-bind="props">
+            <v-list-item v-bind="props" :title="null">
               <template v-slot:prepend>
                 <span class="text-h6 mr-2">{{ item.raw.flag }}</span>
               </template>
@@ -168,13 +169,9 @@ const updatePhoneNumber = (value) => {
   min-height: inherit;
 }
 
-/* Скрываем стандартное отображение, используем только кастомный слот selection */
-.phone-prefix-select :deep(.v-select__selection) {
-  display: none !important;
-}
-
-.phone-prefix-select :deep(.v-select__selection) + * {
-  display: block !important;
+/* Скрываем стандартное отображение label в выбранном элементе */
+.phone-prefix-select :deep(.v-select__selection-text) {
+  display: none;
 }
 
 .phone-number-field {
