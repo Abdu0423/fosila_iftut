@@ -5,7 +5,6 @@
         <v-select
           v-model="selectedPrefix"
           :items="countryOptions"
-          item-title="label"
           item-value="prefix"
           variant="outlined"
           :density="density"
@@ -167,6 +166,15 @@ const updatePhoneNumber = (value) => {
 
 .phone-prefix-select :deep(.v-field__input) {
   min-height: inherit;
+}
+
+/* Скрываем стандартное отображение, используем только кастомный слот selection */
+.phone-prefix-select :deep(.v-select__selection) {
+  display: none !important;
+}
+
+.phone-prefix-select :deep(.v-select__selection) + * {
+  display: block !important;
 }
 
 .phone-number-field {
