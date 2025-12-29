@@ -96,6 +96,7 @@
                   color="primary"
                   size="small"
                   class="text-none"
+                  @click="goToForgotPassword"
                 >
                   {{ t('auth.forgot_password') }}
                 </v-btn>
@@ -416,6 +417,10 @@ const submit = () => {
       console.log('Запрос завершен')
     }
   })
+}
+
+const goToForgotPassword = () => {
+  router.visit('/password/forgot')
 }
 </script>
 

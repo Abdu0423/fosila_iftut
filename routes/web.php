@@ -24,6 +24,12 @@ Route::get('/favicon.ico', function () {
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+    
+    // Восстановление пароля через SMS
+    Route::get('/password/forgot', [App\Http\Controllers\PasswordResetController::class, 'showForgotPassword'])->name('password.forgot');
+    Route::post('/password/forgot/send-code', [App\Http\Controllers\PasswordResetController::class, 'sendCode'])->name('password.send-code');
+    Route::get('/password/reset', [App\Http\Controllers\PasswordResetController::class, 'showResetForm'])->name('password.reset');
+    Route::post('/password/reset', [App\Http\Controllers\PasswordResetController::class, 'resetPassword'])->name('password.reset.post');
 });
 
 // Юридические страницы (доступны всем)
