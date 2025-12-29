@@ -8,7 +8,7 @@
           item-title="label"
           item-value="prefix"
           variant="outlined"
-          density="compact"
+          :density="density"
           hide-details
           class="phone-prefix-select"
           @update:model-value="onPrefixChange"
@@ -89,10 +89,9 @@ const emit = defineEmits(['update:modelValue'])
 
 const countryOptions = [
   { prefix: '+992', label: 'Таджикистан', flag: '🇹🇯' },
-  { prefix: '+7', label: 'Россия', flag: '🇷🇺' },
+  { prefix: '+7', label: 'Россия / Казахстан', flag: '🇷🇺' },
   { prefix: '+996', label: 'Киргизстан', flag: '🇰🇬' },
   { prefix: '+998', label: 'Узбекистан', flag: '🇺🇿' },
-  { prefix: '+7', label: 'Казахстан', flag: '🇰🇿' },
 ]
 
 const selectedPrefix = ref('+992')
@@ -151,8 +150,9 @@ const updatePhoneNumber = (value) => {
 }
 
 .phone-prefix-col {
-  max-width: 160px;
+  max-width: 180px;
   padding-right: 0 !important;
+  flex: 0 0 auto;
 }
 
 .phone-prefix-select {
@@ -162,6 +162,11 @@ const updatePhoneNumber = (value) => {
 
 .phone-prefix-select :deep(.v-field) {
   border-right: none;
+  height: 100%;
+}
+
+.phone-prefix-select :deep(.v-field__input) {
+  min-height: inherit;
 }
 
 .phone-number-field {
@@ -171,9 +176,30 @@ const updatePhoneNumber = (value) => {
 .phone-number-field :deep(.v-field) {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
+  height: 100%;
+}
+
+.phone-number-field :deep(.v-field__input) {
+  min-height: inherit;
 }
 
 .phone-number-field :deep(.v-field__prepend-inner) {
   padding-left: 12px;
+}
+
+/* Выравнивание высоты обоих полей */
+.phone-input-wrapper :deep(.v-row) {
+  align-items: stretch;
+}
+
+.phone-input-wrapper :deep(.v-col) {
+  display: flex;
+  align-items: stretch;
+}
+
+.phone-input-wrapper :deep(.v-select),
+.phone-input-wrapper :deep(.v-text-field) {
+  height: 100%;
+  flex: 1;
 }
 </style>
