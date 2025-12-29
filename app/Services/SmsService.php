@@ -104,8 +104,9 @@ class SmsService
             $phoneNumber = preg_replace('/[^0-9]/', '', $phone);
             
             // Вычисляем str_hash согласно документации OsonSMS:
-            // SHA256(txnId + login + sender_name + phonenumber + pass_salt_hash)
-            $hashString = $txnId . $this->login . $this->sender . $phoneNumber . $this->hash;
+            // SHA256(txn_id + ";" + login + ";" + from + ";" + pass_salt_hash)
+            // ВАЖНО: phonenumber НЕ включается в строку хеша!
+            $hashString = $txnId . ';' . $this->login . ';' . $this->sender . ';' . $this->hash;
             $strHash = hash('sha256', $hashString);
             
             // Логируем для отладки
@@ -116,7 +117,7 @@ class SmsService
                     'sender_name' => $this->sender,
                     'phonenumber' => $phoneNumber,
                     'pass_salt_hash' => $this->hash,
-                    'hash_string_length' => strlen($hashString),
+                    'hash_string' => $hashString,
                     'str_hash' => $strHash,
                 ]);
             }
