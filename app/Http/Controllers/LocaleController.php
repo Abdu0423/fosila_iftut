@@ -42,12 +42,11 @@ class LocaleController extends Controller
             \Log::warning('Failed to save user locale to database', ['error' => $e->getMessage()]);
         }
         
-        // Для axios запроса возвращаем JSON
-        if ($request->wantsJson() || $request->ajax()) {
-            return response()->json(['success' => true, 'locale' => $locale]);
-        }
+        // Определяем название языка для сообщения
+        $localeName = $locale === 'ru' ? 'Русский' : 'Тоҷикӣ';
         
-        // Для обычного запроса - редирект
-        return redirect()->back();
+        // Для Inertia запросов всегда возвращаем redirect с flash сообщением
+        // Inertia автоматически обработает это как успешный ответ
+        return redirect()->back()->with('success', "Язык изменен на {$localeName}");
     }
 }

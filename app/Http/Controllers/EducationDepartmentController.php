@@ -57,9 +57,9 @@ class EducationDepartmentController extends Controller
         
         $query = User::with('role', 'group');
         
-        // Ограничиваем только преподавателями и студентами
+        // Ограничиваем только студентами
         $query->whereHas('role', function($q) {
-            $q->whereIn('name', ['teacher', 'student']);
+            $q->where('name', 'student');
         });
         
         // Поиск

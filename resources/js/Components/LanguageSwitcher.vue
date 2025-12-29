@@ -77,12 +77,21 @@ const changeLanguage = (newLocale) => {
   
   router.post('/set-locale', { locale: newLocale }, {
     preserveScroll: true,
+    preserveState: false, // Нужно обновить состояние для переводов
     onSuccess: () => {
       // Перезагружаем страницу для обновления переводов
-      window.location.reload()
+      setTimeout(() => {
+        window.location.reload()
+      }, 500) // Небольшая задержка для показа уведомления
     },
     onError: () => {
       isChanging.value = false
+    },
+    onFinish: () => {
+      // Сбрасываем флаг после завершения запроса
+      setTimeout(() => {
+        isChanging.value = false
+      }, 1000)
     }
   })
 }

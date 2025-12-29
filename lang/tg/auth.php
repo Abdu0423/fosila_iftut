@@ -18,7 +18,7 @@ return [
     'email_or_phone_hint' => 'Email ё рақами телефонро ворид кунед',
     'password_label' => 'Парол',
     'remember_me' => 'Маро ба хотир гиред',
-    'forgot_password' => 'Паролро фаромӯш кардед?',
+    'forgot_password' => 'Рамзро фаромӯш кардед?',
     'login_button' => 'Ворид шудан ба система',
     'logging_in' => 'Вуруд...',
     'agree_to_terms' => 'Ман розӣ ҳастам',

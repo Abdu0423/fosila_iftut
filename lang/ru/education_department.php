@@ -22,7 +22,7 @@ return [
     'manage_subjects' => 'Управление предметами',
     
     // Меню
-    'users_menu' => 'Пользователи',
+    'users_menu' => 'Студенты',
     'groups_menu' => 'Группы',
     'schedules_menu' => 'Расписания',
     'subjects_menu' => 'Предметы',

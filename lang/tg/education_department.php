@@ -22,7 +22,7 @@ return [
     'manage_subjects' => 'Идоракунии фанҳо',
     
     // Меню
-    'users_menu' => 'Корбарон',
+    'users_menu' => 'Донишҷӯён',
     'groups_menu' => 'Гурӯҳҳо',
     'schedules_menu' => 'Ҷадвалҳо',
     'subjects_menu' => 'Фанҳо',
