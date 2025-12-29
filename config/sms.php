@@ -17,9 +17,9 @@ return [
     'drivers' => [
         'osonsms' => [
             'login' => env('SMS_LOGIN', 'iftuttj'),
-            'hash' => env('SMS_HASH', '39dc0b8ddfe0afb8ca4637fb3d895e18'),
-            'sender' => env('SMS_SENDER', 'IFTUT.TJ'),
-            'server' => env('SMS_SERVER', 'https://api.osonsms.com/sendsms_v1.php'),
+            'pass_salt_hash' => env('SMS_HASH', '39dc0b8ddfe0afb8ca4637fb3d895e18'),
+            'sender_name' => env('SMS_SENDER', 'IFTUT.TJ'),
+            'server_url' => env('SMS_SERVER', 'https://api.osonsms.com/sendsms_v1.php'),
         ],
     ],
 
