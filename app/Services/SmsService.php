@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\SmsMessage;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Exception;
@@ -29,9 +30,10 @@ class SmsService
      *
      * @param string|array $phone Номер телефона или массив номеров
      * @param string $message Текст сообщения
+     * @param int|null $userId ID пользователя (опционально)
      * @return array
      */
-    public function send($phone, string $message): array
+    public function send($phone, string $message, ?int $userId = null): array
     {
         try {
             // Нормализация номера телефона
@@ -49,7 +51,7 @@ class SmsService
 
             $responses = [];
             foreach ($normalizedPhones as $normalizedPhone) {
-                $response = $this->sendSingle($normalizedPhone, $message);
+                $response = $this->sendSingle($normalizedPhone, $message, $userId);
                 $responses[] = $response;
             }
 
@@ -80,36 +82,60 @@ class SmsService
      *
      * @param string $phone Номер телефона
      * @param string $message Текст сообщения
+     * @param int|null $userId ID пользователя (опционально)
      * @return array
      */
-    protected function sendSingle(string $phone, string $message): array
+    protected function sendSingle(string $phone, string $message, ?int $userId = null): array
     {
-        $response = Http::get($this->server, [
-            'login' => $this->login,
-            'hash' => $this->hash,
-            'sender' => $this->sender,
+        // Создаем запись в базе данных
+        $smsMessage = SmsMessage::create([
             'phone' => $phone,
-            'text' => $message,
+            'message' => $message,
+            'sender' => $this->sender,
+            'status' => 'pending',
+            'user_id' => $userId,
         ]);
 
-        if ($response->successful()) {
-            $body = $response->body();
-            
-            if ($this->loggingEnabled) {
-                Log::channel(config('sms.logging.channel'))->info('OsonSMS ответ', [
+        try {
+            $response = Http::get($this->server, [
+                'login' => $this->login,
+                'hash' => $this->hash,
+                'sender' => $this->sender,
+                'phone' => $phone,
+                'text' => $message,
+            ]);
+
+            if ($response->successful()) {
+                $body = $response->body();
+                
+                // Обновляем запись в базе данных
+                $smsMessage->markAsSent($body);
+                
+                if ($this->loggingEnabled) {
+                    Log::channel(config('sms.logging.channel'))->info('OsonSMS ответ', [
+                        'phone' => $phone,
+                        'response' => $body,
+                    ]);
+                }
+
+                return [
                     'phone' => $phone,
+                    'status' => 'sent',
                     'response' => $body,
-                ]);
+                    'sms_message_id' => $smsMessage->id,
+                ];
             }
 
-            return [
-                'phone' => $phone,
-                'status' => 'sent',
-                'response' => $body,
-            ];
+            $error = 'OsonSMS API вернул ошибку: ' . $response->body();
+            $smsMessage->markAsFailed($error);
+            throw new Exception($error);
+        } catch (Exception $e) {
+            // Обновляем запись в базе данных при ошибке
+            if ($smsMessage && $smsMessage->status === 'pending') {
+                $smsMessage->markAsFailed($e->getMessage());
+            }
+            throw $e;
         }
-
-        throw new Exception('OsonSMS API вернул ошибку: ' . $response->body());
     }
 
     /**

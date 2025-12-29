@@ -82,12 +82,14 @@
                 <thead>
                   <tr>
                     <th class="text-left">Студент</th>
-                    <th class="text-center">Оценка 1<br><span class="text-caption text-grey">(учитель)</span></th>
-                    <th class="text-center">Оценка 2<br><span class="text-caption text-grey">(учитель)</span></th>
-                    <th class="text-center">Оценка 3<br><span class="text-caption text-grey">(тест)</span></th>
-                    <th class="text-center">Оценка 4<br><span class="text-caption text-grey">(тест)</span></th>
-                    <th class="text-center">Экзамен<br><span class="text-caption text-grey">(тест)</span></th>
-                    <th class="text-center">Средняя</th>
+                    <th class="text-center">Рейт. учитель 1<br><span class="text-caption text-grey">(учитель)</span></th>
+                    <th class="text-center">Рейт. учитель 2<br><span class="text-caption text-grey">(учитель)</span></th>
+                    <th class="text-center">Рейт. тест 1<br><span class="text-caption text-grey">(тест)</span></th>
+                    <th class="text-center">Рейт. тест 2<br><span class="text-caption text-grey">(тест)</span></th>
+                    <th class="text-center">Экзамен<br><span class="text-caption text-grey">({{ getExamType(student) }})</span></th>
+                    <th class="text-center">Итоговая<br><span class="text-caption text-grey">(100 баллов)</span></th>
+                    <th class="text-center">Итоговая<br><span class="text-caption text-grey">(10 баллов)</span></th>
+                    <th class="text-center">Итоговая<br><span class="text-caption text-grey">(буква)</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -102,7 +104,7 @@
                     </td>
                     <td>
                       <v-text-field
-                        v-model.number="student.grade_1"
+                        v-model.number="student.rating_teacher_1"
                         type="number"
                         min="0"
                         max="100"
@@ -116,7 +118,7 @@
                     </td>
                     <td>
                       <v-text-field
-                        v-model.number="student.grade_2"
+                        v-model.number="student.rating_teacher_2"
                         type="number"
                         min="0"
                         max="100"
@@ -130,39 +132,59 @@
                     </td>
                     <td class="text-center">
                       <v-chip
-                        :color="getGradeColor(student.grade_3)"
+                        :color="getGradeColor(student.rating_test_1)"
                         size="small"
                         variant="tonal"
                       >
-                        {{ student.grade_3 !== null ? student.grade_3 : '-' }}
+                        {{ student.rating_test_1 !== null ? student.rating_test_1.toFixed(2) : '-' }}
                       </v-chip>
                     </td>
                     <td class="text-center">
                       <v-chip
-                        :color="getGradeColor(student.grade_4)"
+                        :color="getGradeColor(student.rating_test_2)"
                         size="small"
                         variant="tonal"
                       >
-                        {{ student.grade_4 !== null ? student.grade_4 : '-' }}
+                        {{ student.rating_test_2 !== null ? student.rating_test_2.toFixed(2) : '-' }}
                       </v-chip>
                     </td>
                     <td class="text-center">
                       <v-chip
-                        :color="getGradeColor(student.grade_5)"
+                        :color="getGradeColor(student.final_exam_grade)"
                         size="small"
                         variant="tonal"
                       >
-                        {{ student.grade_5 !== null ? student.grade_5 : '-' }}
+                        {{ student.final_exam_grade !== null ? student.final_exam_grade.toFixed(2) : '-' }}
                       </v-chip>
                     </td>
                     <td class="text-center">
                       <v-chip
-                        :color="getGradeColor(getAverageGrade(student))"
+                        :color="getGradeColor(student.final_grade_100)"
                         size="small"
                         variant="flat"
                         class="font-weight-bold"
                       >
-                        {{ getAverageGrade(student).toFixed(2) }}
+                        {{ student.final_grade_100 !== null ? student.final_grade_100.toFixed(2) : '-' }}
+                      </v-chip>
+                    </td>
+                    <td class="text-center">
+                      <v-chip
+                        :color="getGradeColor(student.final_grade_10 ? student.final_grade_10 * 10 : null)"
+                        size="small"
+                        variant="flat"
+                        class="font-weight-bold"
+                      >
+                        {{ student.final_grade_10 !== null ? student.final_grade_10.toFixed(1) : '-' }}
+                      </v-chip>
+                    </td>
+                    <td class="text-center">
+                      <v-chip
+                        :color="getGradeColor(student.final_grade_100)"
+                        size="small"
+                        variant="flat"
+                        class="font-weight-bold"
+                      >
+                        {{ student.final_grade_letter || '-' }}
                       </v-chip>
                     </td>
                   </tr>
@@ -262,8 +284,8 @@ const updateGrade = async (student) => {
 
   try {
     const response = await axios.put(`/teacher/grades/${student.grade_id}`, {
-      grade_1: student.grade_1,
-      grade_2: student.grade_2,
+      rating_teacher_1: student.rating_teacher_1,
+      rating_teacher_2: student.rating_teacher_2,
     }, {
       headers: {
         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
@@ -275,10 +297,14 @@ const updateGrade = async (student) => {
       // Обновляем данные студента
       const index = students.value.findIndex(s => s.id === student.id)
       if (index !== -1) {
+        const updatedGrade = response.data.grade
         students.value[index] = {
           ...students.value[index],
-          grade_1: response.data.grade.grade_1,
-          grade_2: response.data.grade.grade_2,
+          rating_teacher_1: updatedGrade.rating_teacher_1,
+          rating_teacher_2: updatedGrade.rating_teacher_2,
+          final_grade_100: updatedGrade.final_grade_100,
+          final_grade_10: updatedGrade.final_grade_10,
+          final_grade_letter: updatedGrade.final_grade_letter,
         }
       }
     }
@@ -288,20 +314,8 @@ const updateGrade = async (student) => {
   }
 }
 
-const getAverageGrade = (student) => {
-  const grades = [
-    student.grade_1,
-    student.grade_2,
-    student.grade_3,
-    student.grade_4,
-    student.grade_5,
-  ].filter(grade => grade !== null && grade !== undefined)
-
-  if (grades.length === 0) {
-    return 0
-  }
-
-  return grades.reduce((sum, grade) => sum + parseFloat(grade), 0) / grades.length
+const getExamType = (student) => {
+  return student.final_exam_type === 'teacher' ? 'учитель' : student.final_exam_type === 'test' ? 'тест' : '-'
 }
 
 const getGradeColor = (grade) => {

@@ -75,34 +75,36 @@ class GradeController extends Controller
                     'student_id' => $student->id,
                 ],
                 [
-                    'grade_1' => null,
-                    'grade_2' => null,
-                    'grade_3' => null,
-                    'grade_4' => null,
-                    'grade_5' => null,
+                    'rating_teacher_1' => null,
+                    'rating_teacher_2' => null,
+                    'rating_test_1' => null,
+                    'rating_test_2' => null,
+                    'final_exam_grade' => null,
+                    'final_exam_type' => null,
                 ]
             );
 
-            // Получаем оценки из тестов (grade_3, grade_4, grade_5)
+            // Получаем оценки из тестов (rating_test_1, rating_test_2, final_exam_grade)
             $testGrades = $this->getTestGrades($schedule, $student);
             
             // Обновляем оценки из тестов, если они изменились
             $updated = false;
-            if ($grade->grade_3 != $testGrades['grade_3']) {
-                $grade->grade_3 = $testGrades['grade_3'];
+            if ($grade->rating_test_1 != $testGrades['rating_test_1']) {
+                $grade->rating_test_1 = $testGrades['rating_test_1'];
                 $updated = true;
             }
-            if ($grade->grade_4 != $testGrades['grade_4']) {
-                $grade->grade_4 = $testGrades['grade_4'];
+            if ($grade->rating_test_2 != $testGrades['rating_test_2']) {
+                $grade->rating_test_2 = $testGrades['rating_test_2'];
                 $updated = true;
             }
-            if ($grade->grade_5 != $testGrades['grade_5']) {
-                $grade->grade_5 = $testGrades['grade_5'];
+            if ($grade->final_exam_grade != $testGrades['final_exam_grade']) {
+                $grade->final_exam_grade = $testGrades['final_exam_grade'];
+                $grade->final_exam_type = $testGrades['final_exam_type'];
                 $updated = true;
             }
             
             if ($updated) {
-                $grade->save();
+                $grade->updateFinalGrades();
             }
 
             return [
@@ -111,11 +113,15 @@ class GradeController extends Controller
                 'last_name' => $student->last_name,
                 'email' => $student->email,
                 'grade_id' => $grade->id,
-                'grade_1' => $grade->grade_1 ? (float)$grade->grade_1 : null,
-                'grade_2' => $grade->grade_2 ? (float)$grade->grade_2 : null,
-                'grade_3' => $grade->grade_3 ? (float)$grade->grade_3 : null,
-                'grade_4' => $grade->grade_4 ? (float)$grade->grade_4 : null,
-                'grade_5' => $grade->grade_5 ? (float)$grade->grade_5 : null,
+                'rating_teacher_1' => $grade->rating_teacher_1 ? (float)$grade->rating_teacher_1 : null,
+                'rating_teacher_2' => $grade->rating_teacher_2 ? (float)$grade->rating_teacher_2 : null,
+                'rating_test_1' => $grade->rating_test_1 ? (float)$grade->rating_test_1 : null,
+                'rating_test_2' => $grade->rating_test_2 ? (float)$grade->rating_test_2 : null,
+                'final_exam_grade' => $grade->final_exam_grade ? (float)$grade->final_exam_grade : null,
+                'final_exam_type' => $grade->final_exam_type,
+                'final_grade_100' => $grade->final_grade_100 ? (float)$grade->final_grade_100 : null,
+                'final_grade_10' => $grade->final_grade_10 ? (float)$grade->final_grade_10 : null,
+                'final_grade_letter' => $grade->final_grade_letter,
             ];
         });
 
@@ -143,15 +149,18 @@ class GradeController extends Controller
         }
 
         $request->validate([
-            'grade_1' => 'nullable|numeric|min:0|max:100',
-            'grade_2' => 'nullable|numeric|min:0|max:100',
+            'rating_teacher_1' => 'nullable|numeric|min:0|max:100',
+            'rating_teacher_2' => 'nullable|numeric|min:0|max:100',
         ]);
 
-        // Обновляем только оценки, которые может ставить учитель (grade_1 и grade_2)
+        // Обновляем только оценки, которые может ставить учитель (rating_teacher_1 и rating_teacher_2)
         $grade->update([
-            'grade_1' => $request->grade_1,
-            'grade_2' => $request->grade_2,
+            'rating_teacher_1' => $request->rating_teacher_1,
+            'rating_teacher_2' => $request->rating_teacher_2,
         ]);
+
+        // Обновляем итоговые оценки
+        $grade->updateFinalGrades();
 
         return response()->json([
             'success' => true,
@@ -163,8 +172,8 @@ class GradeController extends Controller
     /**
      * Получить оценки из тестов
      * 
-     * grade_3 и grade_4 - два лучших результата периодических экзаменов
-     * grade_5 - лучший результат итогового экзамена
+     * rating_test_1 и rating_test_2 - два рейтинговых теста (максимальные из 3 попыток)
+     * final_exam_grade - последний экзамен (максимальный из 3 попыток для теста)
      */
     private function getTestGrades(Schedule $schedule, User $student)
     {
@@ -173,58 +182,63 @@ class GradeController extends Controller
         
         if ($tests->isEmpty()) {
             return [
-                'grade_3' => null,
-                'grade_4' => null,
-                'grade_5' => null,
+                'rating_test_1' => null,
+                'rating_test_2' => null,
+                'final_exam_grade' => null,
+                'final_exam_type' => null,
             ];
         }
 
-        // Разделяем тесты на периодические и итоговые
-        $periodicTests = $tests->where('exam_type', 'periodic')->sortBy('id');
+        // Разделяем тесты на рейтинговые и итоговые
+        $ratingTests = $tests->where('exam_type', 'rating')->sortBy('id');
         $finalTest = $tests->where('exam_type', 'final')->first();
 
-        // grade_3 - лучший результат первого периодического экзамена
-        $firstPeriodicTest = $periodicTests->first();
-        $grade_3 = null;
-        if ($firstPeriodicTest) {
-            $bestAttempt = TestAttempt::where('test_id', $firstPeriodicTest->id)
+        // rating_test_1 - максимальный результат первого рейтингового теста (из 3 попыток)
+        $firstRatingTest = $ratingTests->first();
+        $rating_test_1 = null;
+        if ($firstRatingTest) {
+            $attempts = TestAttempt::where('test_id', $firstRatingTest->id)
                 ->where('student_id', $student->id)
                 ->whereNotNull('completed_at')
                 ->orderBy('score', 'desc')
-                ->first();
-            $grade_3 = $bestAttempt ? (float)$bestAttempt->score : null;
-        }
-
-        // grade_4 - лучший результат второго периодического экзамена
-        $secondPeriodicTest = $periodicTests->skip(1)->first();
-        $grade_4 = null;
-        if ($secondPeriodicTest) {
-            $bestAttempt = TestAttempt::where('test_id', $secondPeriodicTest->id)
-                ->where('student_id', $student->id)
-                ->whereNotNull('completed_at')
-                ->orderBy('score', 'desc')
-                ->first();
-            $grade_4 = $bestAttempt ? (float)$bestAttempt->score : null;
-        }
-
-        // Получаем попытки студента по итоговому экзамену
-        $finalAttempts = collect([]);
-        if ($finalTest) {
-            $finalAttempts = TestAttempt::where('test_id', $finalTest->id)
-                ->where('student_id', $student->id)
-                ->whereNotNull('completed_at')
-                ->orderBy('score', 'desc')
+                ->limit(3)
                 ->get();
+            $rating_test_1 = $attempts->isNotEmpty() ? (float)$attempts->max('score') : null;
         }
 
-        // grade_5 - лучший результат итогового экзамена
-        $bestFinalAttempt = $finalAttempts->first();
-        $grade_5 = $bestFinalAttempt ? (float)$bestFinalAttempt->score : null;
+        // rating_test_2 - максимальный результат второго рейтингового теста (из 3 попыток)
+        $secondRatingTest = $ratingTests->skip(1)->first();
+        $rating_test_2 = null;
+        if ($secondRatingTest) {
+            $attempts = TestAttempt::where('test_id', $secondRatingTest->id)
+                ->where('student_id', $student->id)
+                ->whereNotNull('completed_at')
+                ->orderBy('score', 'desc')
+                ->limit(3)
+                ->get();
+            $rating_test_2 = $attempts->isNotEmpty() ? (float)$attempts->max('score') : null;
+        }
+
+        // final_exam_grade - максимальный результат итогового экзамена (из 3 попыток для теста)
+        $final_exam_grade = null;
+        $final_exam_type = null;
+        
+        if ($finalTest) {
+            $attempts = TestAttempt::where('test_id', $finalTest->id)
+                ->where('student_id', $student->id)
+                ->whereNotNull('completed_at')
+                ->orderBy('score', 'desc')
+                ->limit(3)
+                ->get();
+            $final_exam_grade = $attempts->isNotEmpty() ? (float)$attempts->max('score') : null;
+            $final_exam_type = 'test';
+        }
 
         return [
-            'grade_3' => $grade_3,
-            'grade_4' => $grade_4,
-            'grade_5' => $grade_5,
+            'rating_test_1' => $rating_test_1,
+            'rating_test_2' => $rating_test_2,
+            'final_exam_grade' => $final_exam_grade,
+            'final_exam_type' => $final_exam_type,
         ];
     }
 }

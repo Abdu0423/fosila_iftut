@@ -10,6 +10,7 @@ class Specialty extends Model
     use HasFactory;
 
     protected $fillable = [
+        'old_id',
         'name',
         'short_name',
         'code',
