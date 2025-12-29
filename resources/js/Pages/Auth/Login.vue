@@ -23,12 +23,12 @@
               <!-- Телефон поле -->
               <PhoneInput
                 v-model="form.login"
-                :label="t('auth.phone') || 'Телефон'"
+                :label="getTranslation('auth.phone', 'Телефон')"
                 :error-messages="form.errors.login"
                 :disabled="form.processing"
                 class="mb-4"
                 required
-                :hint="t('auth.phone_hint') || 'Введите номер телефона'"
+                :hint="getTranslation('auth.phone_hint', 'Введите номер телефона')"
                 persistent-hint
               />
 
@@ -384,6 +384,12 @@ import LanguageSwitcher from '../../Components/LanguageSwitcher.vue'
 import PhoneInput from '../../Components/PhoneInput.vue'
 
 const { t } = useI18n()
+
+// Функция для получения перевода с fallback
+const getTranslation = (key, fallback) => {
+  const translation = t(key)
+  return translation !== key ? translation : fallback
+}
 
 const showPassword = ref(false)
 const agreeToTerms = ref(true)
