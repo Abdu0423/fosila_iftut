@@ -8,7 +8,7 @@
           item-title="label"
           item-value="prefix"
           variant="outlined"
-          :density="density"
+          density="compact"
           hide-details
           class="phone-prefix-select"
           @update:model-value="onPrefixChange"
@@ -167,6 +167,12 @@ const updatePhoneNumber = (value) => {
 
 .phone-prefix-select :deep(.v-field__input) {
   min-height: inherit;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.phone-prefix-select :deep(.v-field__input__control) {
+  min-height: auto !important;
 }
 
 /* Скрываем стандартное отображение label в выбранном элементе */
