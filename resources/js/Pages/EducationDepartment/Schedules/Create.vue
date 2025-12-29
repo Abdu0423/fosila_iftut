@@ -11,10 +11,10 @@
         />
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.create_schedule }}
+            {{ getTranslation('education_department.create_schedule', 'Создание расписания') }}
           </h1>
           <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.schedules_subtitle }}
+            {{ getTranslation('education_department.schedules_subtitle', 'Добавление нового расписания') }}
           </p>
         </div>
       </div>
@@ -24,7 +24,7 @@
         <v-col cols="12" lg="8">
           <v-card>
             <v-card-title class="text-h5 pa-6">
-              {{ translations.education_department?.schedules_title }}
+              {{ getTranslation('education_department.schedules_title', 'Расписание') }}
             </v-card-title>
             <v-card-text class="pa-6">
               <v-form @submit.prevent="submit">
@@ -148,7 +148,7 @@
                     <v-switch
                       :model-value="form.is_active"
                       @update:model-value="form.is_active = $event"
-                      :label="translations.messages?.active"
+                      :label="getTranslation('messages.active', 'Активен')"
                       color="primary"
                     />
                   </v-col>
@@ -163,14 +163,14 @@
                     :loading="form.processing"
                     :disabled="form.processing"
                   >
-                    {{ translations.messages?.save }}
+                    {{ getTranslation('messages.save', 'Сохранить') }}
                   </v-btn>
                   <v-btn
                     variant="outlined"
                     @click="router.visit(route('education.schedules.index'))"
                     :disabled="form.processing"
                   >
-                    {{ translations.messages?.cancel }}
+                    {{ getTranslation('messages.cancel', 'Отмена') }}
                   </v-btn>
                 </div>
               </v-form>
@@ -185,20 +185,23 @@
 <script setup>
 import { reactive, computed } from 'vue'
 import { useForm, router, usePage } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
 
 const page = usePage()
+const { t } = useI18n()
 const translations = computed(() => page.props.translations || {})
 
 // Функция для получения перевода с fallback
 const getTranslation = (key, fallback) => {
-  const keys = key.split('.')
-  let value = translations.value
-  for (const k of keys) {
-    value = value?.[k]
-    if (value === undefined) break
+  try {
+    const translation = t(key)
+    // Если вернулся сам ключ, значит перевод не найден
+    return translation !== key ? translation : fallback
+  } catch (e) {
+    // Если ошибка, используем fallback
+    return fallback
   }
-  return value !== undefined ? value : fallback
 }
 
 const props = defineProps({
