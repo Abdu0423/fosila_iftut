@@ -362,6 +362,13 @@ const menuItems = computed(() => {
         { title: t('education_department.departments_menu'), icon: 'mdi-office-building', route: '/education/departments' },
         { title: t('education_department.specialties_menu'), icon: 'mdi-school', route: '/education/specialties' },
         { title: t('education_department.schedules_menu'), icon: 'mdi-calendar-clock', route: '/education/schedules' },
+        { title: t('navigation.my_lessons'), icon: 'mdi-teach', route: '/education/lessons' },
+        { title: t('navigation.my_tests'), icon: 'mdi-help-circle', route: '/education/tests' },
+        { title: t('navigation.grades'), icon: 'mdi-star', route: '/education/grades' },
+        { title: t('navigation.my_students'), icon: 'mdi-account-group', route: '/education/students' },
+        { title: t('navigation.schedule'), icon: 'mdi-calendar-clock', route: '/education/schedule' },
+        { title: t('navigation.syllabuses'), icon: 'mdi-file-document-multiple', route: '/education/syllabuses' },
+        { title: t('navigation.chat'), icon: 'mdi-chat', route: '/education/chat' },
       ]
     
     default: // student
