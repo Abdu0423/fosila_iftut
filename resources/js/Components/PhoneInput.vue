@@ -1,50 +1,54 @@
 <template>
-  <v-text-field
-    :model-value="fullPhone"
-    @update:model-value="updatePhone"
-    :label="label"
-    :error-messages="errorMessages"
-    :disabled="disabled"
-    :required="required"
-    :hint="hint"
-    :persistent-hint="persistentHint"
-    variant="outlined"
-    :density="density"
-    prepend-inner-icon="mdi-phone"
-    class="phone-input"
-  >
-    <template v-slot:prepend-inner>
-      <v-select
-        v-model="selectedPrefix"
-        :items="countryOptions"
-        item-title="label"
-        item-value="prefix"
-        variant="outlined"
-        density="compact"
-        hide-details
-        class="phone-prefix-select"
-        style="max-width: 140px; margin-right: 8px;"
-        @update:model-value="onPrefixChange"
-      >
-        <template v-slot:selection="{ item }">
-          <span class="text-body-2">{{ item.raw.flag }} {{ item.raw.prefix }}</span>
-        </template>
-        <template v-slot:item="{ props, item }">
-          <v-list-item v-bind="props">
-            <template v-slot:prepend>
-              <span class="text-h6 mr-2">{{ item.raw.flag }}</span>
-            </template>
-            <v-list-item-title>{{ item.raw.label }}</v-list-item-title>
-            <v-list-item-subtitle>{{ item.raw.prefix }}</v-list-item-subtitle>
-          </v-list-item>
-        </template>
-      </v-select>
-    </template>
-  </v-text-field>
+  <div class="phone-input-wrapper">
+    <v-row no-gutters>
+      <v-col cols="auto" class="phone-prefix-col">
+        <v-select
+          v-model="selectedPrefix"
+          :items="countryOptions"
+          item-title="label"
+          item-value="prefix"
+          variant="outlined"
+          density="compact"
+          hide-details
+          class="phone-prefix-select"
+          @update:model-value="onPrefixChange"
+        >
+          <template v-slot:selection="{ item }">
+            <span class="text-body-2">{{ item.raw.flag }} {{ item.raw.prefix }}</span>
+          </template>
+          <template v-slot:item="{ props, item }">
+            <v-list-item v-bind="props">
+              <template v-slot:prepend>
+                <span class="text-h6 mr-2">{{ item.raw.flag }}</span>
+              </template>
+              <v-list-item-title>{{ item.raw.label }}</v-list-item-title>
+              <v-list-item-subtitle>{{ item.raw.prefix }}</v-list-item-subtitle>
+            </v-list-item>
+          </template>
+        </v-select>
+      </v-col>
+      <v-col>
+        <v-text-field
+          :model-value="phoneNumber"
+          @update:model-value="updatePhoneNumber"
+          :label="label"
+          :error-messages="errorMessages"
+          :disabled="disabled"
+          :required="required"
+          :hint="hint"
+          :persistent-hint="persistentHint"
+          variant="outlined"
+          :density="density"
+          prepend-inner-icon="mdi-phone"
+          class="phone-number-field"
+        />
+      </v-col>
+    </v-row>
+  </div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
   modelValue: {
@@ -173,4 +177,3 @@ const updatePhoneNumber = (value) => {
   padding-left: 12px;
 }
 </style>
-

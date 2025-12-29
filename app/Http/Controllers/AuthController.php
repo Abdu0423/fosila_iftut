@@ -92,8 +92,7 @@ class AuthController extends Controller
             Log::info('Пользователь должен сменить пароль, перенаправление на /change-password', [
                 'user_id' => $user->id
             ]);
-            return redirect()->route('change-password')
-                ->with('warning', 'Для продолжения работы необходимо сменить ваш пароль.');
+            return Inertia::location(route('change-password'));
         }
         
         Log::info('Проверка роли пользователя', [
@@ -104,22 +103,22 @@ class AuthController extends Controller
         // Проверяем роль пользователя через методы модели
         if ($user->isAdmin()) {
             Log::info('Перенаправление администратора на /admin');
-            return redirect('/admin');
+            return Inertia::location('/admin');
         }
 
         if ($user->isTeacher()) {
             Log::info('Перенаправление преподавателя на /teacher/');
-            return redirect('/teacher/');
+            return Inertia::location('/teacher/');
         }
 
         if ($user->isEducationDepartment()) {
             Log::info('Перенаправление отдела образования на /education');
-            return redirect('/education');
+            return Inertia::location('/education');
         }
 
         if ($user->isStudent()) {
             Log::info('Перенаправление студента на /student/');
-            return redirect('/student/');
+            return Inertia::location('/student/');
         }
 
         // Если роль не определена, перенаправляем на общий dashboard
@@ -128,7 +127,7 @@ class AuthController extends Controller
             'role_id' => $user->role_id,
             'role_name' => $user->role ? $user->role->name : 'no role'
         ]);
-        return redirect()->intended('/');
+        return Inertia::location('/');
     }
 
     public function logout(Request $request)

@@ -16,6 +16,8 @@ return [
     'login_subtitle' => 'Система управления образованием',
     'email_or_phone' => 'Email или номер телефона',
     'email_or_phone_hint' => 'Введите email или номер телефона',
+    'phone' => 'Телефон',
+    'phone_hint' => 'Введите номер телефона',
     'password_label' => 'Пароль',
     'remember_me' => 'Запомнить меня',
     'forgot_password' => 'Забыли пароль?',

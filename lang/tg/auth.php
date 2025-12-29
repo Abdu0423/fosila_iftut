@@ -16,6 +16,8 @@ return [
     'login_subtitle' => 'Системаи идоракунии таълим',
     'email_or_phone' => 'Email ё рақами телефон',
     'email_or_phone_hint' => 'Email ё рақами телефонро ворид кунед',
+    'phone' => 'Телефон',
+    'phone_hint' => 'Рақами телефонро ворид кунед',
     'password_label' => 'Парол',
     'remember_me' => 'Маро ба хотир гиред',
     'forgot_password' => 'Рамзро фаромӯш кардед?',

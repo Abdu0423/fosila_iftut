@@ -94,8 +94,8 @@
                 <!-- Группа -->
                 <h3 class="text-h6 mb-4 mt-6">{{ translations.messages?.system_info || 'Маълумоти система' }}</h3>
                 <v-row>
-                  <v-col cols="12" md="6">
-                    <v-select
+                  <v-col cols="12">
+                    <v-autocomplete
                       v-model="form.group_id"
                       :items="groups"
                       item-title="display_name"
@@ -106,7 +106,9 @@
                       :error-messages="form.errors.group_id"
                       clearable
                       :placeholder="translations.messages?.select_group || 'Гурӯҳро интихоб кунед'"
-                    ></v-select>
+                      :search="groupSearch"
+                      @update:search="groupSearch = $event"
+                    ></v-autocomplete>
                   </v-col>
                 </v-row>
 
@@ -183,6 +185,8 @@ const props = defineProps({
     default: () => []
   }
 })
+
+const groupSearch = ref('')
 
 // Форма
 const form = useForm({
