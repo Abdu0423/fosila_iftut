@@ -8,7 +8,7 @@
           item-title="label"
           item-value="prefix"
           variant="outlined"
-          density="compact"
+          :density="density"
           hide-details
           class="phone-prefix-select"
           @update:model-value="onPrefixChange"
@@ -200,17 +200,23 @@ const updatePhoneNumber = (value) => {
 
 /* Выравнивание высоты обоих полей */
 .phone-input-wrapper :deep(.v-row) {
-  align-items: stretch;
+  align-items: flex-start;
 }
 
 .phone-input-wrapper :deep(.v-col) {
   display: flex;
-  align-items: stretch;
 }
 
-.phone-input-wrapper :deep(.v-select),
-.phone-input-wrapper :deep(.v-text-field) {
-  height: 100%;
-  flex: 1;
+/* Синхронизация высоты полей - одинаковые значения для обоих */
+.phone-prefix-select :deep(.v-field),
+.phone-number-field :deep(.v-field) {
+  height: 56px;
+}
+
+.phone-prefix-select :deep(.v-field__input),
+.phone-number-field :deep(.v-field__input) {
+  min-height: 56px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 </style>
