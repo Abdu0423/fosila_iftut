@@ -37,7 +37,7 @@
                       :items="subjects || []"
                       item-title="name"
                       item-value="id"
-                      :label="(translations.education_department?.schedule_subject) + ' *'"
+                      :label="(translations.education_department?.schedule_subject || 'Предмет') + ' *'"
                       variant="outlined"
                       :error-messages="errors.subject_id"
                       required
@@ -52,7 +52,7 @@
                       :items="teachers || []"
                       item-title="name"
                       item-value="id"
-                      :label="(translations.education_department?.schedule_teacher) + ' *'"
+                      :label="(translations.education_department?.schedule_teacher || 'Преподаватель') + ' *'"
                       variant="outlined"
                       :error-messages="errors.teacher_id"
                       required
@@ -67,7 +67,7 @@
                       :items="groups || []"
                       item-title="name"
                       item-value="id"
-                      :label="(translations.education_department?.schedule_group) + ' *'"
+                      :label="(translations.education_department?.schedule_group || 'Группа') + ' *'"
                       variant="outlined"
                       :error-messages="errors.group_id"
                       required
@@ -80,7 +80,7 @@
                       :model-value="form.semester"
                       @update:model-value="form.semester = $event"
                       :items="semesterItems"
-                      :label="(translations.education_department?.schedule_semester) + ' *'"
+                      :label="(translations.education_department?.schedule_semester || 'Семестр') + ' *'"
                       variant="outlined"
                       :error-messages="errors.semester"
                       required
@@ -92,7 +92,7 @@
                     <v-text-field
                       :model-value="form.credits"
                       @update:model-value="form.credits = $event ? parseInt($event) : null"
-                      :label="(translations.education_department?.subject_credits) + ' *'"
+                      :label="(translations.education_department?.subject_credits || 'Кредиты') + ' *'"
                       type="number"
                       min="1"
                       max="10"
@@ -107,7 +107,7 @@
                     <v-text-field
                       :model-value="form.study_year"
                       @update:model-value="form.study_year = $event ? parseInt($event) : null"
-                      :label="(translations.education_department?.schedule_study_year) + ' *'"
+                      :label="(translations.education_department?.schedule_study_year || 'Учебный год') + ' *'"
                       type="number"
                       min="2020"
                       max="2030"
@@ -122,7 +122,7 @@
                     <v-text-field
                       :model-value="form.order"
                       @update:model-value="form.order = $event ? parseInt($event) : null"
-                      :label="translations.messages?.order + ' *'"
+                      :label="(translations.messages?.order || 'Порядок') + ' *'"
                       type="number"
                       min="1"
                       variant="outlined"
@@ -136,7 +136,7 @@
                     <v-text-field
                       :model-value="form.scheduled_at"
                       @update:model-value="form.scheduled_at = $event"
-                      :label="translations.education_department?.schedule_date"
+                      :label="translations.education_department?.schedule_date || 'Дата'"
                       type="datetime-local"
                       variant="outlined"
                       :error-messages="errors.scheduled_at"
