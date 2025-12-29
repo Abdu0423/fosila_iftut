@@ -97,12 +97,37 @@ class SmsService
         ]);
 
         try {
+            // Генерируем уникальный txnId для транзакции
+            $txnId = uniqid('sms_', true);
+            
+            // Нормализуем номер телефона для API (убираем + и оставляем только цифры)
+            $phoneNumber = preg_replace('/[^0-9]/', '', $phone);
+            
+            // Вычисляем str_hash согласно документации OsonSMS:
+            // SHA256(txnId + login + sender_name + phonenumber + pass_salt_hash)
+            $hashString = $txnId . $this->login . $this->sender . $phoneNumber . $this->hash;
+            $strHash = hash('sha256', $hashString);
+            
+            // Логируем для отладки
+            if ($this->loggingEnabled) {
+                Log::channel(config('sms.logging.channel'))->info('OsonSMS hash calculation', [
+                    'txnId' => $txnId,
+                    'login' => $this->login,
+                    'sender_name' => $this->sender,
+                    'phonenumber' => $phoneNumber,
+                    'pass_salt_hash' => $this->hash,
+                    'hash_string_length' => strlen($hashString),
+                    'str_hash' => $strHash,
+                ]);
+            }
+            
             $response = Http::get($this->server, [
                 'login' => $this->login,
-                'hash' => $this->hash,
-                'sender' => $this->sender,
-                'phone' => $phone,
-                'text' => $message,
+                'str_hash' => $strHash,
+                'sender_name' => $this->sender,
+                'phonenumber' => $phoneNumber,
+                'message' => $message,
+                'txnId' => $txnId,
             ]);
 
             if ($response->successful()) {
