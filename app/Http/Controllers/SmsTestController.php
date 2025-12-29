@@ -72,11 +72,11 @@ class SmsTestController extends Controller
         $config = config('sms.drivers.osonsms');
         
         return response()->json([
-            'configured' => !empty($config['login']) && !empty($config['hash']),
+            'configured' => !empty($config['login']) && !empty($config['pass_salt_hash']),
             'login' => $config['login'] ?? 'не установлено',
-            'sender' => $config['sender'] ?? 'не установлено',
-            'server' => $config['server'] ?? 'не установлено',
-            'hash_set' => !empty($config['hash']),
+            'sender_name' => $config['sender_name'] ?? 'не установлено',
+            'server_url' => $config['server_url'] ?? 'не установлено',
+            'pass_salt_hash_set' => !empty($config['pass_salt_hash']),
             'logging_enabled' => config('sms.logging.enabled'),
         ]);
     }

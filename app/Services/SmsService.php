@@ -19,9 +19,9 @@ class SmsService
     {
         $config = config('sms.drivers.osonsms');
         $this->login = $config['login'];
-        $this->hash = $config['hash'];
-        $this->sender = $config['sender'];
-        $this->server = $config['server'];
+        $this->hash = $config['pass_salt_hash'];
+        $this->sender = $config['sender_name'];
+        $this->server = $config['server_url'];
         $this->loggingEnabled = config('sms.logging.enabled', true);
     }
 
