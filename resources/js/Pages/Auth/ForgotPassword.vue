@@ -108,12 +108,8 @@ const form = useForm({
 
 const sendCode = () => {
   form.post('/password/forgot/send-code', {
-    onSuccess: (page) => {
-      successMessage.value = page.props.flash?.success || 'Код подтверждения отправлен на ваш номер телефона'
-      // Через 1.5 секунды перенаправляем на страницу ввода кода
-      setTimeout(() => {
-        router.visit(`/password/reset?phone=${encodeURIComponent(form.phone)}`)
-      }, 1500)
+    onSuccess: () => {
+      // Переход на страницу ввода кода происходит на сервере
     },
   })
 }

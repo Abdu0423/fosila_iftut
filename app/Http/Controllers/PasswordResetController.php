@@ -91,7 +91,9 @@ class PasswordResetController extends Controller
                 ]);
             }
 
-            return back()->with('success', 'Код подтверждения отправлен на ваш номер телефона');
+            // Перенаправляем на страницу ввода кода
+            return redirect()->route('password.reset', ['phone' => $phone])
+                ->with('success', 'Код подтверждения отправлен на ваш номер телефона');
         } catch (\Exception $e) {
             $resetCode->delete();
             return back()->withErrors([

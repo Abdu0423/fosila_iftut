@@ -97,12 +97,19 @@ class SmsService
         ]);
 
         try {
+            // Генерируем уникальный txn_id для транзакции
+            $txnId = uniqid('sms_', true);
+            
+            // Нормализуем номер телефона для API (убираем + и оставляем только цифры)
+            $phoneNumber = preg_replace('/[^0-9]/', '', $phone);
+            
             $response = Http::get($this->server, [
                 'login' => $this->login,
-                'hash' => $this->hash,
-                'sender' => $this->sender,
-                'phone' => $phone,
-                'text' => $message,
+                'str_hash' => $this->hash,
+                'from' => $this->sender,
+                'phone_number' => $phoneNumber,
+                'msg' => $message,
+                'txn_id' => $txnId,
             ]);
 
             if ($response->successful()) {
