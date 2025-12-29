@@ -31,39 +31,30 @@ class AuthController extends Controller
         $login = $validated['login'];
         $password = $validated['password'];
 
-        // Определяем, является ли ввод email или телефоном
-        $isEmail = filter_var($login, FILTER_VALIDATE_EMAIL) !== false;
-        
         // Нормализуем номер телефона (убираем все нецифровые символы кроме +)
-        $normalizedPhone = $isEmail ? null : preg_replace('/[^0-9+]/', '', $login);
+        $normalizedPhone = preg_replace('/[^0-9+]/', '', $login);
 
         Log::info('Попытка входа', [
             'login' => $login,
-            'is_email' => $isEmail,
             'normalized_phone' => $normalizedPhone
         ]);
 
-        // Ищем пользователя по email или телефону с загрузкой роли
-        $user = null;
-        if ($isEmail) {
-            $user = \App\Models\User::with('role')->where('email', $login)->first();
-        } else {
-            // Нормализуем телефон для поиска (убираем все кроме цифр)
-            $phoneDigits = preg_replace('/[^0-9]/', '', $login);
+        // Ищем пользователя по телефону с загрузкой роли
+        // Нормализуем телефон для поиска (убираем все кроме цифр)
+        $phoneDigits = preg_replace('/[^0-9]/', '', $login);
+        
+        // Ищем по телефону (точное совпадение или нормализованное)
+        $user = \App\Models\User::with('role')->where(function ($query) use ($login, $normalizedPhone, $phoneDigits) {
+            $query->where('phone', $login)
+                ->orWhere('phone', $normalizedPhone)
+                ->orWhere('phone', $phoneDigits);
             
-            // Ищем по телефону (точное совпадение или нормализованное)
-            $user = \App\Models\User::with('role')->where(function ($query) use ($login, $normalizedPhone, $phoneDigits) {
-                $query->where('phone', $login)
-                    ->orWhere('phone', $normalizedPhone)
-                    ->orWhere('phone', $phoneDigits);
-                
-                // Если номер достаточно длинный (больше 7 цифр), ищем по последним цифрам
-                if (strlen($phoneDigits) >= 7) {
-                    $lastDigits = substr($phoneDigits, -7);
-                    $query->orWhere('phone', 'like', '%' . $lastDigits);
-                }
-            })->first();
-        }
+            // Если номер достаточно длинный (больше 7 цифр), ищем по последним цифрам
+            if (strlen($phoneDigits) >= 7) {
+                $lastDigits = substr($phoneDigits, -7);
+                $query->orWhere('phone', 'like', '%' . $lastDigits);
+            }
+        })->first();
 
         if (!$user) {
             Log::warning('Пользователь не найден', ['login' => $login]);

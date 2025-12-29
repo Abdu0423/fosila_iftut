@@ -1,0 +1,176 @@
+<template>
+  <v-text-field
+    :model-value="fullPhone"
+    @update:model-value="updatePhone"
+    :label="label"
+    :error-messages="errorMessages"
+    :disabled="disabled"
+    :required="required"
+    :hint="hint"
+    :persistent-hint="persistentHint"
+    variant="outlined"
+    :density="density"
+    prepend-inner-icon="mdi-phone"
+    class="phone-input"
+  >
+    <template v-slot:prepend-inner>
+      <v-select
+        v-model="selectedPrefix"
+        :items="countryOptions"
+        item-title="label"
+        item-value="prefix"
+        variant="outlined"
+        density="compact"
+        hide-details
+        class="phone-prefix-select"
+        style="max-width: 140px; margin-right: 8px;"
+        @update:model-value="onPrefixChange"
+      >
+        <template v-slot:selection="{ item }">
+          <span class="text-body-2">{{ item.raw.flag }} {{ item.raw.prefix }}</span>
+        </template>
+        <template v-slot:item="{ props, item }">
+          <v-list-item v-bind="props">
+            <template v-slot:prepend>
+              <span class="text-h6 mr-2">{{ item.raw.flag }}</span>
+            </template>
+            <v-list-item-title>{{ item.raw.label }}</v-list-item-title>
+            <v-list-item-subtitle>{{ item.raw.prefix }}</v-list-item-subtitle>
+          </v-list-item>
+        </template>
+      </v-select>
+    </template>
+  </v-text-field>
+</template>
+
+<script setup>
+import { ref, computed, watch } from 'vue'
+
+const props = defineProps({
+  modelValue: {
+    type: String,
+    default: ''
+  },
+  label: {
+    type: String,
+    default: 'Телефон'
+  },
+  errorMessages: {
+    type: [String, Array],
+    default: () => []
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  required: {
+    type: Boolean,
+    default: false
+  },
+  hint: {
+    type: String,
+    default: ''
+  },
+  persistentHint: {
+    type: Boolean,
+    default: false
+  },
+  density: {
+    type: String,
+    default: 'comfortable'
+  }
+})
+
+const emit = defineEmits(['update:modelValue'])
+
+const countryOptions = [
+  { prefix: '+992', label: 'Таджикистан', flag: '🇹🇯' },
+  { prefix: '+7', label: 'Россия', flag: '🇷🇺' },
+  { prefix: '+996', label: 'Киргизстан', flag: '🇰🇬' },
+  { prefix: '+998', label: 'Узбекистан', flag: '🇺🇿' },
+  { prefix: '+7', label: 'Казахстан', flag: '🇰🇿' },
+]
+
+const selectedPrefix = ref('+992')
+
+// Извлекаем префикс и номер из полного значения
+const parsePhone = (phone) => {
+  if (!phone) return { prefix: '+992', number: '' }
+  
+  for (const country of countryOptions) {
+    if (phone.startsWith(country.prefix)) {
+      return {
+        prefix: country.prefix,
+        number: phone.substring(country.prefix.length)
+      }
+    }
+  }
+  
+  // Если префикс не найден, предполагаем что это только номер
+  return { prefix: '+992', number: phone }
+}
+
+const phoneNumber = ref('')
+
+// Инициализация при монтировании
+const init = () => {
+  const parsed = parsePhone(props.modelValue)
+  selectedPrefix.value = parsed.prefix
+  phoneNumber.value = parsed.number
+}
+
+init()
+
+// Отслеживаем изменения внешнего значения
+watch(() => props.modelValue, (newValue) => {
+  const parsed = parsePhone(newValue)
+  if (parsed.prefix !== selectedPrefix.value || parsed.number !== phoneNumber.value) {
+    selectedPrefix.value = parsed.prefix
+    phoneNumber.value = parsed.number
+  }
+})
+
+const onPrefixChange = () => {
+  emit('update:modelValue', selectedPrefix.value + phoneNumber.value)
+}
+
+const updatePhoneNumber = (value) => {
+  // Удаляем все нецифровые символы
+  phoneNumber.value = value.replace(/\D/g, '')
+  emit('update:modelValue', selectedPrefix.value + phoneNumber.value)
+}
+</script>
+
+<style scoped>
+.phone-input-wrapper {
+  width: 100%;
+}
+
+.phone-prefix-col {
+  max-width: 160px;
+  padding-right: 0 !important;
+}
+
+.phone-prefix-select {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.phone-prefix-select :deep(.v-field) {
+  border-right: none;
+}
+
+.phone-number-field {
+  margin-left: 0;
+}
+
+.phone-number-field :deep(.v-field) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.phone-number-field :deep(.v-field__prepend-inner) {
+  padding-left: 12px;
+}
+</style>
+

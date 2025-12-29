@@ -68,30 +68,13 @@
                  <!-- Контактная информация -->
                  <h3 class="text-h6 mb-4 mt-6">Контактная информация</h3>
                  <v-row>
-                   <v-col cols="12" md="6">
-                     <v-text-field
-                       v-model="form.email"
-                       label="Email"
-                       type="email"
-                       variant="outlined"
-                       density="compact"
-                       :error-messages="form.errors.email"
-                       hint="Необязательно, но необходимо указать хотя бы email или телефон"
-                       persistent-hint
-                     ></v-text-field>
-                   </v-col>
                   <v-col cols="12" md="6">
-                    <v-text-field
+                    <PhoneInput
                       v-model="form.phone"
                       label="Телефон"
-                      variant="outlined"
-                      density="compact"
                       :error-messages="form.errors.phone"
-                      hint="Необязательно, но необходимо указать хотя бы email или телефон"
-                      persistent-hint
-                      v-mask="'+992#########'"
-                      placeholder="+992XXXXXXXXX"
-                    ></v-text-field>
+                      density="compact"
+                    />
                   </v-col>
                  </v-row>
 
@@ -143,26 +126,20 @@
                  <!-- Телефоны родителей (только для студентов) -->
                  <v-row v-if="isStudent">
                   <v-col cols="12" md="6">
-                    <v-text-field
+                    <PhoneInput
                       v-model="form.dad_phone"
                       label="Телефон отца"
-                      variant="outlined"
-                      density="compact"
                       :error-messages="form.errors.dad_phone"
-                      v-mask="'+992#########'"
-                      placeholder="+992XXXXXXXXX"
-                    ></v-text-field>
+                      density="compact"
+                    />
                   </v-col>
                   <v-col cols="12" md="6">
-                    <v-text-field
+                    <PhoneInput
                       v-model="form.mom_phone"
                       label="Телефон матери"
-                      variant="outlined"
-                      density="compact"
                       :error-messages="form.errors.mom_phone"
-                      v-mask="'+992#########'"
-                      placeholder="+992XXXXXXXXX"
-                    ></v-text-field>
+                      density="compact"
+                    />
                   </v-col>
                  </v-row>
 
@@ -236,6 +213,7 @@
 import { ref, computed } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
 import AdminApp from '../AdminApp.vue'
+import PhoneInput from '../../../Components/PhoneInput.vue'
 import { routes } from '../../../utils/routes'
 
 // Props из Inertia

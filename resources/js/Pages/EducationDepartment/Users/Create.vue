@@ -69,15 +69,12 @@
                 <h3 class="text-h6 mb-4 mt-6">{{ translations.messages?.contact_info || 'Маълумоти тамос' }}</h3>
                 <v-row>
                   <v-col cols="12" md="6">
-                    <v-text-field
+                    <PhoneInput
                       v-model="form.phone"
                       :label="translations.messages?.phone || 'Телефон'"
-                      variant="outlined"
-                      density="comfortable"
                       :error-messages="form.errors.phone"
-                      v-mask="'+992#########'"
-                      placeholder="+992XXXXXXXXX"
-                    ></v-text-field>
+                      density="comfortable"
+                    />
                   </v-col>
                 </v-row>
 
@@ -116,26 +113,20 @@
                 <!-- Телефоны родителей -->
                 <v-row>
                   <v-col cols="12" md="6">
-                    <v-text-field
+                    <PhoneInput
                       v-model="form.dad_phone"
                       :label="translations.messages?.dad_phone || 'Телефони падар'"
-                      variant="outlined"
-                      density="comfortable"
                       :error-messages="form.errors.dad_phone"
-                      v-mask="'+992#########'"
-                      placeholder="+992XXXXXXXXX"
-                    ></v-text-field>
+                      density="comfortable"
+                    />
                   </v-col>
                   <v-col cols="12" md="6">
-                    <v-text-field
+                    <PhoneInput
                       v-model="form.mom_phone"
                       :label="translations.messages?.mom_phone || 'Телефони модар'"
-                      variant="outlined"
-                      density="comfortable"
                       :error-messages="form.errors.mom_phone"
-                      v-mask="'+992#########'"
-                      placeholder="+992XXXXXXXXX"
-                    ></v-text-field>
+                      density="comfortable"
+                    />
                   </v-col>
                 </v-row>
 
@@ -180,6 +171,7 @@
 import { computed, ref } from 'vue'
 import { useForm, router, usePage } from '@inertiajs/vue3'
 import Layout from '../../Layout.vue'
+import PhoneInput from '../../../Components/PhoneInput.vue'
 
 const page = usePage()
 const translations = computed(() => page.props.translations || {})

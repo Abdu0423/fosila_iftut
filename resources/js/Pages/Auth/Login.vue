@@ -20,21 +20,17 @@
 
           <v-card-text class="pa-8 pt-0">
             <form @submit.prevent="submit" class="login-form">
-              <!-- Email или телефон поле -->
-              <v-text-field
+              <!-- Телефон поле -->
+              <PhoneInput
                 v-model="form.login"
-                :label="t('auth.email_or_phone')"
-                prepend-inner-icon="mdi-account"
-                variant="outlined"
-                rounded="lg"
-                :error-messages="form.errors.login || form.errors.email"
+                :label="t('auth.phone') || 'Телефон'"
+                :error-messages="form.errors.login"
                 :disabled="form.processing"
                 class="mb-4"
-                autocomplete="username"
                 required
-                :hint="t('auth.email_or_phone_hint')"
+                :hint="t('auth.phone_hint') || 'Введите номер телефона'"
                 persistent-hint
-              ></v-text-field>
+              />
 
               <!-- Пароль поле -->
               <v-text-field
@@ -385,6 +381,7 @@ import { ref, computed } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
 import { useI18n } from 'vue-i18n'
 import LanguageSwitcher from '../../Components/LanguageSwitcher.vue'
+import PhoneInput from '../../Components/PhoneInput.vue'
 
 const { t } = useI18n()
 
@@ -394,7 +391,7 @@ const showPrivacyDialog = ref(false)
 const showTermsDialog = ref(false)
 
 const form = useForm({
-  login: '',
+  login: '+992',
   password: '',
   remember: false,
 })
