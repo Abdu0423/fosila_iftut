@@ -70,25 +70,11 @@
                 <v-row>
                   <v-col cols="12" md="6">
                     <v-text-field
-                      v-model="form.email"
-                      :label="translations.messages?.email || 'Email'"
-                      type="email"
-                      variant="outlined"
-                      density="comfortable"
-                      :error-messages="form.errors.email"
-                      :hint="translations.messages?.email_hint || 'Ихтиёрӣ, аммо бояд ягон email ё телефон бошад'"
-                      persistent-hint
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
                       v-model="form.phone"
                       :label="translations.messages?.phone || 'Телефон'"
                       variant="outlined"
                       density="comfortable"
                       :error-messages="form.errors.phone"
-                      :hint="translations.messages?.phone_hint || 'Ихтиёрӣ, аммо бояд ягон email ё телефон бошад'"
-                      persistent-hint
                       v-mask="'+992#########'"
                       placeholder="+992XXXXXXXXX"
                     ></v-text-field>
@@ -108,23 +94,10 @@
                   </v-col>
                 </v-row>
 
-                <!-- Роль и группа -->
+                <!-- Группа -->
                 <h3 class="text-h6 mb-4 mt-6">{{ translations.messages?.system_info || 'Маълумоти система' }}</h3>
                 <v-row>
                   <v-col cols="12" md="6">
-                    <v-select
-                      v-model="form.role_id"
-                      :items="roles"
-                      item-title="display_name"
-                      item-value="id"
-                      :label="(translations.messages?.role || 'Нақш') + ' *'"
-                      variant="outlined"
-                      density="comfortable"
-                      :error-messages="form.errors.role_id"
-                      required
-                    ></v-select>
-                  </v-col>
-                  <v-col v-if="isStudent" cols="12" md="6">
                     <v-select
                       v-model="form.group_id"
                       :items="groups"
@@ -140,8 +113,8 @@
                   </v-col>
                 </v-row>
 
-                <!-- Телефоны родителей (только для студентов) -->
-                <v-row v-if="isStudent">
+                <!-- Телефоны родителей -->
+                <v-row>
                   <v-col cols="12" md="6">
                     <v-text-field
                       v-model="form.dad_phone"
@@ -162,35 +135,6 @@
                       :error-messages="form.errors.mom_phone"
                       v-mask="'+992#########'"
                       placeholder="+992XXXXXXXXX"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-
-                <!-- Пароль -->
-                <h3 class="text-h6 mb-4 mt-6">{{ translations.messages?.password || 'Парол' }}</h3>
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="form.password"
-                      :label="translations.messages?.password || 'Парол'"
-                      type="password"
-                      variant="outlined"
-                      density="comfortable"
-                      :error-messages="form.errors.password"
-                      :hint="translations.messages?.password_hint || 'Ихтиёрӣ, ба таври худкор тавлид мешавад (ақалан 4 аломат)'"
-                      persistent-hint
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="form.password_confirmation"
-                      :label="translations.messages?.password_confirmation || 'Такрори парол'"
-                      type="password"
-                      variant="outlined"
-                      density="comfortable"
-                      :error-messages="form.errors.password_confirmation"
-                      :hint="translations.messages?.password_confirmation_hint || 'Танҳо агар паролро дар боло нишон дода бошед'"
-                      persistent-hint
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -242,10 +186,6 @@ const translations = computed(() => page.props.translations || {})
 
 // Props из Inertia
 const props = defineProps({
-  roles: {
-    type: Array,
-    default: () => []
-  },
   groups: {
     type: Array,
     default: () => []
@@ -257,22 +197,11 @@ const form = useForm({
   name: '',
   last_name: '',
   middle_name: '',
-  email: '',
   phone: '+992',
   address: '',
   dad_phone: '+992',
   mom_phone: '+992',
-  role_id: '',
-  group_id: '',
-  password: '',
-  password_confirmation: ''
-})
-
-// Проверяем, является ли выбранная роль студентом
-const isStudent = computed(() => {
-  if (!form.role_id) return false
-  const role = props.roles.find(r => r.id === form.role_id)
-  return role?.name === 'student'
+  group_id: ''
 })
 
 // Методы
@@ -281,13 +210,6 @@ const navigateTo = (path) => {
 }
 
 const submitForm = () => {
-  // Валидация: хотя бы email или phone должен быть заполнен
-  if (!form.email && !form.phone) {
-    form.setError('email', 'Необходимо указать хотя бы email или телефон')
-    form.setError('phone', 'Необходимо указать хотя бы email или телефон')
-    return
-  }
-  
   form.post('/education/users', {
     onSuccess: () => {
       // Форма автоматически перенаправит на список пользователей

@@ -140,8 +140,8 @@
                   </v-col>
                 </v-row>
 
-                <!-- Телефоны родителей (только для студентов) -->
-                <v-row v-if="isStudent">
+                <!-- Телефоны родителей -->
+                <v-row>
                   <v-col cols="12" md="6">
                     <v-text-field
                       v-model="form.dad_phone"
@@ -162,34 +162,6 @@
                       :error-messages="form.errors.mom_phone"
                       v-mask="'+992#########'"
                       placeholder="+992XXXXXXXXX"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-
-                <!-- Смена пароля -->
-                <v-divider class="my-6"></v-divider>
-                <h3 class="text-h6 mb-4">{{ translations.messages?.change_password || 'Тағйири парол' }} ({{ translations.messages?.optional || 'ихтиёрӣ' }})</h3>
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="form.password"
-                      :label="translations.messages?.new_password || 'Пароли нав'"
-                      type="password"
-                      variant="outlined"
-                      density="comfortable"
-                      :error-messages="form.errors.password"
-                      :hint="translations.messages?.password_min || 'Ақалан 4 аломат'"
-                      persistent-hint
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="form.password_confirmation"
-                      :label="translations.messages?.password_confirmation || 'Такрори парол'"
-                      type="password"
-                      variant="outlined"
-                      density="comfortable"
-                      :error-messages="form.errors.password_confirmation"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -271,9 +243,7 @@ const form = useForm({
   dad_phone: '',
   mom_phone: '',
   role_id: '',
-  group_id: '',
-  password: '',
-  password_confirmation: ''
+  group_id: ''
 })
 
 // Проверяем, является ли выбранная роль студентом

@@ -108,15 +108,6 @@ class EducationDepartmentController extends Controller
         if (!$user->isEducationDepartment()) {
             abort(403, 'Доступ запрещен');
         }
-        
-        // Только роли преподавателя и студента
-        $roles = Role::whereIn('name', ['teacher', 'student'])->get()->map(function ($role) {
-            return [
-                'id' => $role->id,
-                'name' => $role->name,
-                'display_name' => $this->getRoleDisplayName($role->name)
-            ];
-        });
 
         $groups = Group::where('status', 'active')
             ->orderBy('name')
@@ -130,7 +121,6 @@ class EducationDepartmentController extends Controller
             });
 
         return Inertia::render('EducationDepartment/Users/Create', [
-            'roles' => $roles,
             'groups' => $groups
         ]);
     }
@@ -151,36 +141,23 @@ class EducationDepartmentController extends Controller
                 'name' => 'required|string|max:255',
                 'last_name' => 'required|string|max:255',
                 'middle_name' => 'nullable|string|max:255',
-                'email' => 'nullable|string|email|max:255|unique:users',
-                'password' => 'nullable|string|min:4|confirmed',
-                'role_id' => 'required|exists:roles,id',
-                'group_id' => 'nullable|integer',
+                'group_id' => 'nullable|integer|exists:groups,id',
                 'address' => 'nullable|string|max:255',
                 'phone' => 'nullable|string|max:255',
                 'dad_phone' => 'nullable|string|max:255',
                 'mom_phone' => 'nullable|string|max:255'
             ]);
 
-            // Проверяем, что хотя бы email или phone указан
-            if (empty($validated['email']) && empty($validated['phone'])) {
+            // Получаем роль студента
+            $studentRole = Role::where('name', 'student')->first();
+            if (!$studentRole) {
                 return back()->withErrors([
-                    'email' => 'Необходимо указать хотя бы email или телефон',
-                    'phone' => 'Необходимо указать хотя бы email или телефон'
+                    'role' => 'Роль студента не найдена в системе'
                 ])->withInput();
             }
 
-            // Проверяем, что роль - teacher или student
-            $role = Role::find($validated['role_id']);
-            if (!$role || !in_array($role->name, ['teacher', 'student'])) {
-                return back()->withErrors([
-                    'role_id' => __('controllers.only_teachers_students')
-                ])->withInput();
-            }
-
-            // Генерируем случайный пароль, если не указан
-            if (empty($validated['password'])) {
-                $validated['password'] = \Str::random(12);
-            }
+            // Генерируем случайный пароль автоматически
+            $password = \Str::random(12);
 
             // Нормализуем телефоны
             $normalizedPhone = $this->normalizePhone($validated['phone'] ?? null);
@@ -191,15 +168,13 @@ class EducationDepartmentController extends Controller
                 'name' => $validated['name'],
                 'last_name' => $validated['last_name'],
                 'middle_name' => $validated['middle_name'] ?? null,
-                'email' => $validated['email'] ?? null,
-                'password' => bcrypt($validated['password']),
-                'role_id' => $validated['role_id'],
+                'password' => bcrypt($password),
+                'role_id' => $studentRole->id,
                 'group_id' => $validated['group_id'] ?? null,
                 'address' => $validated['address'] ?? null,
                 'phone' => $normalizedPhone,
                 'dad_phone' => $normalizedDadPhone,
                 'mom_phone' => $normalizedMomPhone,
-                'email_verified_at' => now(),
                 'must_change_password' => true
             ]);
 
@@ -303,8 +278,7 @@ class EducationDepartmentController extends Controller
                 'dad_phone' => 'nullable|string|max:255',
                 'mom_phone' => 'nullable|string|max:255',
                 'role_id' => 'required|exists:roles,id',
-                'group_id' => 'nullable|integer',
-                'password' => 'nullable|string|min:4|confirmed'
+                'group_id' => 'nullable|integer'
             ]);
 
             // Проверяем уникальность email, если он указан
@@ -352,12 +326,6 @@ class EducationDepartmentController extends Controller
                 'role_id' => $validated['role_id'],
                 'group_id' => $validated['group_id'] ?? null
             ]);
-
-            if ($request->filled('password')) {
-                $user->update([
-                    'password' => bcrypt($request->password)
-                ]);
-            }
 
             // Возвращаем back() чтобы onSuccess на фронтенде обработал редирект
             return back()->with('success', __('controllers.user_updated'));
