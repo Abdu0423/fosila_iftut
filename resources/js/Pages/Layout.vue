@@ -235,9 +235,32 @@ const user = computed(() => page.props.auth?.user || {})
 const userName = computed(() => user.value.name || t('messages.user'))
 const userAvatar = computed(() => user.value.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName.value)}`)
 
-// Определяем роль: сначала из props, если не передана - из user.role
+// Определяем роль: сначала из URL (если /education), затем из props, затем из user.role
 const currentRole = computed(() => {
-  return props.role || user.value?.role || 'student'
+  // Определяем роль из URL (приоритет для /education)
+  const path = window.location.pathname
+  if (path.startsWith('/education')) {
+    return 'education_department'
+  }
+  
+  // Если роль передана через props, используем её
+  if (props.role) {
+    return props.role
+  }
+  
+  // Определяем роль из URL для других путей
+  if (path.startsWith('/teacher')) {
+    return 'teacher'
+  }
+  if (path.startsWith('/admin')) {
+    return 'admin'
+  }
+  if (path.startsWith('/student')) {
+    return 'student'
+  }
+  
+  // Если не определили из URL, берем из user.role
+  return user.value?.role || 'student'
 })
 
 const userRole = computed(() => {
