@@ -103,9 +103,14 @@ class SmsService
             // Нормализуем номер телефона для API (убираем + и оставляем только цифры)
             $phoneNumber = preg_replace('/[^0-9]/', '', $phone);
             
+            // Вычисляем str_hash согласно документации OsonSMS:
+            // SHA256(txn_id + login + from + phone_number + pass_salt_hash)
+            $hashString = $txnId . $this->login . $this->sender . $phoneNumber . $this->hash;
+            $strHash = hash('sha256', $hashString);
+            
             $response = Http::get($this->server, [
                 'login' => $this->login,
-                'str_hash' => $this->hash,
+                'str_hash' => $strHash,
                 'from' => $this->sender,
                 'phone_number' => $phoneNumber,
                 'msg' => $message,
