@@ -106,6 +106,7 @@
             :length="Math.ceil((schedules.total || 0) / (schedules.per_page || 20))"
             :model-value="schedules.current_page || 1"
             @update:model-value="handlePageChange"
+            :total-visible="5"
           ></v-pagination>
         </div>
       </v-card>

@@ -136,6 +136,7 @@
             :length="Math.ceil(specialties.total / specialties.per_page)"
             :model-value="specialties.current_page"
             @update:model-value="handlePageChange"
+            :total-visible="5"
           ></v-pagination>
         </div>
       </v-card>

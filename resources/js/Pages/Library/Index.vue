@@ -103,7 +103,7 @@
           <v-pagination
             v-model="currentPage"
             :length="totalPages"
-            :total-visible="7"
+            :total-visible="5"
           ></v-pagination>
         </v-col>
       </v-row>

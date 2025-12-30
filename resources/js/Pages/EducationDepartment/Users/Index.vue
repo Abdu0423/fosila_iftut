@@ -110,6 +110,7 @@
             :length="Math.ceil(users.total / users.per_page)"
             :model-value="users.current_page"
             @update:model-value="handlePageChange"
+            :total-visible="5"
           ></v-pagination>
         </div>
       </v-card>

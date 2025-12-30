@@ -244,6 +244,7 @@
             :model-value="props.schedules.current_page"
             :length="props.schedules.last_page"
             @update:model-value="changePage"
+            :total-visible="5"
           />
         </div>
       </v-card>

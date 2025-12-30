@@ -644,7 +644,7 @@ class EducationDepartmentController extends Controller
             abort(403, 'Доступ запрещен');
         }
         
-        $query = Subject::query();
+        $query = Subject::with('department');
         
         // Поиск
         if ($request->has('search')) {

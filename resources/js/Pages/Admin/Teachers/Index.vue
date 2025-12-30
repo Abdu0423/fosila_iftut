@@ -90,6 +90,13 @@
             :items-per-page="teachers.per_page"
             :total-items="teachers.total"
             @update:options="handleTableUpdate"
+            :footer-props="{
+              'items-per-page-options': [10, 15, 25, 50, 100],
+              'show-first-last-page': true
+            }"
+            :pagination-props="{
+              'total-visible': 5
+            }"
           >
             <template v-slot:item.name="{ item }">
               <div class="d-flex align-center">
