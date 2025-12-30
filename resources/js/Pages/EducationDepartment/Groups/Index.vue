@@ -130,7 +130,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
 import Layout from '../../Layout.vue'
 
@@ -148,14 +148,8 @@ const props = defineProps({
   }
 })
 
-const searchQuery = ref(props.filters.search || '')
-const statusFilter = ref(props.filters.status || null)
-
-// Синхронизируем значения фильтров с props при обновлении
-watch(() => props.filters, (newFilters) => {
-  searchQuery.value = newFilters.search || ''
-  statusFilter.value = newFilters.status || null
-}, { deep: true, immediate: true })
+const searchQuery = ref(props.filters?.search || '')
+const statusFilter = ref(props.filters?.status || null)
 
 const headers = computed(() => [
   { title: translations.value.education_department?.group_name || 'Номи гурӯҳ', key: 'name', sortable: false },
@@ -166,7 +160,8 @@ const headers = computed(() => [
 
 const statusOptions = [
   { title: translations.value.messages?.active || 'Фаъол', value: 'active' },
-  { title: translations.value.messages?.inactive || 'Ғайрифаъол', value: 'inactive' }
+  { title: 'Выпущена', value: 'graduated' },
+  { title: 'Приостановлена', value: 'suspended' }
 ]
 
 // Функция для применения фильтров
@@ -196,12 +191,39 @@ const debouncedSearch = () => {
 }
 
 // Watch для автоматического применения фильтров
+let isInitialized = false
+let isSyncing = false
+
 watch(searchQuery, () => {
-  debouncedSearch()
+  if (isInitialized && !isSyncing) {
+    debouncedSearch()
+  }
 })
 
 watch(statusFilter, () => {
-  applyFilters()
+  if (isInitialized && !isSyncing) {
+    applyFilters()
+  }
+})
+
+// Синхронизируем значения фильтров с props после обновления (но не триггерим запрос)
+watch(() => props.filters, (newFilters) => {
+  isSyncing = true
+  if (newFilters?.search !== undefined && newFilters.search !== searchQuery.value) {
+    searchQuery.value = newFilters.search || ''
+  }
+  if (newFilters?.status !== undefined && newFilters.status !== statusFilter.value) {
+    statusFilter.value = newFilters.status || null
+  }
+  // Сбрасываем флаг после небольшой задержки
+  setTimeout(() => {
+    isSyncing = false
+  }, 100)
+}, { deep: true })
+
+// Инициализируем после монтирования
+onMounted(() => {
+  isInitialized = true
 })
 
 const handleSearch = () => {
