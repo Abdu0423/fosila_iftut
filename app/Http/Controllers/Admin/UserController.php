@@ -217,10 +217,12 @@ class UserController extends Controller
         });
 
         // Получаем активные группы, но также включаем группу пользователя, если она неактивна
-        $groupsQuery = Group::where('status', 'active');
-        if ($user->group_id) {
-            $groupsQuery->orWhere('id', $user->group_id);
-        }
+        $groupsQuery = Group::where(function($query) use ($user) {
+            $query->where('status', 'active');
+            if ($user->group_id) {
+                $query->orWhere('id', $user->group_id);
+            }
+        });
         $groups = $groupsQuery
             ->orderBy('name')
             ->get()
@@ -244,7 +246,7 @@ class UserController extends Controller
                 'dad_phone' => $user->dad_phone ?? '',
                 'mom_phone' => $user->mom_phone ?? '',
                 'role_id' => $user->role_id,
-                'group_id' => $user->group_id,
+                'group_id' => $user->group_id ? (int)$user->group_id : null,
                 'created_at' => $user->created_at ? $user->created_at->format('d.m.Y H:i') : 'Не указано',
                 'updated_at' => $user->updated_at ? $user->updated_at->format('d.m.Y H:i') : 'Не указано',
                 'email_verified_at' => $user->email_verified_at
