@@ -6,8 +6,8 @@
         <v-col cols="12">
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
-              <h1 class="text-h4 font-weight-bold mb-2">Мои уроки</h1>
-              <p class="text-body-1 text-medium-emphasis">Выберите расписание для управления уроками</p>
+              <h1 class="text-h4 font-weight-bold mb-2">{{ t('navigation.my_lessons', {}, { default: 'Мои уроки' }) }}</h1>
+              <p class="text-body-1 text-medium-emphasis">{{ t('teacher.select_schedule_for_lessons', {}, { default: 'Выберите расписание для управления уроками' }) }}</p>
             </div>
           </div>
         </v-col>
@@ -54,7 +54,7 @@
                   :color="schedule.is_active ? 'success' : 'grey'"
                   size="small"
                 >
-                  {{ schedule.is_active ? 'Активно' : 'Неактивно' }}
+                  {{ schedule.is_active ? t('messages.active', {}, { default: 'Активно' }) : t('messages.inactive', {}, { default: 'Неактивно' }) }}
                 </v-chip>
               </v-card-title>
 
@@ -64,7 +64,7 @@
                     <v-icon class="mr-2" color="info" size="24">mdi-teach</v-icon>
                     <div>
                       <div class="text-h5 font-weight-bold">{{ schedule.lessons_count || 0 }}</div>
-                      <div class="text-caption text-medium-emphasis">Уроков</div>
+                      <div class="text-caption text-medium-emphasis">{{ t('teacher.lessons_count', {}, { default: 'Уроков' }) }}</div>
                     </div>
                   </div>
                   <v-icon color="primary">mdi-chevron-right</v-icon>
@@ -79,11 +79,11 @@
                   </div>
                   <div v-if="schedule.semester" class="mb-1">
                     <v-icon size="14">mdi-school</v-icon>
-                    Семестр {{ schedule.semester }}
+                    {{ t('teacher.semester', {}, { default: 'Семестр' }) }} {{ schedule.semester }}
                   </div>
                   <div v-if="schedule.credits">
                     <v-icon size="14">mdi-credit-card</v-icon>
-                    {{ schedule.credits }} кредитов
+                    {{ schedule.credits }} {{ t('teacher.credits', {}, { default: 'кредитов' }) }}
                   </div>
                 </div>
               </v-card-text>
@@ -98,8 +98,8 @@
           <v-card>
             <v-card-text class="text-center py-8">
               <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-calendar-outline</v-icon>
-              <h3 class="text-h6 mb-2">У вас пока нет расписаний</h3>
-              <p class="text-body-2 text-grey">Расписания будут отображаться здесь после их создания</p>
+              <h3 class="text-h6 mb-2">{{ t('teacher.no_schedules', {}, { default: 'У вас пока нет расписаний' }) }}</h3>
+              <p class="text-body-2 text-grey">{{ t('teacher.schedules_will_appear', {}, { default: 'Расписания будут отображаться здесь после их создания' }) }}</p>
             </v-card-text>
           </v-card>
         </v-col>
@@ -110,9 +110,11 @@
 
 <script setup>
 import { usePage, router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
 
 const page = usePage()
+const { t } = useI18n()
 
 // Props
 const props = defineProps({

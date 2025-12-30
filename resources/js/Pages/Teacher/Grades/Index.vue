@@ -6,8 +6,8 @@
         <v-col cols="12">
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
-              <h1 class="text-h4 font-weight-bold mb-2">Оценки студентов</h1>
-              <p class="text-body-1 text-medium-emphasis">Выберите расписание для управления оценками</p>
+              <h1 class="text-h4 font-weight-bold mb-2">{{ t('teacher.student_grades', {}, { default: 'Оценки студентов' }) }}</h1>
+              <p class="text-body-1 text-medium-emphasis">{{ t('teacher.select_schedule_for_grades', {}, { default: 'Выберите расписание для управления оценками' }) }}</p>
             </div>
           </div>
         </v-col>
@@ -32,7 +32,7 @@
           <v-card variant="outlined">
             <v-card-title>
               <v-icon start>mdi-calendar-clock</v-icon>
-              Выберите расписание
+              {{ t('teacher.select_schedule', {}, { default: 'Выберите расписание' }) }}
             </v-card-title>
             <v-card-text>
               <v-select
@@ -40,7 +40,7 @@
                 :items="schedules"
                 item-title="label"
                 item-value="id"
-                label="Расписание (группа - предмет)"
+                :label="t('teacher.schedule_group_subject', {}, { default: 'Расписание (группа - предмет)' })"
                 variant="outlined"
                 density="compact"
                 prepend-inner-icon="mdi-school"
@@ -51,7 +51,7 @@
                   <v-list-item v-bind="props">
                     <v-list-item-title>{{ item.raw.label }}</v-list-item-title>
                     <v-list-item-subtitle>
-                      Семестр {{ item.raw.semester }} • {{ item.raw.study_year }}
+                      {{ t('teacher.semester', {}, { default: 'Семестр' }) }} {{ item.raw.semester }} • {{ item.raw.study_year }}
                     </v-list-item-subtitle>
                   </v-list-item>
                 </template>
@@ -68,7 +68,7 @@
             <v-card-title>
               <div class="d-flex align-center">
                 <v-icon start>mdi-table</v-icon>
-                Оценки студентов
+                {{ t('teacher.grades_students', {}, { default: 'Оценки студентов' }) }}
                 <v-chip class="ml-3" color="primary" size="small">
                   {{ selectedSchedule?.group_name }}
                 </v-chip>
@@ -81,15 +81,15 @@
               <v-table>
                 <thead>
                   <tr>
-                    <th class="text-left">Студент</th>
-                    <th class="text-center">Рейт. учитель 1<br><span class="text-caption text-grey">(учитель)</span></th>
-                    <th class="text-center">Рейт. учитель 2<br><span class="text-caption text-grey">(учитель)</span></th>
-                    <th class="text-center">Рейт. тест 1<br><span class="text-caption text-grey">(тест)</span></th>
-                    <th class="text-center">Рейт. тест 2<br><span class="text-caption text-grey">(тест)</span></th>
-                    <th class="text-center">Экзамен<br><span class="text-caption text-grey">({{ getExamType(student) }})</span></th>
-                    <th class="text-center">Итоговая<br><span class="text-caption text-grey">(100 баллов)</span></th>
-                    <th class="text-center">Итоговая<br><span class="text-caption text-grey">(10 баллов)</span></th>
-                    <th class="text-center">Итоговая<br><span class="text-caption text-grey">(буква)</span></th>
+                    <th class="text-left">{{ t('teacher.student', {}, { default: 'Студент' }) }}</th>
+                    <th class="text-center">{{ t('teacher.rating_teacher_1', {}, { default: 'Рейт. учитель 1' }) }}<br><span class="text-caption text-grey">({{ t('teacher.teacher_label', {}, { default: 'учитель' }) }})</span></th>
+                    <th class="text-center">{{ t('teacher.rating_teacher_2', {}, { default: 'Рейт. учитель 2' }) }}<br><span class="text-caption text-grey">({{ t('teacher.teacher_label', {}, { default: 'учитель' }) }})</span></th>
+                    <th class="text-center">{{ t('teacher.rating_test_1', {}, { default: 'Рейт. тест 1' }) }}<br><span class="text-caption text-grey">({{ t('teacher.test_label', {}, { default: 'тест' }) }})</span></th>
+                    <th class="text-center">{{ t('teacher.rating_test_2', {}, { default: 'Рейт. тест 2' }) }}<br><span class="text-caption text-grey">({{ t('teacher.test_label', {}, { default: 'тест' }) }})</span></th>
+                    <th class="text-center">{{ t('teacher.exam', {}, { default: 'Экзамен' }) }}<br><span class="text-caption text-grey">({{ getExamType(student) }})</span></th>
+                    <th class="text-center">{{ t('teacher.final_100', {}, { default: 'Итоговая' }) }}<br><span class="text-caption text-grey">({{ t('teacher.points_100', {}, { default: '100 баллов' }) }})</span></th>
+                    <th class="text-center">{{ t('teacher.final_10', {}, { default: 'Итоговая' }) }}<br><span class="text-caption text-grey">({{ t('teacher.points_10', {}, { default: '10 баллов' }) }})</span></th>
+                    <th class="text-center">{{ t('teacher.final_letter', {}, { default: 'Итоговая' }) }}<br><span class="text-caption text-grey">({{ t('teacher.letter', {}, { default: 'буква' }) }})</span></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -201,8 +201,8 @@
           <v-card>
             <v-card-text class="text-center py-8">
               <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-account-group-outline</v-icon>
-              <h3 class="text-h6 mb-2">Студенты не найдены</h3>
-              <p class="text-body-2 text-grey">В выбранной группе нет студентов</p>
+              <h3 class="text-h6 mb-2">{{ t('teacher.students_not_found', {}, { default: 'Студенты не найдены' }) }}</h3>
+              <p class="text-body-2 text-grey">{{ t('teacher.no_students_in_group', {}, { default: 'В выбранной группе нет студентов' }) }}</p>
             </v-card-text>
           </v-card>
         </v-col>
@@ -214,8 +214,8 @@
           <v-card variant="outlined">
             <v-card-text class="text-center py-8">
               <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-calendar-clock-outline</v-icon>
-              <h3 class="text-h6 mb-2">Выберите расписание</h3>
-              <p class="text-body-2 text-grey">Выберите расписание из списка выше, чтобы увидеть студентов и управлять оценками</p>
+              <h3 class="text-h6 mb-2">{{ t('teacher.select_schedule', {}, { default: 'Выберите расписание' }) }}</h3>
+              <p class="text-body-2 text-grey">{{ t('teacher.select_schedule_instruction', {}, { default: 'Выберите расписание из списка выше, чтобы увидеть студентов и управлять оценками' }) }}</p>
             </v-card-text>
           </v-card>
         </v-col>
@@ -227,10 +227,12 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
 import axios from 'axios'
 
 const page = usePage()
+const { t } = useI18n()
 
 // Props
 const props = defineProps({
@@ -271,7 +273,7 @@ const loadGrades = async () => {
     }
   } catch (error) {
     console.error('Ошибка при загрузке оценок:', error)
-    alert('Ошибка при загрузке оценок: ' + (error.response?.data?.message || error.message))
+    alert(t('teacher.error_loading_grades', {}, { default: 'Ошибка при загрузке оценок' }) + ': ' + (error.response?.data?.message || error.message))
   } finally {
     loading.value = false
   }
@@ -310,12 +312,14 @@ const updateGrade = async (student) => {
     }
   } catch (error) {
     console.error('Ошибка при обновлении оценки:', error)
-    alert('Ошибка при обновлении оценки: ' + (error.response?.data?.message || error.message))
+    alert(t('teacher.error_updating_grade', {}, { default: 'Ошибка при обновлении оценки' }) + ': ' + (error.response?.data?.message || error.message))
   }
 }
 
 const getExamType = (student) => {
-  return student.final_exam_type === 'teacher' ? 'учитель' : student.final_exam_type === 'test' ? 'тест' : '-'
+  if (student.final_exam_type === 'teacher') return t('teacher.teacher_label', {}, { default: 'учитель' })
+  if (student.final_exam_type === 'test') return t('teacher.test_label', {}, { default: 'тест' })
+  return '-'
 }
 
 const getGradeColor = (grade) => {

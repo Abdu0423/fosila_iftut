@@ -6,8 +6,8 @@
         <v-col cols="12">
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
-              <h1 class="text-h4 font-weight-bold mb-2">Тесты расписаний</h1>
-              <p class="text-body-1 text-medium-emphasis">Каждое расписание имеет свой тест</p>
+              <h1 class="text-h4 font-weight-bold mb-2">{{ t('teacher.schedule_tests', {}, { default: 'Тесты расписаний' }) }}</h1>
+              <p class="text-body-1 text-medium-emphasis">{{ t('teacher.each_schedule_has_test', {}, { default: 'Каждое расписание имеет свой тест' }) }}</p>
             </div>
           </div>
         </v-col>
@@ -32,7 +32,7 @@
           <v-card variant="outlined">
             <v-card-text class="text-center">
               <div class="text-h4 font-weight-bold text-primary">{{ stats.total_schedules }}</div>
-              <div class="text-body-2 text-medium-emphasis">Всего расписаний</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('teacher.total_schedules', {}, { default: 'Всего расписаний' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -40,7 +40,7 @@
           <v-card variant="outlined">
             <v-card-text class="text-center">
               <div class="text-h4 font-weight-bold text-success">{{ stats.with_tests }}</div>
-              <div class="text-body-2 text-medium-emphasis">С тестами</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('teacher.with_tests', {}, { default: 'С тестами' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -48,7 +48,7 @@
           <v-card variant="outlined">
             <v-card-text class="text-center">
               <div class="text-h4 font-weight-bold text-warning">{{ stats.without_tests }}</div>
-              <div class="text-body-2 text-medium-emphasis">Без тестов</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('teacher.without_tests', {}, { default: 'Без тестов' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -63,7 +63,7 @@
                 <v-col cols="12" md="6">
                   <v-text-field
                     v-model="search"
-                    label="Поиск по предмету или группе"
+                    :label="t('teacher.search_subject_group', {}, { default: 'Поиск по предмету или группе' })"
                     variant="outlined"
                     density="compact"
                     prepend-inner-icon="mdi-magnify"
@@ -74,13 +74,13 @@
                   <v-select
                     v-model="selectedSemester"
                     :items="[
-                      { title: 'Все семестры', value: '' },
-                      { title: 'Семестр 1', value: 1 },
-                      { title: 'Семестр 2', value: 2 }
+                      { title: t('teacher.all_semesters', {}, { default: 'Все семестры' }), value: '' },
+                      { title: t('teacher.semester_1', {}, { default: 'Семестр 1' }), value: 1 },
+                      { title: t('teacher.semester_2', {}, { default: 'Семестр 2' }), value: 2 }
                     ]"
                     item-title="title"
                     item-value="value"
-                    label="Семестр"
+                    :label="t('teacher.semester', {}, { default: 'Семестр' })"
                     variant="outlined"
                     density="compact"
                   ></v-select>
@@ -89,15 +89,15 @@
                   <v-select
                     v-model="selectedStatus"
                     :items="[
-                      { title: 'Все', value: '' },
-                      { title: 'С тестами', value: 'with_test' },
-                      { title: 'Без тестов', value: 'without_test' },
-                      { title: 'Активные тесты', value: 'active' },
-                      { title: 'Неактивные тесты', value: 'inactive' }
+                      { title: t('teacher.all', {}, { default: 'Все' }), value: '' },
+                      { title: t('teacher.with_test', {}, { default: 'С тестами' }), value: 'with_test' },
+                      { title: t('teacher.without_test', {}, { default: 'Без тестов' }), value: 'without_test' },
+                      { title: t('teacher.active_tests', {}, { default: 'Активные тесты' }), value: 'active' },
+                      { title: t('teacher.inactive_tests', {}, { default: 'Неактивные тесты' }), value: 'inactive' }
                     ]"
                     item-title="title"
                     item-value="value"
-                    label="Статус"
+                    :label="t('messages.status', {}, { default: 'Статус' })"
                     variant="outlined"
                     density="compact"
                   ></v-select>
@@ -114,13 +114,13 @@
           <v-card>
             <v-card-title class="text-h6">
               <v-icon start>mdi-calendar-text</v-icon>
-              Расписания ({{ filteredSchedules.length }})
+              {{ t('teacher.schedules_count', {}, { default: 'Расписания' }) }} ({{ filteredSchedules.length }})
             </v-card-title>
             <v-card-text>
               <div v-if="filteredSchedules.length === 0" class="text-center py-8">
                 <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-calendar-text-outline</v-icon>
-                <h3 class="text-h6 text-grey">Нет расписаний</h3>
-                <p class="text-body-2 text-grey">Обратитесь к администратору для создания расписания</p>
+                <h3 class="text-h6 text-grey">{{ t('teacher.no_schedules_found', {}, { default: 'Нет расписаний' }) }}</h3>
+                <p class="text-body-2 text-grey">{{ t('teacher.contact_admin_for_schedule', {}, { default: 'Обратитесь к администратору для создания расписания' }) }}</p>
               </div>
               
               <div v-else>
@@ -157,7 +157,7 @@
                           size="small"
                           variant="tonal"
                         >
-                          Семестр {{ schedule.semester }}
+                          {{ t('teacher.semester', {}, { default: 'Семестр' }) }} {{ schedule.semester }}
                         </v-chip>
                         
                         <v-chip
@@ -174,7 +174,7 @@
                           size="small"
                           variant="tonal"
                         >
-                          Тест: {{ schedule.test.is_active ? 'Активен' : 'Неактивен' }}
+                          {{ t('navigation.tests', {}, { default: 'Тест' }) }}: {{ schedule.test.is_active ? t('teacher.test_active', {}, { default: 'Активен' }) : t('teacher.test_inactive', {}, { default: 'Неактивен' }) }}
                         </v-chip>
                         
                         <v-chip
@@ -183,7 +183,7 @@
                           size="small"
                           variant="tonal"
                         >
-                          Тест не создан
+                          {{ t('teacher.test_not_created', {}, { default: 'Тест не создан' }) }}
                         </v-chip>
                       </div>
                       
@@ -194,11 +194,11 @@
                         </span>
                         <span v-if="schedule.test.questions_count > 0">
                           <v-icon size="16" class="mr-1">mdi-help-circle</v-icon>
-                          {{ schedule.test.questions_count }} вопросов
+                          {{ schedule.test.questions_count }} {{ t('teacher.questions', {}, { default: 'вопросов' }) }}
                         </span>
                         <span v-if="schedule.test.time_limit">
                           <v-icon size="16" class="mr-1">mdi-clock</v-icon>
-                          {{ schedule.test.time_limit }} мин.
+                          {{ schedule.test.time_limit }} {{ t('teacher.minutes', {}, { default: 'мин.' }) }}
                         </span>
                         <span v-if="schedule.test.passing_score">
                           <v-icon size="16" class="mr-1">mdi-percent</v-icon>
@@ -214,7 +214,7 @@
                         variant="tonal"
                       >
                         <v-icon start>mdi-eye</v-icon>
-                        Просмотр
+                        {{ t('teacher.view', {}, { default: 'Просмотр' }) }}
                       </v-btn>
                     </template>
                   </v-list-item>
@@ -231,9 +231,11 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
 
 const page = usePage()
+const { t } = useI18n()
 
 // Props из Inertia
 const props = defineProps({
