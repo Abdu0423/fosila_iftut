@@ -151,11 +151,15 @@ const props = defineProps({
 const searchQuery = ref(props.filters.search || '')
 const statusFilter = ref(props.filters.status || null)
 
-// Синхронизируем значения фильтров с props при обновлении
+// Синхронизируем значения с props после обновления (без вызова фильтров)
 watch(() => props.filters, (newFilters) => {
-  searchQuery.value = newFilters.search || ''
-  statusFilter.value = newFilters.status || null
-}, { deep: true, immediate: true })
+  if (newFilters.search !== undefined) {
+    searchQuery.value = newFilters.search || ''
+  }
+  if (newFilters.status !== undefined) {
+    statusFilter.value = newFilters.status || null
+  }
+}, { deep: true })
 
 const headers = computed(() => [
   { title: translations.value.education_department?.group_name || 'Номи гурӯҳ', key: 'name', sortable: false },
@@ -169,8 +173,28 @@ const statusOptions = [
   { title: translations.value.messages?.inactive || 'Ғайрифаъол', value: 'inactive' }
 ]
 
-// Функция для применения фильтров
-const applyFilters = () => {
+// Debounced функция для поиска
+let searchTimeout = null
+
+const handleSearch = () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    const params = {}
+    if (searchQuery.value) {
+      params.search = searchQuery.value
+    }
+    if (statusFilter.value) {
+      params.status = statusFilter.value
+    }
+    
+    router.get('/education/groups', params, {
+      preserveState: true,
+      preserveScroll: true
+    })
+  }, 500)
+}
+
+const handleStatusFilter = () => {
   const params = {}
   if (searchQuery.value) {
     params.search = searchQuery.value
@@ -181,37 +205,8 @@ const applyFilters = () => {
   
   router.get('/education/groups', params, {
     preserveState: true,
-    preserveScroll: true,
-    replace: false
+    preserveScroll: true
   })
-}
-
-// Debounced функция для поиска
-let searchTimeout = null
-const debouncedSearch = () => {
-  clearTimeout(searchTimeout)
-  searchTimeout = setTimeout(() => {
-    applyFilters()
-  }, 500)
-}
-
-// Watch для автоматического применения фильтров
-watch(searchQuery, () => {
-  debouncedSearch()
-})
-
-watch(statusFilter, () => {
-  applyFilters()
-})
-
-const handleSearch = () => {
-  // Функция вызывается при изменении через @update:model-value
-  // Но мы используем watch для автоматического применения
-}
-
-const handleStatusFilter = () => {
-  // Функция вызывается при изменении через @update:model-value
-  // Но мы используем watch для автоматического применения
 }
 
 const handlePageChange = (pageNum) => {
