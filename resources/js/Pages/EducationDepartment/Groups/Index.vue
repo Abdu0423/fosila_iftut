@@ -115,8 +115,8 @@
         </v-data-table>
 
         <!-- Пагинация -->
-        <v-divider></v-divider>
-        <div class="d-flex justify-center pa-4">
+        <v-divider v-if="groups.data && groups.data.length > 0"></v-divider>
+        <div v-if="groups.data && groups.data.length > 0 && totalPages > 1" class="d-flex justify-center pa-4">
           <v-pagination
             :length="totalPages"
             :model-value="groups.current_page"
@@ -164,33 +164,52 @@ const statusOptions = [
 ]
 
 const handleSearch = () => {
-  router.get('/education/groups', {
-    search: searchQuery.value,
-    status: statusFilter.value
-  }, {
-    preserveState: true,
-    preserveScroll: true
+  const params = {}
+  if (searchQuery.value) {
+    params.search = searchQuery.value
+  }
+  if (statusFilter.value) {
+    params.status = statusFilter.value
+  }
+  
+  router.get('/education/groups', params, {
+    preserveState: false,
+    preserveScroll: false,
+    replace: false
   })
 }
 
 const handleStatusFilter = () => {
-  router.get('/education/groups', {
-    search: searchQuery.value,
-    status: statusFilter.value
-  }, {
-    preserveState: true,
-    preserveScroll: true
+  const params = {}
+  if (searchQuery.value) {
+    params.search = searchQuery.value
+  }
+  if (statusFilter.value) {
+    params.status = statusFilter.value
+  }
+  
+  router.get('/education/groups', params, {
+    preserveState: false,
+    preserveScroll: false,
+    replace: false
   })
 }
 
 const handlePageChange = (pageNum) => {
-  router.get('/education/groups', {
-    page: pageNum,
-    search: searchQuery.value,
-    status: statusFilter.value
-  }, {
-    preserveState: true,
-    preserveScroll: true
+  const params = {
+    page: pageNum
+  }
+  if (searchQuery.value) {
+    params.search = searchQuery.value
+  }
+  if (statusFilter.value) {
+    params.status = statusFilter.value
+  }
+  
+  router.get('/education/groups', params, {
+    preserveState: false,
+    preserveScroll: false,
+    replace: false
   })
 }
 

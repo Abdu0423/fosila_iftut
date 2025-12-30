@@ -450,7 +450,7 @@ class EducationDepartmentController extends Controller
         $query = Group::query();
         
         // Поиск
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -459,7 +459,7 @@ class EducationDepartmentController extends Controller
         }
         
         // Фильтр по статусу
-        if ($request->has('status')) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
         
