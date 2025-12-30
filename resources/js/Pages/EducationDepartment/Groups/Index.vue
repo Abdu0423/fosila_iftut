@@ -130,7 +130,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
 import Layout from '../../Layout.vue'
 
@@ -151,6 +151,12 @@ const props = defineProps({
 const searchQuery = ref(props.filters.search || '')
 const statusFilter = ref(props.filters.status || null)
 
+// Синхронизируем значения фильтров с props при обновлении
+watch(() => props.filters, (newFilters) => {
+  searchQuery.value = newFilters.search || ''
+  statusFilter.value = newFilters.status || null
+}, { deep: true, immediate: true })
+
 const headers = computed(() => [
   { title: translations.value.education_department?.group_name || 'Номи гурӯҳ', key: 'name', sortable: false },
   { title: translations.value.education_department?.group_students_count || 'Шумораи донишҷӯён', key: 'users_count', sortable: false },
@@ -163,7 +169,8 @@ const statusOptions = [
   { title: translations.value.messages?.inactive || 'Ғайрифаъол', value: 'inactive' }
 ]
 
-const handleSearch = () => {
+// Функция для применения фильтров
+const applyFilters = () => {
   const params = {}
   if (searchQuery.value) {
     params.search = searchQuery.value
@@ -173,26 +180,38 @@ const handleSearch = () => {
   }
   
   router.get('/education/groups', params, {
-    preserveState: false,
-    preserveScroll: false,
+    preserveState: true,
+    preserveScroll: true,
     replace: false
   })
 }
 
+// Debounced функция для поиска
+let searchTimeout = null
+const debouncedSearch = () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    applyFilters()
+  }, 500)
+}
+
+// Watch для автоматического применения фильтров
+watch(searchQuery, () => {
+  debouncedSearch()
+})
+
+watch(statusFilter, () => {
+  applyFilters()
+})
+
+const handleSearch = () => {
+  // Функция вызывается при изменении через @update:model-value
+  // Но мы используем watch для автоматического применения
+}
+
 const handleStatusFilter = () => {
-  const params = {}
-  if (searchQuery.value) {
-    params.search = searchQuery.value
-  }
-  if (statusFilter.value) {
-    params.status = statusFilter.value
-  }
-  
-  router.get('/education/groups', params, {
-    preserveState: false,
-    preserveScroll: false,
-    replace: false
-  })
+  // Функция вызывается при изменении через @update:model-value
+  // Но мы используем watch для автоматического применения
 }
 
 const handlePageChange = (pageNum) => {
@@ -207,8 +226,8 @@ const handlePageChange = (pageNum) => {
   }
   
   router.get('/education/groups', params, {
-    preserveState: false,
-    preserveScroll: false,
+    preserveState: true,
+    preserveScroll: true,
     replace: false
   })
 }
