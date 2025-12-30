@@ -8,7 +8,7 @@
       :permanent="!isMobile"
       :color="navDrawerColor"
       :width="navDrawerWidth"
-      class="modern-drawer"
+      class="modern-drawer drawer-flex"
       :class="{ 'drawer-dark': isDarkTheme }"
     >
       <!-- Заголовок меню -->
@@ -45,26 +45,28 @@
       </div>
 
       <!-- Пункты меню -->
-      <v-list class="menu-list pa-2" nav>
-        <v-list-item
-          v-for="item in menuItems"
-          :key="item.title"
-          :prepend-icon="item.icon"
-          :title="item.title"
-          :active="isActiveRoute(item.route)"
-          :class="[
-            'menu-item',
-            { 'menu-item-active': isActiveRoute(item.route) },
-            { 'menu-item-dark': isDarkTheme }
-          ]"
-          @click="navigateTo(item.route)"
-          rounded="lg"
-        >
-          <template v-slot:prepend>
-            <v-icon :class="{ 'active-icon': isActiveRoute(item.route) }">{{ item.icon }}</v-icon>
-          </template>
-        </v-list-item>
-      </v-list>
+      <div class="menu-list-wrapper">
+        <v-list class="menu-list pa-2" nav>
+          <v-list-item
+            v-for="item in menuItems"
+            :key="item.title"
+            :prepend-icon="item.icon"
+            :title="item.title"
+            :active="isActiveRoute(item.route)"
+            :class="[
+              'menu-item',
+              { 'menu-item-active': isActiveRoute(item.route) },
+              { 'menu-item-dark': isDarkTheme }
+            ]"
+            @click="navigateTo(item.route)"
+            rounded="lg"
+          >
+            <template v-slot:prepend>
+              <v-icon :class="{ 'active-icon': isActiveRoute(item.route) }">{{ item.icon }}</v-icon>
+            </template>
+          </v-list-item>
+        </v-list>
+      </div>
     </v-navigation-drawer>
 
     <!-- Верхняя панель -->
@@ -479,6 +481,13 @@ const logout = () => {
 /* Основные стили для навигационного меню */
 .modern-drawer {
   box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-flex {
+  display: flex;
+  flex-direction: column;
 }
 
 .drawer-dark {
@@ -517,10 +526,20 @@ const logout = () => {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.1) 100%);
 }
 
+/* Обертка для списка меню */
+.menu-list-wrapper {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 /* Пункты меню */
 .menu-list {
   overflow-y: auto;
-  max-height: calc(100vh - 280px);
+  flex: 1;
+  min-height: 0;
 }
 
 .menu-list::-webkit-scrollbar {
@@ -655,9 +674,6 @@ const logout = () => {
 
 /* Адаптивные стили */
 @media (max-width: 960px) {
-  .menu-list {
-    max-height: calc(100vh - 250px);
-  }
 }
 
 @media (max-width: 600px) {
@@ -670,9 +686,6 @@ const logout = () => {
     padding: 16px !important;
   }
 
-  .menu-list {
-    max-height: calc(100vh - 230px);
-  }
 }
 
 /* Анимации плавного появления */
