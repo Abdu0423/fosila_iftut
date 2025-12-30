@@ -67,6 +67,8 @@ return [
     'department' => 'Кафедра',
     'specialty' => 'Специальность',
     'filter_by_status' => 'Фильтр по статусу',
+    'graduated' => 'Выпущена',
+    'suspended' => 'Приостановлена',
     
     // Кафедры
     'departments_title' => 'Кафедры',

@@ -87,6 +87,8 @@ return [
     'department' => 'Кафедра',
     'specialty' => 'Ихтисос',
     'filter_by_status' => 'Филтр аз рӯи вазъият',
+    'graduated' => 'Хориҷшуда',
+    'suspended' => 'Қатъшуда',
     
     // Кафедры
     'departments_title' => 'Кафедраҳо',
