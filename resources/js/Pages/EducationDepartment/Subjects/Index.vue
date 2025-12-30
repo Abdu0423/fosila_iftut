@@ -96,9 +96,10 @@
         <v-divider v-if="subjects.data.length > 0"></v-divider>
         <div v-if="subjects.data.length > 0" class="d-flex justify-center pa-4">
           <v-pagination
-            :length="Math.ceil(subjects.total / subjects.per_page)"
+            :length="totalPages"
             :model-value="subjects.current_page"
             @update:model-value="handlePageChange"
+            :total-visible="Math.min(5, totalPages)"
           ></v-pagination>
         </div>
       </v-card>
@@ -153,5 +154,9 @@ const handlePageChange = (pageNum) => {
     preserveScroll: true
   })
 }
+
+// Вычисляемое свойство для ограничения видимых страниц пагинации
+// Показываем максимум 5 страниц: текущая + 1 предыдущая + 1 следующая + первая + последняя
+const totalPages = computed(() => Math.ceil(subjects.total / subjects.per_page))
 </script>
 
