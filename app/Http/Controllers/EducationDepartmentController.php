@@ -461,7 +461,13 @@ class EducationDepartmentController extends Controller
         
         // Фильтр по статусу
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $status = $request->status;
+            // Если выбран "inactive", показываем все неактивные статусы (graduated и suspended)
+            if ($status === 'inactive') {
+                $query->whereIn('status', ['graduated', 'suspended']);
+            } else {
+                $query->where('status', $status);
+            }
         }
         
         $groups = $query->withCount('users')->orderBy('name')->paginate(20);

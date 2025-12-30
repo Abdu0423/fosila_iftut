@@ -170,7 +170,8 @@ const headers = computed(() => [
 
 const statusOptions = [
   { title: translations.value.messages?.active || 'Фаъол', value: 'active' },
-  { title: translations.value.messages?.inactive || 'Ғайрифаъол', value: 'inactive' }
+  { title: translations.value.education_department?.graduated || 'Выпущена', value: 'graduated' },
+  { title: translations.value.education_department?.suspended || 'Приостановлена', value: 'suspended' }
 ]
 
 // Debounced функция для поиска
