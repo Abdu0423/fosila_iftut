@@ -132,7 +132,7 @@
                     ></v-select>
                   </v-col>
                   <v-col v-if="isStudent" cols="12" md="6">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.group_id"
                       :items="groups"
                       item-title="display_name"
@@ -143,7 +143,7 @@
                       :error-messages="form.errors.group_id"
                       clearable
                       :placeholder="t('admin.users.select_group')"
-                    ></v-select>
+                    ></v-autocomplete>
                   </v-col>
                 </v-row>
 
@@ -169,34 +169,6 @@
                       :error-messages="form.errors.mom_phone"
                       v-mask="'+992#########'"
                       placeholder="+992XXXXXXXXX"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-
-                <!-- Смена пароля -->
-                <v-divider class="my-6"></v-divider>
-                <h3 class="text-h6 mb-4">{{ t('admin.users.change_password') }}</h3>
-                <v-row>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="form.password"
-                      :label="t('admin.users.new_password')"
-                      type="password"
-                      variant="outlined"
-                      density="compact"
-                      :error-messages="form.errors.password"
-                      :hint="t('admin.users.new_password_hint')"
-                      persistent-hint
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model="form.password_confirmation"
-                      :label="t('admin.users.password_confirmation')"
-                      type="password"
-                      variant="outlined"
-                      density="compact"
-                      :error-messages="form.errors.password_confirmation"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -278,9 +250,7 @@ const form = useForm({
   dad_phone: '',
   mom_phone: '',
   role_id: '',
-  group_id: '',
-  password: '',
-  password_confirmation: ''
+  group_id: ''
 })
 
 // Проверяем, является ли пользователь студентом
@@ -304,7 +274,8 @@ onMounted(() => {
   form.dad_phone = props.user.dad_phone || '+992'
   form.mom_phone = props.user.mom_phone || '+992'
   form.role_id = props.user.role_id
-  form.group_id = props.user.group_id
+  // Преобразуем group_id в число, если он есть
+  form.group_id = props.user.group_id ? Number(props.user.group_id) : null
 })
 
 // Методы
