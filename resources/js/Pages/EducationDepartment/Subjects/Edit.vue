@@ -6,7 +6,7 @@
         <v-btn
           icon="mdi-arrow-left"
           variant="text"
-          @click="router.visit(route('education.subjects.index'))"
+          @click="router.visit('/education/subjects')"
           class="mr-3"
         />
         <div>
@@ -92,7 +92,7 @@
                   </v-btn>
                   <v-btn
                     variant="outlined"
-                    @click="router.visit(route('education.subjects.index'))"
+                    @click="router.visit('/education/subjects')"
                     :disabled="form.processing"
                   >
                     {{ translations.messages?.cancel || 'Отмена' }}
@@ -136,10 +136,10 @@ const form = useForm({
 const errors = computed(() => page.props.errors || {})
 
 const submit = () => {
-  form.put(route('education.subjects.update', props.subject.id), {
+  form.put(`/education/subjects/${props.subject.id}`, {
     preserveScroll: true,
     onSuccess: () => {
-      router.visit(route('education.subjects.index'))
+      router.visit('/education/subjects')
     }
   })
 }
