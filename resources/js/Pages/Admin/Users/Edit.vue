@@ -143,7 +143,7 @@
                       :error-messages="form.errors.group_id"
                       clearable
                       :placeholder="t('admin.users.select_group')"
-                      :value="form.group_id"    <!-- ensures current group is shown before changes -->
+                      :value="form.group_id"    
                     ></v-autocomplete>
                   </v-col>
                 </v-row>
