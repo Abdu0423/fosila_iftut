@@ -81,21 +81,34 @@ class SyllabusController extends Controller
     {
         $teacherId = auth()->id();
         
-        // Получаем предметы из расписаний учителя
+        // Получаем предметы из расписаний учителя (если есть)
         $schedules = Schedule::where('teacher_id', $teacherId)
             ->with('subject')
             ->get();
         
-        $subjects = $schedules->pluck('subject')
+        $scheduleSubjects = $schedules->pluck('subject')
             ->filter()
             ->unique('id')
-            ->map(function ($subject) {
+            ->pluck('id')
+            ->toArray();
+        
+        // Получаем все активные предметы, но приоритет отдаем предметам из расписаний
+        $allSubjects = Subject::where('is_active', true)
+            ->orderBy('name')
+            ->get()
+            ->map(function ($subject) use ($scheduleSubjects) {
                 return [
                     'id' => $subject->id,
                     'name' => $subject->name,
-                    'display_name' => $subject->name
+                    'display_name' => $subject->name,
+                    'from_schedule' => in_array($subject->id, $scheduleSubjects)
                 ];
-            })->sortBy('name');
+            })
+            ->sortBy(function ($subject) {
+                // Сначала предметы из расписаний, потом остальные
+                return $subject['from_schedule'] ? 0 : 1;
+            })
+            ->values();
 
         $years = [];
         $currentYear = date('Y');
@@ -104,7 +117,7 @@ class SyllabusController extends Controller
         }
 
         return Inertia::render('Teacher/Syllabuses/Create', [
-            'subjects' => $subjects->values(),
+            'subjects' => $allSubjects,
             'years' => $years
         ]);
     }
