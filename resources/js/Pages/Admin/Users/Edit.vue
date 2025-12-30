@@ -143,6 +143,15 @@
                       :error-messages="form.errors.group_id"
                       clearable
                       :placeholder="t('admin.users.select_group')"
+                      :return-object="false"
+                      :custom-filter="(item, queryText, itemText) => {
+                        if (!item) return false;
+                        return (item.name || '').toLowerCase().includes(queryText.toLowerCase())
+                      }"
+                      :item-title="(group) => group?.name || ''"
+                      :item-value="(group) => group?.id"
+                      :model-value="groups.find(g => g.id === form.group_id) ?? null"
+                      @update:model-value="val => form.group_id = val ? val.id : null"
                     ></v-autocomplete>
                   </v-col>
                 </v-row>
