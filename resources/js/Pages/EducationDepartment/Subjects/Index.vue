@@ -99,7 +99,7 @@
             :length="totalPages"
             :model-value="subjects.current_page"
             @update:model-value="handlePageChange"
-            :total-visible="5"
+            :total-visible="totalVisible"
           ></v-pagination>
         </div>
       </v-card>
@@ -155,8 +155,14 @@ const handlePageChange = (pageNum) => {
   })
 }
 
-// Вычисляемое свойство для ограничения видимых страниц пагинации
-// Показываем максимум 5 страниц: текущая + 1 предыдущая + 1 следующая + первая + последняя
+// Вычисляемое свойство для общего количества страниц
 const totalPages = computed(() => Math.ceil(props.subjects.total / props.subjects.per_page))
+
+// Вычисляемое свойство для видимых страниц пагинации
+// Если страниц <= 5, показываем все, иначе максимум 5
+const totalVisible = computed(() => {
+  const total = totalPages.value
+  return total <= 5 ? total : 5
+})
 </script>
 

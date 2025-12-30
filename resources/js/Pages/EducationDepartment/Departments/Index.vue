@@ -116,10 +116,10 @@
         <v-divider></v-divider>
         <div class="d-flex justify-center pa-4">
           <v-pagination
-            :length="Math.ceil(departments.total / departments.per_page)"
+            :length="totalPages"
             :model-value="departments.current_page"
             @update:model-value="handlePageChange"
-            :total-visible="5"
+            :total-visible="totalVisible"
           ></v-pagination>
         </div>
       </v-card>
@@ -181,9 +181,9 @@ const handleStatusFilter = () => {
   })
 }
 
-const handlePageChange = (page) => {
+const handlePageChange = (pageNum) => {
   router.get('/education/departments', {
-    page: page,
+    page: pageNum,
     search: searchQuery.value,
     status: statusFilter.value
   }, {
@@ -191,6 +191,16 @@ const handlePageChange = (page) => {
     preserveScroll: true
   })
 }
+
+// Вычисляемое свойство для общего количества страниц
+const totalPages = computed(() => Math.ceil(props.departments.total / props.departments.per_page))
+
+// Вычисляемое свойство для видимых страниц пагинации
+// Если страниц <= 5, показываем все, иначе максимум 5
+const totalVisible = computed(() => {
+  const total = totalPages.value
+  return total <= 5 ? total : 5
+})
 
 const createDepartment = () => {
   router.visit('/education/departments/create')
