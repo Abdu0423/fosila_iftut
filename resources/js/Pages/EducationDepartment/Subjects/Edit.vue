@@ -136,7 +136,13 @@ const form = useForm({
 const errors = computed(() => page.props.errors || {})
 
 const submit = () => {
-  form.put(`/education/subjects/${props.subject.id}`, {
+  if (!props.subject?.id) {
+    return
+  }
+  form.transform((data) => ({
+    ...data,
+    _method: 'PUT'
+  })).post(`/education/subjects/${props.subject.id}`, {
     preserveScroll: true,
     onSuccess: () => {
       router.visit('/education/subjects')
