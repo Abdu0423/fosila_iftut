@@ -21,6 +21,27 @@
         </v-col>
       </v-row>
 
+      <!-- Уведомление об отсутствии расписаний -->
+      <v-row v-if="!hasSchedules" justify="center">
+        <v-col cols="12" md="8" lg="6">
+          <v-alert
+            type="warning"
+            variant="tonal"
+            prominent
+            closable
+            class="mb-4"
+          >
+            <v-alert-title class="text-h6 mb-2">
+              <v-icon start>mdi-alert</v-icon>
+              {{ t('teacher.syllabuses.no_schedules_title', {}, { default: 'Нет расписаний' }) }}
+            </v-alert-title>
+            <div class="text-body-1">
+              {{ warningMessage || t('teacher.syllabuses.no_schedules_message', {}, { default: 'У вас пока нет расписаний. Обратитесь к администратору для создания расписания.' }) }}
+            </div>
+          </v-alert>
+        </v-col>
+      </v-row>
+
       <!-- Форма создания силлабуса -->
       <v-row justify="center">
         <v-col cols="12" md="8" lg="6">
@@ -71,6 +92,9 @@
                       variant="outlined"
                       density="compact"
                       :error-messages="form.errors.subject_id"
+                      :disabled="!hasSchedules || subjects.length === 0"
+                      :hint="!hasSchedules ? t('teacher.syllabuses.no_schedules_message', {}, { default: 'У вас пока нет расписаний. Обратитесь к администратору для создания расписания.' }) : (subjects.length === 0 ? t('teacher.syllabuses.no_subjects_in_schedules', {}, { default: 'Нет предметов в расписаниях' }) : '')"
+                      persistent-hint
                       required
                     ></v-select>
                   </v-col>
@@ -187,7 +211,7 @@
                     color="primary"
                     type="submit"
                     :loading="form.processing"
-                    :disabled="form.processing || !previewData"
+                    :disabled="form.processing || !previewData || !hasSchedules || subjects.length === 0"
                   >
                     Создать силлабус
                   </v-btn>
@@ -204,7 +228,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
+
+const { t } = useI18n()
 
 // Props из Inertia
 const props = defineProps({
@@ -215,8 +242,20 @@ const props = defineProps({
   years: {
     type: Array,
     default: () => []
+  },
+  has_schedules: {
+    type: Boolean,
+    default: true
+  },
+  warning_message: {
+    type: String,
+    default: null
   }
 })
+
+// Вычисляемые свойства
+const hasSchedules = computed(() => props.has_schedules)
+const warningMessage = computed(() => props.warning_message)
 
 // Форма
 const form = useForm({

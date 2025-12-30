@@ -81,34 +81,21 @@ class SyllabusController extends Controller
     {
         $teacherId = auth()->id();
         
-        // Получаем предметы из расписаний учителя (если есть)
+        // Получаем предметы из расписаний учителя
         $schedules = Schedule::where('teacher_id', $teacherId)
             ->with('subject')
             ->get();
         
-        $scheduleSubjects = $schedules->pluck('subject')
+        $subjects = $schedules->pluck('subject')
             ->filter()
             ->unique('id')
-            ->pluck('id')
-            ->toArray();
-        
-        // Получаем все активные предметы, но приоритет отдаем предметам из расписаний
-        $allSubjects = Subject::where('is_active', true)
-            ->orderBy('name')
-            ->get()
-            ->map(function ($subject) use ($scheduleSubjects) {
+            ->map(function ($subject) {
                 return [
                     'id' => $subject->id,
                     'name' => $subject->name,
-                    'display_name' => $subject->name,
-                    'from_schedule' => in_array($subject->id, $scheduleSubjects)
+                    'display_name' => $subject->name
                 ];
-            })
-            ->sortBy(function ($subject) {
-                // Сначала предметы из расписаний, потом остальные
-                return $subject['from_schedule'] ? 0 : 1;
-            })
-            ->values();
+            })->sortBy('name');
 
         $years = [];
         $currentYear = date('Y');
@@ -116,9 +103,19 @@ class SyllabusController extends Controller
             $years[] = $i;
         }
 
+        // Проверяем, есть ли у учителя расписания
+        $hasSchedules = $schedules->count() > 0;
+        $warningMessage = null;
+        
+        if (!$hasSchedules) {
+            $warningMessage = 'У вас пока нет расписаний. Обратитесь к администратору для создания расписания.';
+        }
+
         return Inertia::render('Teacher/Syllabuses/Create', [
-            'subjects' => $allSubjects,
-            'years' => $years
+            'subjects' => $subjects->values(),
+            'years' => $years,
+            'has_schedules' => $hasSchedules,
+            'warning_message' => $warningMessage
         ]);
     }
 
