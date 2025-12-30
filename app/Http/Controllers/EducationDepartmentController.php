@@ -454,7 +454,8 @@ class EducationDepartmentController extends Controller
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('full_name', 'like', "%{$search}%");
+                  ->orWhere('enrollment_year', 'like', "%{$search}%")
+                  ->orWhere('graduation_year', 'like', "%{$search}%");
             });
         }
         
