@@ -128,9 +128,9 @@ class SmsController extends Controller
             if ($errorCount > 0) {
                 $message .= ", ошибок: {$errorCount}";
             }
-            return back()->with('success', $message);
+            return redirect()->route('admin.sms.index')->with('success', $message);
         } else {
-            return back()->withErrors([
+            return redirect()->route('admin.sms.index')->withErrors([
                 'sms' => 'Не удалось отправить SMS: ' . implode(', ', $errors)
             ]);
         }
@@ -190,9 +190,9 @@ class SmsController extends Controller
             if ($errorCount > 0) {
                 $message .= ", ошибок: {$errorCount}";
             }
-            return back()->with('success', $message);
+            return redirect()->route('admin.sms.index')->with('success', $message);
         } else {
-            return back()->withErrors([
+            return redirect()->route('admin.sms.index')->withErrors([
                 'sms' => 'Не удалось отправить SMS: ' . implode(', ', $errors)
             ]);
         }

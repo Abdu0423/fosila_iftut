@@ -135,7 +135,7 @@
                     <v-autocomplete
                       v-model="form.group_id"
                       :items="groups"
-                      item-title="name"
+                      item-title="display_name"
                       item-value="id"
                       :label="t('admin.users.group')"
                       variant="outlined"
