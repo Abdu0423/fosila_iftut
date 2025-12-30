@@ -108,24 +108,11 @@
                   </v-col>
                 </v-row>
 
-                <!-- Роль и группа -->
+                <!-- Группа -->
                 <h3 class="text-h6 mb-4 mt-6">{{ translations.messages?.system_info || 'Маълумоти система' }}</h3>
                 <v-row>
-                  <v-col cols="12" md="6">
-                    <v-select
-                      v-model="form.role_id"
-                      :items="roles"
-                      item-title="display_name"
-                      item-value="id"
-                      :label="(translations.messages?.role || 'Нақш') + ' *'"
-                      variant="outlined"
-                      density="comfortable"
-                      :error-messages="form.errors.role_id"
-                      required
-                    ></v-select>
-                  </v-col>
-                  <v-col v-if="isStudent" cols="12" md="6">
-                    <v-select
+                  <v-col cols="12">
+                    <v-autocomplete
                       v-model="form.group_id"
                       :items="groups"
                       item-title="display_name"
@@ -136,7 +123,7 @@
                       :error-messages="form.errors.group_id"
                       clearable
                       :placeholder="translations.messages?.select_group || 'Гурӯҳро интихоб кунед'"
-                    ></v-select>
+                    ></v-autocomplete>
                   </v-col>
                 </v-row>
 
@@ -246,10 +233,12 @@ const form = useForm({
   group_id: ''
 })
 
-// Проверяем, является ли выбранная роль студентом
+// Проверяем, является ли пользователь студентом
 const isStudent = computed(() => {
-  if (!form.role_id) return false
-  const role = props.roles.find(r => r.id === form.role_id)
+  // Проверяем через role_id в форме или через props.user
+  const roleId = form.role_id || props.user.role_id
+  if (!roleId) return false
+  const role = props.roles.find(r => r.id === roleId)
   return role?.name === 'student'
 })
 

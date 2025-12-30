@@ -113,7 +113,6 @@
             <div class="font-weight-medium">
               {{ item.subject?.name }}
               <div class="text-caption text-medium-emphasis">
-                {{ item.subject?.code }}
               </div>
             </div>
           </template>

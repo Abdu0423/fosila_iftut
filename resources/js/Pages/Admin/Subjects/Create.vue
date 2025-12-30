@@ -50,19 +50,8 @@
                     />
                   </v-col>
 
-                  <!-- Код предмета -->
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      v-model="form.code"
-                      label="Код предмета"
-                      placeholder="например: MATH001"
-                      variant="outlined"
-                      :error-messages="errors.code"
-                    />
-                  </v-col>
-
                   <!-- Отделение -->
-                  <v-col cols="12" md="6">
+                  <v-col cols="12" md="4">
                     <v-select
                       v-model="form.department_id"
                       label="Отделение"
@@ -72,19 +61,6 @@
                       variant="outlined"
                       clearable
                       :error-messages="errors.department_id"
-                    />
-                  </v-col>
-
-                  <!-- Количество кредитов -->
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model.number="form.credits"
-                      label="Количество кредитов"
-                      type="number"
-                      min="1"
-                      max="10"
-                      variant="outlined"
-                      :error-messages="errors.credits"
                     />
                   </v-col>
 
@@ -165,24 +141,6 @@
 
                 <v-list-item>
                   <v-list-item-title class="text-body-2 font-weight-medium">
-                    Код предмета
-                  </v-list-item-title>
-                  <v-list-item-subtitle class="text-caption">
-                    Уникальный код для идентификации (например: MATH001, PHYS101)
-                  </v-list-item-subtitle>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-title class="text-body-2 font-weight-medium">
-                    Кредиты
-                  </v-list-item-title>
-                  <v-list-item-subtitle class="text-caption">
-                    Количество зачетных единиц (обычно от 1 до 10)
-                  </v-list-item-subtitle>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-title class="text-body-2 font-weight-medium">
                     Статус
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-caption">
@@ -219,11 +177,9 @@ const props = defineProps({
 // Form data
 const form = useForm({
   name: '',
-  code: '',
   department_id: null,
   content: '',
   description: '',
-  credits: 3,
   is_active: true
 })
 

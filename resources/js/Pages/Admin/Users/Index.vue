@@ -6,8 +6,8 @@
         <v-col cols="12">
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
-              <h1 class="text-h4 font-weight-bold mb-2">Управление пользователями</h1>
-              <p class="text-body-1 text-medium-emphasis">Создавайте и управляйте пользователями системы</p>
+              <h1 class="text-h4 font-weight-bold mb-2">{{ t('admin.user_management', {}, { default: 'Управление пользователями' }) }}</h1>
+              <p class="text-body-1 text-medium-emphasis">{{ t('admin.create_manage_users', {}, { default: 'Создавайте и управляйте пользователями системы' }) }}</p>
             </div>
             <v-btn
               color="primary"
@@ -15,7 +15,7 @@
               prepend-icon="mdi-plus"
               @click="navigateTo('/admin/users/create')"
             >
-              Добавить пользователя
+              {{ t('admin.add_user', {}, { default: 'Добавить пользователя' }) }}
             </v-btn>
           </div>
         </v-col>
@@ -28,7 +28,7 @@
             <v-card-text class="text-center">
               <v-icon size="48" color="primary" class="mb-4">mdi-account-group</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats.total }}</div>
-              <div class="text-body-2 text-medium-emphasis">Всего пользователей</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('admin.total_users', {}, { default: 'Всего пользователей' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -37,7 +37,7 @@
             <v-card-text class="text-center">
               <v-icon size="48" color="error" class="mb-4">mdi-shield-crown</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats.admins }}</div>
-              <div class="text-body-2 text-medium-emphasis">Администраторов</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('admin.admins', {}, { default: 'Администраторов' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -46,7 +46,7 @@
             <v-card-text class="text-center">
               <v-icon size="48" color="warning" class="mb-4">mdi-teach</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats.teachers }}</div>
-              <div class="text-body-2 text-medium-emphasis">Учителей</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('admin.teachers', {}, { default: 'Учителей' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -55,7 +55,7 @@
             <v-card-text class="text-center">
               <v-icon size="48" color="info" class="mb-4">mdi-account</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats.students }}</div>
-              <div class="text-body-2 text-medium-emphasis">Студентов</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('admin.students', {}, { default: 'Студентов' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -64,7 +64,7 @@
             <v-card-text class="text-center">
               <v-icon size="48" color="success" class="mb-4">mdi-check-circle</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats.verified }}</div>
-              <div class="text-body-2 text-medium-emphasis">Подтвержденных</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('admin.verified', {}, { default: 'Подтвержденных' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -73,7 +73,7 @@
             <v-card-text class="text-center">
               <v-icon size="48" color="warning" class="mb-4">mdi-clock</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats.unverified }}</div>
-              <div class="text-body-2 text-medium-emphasis">Не подтвержденных</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('admin.unverified', {}, { default: 'Не подтвержденных' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -265,7 +265,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
+
+const { t } = useI18n()
 
 // Props из Inertia
 const props = defineProps({

@@ -53,19 +53,8 @@
                     />
                   </v-col>
 
-                  <!-- Код предмета -->
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      v-model="form.code"
-                      label="Код предмета"
-                      placeholder="например: MATH001"
-                      variant="outlined"
-                      :error-messages="errors.code"
-                    />
-                  </v-col>
-
                   <!-- Отделение -->
-                  <v-col cols="12" md="6">
+                  <v-col cols="12" md="4">
                     <v-select
                       v-model="form.department_id"
                       label="Отделение"
@@ -75,19 +64,6 @@
                       variant="outlined"
                       clearable
                       :error-messages="errors.department_id"
-                    />
-                  </v-col>
-
-                  <!-- Количество кредитов -->
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model.number="form.credits"
-                      label="Количество кредитов"
-                      type="number"
-                      min="1"
-                      max="10"
-                      variant="outlined"
-                      :error-messages="errors.credits"
                     />
                   </v-col>
 
@@ -190,15 +166,6 @@
               <v-list density="compact">
                 <v-list-item>
                   <v-list-item-title class="text-body-2 font-weight-medium">
-                    Осторожно!
-                  </v-list-item-title>
-                  <v-list-item-subtitle class="text-caption">
-                    Изменение кода предмета может повлиять на связанные уроки и расписания
-                  </v-list-item-subtitle>
-                </v-list-item>
-
-                <v-list-item>
-                  <v-list-item-title class="text-body-2 font-weight-medium">
                     Деактивация
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-caption">
@@ -267,11 +234,9 @@ const props = defineProps({
 // Form data
 const form = useForm({
   name: props.subject?.name,
-  code: props.subject?.code,
   department_id: props.subject?.department_id || null,
   content: props.subject?.content,
   description: props.subject?.description,
-  credits: props.subject?.credits || 3,
   is_active: props.subject?.is_active ?? true
 })
 

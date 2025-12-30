@@ -15,8 +15,6 @@
               <div>
                 <h1 class="text-h4 font-weight-bold mb-2">{{ subject.name }}</h1>
                 <p class="text-body-1 text-medium-emphasis">
-                  Код: {{ subject.code }} | 
-                  Кредиты: {{ subject.credits }} | 
                   Статус: {{ subject.is_active ? 'Активный' : 'Неактивный' }}
                 </p>
               </div>
@@ -60,29 +58,8 @@
                 </v-col>
                 <v-col cols="12" md="6">
                   <div class="mb-4">
-                    <div class="text-subtitle-2 text-medium-emphasis mb-1">Код предмета</div>
-                    <v-chip
-                      v-if="subject.code"
-                      color="primary"
-                      variant="outlined"
-                    >
-                      {{ subject.code }}
-                    </v-chip>
-                    <span v-else class="text-grey">Не указан</span>
-                  </div>
-                </v-col>
-                <v-col cols="12" md="6">
-                  <div class="mb-4">
                     <div class="text-subtitle-2 text-medium-emphasis mb-1">Отделение</div>
                     <div class="text-h6">{{ subject.department?.name }}</div>
-                  </div>
-                </v-col>
-                <v-col cols="12" md="6">
-                  <div class="mb-4">
-                    <div class="text-subtitle-2 text-medium-emphasis mb-1">Количество кредитов</div>
-                    <v-chip color="info" variant="outlined">
-                      {{ subject.credits }} кр.
-                    </v-chip>
                   </div>
                 </v-col>
                 <v-col cols="12">
@@ -163,11 +140,6 @@
                   <v-list-item-subtitle>
                     Семестр {{ schedule.semester }}, {{ schedule.study_year }} год обучения
                   </v-list-item-subtitle>
-                  <template v-slot:append>
-                    <v-chip size="small" color="primary" variant="outlined">
-                      {{ schedule.credits }} кр.
-                    </v-chip>
-                  </template>
                 </v-list-item>
               </v-list>
             </v-card-text>

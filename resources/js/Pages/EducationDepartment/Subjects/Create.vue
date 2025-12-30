@@ -41,19 +41,8 @@
                     />
                   </v-col>
 
-                  <!-- Код предмета -->
-                  <v-col cols="12" md="4">
-                    <v-text-field
-                      :model-value="form.code"
-                      @update:model-value="form.code = $event"
-                      :label="translations.education_department?.subject_code || 'Код предмета'"
-                      variant="outlined"
-                      :error-messages="errors.code"
-                    />
-                  </v-col>
-
                   <!-- Отделение -->
-                  <v-col cols="12" md="6">
+                  <v-col cols="12" md="4">
                     <v-select
                       :model-value="form.department_id"
                       @update:model-value="form.department_id = $event"
@@ -64,20 +53,6 @@
                       variant="outlined"
                       clearable
                       :error-messages="errors.department_id"
-                    />
-                  </v-col>
-
-                  <!-- Количество кредитов -->
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      :model-value="form.credits"
-                      @update:model-value="form.credits = $event ? parseInt($event) : null"
-                      :label="translations.education_department?.subject_credits || 'Кредиты'"
-                      type="number"
-                      min="1"
-                      max="10"
-                      variant="outlined"
-                      :error-messages="errors.credits"
                     />
                   </v-col>
 
@@ -149,10 +124,8 @@ const props = defineProps({
 
 const form = useForm({
   name: '',
-  code: '',
   department_id: null,
   description: '',
-  credits: null,
   is_active: true
 })
 

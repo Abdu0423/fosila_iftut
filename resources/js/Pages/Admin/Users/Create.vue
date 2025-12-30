@@ -6,8 +6,8 @@
         <v-col cols="12">
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
-              <h1 class="text-h4 font-weight-bold mb-2">Создать пользователя</h1>
-              <p class="text-body-1 text-medium-emphasis">Добавьте нового пользователя в систему</p>
+              <h1 class="text-h4 font-weight-bold mb-2">{{ t('admin.users.create_user') }}</h1>
+              <p class="text-body-1 text-medium-emphasis">{{ t('admin.users.create_user_subtitle') }}</p>
             </div>
             <v-btn
               color="secondary"
@@ -15,7 +15,7 @@
               @click="navigateTo('/admin/users')"
               prepend-icon="mdi-arrow-left"
             >
-              Назад к списку
+              {{ t('admin.users.back_to_list') }}
             </v-btn>
           </div>
         </v-col>
@@ -27,17 +27,17 @@
           <v-card>
             <v-card-title class="text-h6">
               <v-icon start>mdi-account-plus</v-icon>
-              Информация о пользователе
+              {{ t('admin.users.user_info') }}
             </v-card-title>
             <v-card-text>
                              <v-form @submit.prevent="submitForm">
                  <!-- Основная информация -->
-                 <h3 class="text-h6 mb-4">Основная информация</h3>
+                 <h3 class="text-h6 mb-4">{{ t('admin.users.basic_info') }}</h3>
                  <v-row>
                    <v-col cols="12" md="4">
                      <v-text-field
                        v-model="form.name"
-                       label="Имя"
+                       :label="t('admin.users.name')"
                        variant="outlined"
                        density="compact"
                        :error-messages="form.errors.name"
@@ -47,7 +47,7 @@
                    <v-col cols="12" md="4">
                      <v-text-field
                        v-model="form.last_name"
-                       label="Фамилия"
+                       :label="t('admin.users.last_name')"
                        variant="outlined"
                        density="compact"
                        :error-messages="form.errors.last_name"
@@ -57,7 +57,7 @@
                    <v-col cols="12" md="4">
                      <v-text-field
                        v-model="form.middle_name"
-                       label="Отчество"
+                       :label="t('admin.users.middle_name')"
                        variant="outlined"
                        density="compact"
                        :error-messages="form.errors.middle_name"
@@ -66,12 +66,12 @@
                  </v-row>
 
                  <!-- Контактная информация -->
-                 <h3 class="text-h6 mb-4 mt-6">Контактная информация</h3>
+                 <h3 class="text-h6 mb-4 mt-6">{{ t('admin.users.contact_info') }}</h3>
                  <v-row>
                   <v-col cols="12" md="6">
                     <PhoneInput
                       v-model="form.phone"
-                      label="Телефон"
+                      :label="t('admin.users.phone')"
                       :error-messages="form.errors.phone"
                       density="compact"
                     />
@@ -83,7 +83,7 @@
                    <v-col cols="12">
                      <v-text-field
                        v-model="form.address"
-                       label="Адрес"
+                       :label="t('admin.users.address')"
                        variant="outlined"
                        density="compact"
                        :error-messages="form.errors.address"
@@ -92,7 +92,7 @@
                  </v-row>
 
                  <!-- Роль и группа -->
-                 <h3 class="text-h6 mb-4 mt-6">Системная информация</h3>
+                 <h3 class="text-h6 mb-4 mt-6">{{ t('admin.users.system_info') }}</h3>
                  <v-row>
                    <v-col cols="12" md="6">
                      <v-select
@@ -100,7 +100,7 @@
                        :items="roles"
                        item-title="display_name"
                        item-value="id"
-                       label="Роль"
+                       :label="t('admin.users.role')"
                        variant="outlined"
                        density="compact"
                        :error-messages="form.errors.role_id"
@@ -113,12 +113,12 @@
                        :items="groups"
                        item-title="display_name"
                        item-value="id"
-                       label="Группа"
+                       :label="t('admin.users.group')"
                        variant="outlined"
                        density="compact"
                        :error-messages="form.errors.group_id"
                        clearable
-                       placeholder="Выберите группу"
+                       :placeholder="t('admin.users.select_group')"
                      ></v-select>
                    </v-col>
                  </v-row>
@@ -128,7 +128,7 @@
                   <v-col cols="12" md="6">
                     <PhoneInput
                       v-model="form.dad_phone"
-                      label="Телефон отца"
+                      :label="t('admin.users.dad_phone')"
                       :error-messages="form.errors.dad_phone"
                       density="compact"
                     />
@@ -136,7 +136,7 @@
                   <v-col cols="12" md="6">
                     <PhoneInput
                       v-model="form.mom_phone"
-                      label="Телефон матери"
+                      :label="t('admin.users.mom_phone')"
                       :error-messages="form.errors.mom_phone"
                       density="compact"
                     />
@@ -144,29 +144,29 @@
                  </v-row>
 
                  <!-- Пароль -->
-                 <h3 class="text-h6 mb-4 mt-6">Пароль</h3>
+                 <h3 class="text-h6 mb-4 mt-6">{{ t('admin.users.password_section') }}</h3>
                  <v-row>
                    <v-col cols="12" md="6">
                      <v-text-field
                        v-model="form.password"
-                       label="Пароль"
+                       :label="t('admin.users.password')"
                        type="password"
                        variant="outlined"
                        density="compact"
                        :error-messages="form.errors.password"
-                       hint="Необязательно, минимум 4 символа"
+                       :hint="t('admin.users.password_hint')"
                        persistent-hint
                      ></v-text-field>
                    </v-col>
                    <v-col cols="12" md="6">
                      <v-text-field
                        v-model="form.password_confirmation"
-                       label="Подтверждение пароля"
+                       :label="t('admin.users.password_confirmation')"
                        type="password"
                        variant="outlined"
                        density="compact"
                        :error-messages="form.errors.password_confirmation"
-                       hint="Только если указали пароль выше"
+                       :hint="t('admin.users.password_confirmation_hint')"
                        persistent-hint
                      ></v-text-field>
                    </v-col>
@@ -189,7 +189,7 @@
                     variant="outlined"
                     @click="navigateTo('/admin/users')"
                   >
-                    Отмена
+                    {{ t('admin.users.cancel') }}
                   </v-btn>
                   <v-btn
                     color="primary"
@@ -197,7 +197,7 @@
                     :loading="form.processing"
                     :disabled="form.processing"
                   >
-                    Создать пользователя
+                    {{ t('admin.users.create_user_button') }}
                   </v-btn>
                 </div>
               </v-form>
@@ -212,9 +212,12 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import AdminApp from '../AdminApp.vue'
 import PhoneInput from '../../../Components/PhoneInput.vue'
 import { routes } from '../../../utils/routes'
+
+const { t } = useI18n()
 
 // Props из Inertia
 const props = defineProps({
@@ -261,8 +264,9 @@ const navigateTo = (path) => {
 const submitForm = () => {
   // Валидация: хотя бы email или phone должен быть заполнен
   if (!form.email && !form.phone) {
-    form.setError('email', 'Необходимо указать хотя бы email или телефон')
-    form.setError('phone', 'Необходимо указать хотя бы email или телефон')
+    const errorMsg = t('admin.users.email_or_phone_required')
+    form.setError('email', errorMsg)
+    form.setError('phone', errorMsg)
     return
   }
   

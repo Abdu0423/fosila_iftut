@@ -218,7 +218,12 @@ class EducationDepartmentController extends Controller
             ];
         });
 
-        $groups = Group::where('status', 'active')
+        // Получаем активные группы, но также включаем группу пользователя, если она неактивна
+        $groupsQuery = Group::where('status', 'active');
+        if ($user->group_id) {
+            $groupsQuery->orWhere('id', $user->group_id);
+        }
+        $groups = $groupsQuery
             ->orderBy('name')
             ->get()
             ->map(function ($group) {
@@ -686,10 +691,8 @@ class EducationDepartmentController extends Controller
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:50|unique:subjects,code',
             'department_id' => 'nullable|exists:departments,id',
             'description' => 'nullable|string',
-            'credits' => 'nullable|integer|min:1|max:10',
             'is_active' => 'boolean',
         ]);
         
@@ -732,10 +735,8 @@ class EducationDepartmentController extends Controller
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:50|unique:subjects,code,' . $subject->id,
             'department_id' => 'nullable|exists:departments,id',
             'description' => 'nullable|string',
-            'credits' => 'nullable|integer|min:1|max:10',
             'is_active' => 'boolean',
         ]);
         

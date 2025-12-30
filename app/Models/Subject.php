@@ -13,16 +13,13 @@ class Subject extends Model
         'old_id',
         'department_id',
         'name',
-        'code',
         'content',
         'description',
-        'credits',
         'is_active'
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
-        'credits' => 'integer',
     ];
 
     public function lessons()

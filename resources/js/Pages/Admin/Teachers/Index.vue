@@ -3,13 +3,13 @@
     <v-row>
       <v-col cols="12">
         <div class="d-flex justify-space-between align-center mb-4">
-          <h1 class="text-h4">Учителя</h1>
+          <h1 class="text-h4">{{ t('admin.teachers.title') }}</h1>
           <v-btn
             color="primary"
             prepend-icon="mdi-plus"
             :href="route('admin.teachers.create')"
           >
-            Добавить учителя
+            {{ t('admin.teachers.add_teacher') }}
           </v-btn>
         </div>
       </v-col>
@@ -24,7 +24,7 @@
               <v-col cols="12" md="4">
                 <v-text-field
                   v-model="filters.search"
-                  label="Поиск по имени или email"
+                  :label="t('admin.teachers.search_placeholder')"
                   prepend-icon="mdi-magnify"
                   clearable
                   @keyup.enter="applyFilters"
@@ -34,7 +34,7 @@
               <v-col cols="12" md="4">
                 <v-select
                   v-model="filters.department_id"
-                  label="Кафедра"
+                  :label="t('admin.teachers.department')"
                   :items="departments"
                   item-title="name"
                   item-value="id"
@@ -45,11 +45,8 @@
               <v-col cols="12" md="4">
                 <v-select
                   v-model="filters.status"
-                  label="Статус"
-                  :items="[
-                    { title: 'Активные', value: 'active' },
-                    { title: 'Неактивные', value: 'inactive' }
-                  ]"
+                  :label="t('admin.teachers.status')"
+                  :items="statusItems"
                   item-title="title"
                   item-value="value"
                   clearable
@@ -66,14 +63,14 @@
                   class="mr-3"
                 >
                   <v-icon start>mdi-refresh</v-icon>
-                  Сбросить
+                  {{ t('admin.teachers.reset') }}
                 </v-btn>
                 <v-btn
                   color="primary"
                   @click="applyFilters"
                 >
                   <v-icon start>mdi-filter</v-icon>
-                  Применить
+                  {{ t('admin.teachers.apply') }}
                 </v-btn>
               </v-col>
             </v-row>
@@ -118,7 +115,7 @@
                 :color="item.raw.is_active ? 'success' : 'error'"
                 size="small"
               >
-                {{ item.raw.is_active ? 'Активен' : 'Неактивен' }}
+                {{ item.raw.is_active ? t('admin.teachers.active_status') : t('admin.teachers.inactive_status') }}
               </v-chip>
             </template>
 
@@ -155,14 +152,14 @@
     <!-- Диалог подтверждения удаления -->
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card>
-        <v-card-title>Подтверждение удаления</v-card-title>
+        <v-card-title>{{ t('admin.teachers.delete_confirmation') }}</v-card-title>
         <v-card-text>
-          Вы действительно хотите удалить этого учителя?
+          {{ t('admin.teachers.delete_confirmation_text') }}
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="deleteDialog = false">Отмена</v-btn>
-          <v-btn color="error" @click="confirmDelete">Удалить</v-btn>
+          <v-btn @click="deleteDialog = false">{{ t('messages.cancel') }}</v-btn>
+          <v-btn color="error" @click="confirmDelete">{{ t('messages.delete') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -170,9 +167,12 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
+
+const { t } = useI18n()
 
 const props = defineProps({
   teachers: Object,
@@ -184,13 +184,18 @@ const loading = ref(false)
 const deleteDialog = ref(false)
 const teacherToDelete = ref(null)
 
-const headers = [
-  { title: 'Имя и Email', key: 'name', sortable: true },
-  { title: 'Кафедра', key: 'department', sortable: false },
-  { title: 'Статус', key: 'is_active', sortable: true },
-  { title: 'Дата регистрации', key: 'created_at', sortable: true },
-  { title: 'Действия', key: 'actions', sortable: false },
-]
+const headers = computed(() => [
+  { title: t('admin.teachers.name_email'), key: 'name', sortable: true },
+  { title: t('admin.teachers.department'), key: 'department', sortable: false },
+  { title: t('admin.teachers.status'), key: 'is_active', sortable: true },
+  { title: t('admin.teachers.registration_date'), key: 'created_at', sortable: true },
+  { title: t('messages.actions'), key: 'actions', sortable: false },
+])
+
+const statusItems = computed(() => [
+  { title: t('admin.teachers.active'), value: 'active' },
+  { title: t('admin.teachers.inactive'), value: 'inactive' }
+])
 
 const filters = reactive({
   search: props.filters?.search,

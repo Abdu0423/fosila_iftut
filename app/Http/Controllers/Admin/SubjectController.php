@@ -17,12 +17,11 @@ class SubjectController extends Controller
     {
         $query = Subject::with('department');
         
-        // Поиск по названию или коду
+        // Поиск по названию или описанию
         if ($request->filled('search')) {
             $searchTerm = $request->search;
             $query->where(function($q) use ($searchTerm) {
                 $q->where('name', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere('code', 'LIKE', "%{$searchTerm}%")
                   ->orWhere('description', 'LIKE', "%{$searchTerm}%");
             });
         }
@@ -82,11 +81,9 @@ class SubjectController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:50|unique:subjects,code',
             'department_id' => 'nullable|exists:departments,id',
             'content' => 'nullable|string',
             'description' => 'nullable|string',
-            'credits' => 'nullable|integer|min:1|max:10',
             'is_active' => 'boolean'
         ]);
 
@@ -135,11 +132,9 @@ class SubjectController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:50|unique:subjects,code,' . $subject->id,
             'department_id' => 'nullable|exists:departments,id',
             'content' => 'nullable|string',
             'description' => 'nullable|string',
-            'credits' => 'nullable|integer|min:1|max:10',
             'is_active' => 'boolean'
         ]);
 
@@ -239,7 +234,6 @@ class SubjectController extends Controller
     {
         $newSubject = $subject->replicate();
         $newSubject->name = $subject->name . ' (копия)';
-        $newSubject->code = $subject->code ? $subject->code . '_COPY' : null;
         $newSubject->is_active = false; // Копии создаются неактивными
         $newSubject->save();
 
@@ -259,7 +253,7 @@ class SubjectController extends Controller
             ->when($request->department_id, function ($query, $departmentId) {
                 $query->where('department_id', $departmentId);
             })
-            ->select('id', 'name', 'code', 'credits', 'department_id')
+            ->select('id', 'name', 'department_id')
             ->with('department:id,name')
             ->orderBy('name')
             ->get();
@@ -278,16 +272,14 @@ class SubjectController extends Controller
         $csvContent = '';
         $csvContent .= "\xEF\xBB\xBF"; // BOM для кириллицы
         
-        $headers = ['ID', 'Название', 'Код', 'Отделение', 'Кредиты', 'Статус', 'Дата создания'];
+        $headers = ['ID', 'Название', 'Отделение', 'Статус', 'Дата создания'];
         $csvContent .= implode(';', $headers) . "\n";
         
         foreach ($subjects as $subject) {
             $row = [
                 $subject->id,
                 $subject->name,
-                $subject->code ?: 'Не указан',
                 $subject->department->name ?? 'Не указано',
-                $subject->credits,
                 $subject->is_active ? 'Активный' : 'Неактивный',
                 $subject->created_at->format('Y-m-d H:i:s')
             ];

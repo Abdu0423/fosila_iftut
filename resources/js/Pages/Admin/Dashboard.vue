@@ -6,8 +6,8 @@
         <v-col cols="12">
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
-              <h1 class="text-h4 font-weight-bold mb-2">Панель администратора</h1>
-              <p class="text-body-1 text-medium-emphasis">Управление системой дистанционного обучения</p>
+              <h1 class="text-h4 font-weight-bold mb-2">{{ t('admin.admin_panel', {}, { default: 'Панель администратора' }) }}</h1>
+              <p class="text-body-1 text-medium-emphasis">{{ t('admin.system_management', {}, { default: 'Управление системой дистанционного обучения' }) }}</p>
             </div>
             <v-btn
               color="primary"
@@ -15,7 +15,7 @@
               prepend-icon="mdi-plus"
               @click="navigateTo('/admin/users/create')"
             >
-              Добавить пользователя
+              {{ t('admin.add_user', {}, { default: 'Добавить пользователя' }) }}
             </v-btn>
           </div>
         </v-col>
@@ -28,7 +28,7 @@
             <v-card-text class="text-center pa-6">
               <v-icon size="48" color="primary" class="mb-4">mdi-account-group</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats?.users || 0 }}</div>
-              <div class="text-body-2 text-medium-emphasis">Всего пользователей</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('admin.total_users', {}, { default: 'Всего пользователей' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -37,7 +37,7 @@
             <v-card-text class="text-center pa-6">
               <v-icon size="48" color="success" class="mb-4">mdi-book-education</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats?.subjects || 0 }}</div>
-              <div class="text-body-2 text-medium-emphasis">Предметов</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('admin.subjects', {}, { default: 'Предметов' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -46,7 +46,7 @@
             <v-card-text class="text-center pa-6">
               <v-icon size="48" color="info" class="mb-4">mdi-teach</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats?.lessons || 0 }}</div>
-              <div class="text-body-2 text-medium-emphasis">Уроков</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('admin.lessons', {}, { default: 'Уроков' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -55,7 +55,7 @@
             <v-card-text class="text-center pa-6">
               <v-icon size="48" color="warning" class="mb-4">mdi-chart-line</v-icon>
               <div class="text-h4 font-weight-bold">{{ stats?.activeUsers || 0 }}</div>
-              <div class="text-body-2 text-medium-emphasis">Активных за 24ч</div>
+              <div class="text-body-2 text-medium-emphasis">{{ t('admin.active_24h', {}, { default: 'Активных за 24ч' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -68,7 +68,7 @@
             <v-card-text class="text-center pa-4">
               <v-icon size="36" color="purple" class="mb-2">mdi-calendar-clock</v-icon>
               <div class="text-h5 font-weight-bold">{{ stats?.schedules || 0 }}</div>
-              <div class="text-caption text-medium-emphasis">Расписаний</div>
+              <div class="text-caption text-medium-emphasis">{{ t('admin.schedules', {}, { default: 'Расписаний' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -77,7 +77,7 @@
             <v-card-text class="text-center pa-4">
               <v-icon size="36" color="orange" class="mb-2">mdi-clipboard-text</v-icon>
               <div class="text-h5 font-weight-bold">{{ stats?.assignments || 0 }}</div>
-              <div class="text-caption text-medium-emphasis">Заданий</div>
+              <div class="text-caption text-medium-emphasis">{{ t('admin.assignments', {}, { default: 'Заданий' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -86,7 +86,7 @@
             <v-card-text class="text-center pa-4">
               <v-icon size="36" color="pink" class="mb-2">mdi-help-circle</v-icon>
               <div class="text-h5 font-weight-bold">{{ stats?.tests || 0 }}</div>
-              <div class="text-caption text-medium-emphasis">Тестов</div>
+              <div class="text-caption text-medium-emphasis">{{ t('admin.tests', {}, { default: 'Тестов' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -95,7 +95,7 @@
             <v-card-text class="text-center pa-4">
               <v-icon size="36" color="teal" class="mb-2">mdi-star</v-icon>
               <div class="text-h5 font-weight-bold">{{ stats?.grades || 0 }}</div>
-              <div class="text-caption text-medium-emphasis">Оценок</div>
+              <div class="text-caption text-medium-emphasis">{{ t('admin.grades', {}, { default: 'Оценок' }) }}</div>
             </v-card-text>
           </v-card>
         </v-col>
@@ -108,7 +108,7 @@
           <v-card class="mb-6">
             <v-card-title class="text-h6">
               <v-icon start>mdi-clock</v-icon>
-              Последние действия
+              {{ t('admin.recent_actions', {}, { default: 'Последние действия' }) }}
             </v-card-title>
             <v-card-text>
               <v-list>
@@ -139,7 +139,7 @@
           <v-card>
             <v-card-title class="text-h6">
               <v-icon start>mdi-alert</v-icon>
-              Системные уведомления
+              {{ t('admin.recent_notifications', {}, { default: 'Системные уведомления' }) }}
             </v-card-title>
             <v-card-text>
               <v-list>
@@ -172,7 +172,7 @@
           <v-card class="mb-6">
             <v-card-title class="text-h6">
               <v-icon start>mdi-lightning-bolt</v-icon>
-              Быстрые действия
+              {{ t('admin.quick_actions', {}, { default: 'Быстрые действия' }) }}
             </v-card-title>
             <v-card-text>
               <v-list>
@@ -192,7 +192,7 @@
           <v-card class="mb-6">
             <v-card-title class="text-h6">
               <v-icon start>mdi-chart-pie</v-icon>
-              Пользователи по ролям
+              {{ t('admin.users_by_roles', {}, { default: 'Пользователи по ролям' }) }}
             </v-card-title>
             <v-card-text>
               <div v-for="role in roleStats" :key="role.name" class="mb-4">
@@ -214,7 +214,7 @@
           <v-card>
             <v-card-title class="text-h6">
               <v-icon start>mdi-information</v-icon>
-              Системная информация
+              {{ t('admin.system_info', {}, { default: 'Системная информация' }) }}
             </v-card-title>
             <v-card-text>
               <div class="mb-3">
@@ -255,7 +255,10 @@
 <script setup>
 import { computed } from 'vue'
 import { router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from '../Layout.vue'
+
+const { t } = useI18n()
 
 // Props из контроллера
 const props = defineProps({

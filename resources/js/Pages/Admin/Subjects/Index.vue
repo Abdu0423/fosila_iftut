@@ -6,8 +6,8 @@
         <v-col cols="12">
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
-              <h1 class="text-h4 font-weight-bold mb-2">Управление предметами</h1>
-              <p class="text-body-1 text-medium-emphasis">Создание и редактирование учебных предметов</p>
+              <h1 class="text-h4 font-weight-bold mb-2">{{ t('admin.subjects.title') }}</h1>
+              <p class="text-body-1 text-medium-emphasis">{{ t('admin.subjects.subtitle') }}</p>
             </div>
             <div class="d-flex gap-2">
               <v-btn
@@ -17,7 +17,7 @@
                 prepend-icon="mdi-cog"
                 @click="showBulkDialog = true"
               >
-                Действия ({{ selected.length }})
+                {{ t('admin.subjects.actions') }} ({{ selected.length }})
               </v-btn>
               <v-btn
                 color="info"
@@ -25,7 +25,7 @@
                 prepend-icon="mdi-download"
                 @click="exportSubjects"
               >
-                Экспорт
+                {{ t('admin.subjects.export') }}
               </v-btn>
               <v-btn
                 color="primary"
@@ -33,7 +33,7 @@
                 prepend-icon="mdi-plus"
                 @click="navigateTo('/admin/subjects/create')"
               >
-                Добавить предмет
+                {{ t('admin.subjects.add_subject') }}
               </v-btn>
             </div>
           </div>
@@ -46,7 +46,7 @@
           <v-text-field
             v-model="search"
             prepend-inner-icon="mdi-magnify"
-            label="Поиск по названию или коду..."
+            :label="t('admin.subjects.search_placeholder')"
             variant="outlined"
             clearable
             @input="filterSubjects"
@@ -55,7 +55,7 @@
         <v-col cols="12" md="3">
           <v-select
             v-model="statusFilter"
-            label="Статус"
+            :label="t('admin.subjects.status')"
             :items="statusItems"
             variant="outlined"
             clearable
@@ -65,7 +65,7 @@
         <v-col cols="12" md="3">
           <v-select
             v-model="departmentFilter"
-            label="Отделение"
+            :label="t('admin.subjects.department')"
             :items="departmentItems"
             item-title="name"
             item-value="id"
@@ -87,31 +87,9 @@
           show-select
           class="elevation-1"
         >
-          <template v-slot:item.code="{ item }">
-            <v-chip
-              v-if="item.code"
-              color="primary"
-              variant="outlined"
-              size="small"
-            >
-              {{ item.code }}
-            </v-chip>
-            <span v-else class="text-grey">Не указан</span>
-          </template>
-
           <template v-slot:item.department="{ item }">
             <span v-if="item.department">{{ item.department.name }}</span>
-            <span v-else class="text-grey">Не указано</span>
-          </template>
-
-          <template v-slot:item.credits="{ item }">
-            <v-chip
-              color="info"
-              variant="outlined"
-              size="small"
-            >
-              {{ item.credits }} кр.
-            </v-chip>
+            <span v-else class="text-grey">{{ t('admin.subjects.not_specified_department') }}</span>
           </template>
 
           <template v-slot:item.is_active="{ item }">
@@ -146,7 +124,7 @@
                 variant="text"
                 color="info"
                 @click="duplicateSubject(item)"
-                title="Дублировать"
+                :title="t('admin.subjects.duplicate')"
               />
               <v-btn
                 icon="mdi-delete"
@@ -154,7 +132,7 @@
                 variant="text"
                 color="error"
                 @click="confirmDelete(item)"
-                title="Удалить"
+                :title="t('admin.subjects.delete')"
               />
             </div>
           </template>
@@ -164,25 +142,25 @@
       <!-- Диалог подтверждения удаления -->
       <v-dialog v-model="deleteDialog" max-width="500px">
         <v-card>
-          <v-card-title class="text-h5">Подтверждение удаления</v-card-title>
+          <v-card-title class="text-h5">{{ t('admin.subjects.delete_confirmation') }}</v-card-title>
           <v-card-text>
-            Вы уверены, что хотите удалить предмет "{{ selectedSubject?.name }}"?
+            {{ t('admin.subjects.delete_confirmation_text', { name: selectedSubject?.name }) }}
             <br><br>
             <v-alert
               type="warning"
               variant="outlined"
               class="mt-2"
             >
-              Это действие нельзя отменить!
+              {{ t('admin.subjects.delete_warning') }}
             </v-alert>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="grey" variant="text" @click="deleteDialog = false">
-              Отмена
+              {{ t('messages.cancel') }}
             </v-btn>
             <v-btn color="error" @click="deleteSubject">
-              Удалить
+              {{ t('admin.subjects.delete') }}
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -191,12 +169,12 @@
       <!-- Диалог массовых действий -->
       <v-dialog v-model="showBulkDialog" max-width="500px">
         <v-card>
-          <v-card-title class="text-h5">Массовые действия</v-card-title>
+          <v-card-title class="text-h5">{{ t('admin.subjects.bulk_actions_title') }}</v-card-title>
           <v-card-text>
-            <p class="mb-4">Выбрано предметов: {{ selected.length }}</p>
+            <p class="mb-4">{{ t('admin.subjects.bulk_actions_text', { count: selected.length }) }}</p>
             <v-select
               v-model="bulkAction"
-              label="Выберите действие"
+              :label="t('admin.subjects.bulk_actions_select')"
               :items="bulkActions"
               item-title="title"
               item-value="value"
@@ -208,20 +186,20 @@
               variant="outlined"
               class="mt-4"
             >
-              Удаление предметов нельзя отменить! Предметы со связанными уроками или расписаниями не будут удалены.
+              {{ t('admin.subjects.bulk_delete_warning') }}
             </v-alert>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="grey" variant="text" @click="showBulkDialog = false">
-              Отмена
+              {{ t('messages.cancel') }}
             </v-btn>
             <v-btn 
               color="primary" 
               :disabled="!bulkAction"
               @click="executeBulkAction"
             >
-              Выполнить
+              {{ t('admin.subjects.execute') }}
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -233,7 +211,10 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
+
+const { t } = useI18n()
 
 // Props
 const props = defineProps({
@@ -254,28 +235,26 @@ const showBulkDialog = ref(false)
 const bulkAction = ref(null)
 
 // Заголовки таблицы
-const headers = [
-  { title: 'ID', key: 'id', width: '80px' },
-  { title: 'Название', key: 'name' },
-  { title: 'Код', key: 'code', width: '120px' },
-  { title: 'Отделение', key: 'department', width: '200px' },
-  { title: 'Кредиты', key: 'credits', width: '100px' },
-  { title: 'Статус', key: 'is_active', width: '120px' },
-  { title: 'Действия', key: 'actions', width: '150px', sortable: false }
-]
+const headers = computed(() => [
+  { title: t('admin.subjects.id'), key: 'id', width: '80px' },
+  { title: t('admin.subjects.name'), key: 'name' },
+  { title: t('admin.subjects.department'), key: 'department', width: '200px' },
+  { title: t('admin.subjects.status'), key: 'is_active', width: '120px' },
+  { title: t('admin.subjects.actions'), key: 'actions', width: '150px', sortable: false }
+])
 
 // Варианты статуса
-const statusItems = [
-  { title: 'Активные', value: true },
-  { title: 'Неактивные', value: false }
-]
+const statusItems = computed(() => [
+  { title: t('admin.subjects.active'), value: true },
+  { title: t('admin.subjects.inactive'), value: false }
+])
 
 // Массовые действия
-const bulkActions = [
-  { title: 'Активировать', value: 'activate' },
-  { title: 'Деактивировать', value: 'deactivate' },
-  { title: 'Удалить', value: 'delete' }
-]
+const bulkActions = computed(() => [
+  { title: t('admin.subjects.activate'), value: 'activate' },
+  { title: t('admin.subjects.deactivate'), value: 'deactivate' },
+  { title: t('admin.subjects.delete'), value: 'delete' }
+])
 
 // Computed
 const departmentItems = computed(() => {

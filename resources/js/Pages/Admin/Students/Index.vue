@@ -3,13 +3,13 @@
     <v-row>
       <v-col cols="12">
         <div class="d-flex justify-space-between align-center mb-4">
-          <h1 class="text-h4">Студенты</h1>
+          <h1 class="text-h4">{{ t('admin.students.title') }}</h1>
           <v-btn
             color="primary"
             prepend-icon="mdi-plus"
             :href="route('admin.students.create')"
           >
-            Добавить студента
+            {{ t('admin.students.add_student') }}
           </v-btn>
         </div>
       </v-col>
@@ -24,7 +24,7 @@
               <v-col cols="12" md="3">
                 <v-text-field
                   v-model="filters.search"
-                  label="Поиск по имени или email"
+                  :label="t('admin.students.search_placeholder')"
                   prepend-icon="mdi-magnify"
                   clearable
                   @keyup.enter="applyFilters"
@@ -34,7 +34,7 @@
               <v-col cols="12" md="3">
                 <v-select
                   v-model="filters.group_id"
-                  label="Группа"
+                  :label="t('admin.students.group')"
                   :items="groups"
                   item-title="name"
                   item-value="id"
@@ -45,7 +45,7 @@
               <v-col cols="12" md="3">
                 <v-select
                   v-model="filters.course"
-                  label="Курс"
+                  :label="t('admin.students.course')"
                   :items="[1, 2, 3, 4, 5, 6]"
                   clearable
                 ></v-select>
@@ -54,11 +54,8 @@
               <v-col cols="12" md="3">
                 <v-select
                   v-model="filters.status"
-                  label="Статус"
-                  :items="[
-                    { title: 'Активные', value: 'active' },
-                    { title: 'Неактивные', value: 'inactive' }
-                  ]"
+                  :label="t('admin.students.status')"
+                  :items="statusItems"
                   item-title="title"
                   item-value="value"
                   clearable
@@ -75,14 +72,14 @@
                   class="mr-3"
                 >
                   <v-icon start>mdi-refresh</v-icon>
-                  Сбросить
+                  {{ t('admin.students.reset') }}
                 </v-btn>
                 <v-btn
                   color="primary"
                   @click="applyFilters"
                 >
                   <v-icon start>mdi-filter</v-icon>
-                  Применить
+                  {{ t('admin.students.apply') }}
                 </v-btn>
               </v-col>
             </v-row>
@@ -124,7 +121,7 @@
 
             <template v-slot:item.course="{ item }">
               <v-chip color="primary" size="small">
-                {{ item.raw.course }} курс
+                {{ item.raw.course }} {{ t('admin.students.course_label') }}
               </v-chip>
             </template>
 
@@ -133,7 +130,7 @@
                 :color="item.raw.is_active ? 'success' : 'error'"
                 size="small"
               >
-                {{ item.raw.is_active ? 'Активен' : 'Неактивен' }}
+                {{ item.raw.is_active ? t('admin.students.active_status') : t('admin.students.inactive_status') }}
               </v-chip>
             </template>
 
@@ -170,14 +167,14 @@
     <!-- Диалог подтверждения удаления -->
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card>
-        <v-card-title>Подтверждение удаления</v-card-title>
+        <v-card-title>{{ t('admin.students.delete_confirmation') }}</v-card-title>
         <v-card-text>
-          Вы действительно хотите удалить этого студента?
+          {{ t('admin.students.delete_confirmation_text') }}
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="deleteDialog = false">Отмена</v-btn>
-          <v-btn color="error" @click="confirmDelete">Удалить</v-btn>
+          <v-btn @click="deleteDialog = false">{{ t('messages.cancel') }}</v-btn>
+          <v-btn color="error" @click="confirmDelete">{{ t('messages.delete') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -185,9 +182,12 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
+
+const { t } = useI18n()
 
 const props = defineProps({
   students: Object,
@@ -199,14 +199,19 @@ const loading = ref(false)
 const deleteDialog = ref(false)
 const studentToDelete = ref(null)
 
-const headers = [
-  { title: 'Имя и Email', key: 'name', sortable: true },
-  { title: 'Группа', key: 'group', sortable: false },
-  { title: 'Курс', key: 'course', sortable: true },
-  { title: 'Статус', key: 'is_active', sortable: true },
-  { title: 'Дата регистрации', key: 'created_at', sortable: true },
-  { title: 'Действия', key: 'actions', sortable: false },
-]
+const headers = computed(() => [
+  { title: t('admin.students.name_email'), key: 'name', sortable: true },
+  { title: t('admin.students.group'), key: 'group', sortable: false },
+  { title: t('admin.students.course'), key: 'course', sortable: true },
+  { title: t('admin.students.status'), key: 'is_active', sortable: true },
+  { title: t('admin.students.registration_date'), key: 'created_at', sortable: true },
+  { title: t('messages.actions'), key: 'actions', sortable: false },
+])
+
+const statusItems = computed(() => [
+  { title: t('admin.students.active'), value: 'active' },
+  { title: t('admin.students.inactive'), value: 'inactive' }
+])
 
 const filters = reactive({
   search: props.filters?.search,

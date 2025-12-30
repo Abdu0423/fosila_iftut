@@ -44,7 +44,6 @@
                   <div class="mb-4">
                     <div class="text-subtitle-2 text-medium-emphasis mb-1">Предмет</div>
                     <div class="text-h6">{{ schedule.subject?.name }}</div>
-                    <div class="text-caption text-medium-emphasis">{{ schedule.subject?.code }}</div>
                   </div>
                 </v-col>
                 
@@ -193,14 +192,8 @@
               <div class="text-body-2 mb-2">
                 <strong>Название:</strong> {{ schedule.subject.name }}
               </div>
-              <div class="text-body-2 mb-2" v-if="schedule.subject.code">
-                <strong>Код:</strong> {{ schedule.subject.code }}
-              </div>
               <div class="text-body-2 mb-2" v-if="schedule.subject.description">
                 <strong>Описание:</strong> {{ schedule.subject.description }}
-              </div>
-              <div class="text-body-2" v-if="schedule.subject.credits">
-                <strong>Кредиты предмета:</strong> {{ schedule.subject.credits }}
               </div>
             </v-card-text>
           </v-card>

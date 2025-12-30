@@ -60,18 +60,12 @@
               </v-avatar>
               <div>
                 <div class="font-weight-medium">{{ item.name }}</div>
-                <div v-if="item.code" class="text-caption text-medium-emphasis">{{ item.code }}</div>
               </div>
             </div>
           </template>
 
           <template v-slot:item.description="{ item }">
             <span v-if="item.description" class="text-body-2">{{ item.description }}</span>
-            <span v-else class="text-medium-emphasis">—</span>
-          </template>
-
-          <template v-slot:item.credits="{ item }">
-            <span v-if="item.credits">{{ item.credits }}</span>
             <span v-else class="text-medium-emphasis">—</span>
           </template>
 
@@ -136,9 +130,7 @@ const searchQuery = ref(props.filters.search)
 
 const headers = computed(() => [
   { title: translations.value.education_department?.subject_name || 'Название', key: 'name', sortable: false },
-  { title: translations.value.education_department?.subject_code || 'Код', key: 'code', sortable: false },
   { title: translations.value.education_department?.subject_description || 'Описание', key: 'description', sortable: false },
-  { title: translations.value.education_department?.subject_credits || 'Кредиты', key: 'credits', sortable: false },
   { title: translations.value.messages?.status || 'Статус', key: 'is_active', sortable: false },
   { title: translations.value.messages?.actions || 'Действия', key: 'actions', sortable: false }
 ])
