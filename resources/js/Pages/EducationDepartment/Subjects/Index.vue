@@ -157,6 +157,6 @@ const handlePageChange = (pageNum) => {
 
 // Вычисляемое свойство для ограничения видимых страниц пагинации
 // Показываем максимум 5 страниц: текущая + 1 предыдущая + 1 следующая + первая + последняя
-const totalPages = computed(() => Math.ceil(subjects.total / subjects.per_page))
+const totalPages = computed(() => Math.ceil(props.subjects.total / props.subjects.per_page))
 </script>
 
