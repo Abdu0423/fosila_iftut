@@ -74,7 +74,7 @@
               :color="item.is_active ? 'success' : 'default'"
               size="small"
             >
-              {{ item.is_active ? (translations.messages?.active) : (translations.messages?.inactive) }}
+              {{ item.is_active ? (translations.messages?.active || 'Фаъол') : (translations.messages?.inactive || 'Ғайрифаъол') }}
             </v-chip>
           </template>
 

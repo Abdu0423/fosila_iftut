@@ -6,8 +6,8 @@
         <v-col cols="12">
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
-              <h1 class="text-h4 font-weight-bold mb-2">Мое расписание</h1>
-              <p class="text-body-1 text-medium-emphasis">Просмотр расписаний, силлабусов, уроков и тестов</p>
+              <h1 class="text-h4 font-weight-bold mb-2">{{ t('navigation.my_schedule') }}</h1>
+              <p class="text-body-1 text-medium-emphasis">{{ t('teacher.schedule.subtitle', {}, { default: 'Просмотр расписаний, силлабусов, уроков и тестов' }) }}</p>
             </div>
           </div>
         </v-col>
@@ -361,8 +361,11 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useForm, usePage, router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
 import axios from 'axios'
+
+const { t } = useI18n()
 
 const page = usePage()
 

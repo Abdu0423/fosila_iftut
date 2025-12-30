@@ -6,8 +6,8 @@
         <v-col cols="12">
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
-              <h1 class="text-h4 font-weight-bold mb-2">Мои студенты</h1>
-              <p class="text-body-1 text-medium-emphasis">Управление студентами ваших групп</p>
+              <h1 class="text-h4 font-weight-bold mb-2">{{ t('navigation.my_students') }}</h1>
+              <p class="text-body-1 text-medium-emphasis">{{ t('teacher.students.subtitle', {}, { default: 'Управление студентами ваших групп' }) }}</p>
             </div>
           </div>
         </v-col>
@@ -203,8 +203,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
 
+const { t } = useI18n()
 const page = usePage()
 
 // Props из Inertia

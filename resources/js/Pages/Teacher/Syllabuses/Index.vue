@@ -6,8 +6,8 @@
         <v-col cols="12">
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
-              <h1 class="text-h4 font-weight-bold mb-2">Мои силлабусы</h1>
-              <p class="text-body-1 text-medium-emphasis">Управление учебными программами по моим предметам</p>
+              <h1 class="text-h4 font-weight-bold mb-2">{{ t('navigation.my_syllabuses') }}</h1>
+              <p class="text-body-1 text-medium-emphasis">{{ t('teacher.syllabuses.subtitle', {}, { default: 'Управление учебными программами по моим предметам' }) }}</p>
             </div>
             <v-btn
               color="primary"
@@ -203,7 +203,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
+
+const { t } = useI18n()
 
 // Props из Inertia
 const props = defineProps({
