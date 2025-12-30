@@ -103,10 +103,10 @@
         <v-divider v-if="schedules && schedules.data && schedules.data.length > 0"></v-divider>
         <div v-if="schedules && schedules.data && schedules.data.length > 0" class="d-flex justify-center pa-4">
           <v-pagination
-            :length="Math.ceil((schedules.total || 0) / (schedules.per_page || 20))"
+            :length="totalPages"
             :model-value="schedules.current_page || 1"
             @update:model-value="handlePageChange"
-            :total-visible="5"
+            :total-visible="totalVisible"
           ></v-pagination>
         </div>
       </v-card>
@@ -146,7 +146,7 @@ const formatDate = (date) => {
 }
 
 const handleDateFilter = () => {
-  router.get(route('education.schedules.index'), {
+  router.get('/education/schedules', {
     date: dateFilter.value
   }, {
     preserveState: true,
@@ -155,7 +155,7 @@ const handleDateFilter = () => {
 }
 
 const handlePageChange = (pageNum) => {
-  router.get(route('education.schedules.index'), {
+  router.get('/education/schedules', {
     page: pageNum,
     date: dateFilter.value
   }, {
@@ -163,5 +163,15 @@ const handlePageChange = (pageNum) => {
     preserveScroll: true
   })
 }
+
+// Вычисляемое свойство для общего количества страниц
+const totalPages = computed(() => Math.ceil((props.schedules.total || 0) / (props.schedules.per_page || 20)))
+
+// Вычисляемое свойство для видимых страниц пагинации
+// Если страниц <= 5, показываем все, иначе максимум 5
+const totalVisible = computed(() => {
+  const total = totalPages.value
+  return total <= 5 ? total : 5
+})
 </script>
 

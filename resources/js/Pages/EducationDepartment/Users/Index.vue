@@ -107,10 +107,10 @@
         <v-divider></v-divider>
         <div class="d-flex justify-center pa-4">
           <v-pagination
-            :length="Math.ceil(users.total / users.per_page)"
+            :length="totalPages"
             :model-value="users.current_page"
             @update:model-value="handlePageChange"
-            :total-visible="5"
+            :total-visible="totalVisible"
           ></v-pagination>
         </div>
       </v-card>
@@ -182,7 +182,7 @@ const getRoleLabel = (role) => {
 }
 
 const handleSearch = () => {
-  router.get(route('education.users.index'), {
+  router.get('/education/users', {
     search: searchQuery.value,
     group: groupFilter.value
   }, {
@@ -192,7 +192,7 @@ const handleSearch = () => {
 }
 
 const handleGroupFilter = () => {
-  router.get(route('education.users.index'), {
+  router.get('/education/users', {
     search: searchQuery.value,
     group: groupFilter.value
   }, {
@@ -201,9 +201,9 @@ const handleGroupFilter = () => {
   })
 }
 
-const handlePageChange = (page) => {
-  router.get(route('education.users.index'), {
-    page: page,
+const handlePageChange = (pageNum) => {
+  router.get('/education/users', {
+    page: pageNum,
     search: searchQuery.value,
     group: groupFilter.value
   }, {
@@ -211,6 +211,16 @@ const handlePageChange = (page) => {
     preserveScroll: true
   })
 }
+
+// Вычисляемое свойство для общего количества страниц
+const totalPages = computed(() => Math.ceil(props.users.total / props.users.per_page))
+
+// Вычисляемое свойство для видимых страниц пагинации
+// Если страниц <= 5, показываем все, иначе максимум 5
+const totalVisible = computed(() => {
+  const total = totalPages.value
+  return total <= 5 ? total : 5
+})
 
 const createUser = () => {
   router.visit('/education/users/create')
