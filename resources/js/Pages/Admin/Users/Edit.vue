@@ -136,7 +136,7 @@
                       v-model="form.group_id"
                       :items="groups"
                       item-title="display_name"
-                      item-value="id"
+                      item-value="name"
                       :label="t('admin.users.group')"
                       variant="outlined"
                       density="compact"
