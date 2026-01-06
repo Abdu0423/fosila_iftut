@@ -382,6 +382,17 @@ const sendCredentials = () => {
     user_ids: selectedUsers.value
   }, {
     preserveScroll: true,
+    onSuccess: (page) => {
+      // Очищаем выбранных пользователей после успешной отправки
+      selectedUsers.value = []
+      sending.value = false
+      // Перезагружаем страницу для обновления flash сообщений
+      router.reload({ only: ['flash'] })
+    },
+    onError: (errors) => {
+      sending.value = false
+      console.error('Ошибка отправки SMS:', errors)
+    },
     onFinish: () => {
       sending.value = false
     }
@@ -409,6 +420,18 @@ const sendCustom = () => {
     message: customMessage.value
   }, {
     preserveScroll: true,
+    onSuccess: (page) => {
+      // Очищаем выбранных пользователей и сообщение после успешной отправки
+      selectedUsers.value = []
+      customMessage.value = ''
+      sending.value = false
+      // Перезагружаем страницу для обновления flash сообщений
+      router.reload({ only: ['flash'] })
+    },
+    onError: (errors) => {
+      sending.value = false
+      console.error('Ошибка отправки SMS:', errors)
+    },
     onFinish: () => {
       sending.value = false
     }

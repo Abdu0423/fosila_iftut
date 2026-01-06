@@ -86,8 +86,14 @@ class SmsController extends Controller
 
         foreach ($users as $user) {
             try {
-                // Определяем логин (email или phone)
-                $login = $user->email ?? $user->phone;
+                // Используем номер телефона как логин (так как SMS отправляется на телефон)
+                $login = $user->phone;
+                
+                if (!$login) {
+                    $errorCount++;
+                    $errors[] = "Пользователь {$user->name} {$user->last_name}: нет номера телефона";
+                    continue;
+                }
                 
                 // Генерируем новый временный пароль
                 $tempPassword = Str::random(8);

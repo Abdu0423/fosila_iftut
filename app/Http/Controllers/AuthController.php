@@ -58,17 +58,17 @@ class AuthController extends Controller
 
         if (!$user) {
             Log::warning('Пользователь не найден', ['login' => $login]);
-            return back()->withErrors([
+            return Inertia::back()->withErrors([
                 'login' => 'Предоставленные учетные данные не соответствуют нашим записям.',
-            ])->onlyInput('login');
+            ])->withInput(['login' => $login]);
         }
 
         // Проверяем пароль
         if (!\Hash::check($password, $user->password)) {
             Log::warning('Неверный пароль', ['user_id' => $user->id]);
-            return back()->withErrors([
+            return Inertia::back()->withErrors([
                 'login' => 'Предоставленные учетные данные не соответствуют нашим записям.',
-            ])->onlyInput('login');
+            ])->withInput(['login' => $login]);
         }
 
         // Авторизуем пользователя

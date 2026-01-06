@@ -129,18 +129,23 @@
 
               <!-- Ошибки -->
               <v-alert
-                v-if="Object.keys(form.errors).length > 0"
+                v-if="hasErrors"
                 type="error"
                 variant="tonal"
                 class="mb-4"
                 rounded="lg"
+                closable
+                @click:close="clearErrors"
               >
                 <template v-slot:prepend>
                   <v-icon>mdi-alert-circle</v-icon>
                 </template>
                 <div class="text-body-2">
-                  <div v-for="error in Object.values(form.errors)" :key="error">
-                    {{ error }}
+                  <div v-for="(error, field) in form.errors" :key="field">
+                    <div v-if="Array.isArray(error)">
+                      <div v-for="(err, index) in error" :key="index">{{ err }}</div>
+                    </div>
+                    <div v-else>{{ error }}</div>
                   </div>
                 </div>
               </v-alert>
@@ -405,16 +410,29 @@ const form = useForm({
 // Динамический год для футера
 const currentYear = computed(() => new Date().getFullYear())
 
+// Проверка наличия ошибок
+const hasErrors = computed(() => {
+  return Object.keys(form.errors).length > 0
+})
+
+// Очистка ошибок
+const clearErrors = () => {
+  form.clearErrors()
+}
+
 const submit = () => {
   console.log('Отправка формы входа:', form.data())
   
   form.post('/login', {
+    preserveState: true,
+    preserveScroll: true,
     onSuccess: (page) => {
       console.log('Успешный вход:', page)
       // Доверяем серверному перенаправлению - не делаем принудительный redirect
     },
     onError: (errors) => {
       console.log('Ошибки входа:', errors)
+      // Ошибки автоматически попадают в form.errors
     },
     onFinish: () => {
       console.log('Запрос завершен')
