@@ -14,10 +14,39 @@ class UserController extends Controller
     /**
      * Показать список всех пользователей
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('role')
-            ->orderBy('created_at', 'desc')
+        $query = User::with('role');
+
+        // Поиск по ФИО, email, телефону
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('middle_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        // Фильтр по роли
+        if ($request->filled('role')) {
+            $query->whereHas('role', function($q) use ($request) {
+                $q->where('name', $request->role);
+            });
+        }
+
+        // Фильтр по статусу
+        if ($request->filled('status')) {
+            if ($request->status === 'Подтвержден') {
+                $query->whereNotNull('email_verified_at');
+            } else {
+                $query->whereNull('email_verified_at');
+            }
+        }
+
+        $users = $query->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($user) {
                 return [
@@ -60,7 +89,8 @@ class UserController extends Controller
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
             'roles' => $roles,
-            'stats' => $stats
+            'stats' => $stats,
+            'filters' => $request->only(['search', 'role', 'status'])
         ]);
     }
 

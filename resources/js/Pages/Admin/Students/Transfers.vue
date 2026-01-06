@@ -68,7 +68,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
-import Layout from '../../../Layout.vue'
+import Layout from '../../Layout.vue'
 
 const page = usePage()
 const translations = computed(() => page.props.translations || {})

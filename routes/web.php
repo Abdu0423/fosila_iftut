@@ -130,6 +130,10 @@ Route::middleware('auth')->group(function () {
             return redirect()->route('teacher.dashboard');
         } elseif ($user->isEducationDepartment()) {
             return redirect()->route('education.dashboard');
+        } elseif ($user->isRegistrationCenter()) {
+            return redirect()->route('registration.dashboard');
+        } elseif ($user->isStudent()) {
+            return redirect()->route('student.dashboard');
         } else {
             return redirect()->route('student.dashboard');
         }
@@ -142,6 +146,12 @@ Route::middleware('auth')->group(function () {
             return redirect()->route('admin.dashboard');
         } elseif ($user->isTeacher()) {
             return redirect()->route('teacher.dashboard');
+        } elseif ($user->isEducationDepartment()) {
+            return redirect()->route('education.dashboard');
+        } elseif ($user->isRegistrationCenter()) {
+            return redirect()->route('registration.dashboard');
+        } elseif ($user->isStudent()) {
+            return redirect()->route('student.dashboard');
         } else {
             return redirect()->route('student.dashboard');
         }

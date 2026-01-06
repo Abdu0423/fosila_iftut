@@ -107,7 +107,7 @@
           <v-text-field
             v-model="search"
             prepend-inner-icon="mdi-magnify"
-            label="Поиск пользователей"
+            :label="t('admin.users.search_users', {}, { default: 'Поиск пользователей' })"
             variant="outlined"
             density="compact"
             clearable
@@ -117,7 +117,7 @@
           <v-select
             v-model="roleFilter"
             :items="roleOptions"
-            label="Фильтр по роли"
+            :label="t('admin.users.filter_by_role', {}, { default: 'Фильтр по роли' })"
             variant="outlined"
             density="compact"
             clearable
@@ -127,7 +127,7 @@
           <v-select
             v-model="statusFilter"
             :items="statusOptions"
-            label="Фильтр по статусу"
+            :label="t('admin.users.filter_by_status', {}, { default: 'Фильтр по статусу' })"
             variant="outlined"
             density="compact"
             clearable
@@ -140,7 +140,7 @@
             @click="clearFilters"
             prepend-icon="mdi-refresh"
           >
-            Сбросить
+            {{ t('admin.users.reset', {}, { default: 'Сбросить' }) }}
           </v-btn>
         </v-col>
       </v-row>
@@ -183,7 +183,7 @@
           <!-- Статус -->
           <template v-slot:item.status="{ item }">
             <v-chip
-              :color="item.status === 'Подтвержден' ? 'success' : 'warning'"
+              :color="item.status === t('admin.users.confirmed', {}, { default: 'Подтвержден' }) ? 'success' : 'warning'"
               size="small"
               variant="tonal"
             >
@@ -205,7 +205,7 @@
                 size="small"
                 color="info"
                 @click="viewUser(item)"
-                title="Просмотр"
+                :title="t('admin.users.view', {}, { default: 'Просмотр' })"
               ></v-btn>
               <v-btn
                 icon="mdi-pencil"
@@ -213,7 +213,7 @@
                 size="small"
                 color="primary"
                 @click="editUser(item)"
-                title="Редактировать"
+                :title="t('admin.users.edit', {}, { default: 'Редактировать' })"
               ></v-btn>
               <v-btn
                 icon="mdi-delete"
@@ -221,7 +221,7 @@
                 size="small"
                 color="error"
                 @click="deleteUser(item)"
-                title="Удалить"
+                :title="t('admin.users.delete', {}, { default: 'Удалить' })"
               ></v-btn>
             </div>
           </template>
@@ -232,11 +232,11 @@
       <v-dialog v-model="deleteDialog" max-width="400">
         <v-card>
           <v-card-title class="text-h6">
-            Подтверждение удаления
+            {{ t('admin.users.delete_confirmation', {}, { default: 'Подтверждение удаления' }) }}
           </v-card-title>
           <v-card-text>
-            Вы действительно хотите удалить пользователя <strong>{{ userToDelete?.name }} {{ userToDelete?.last_name }}</strong>?
-            Это действие нельзя отменить.
+            {{ t('admin.users.delete_confirmation_text', {}, { default: 'Вы действительно хотите удалить пользователя' }) }} <strong>{{ userToDelete?.name }} {{ userToDelete?.last_name }}</strong>?
+            {{ t('admin.users.delete_warning', {}, { default: 'Это действие нельзя отменить.' }) }}
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -245,7 +245,7 @@
               variant="text"
               @click="deleteDialog = false"
             >
-              Отмена
+              {{ t('admin.users.cancel', {}, { default: 'Отмена' }) }}
             </v-btn>
             <v-btn
               color="error"
@@ -253,7 +253,7 @@
               @click="confirmDelete"
               :loading="deleting"
             >
-              Удалить
+              {{ t('admin.users.delete', {}, { default: 'Удалить' }) }}
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -317,14 +317,25 @@ const roleOptions = computed(() => {
   }))
 })
 
-const statusOptions = [
-  { title: 'Подтвержден', value: 'Подтвержден' },
-  { title: 'Не подтвержден', value: 'Не подтвержден' }
-]
+const statusOptions = computed(() => [
+  { title: t('admin.users.confirmed', {}, { default: 'Подтвержден' }), value: 'Подтвержден' },
+  { title: t('admin.users.not_confirmed', {}, { default: 'Не подтвержден' }), value: 'Не подтвержден' }
+])
 
 // Отфильтрованные пользователи
 const filteredUsers = computed(() => {
   let filtered = props.users
+
+  // Поиск по ФИО, email
+  if (search.value) {
+    const searchLower = search.value.toLowerCase()
+    filtered = filtered.filter(user => 
+      (user.name && user.name.toLowerCase().includes(searchLower)) ||
+      (user.last_name && user.last_name.toLowerCase().includes(searchLower)) ||
+      (user.middle_name && user.middle_name && user.middle_name.toLowerCase().includes(searchLower)) ||
+      (user.email && user.email.toLowerCase().includes(searchLower))
+    )
+  }
 
   if (roleFilter.value) {
     filtered = filtered.filter(user => user.role === roleFilter.value)
