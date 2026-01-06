@@ -43,5 +43,10 @@ return [
     
     // Teacher
     'teacher' => 'Преподаватель',
+    
+    // Students management
+    'students_management' => 'Управление студентами',
+    'orders' => 'Приказы',
+    'transfers' => 'Переводы',
 ];
 

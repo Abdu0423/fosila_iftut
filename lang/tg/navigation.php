@@ -43,5 +43,10 @@ return [
     
     // Teacher
     'teacher' => 'Муаллим',
+    
+    // Students management
+    'students_management' => 'Идоракунии донишҷӯён',
+    'orders' => 'Фармонҳо',
+    'transfers' => 'Кӯчишҳо',
 ];
 

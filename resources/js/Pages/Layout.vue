@@ -47,24 +47,64 @@
       <!-- Пункты меню -->
       <div class="menu-list-wrapper">
         <v-list class="menu-list pa-2" nav>
-          <v-list-item
-            v-for="item in menuItems"
-            :key="item.title"
-            :prepend-icon="item.icon"
-            :title="item.title"
-            :active="isActiveRoute(item.route)"
-            :class="[
-              'menu-item',
-              { 'menu-item-active': isActiveRoute(item.route) },
-              { 'menu-item-dark': isDarkTheme }
-            ]"
-            @click="navigateTo(item.route)"
-            rounded="lg"
-          >
-            <template v-slot:prepend>
-              <v-icon :class="{ 'active-icon': isActiveRoute(item.route) }">{{ item.icon }}</v-icon>
-            </template>
-          </v-list-item>
+          <template v-for="item in menuItems" :key="item.title">
+            <!-- Элемент с подменю -->
+            <v-list-group v-if="item.children" :value="isSubmenuActive(item)">
+              <template v-slot:activator="{ props }">
+                <v-list-item
+                  v-bind="props"
+                  :prepend-icon="item.icon"
+                  :title="item.title"
+                  :class="[
+                    'menu-item',
+                    { 'menu-item-dark': isDarkTheme }
+                  ]"
+                  rounded="lg"
+                >
+                  <template v-slot:prepend>
+                    <v-icon>{{ item.icon }}</v-icon>
+                  </template>
+                </v-list-item>
+              </template>
+              <v-list-item
+                v-for="child in item.children"
+                :key="child.title"
+                :prepend-icon="child.icon"
+                :title="child.title"
+                :active="isActiveRoute(child.route)"
+                :class="[
+                  'menu-item menu-item-child',
+                  { 'menu-item-active': isActiveRoute(child.route) },
+                  { 'menu-item-dark': isDarkTheme }
+                ]"
+                @click="navigateTo(child.route)"
+                rounded="lg"
+              >
+                <template v-slot:prepend>
+                  <v-icon :class="{ 'active-icon': isActiveRoute(child.route) }">{{ child.icon }}</v-icon>
+                </template>
+              </v-list-item>
+            </v-list-group>
+            
+            <!-- Обычный элемент меню -->
+            <v-list-item
+              v-else
+              :prepend-icon="item.icon"
+              :title="item.title"
+              :active="isActiveRoute(item.route)"
+              :class="[
+                'menu-item',
+                { 'menu-item-active': isActiveRoute(item.route) },
+                { 'menu-item-dark': isDarkTheme }
+              ]"
+              @click="navigateTo(item.route)"
+              rounded="lg"
+            >
+              <template v-slot:prepend>
+                <v-icon :class="{ 'active-icon': isActiveRoute(item.route) }">{{ item.icon }}</v-icon>
+              </template>
+            </v-list-item>
+          </template>
         </v-list>
       </div>
     </v-navigation-drawer>
@@ -362,6 +402,16 @@ const menuItems = computed(() => {
       return [
         { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: '/admin' },
         { title: t('navigation.users'), icon: 'mdi-account-group', route: '/admin/users' },
+        { 
+          title: t('navigation.students'), 
+          icon: 'mdi-school', 
+          expanded: false,
+          children: [
+            { title: t('navigation.students_management') || 'Управление студентами', icon: 'mdi-account-multiple', route: '/admin/students' },
+            { title: t('navigation.orders') || 'Приказы', icon: 'mdi-file-document-edit', route: '/admin/students/orders' },
+            { title: t('navigation.transfers') || 'Переводы', icon: 'mdi-swap-horizontal', route: '/admin/students/transfers' }
+          ]
+        },
         { title: t('navigation.subjects'), icon: 'mdi-book-education', route: '/admin/subjects' },
         { title: t('navigation.syllabuses'), icon: 'mdi-file-document-multiple', route: '/admin/syllabuses' },
         { title: t('navigation.lessons'), icon: 'mdi-teach', route: '/admin/lessons' },
@@ -453,6 +503,12 @@ const isActiveRoute = (route) => {
     return true
   }
   return false
+}
+
+// Проверка активности подменю (если один из дочерних элементов активен)
+const isSubmenuActive = (item) => {
+  if (!item.children) return false
+  return item.children.some(child => isActiveRoute(child.route))
 }
 
 const goToProfile = () => {

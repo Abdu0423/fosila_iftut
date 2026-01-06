@@ -223,6 +223,11 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.password.change'])->
     Route::post('/sms/send-credentials', [App\Http\Controllers\Admin\SmsController::class, 'sendCredentials'])->name('admin.sms.send-credentials');
     Route::post('/sms/send-custom', [App\Http\Controllers\Admin\SmsController::class, 'sendCustom'])->name('admin.sms.send-custom');
     
+    // Управление студентами
+    Route::get('/students', [App\Http\Controllers\Admin\StudentManagementController::class, 'index'])->name('admin.students.index');
+    Route::get('/students/orders', [App\Http\Controllers\Admin\StudentManagementController::class, 'orders'])->name('admin.students.orders');
+    Route::get('/students/transfers', [App\Http\Controllers\Admin\StudentManagementController::class, 'transfers'])->name('admin.students.transfers');
+    
     // Управление силлабусами
     Route::get('/syllabuses', [App\Http\Controllers\Admin\SyllabusController::class, 'index'])->name('admin.syllabuses.index');
     Route::get('/syllabuses/create', [App\Http\Controllers\Admin\SyllabusController::class, 'create'])->name('admin.syllabuses.create');
