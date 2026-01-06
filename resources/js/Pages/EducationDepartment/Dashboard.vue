@@ -1,5 +1,5 @@
 ﻿<template>
-  <Layout role="education_department">
+  <Layout>
     <v-container fluid class="pa-6">
       <!-- Заголовок -->
       <div class="mb-6">
@@ -100,7 +100,7 @@
                 variant="tonal" 
                 color="primary" 
                 class="cursor-pointer"
-                @click="$inertia.visit(route('education.users.index'))"
+                @click="$inertia.visit(getRoute('users.index'))"
               >
                 <v-card-text class="text-center pa-6">
                   <v-icon size="48" class="mb-3">mdi-account-group</v-icon>
@@ -114,7 +114,7 @@
                 variant="tonal" 
                 color="success" 
                 class="cursor-pointer"
-                @click="$inertia.visit(route('education.schedules.index'))"
+                @click="$inertia.visit(getRoute('schedules.index'))"
               >
                 <v-card-text class="text-center pa-6">
                   <v-icon size="48" class="mb-3">mdi-calendar-clock</v-icon>
@@ -128,7 +128,7 @@
                 variant="tonal" 
                 color="warning" 
                 class="cursor-pointer"
-                @click="$inertia.visit(route('education.subjects.index'))"
+                @click="$inertia.visit(getRoute('subjects.index'))"
               >
                 <v-card-text class="text-center pa-6">
                   <v-icon size="48" class="mb-3">mdi-book-open-page-variant</v-icon>
@@ -157,6 +157,18 @@ defineProps({
     required: true
   }
 })
+
+// Определяем префикс маршрута в зависимости от текущего URL
+const getRoutePrefix = () => {
+  const path = window.location.pathname
+  return path.startsWith('/registration') ? 'registration' : 'education'
+}
+
+// Функция для получения правильного маршрута
+const getRoute = (routeName) => {
+  const prefix = getRoutePrefix()
+  return route(`${prefix}.${routeName}`)
+}
 </script>
 
 <style scoped>

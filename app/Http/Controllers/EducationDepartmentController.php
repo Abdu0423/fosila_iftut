@@ -15,6 +15,16 @@ use App\Models\Specialty;
 class EducationDepartmentController extends Controller
 {
     /**
+     * Проверяет, что пользователь имеет роль отдела образования или регистрационного центра
+     */
+    protected function checkRole($user)
+    {
+        if (!$user->isEducationDepartment() && !$user->isRegistrationCenter()) {
+            abort(403, 'Доступ запрещен');
+        }
+    }
+
+    /**
      * Дашборд отдела образования
      */
     public function dashboard()
@@ -22,9 +32,7 @@ class EducationDepartmentController extends Controller
         $user = auth()->user();
         
         // Проверяем роль
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         // Статистика
         $stats = [
@@ -51,9 +59,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $query = User::with('role', 'group');
         
@@ -105,9 +111,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
 
         $groups = Group::where('status', 'active')
             ->orderBy('name')
@@ -132,9 +136,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         try {
             $validated = $request->validate([
@@ -200,9 +202,7 @@ class EducationDepartmentController extends Controller
     {
         $authUser = auth()->user();
         
-        if (!$authUser->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($authUser);
         
         // Проверяем, что редактируемый пользователь - teacher или student
         if (!$user->role || !in_array($user->role->name, ['teacher', 'student'])) {
@@ -263,9 +263,7 @@ class EducationDepartmentController extends Controller
     {
         $authUser = auth()->user();
         
-        if (!$authUser->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($authUser);
         
         // Проверяем, что редактируемый пользователь - teacher или student
         if (!$user->role || !in_array($user->role->name, ['teacher', 'student'])) {
@@ -443,9 +441,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $query = Group::query();
         
@@ -485,9 +481,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $departments = Department::all()->map(function ($dept) {
             return [
@@ -518,9 +512,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -545,9 +537,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $departments = Department::all()->map(function ($dept) {
             return [
@@ -589,9 +579,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -616,9 +604,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $query = Schedule::with(['group', 'subject', 'teacher']);
         
@@ -647,9 +633,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $query = Subject::with('department');
         
@@ -674,9 +658,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $departments = Department::all();
         
@@ -692,9 +674,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -716,9 +696,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $subject->load('department');
         $departments = Department::all();
@@ -736,9 +714,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -760,9 +736,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $subjects = Subject::where('is_active', true)->get();
         $groups = Group::all();
@@ -784,9 +758,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $validated = $request->validate([
             'subject_id' => 'required|exists:subjects,id',
@@ -813,9 +785,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $schedule->load(['subject', 'teacher', 'group']);
         $subjects = Subject::where('is_active', true)->get();
@@ -839,9 +809,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $validated = $request->validate([
             'subject_id' => 'required|exists:subjects,id',
@@ -868,9 +836,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $query = Department::query();
         
@@ -904,9 +870,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         return Inertia::render('EducationDepartment/Departments/Create');
     }
@@ -918,9 +882,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -942,9 +904,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         return Inertia::render('EducationDepartment/Departments/Edit', [
             'department' => [
@@ -964,9 +924,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -988,9 +946,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $query = Specialty::query();
         
@@ -1026,9 +982,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $departments = Department::where('is_active', true)
             ->orderBy('name')
@@ -1046,9 +1000,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -1073,9 +1025,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $departments = Department::where('is_active', true)
             ->orderBy('name')
@@ -1103,9 +1053,7 @@ class EducationDepartmentController extends Controller
     {
         $user = auth()->user();
         
-        if (!$user->isEducationDepartment()) {
-            abort(403, 'Доступ запрещен');
-        }
+        $this->checkRole($user);
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',

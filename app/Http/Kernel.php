@@ -58,6 +58,8 @@ class Kernel extends HttpKernel
         'teacher' => \App\Http\Middleware\TeacherMiddleware::class,
         'student' => \App\Http\Middleware\StudentMiddleware::class,
         'education.department' => \App\Http\Middleware\EnsureUserIsEducationDepartment::class,
+        'registration.center' => \App\Http\Middleware\EnsureUserIsRegistrationCenter::class,
+        'education.or.registration' => \App\Http\Middleware\EnsureUserIsEducationOrRegistration::class,
         'auth' => \App\Http\Middleware\Authenticate::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'auth.session' => \Illuminate\Session\Middleware\AuthenticateSession::class,

@@ -32,5 +32,10 @@ class RoleSeeder extends Seeder
             'name' => 'education_department',
             'description' => 'Отдел образования'
         ]);
+
+        Role::create([
+            'name' => 'registration_center',
+            'description' => 'Регистрационный центр'
+        ]);
     }
 }

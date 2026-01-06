@@ -116,6 +116,11 @@ class AuthController extends Controller
             return Inertia::location('/education');
         }
 
+        if ($user->isRegistrationCenter()) {
+            Log::info('Перенаправление регистрационного центра на /registration');
+            return Inertia::location('/registration');
+        }
+
         if ($user->isStudent()) {
             Log::info('Перенаправление студента на /student/');
             return Inertia::location('/student/');

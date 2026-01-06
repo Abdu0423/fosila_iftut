@@ -626,6 +626,138 @@ Route::prefix('education')->middleware(['auth', 'education.department', 'check.p
     Route::delete('/chat/{chat}/leave', [App\Http\Controllers\ChatController::class, 'leave'])->name('education.chat.leave');
 });
 
+// Маршруты для регистрационного центра (имеют те же права, что и отдел образования)
+Route::prefix('registration')->middleware(['auth', 'education.or.registration', 'check.password.change'])->group(function () {
+    // Dashboard
+    Route::get('/', [App\Http\Controllers\EducationDepartmentController::class, 'dashboard'])->name('registration.dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\EducationDepartmentController::class, 'dashboard'])->name('registration.dashboard.alternative');
+    
+    // Пользователи
+    Route::get('/users', [App\Http\Controllers\EducationDepartmentController::class, 'users'])->name('registration.users.index');
+    Route::get('/users/create', [App\Http\Controllers\EducationDepartmentController::class, 'createUser'])->name('registration.users.create');
+    Route::post('/users', [App\Http\Controllers\EducationDepartmentController::class, 'storeUser'])->name('registration.users.store');
+    Route::get('/users/{user}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editUser'])->name('registration.users.edit');
+    Route::put('/users/{user}', [App\Http\Controllers\EducationDepartmentController::class, 'updateUser'])->name('registration.users.update');
+    
+    // Группы
+    Route::get('/groups', [App\Http\Controllers\EducationDepartmentController::class, 'groups'])->name('registration.groups.index');
+    Route::get('/groups/create', [App\Http\Controllers\EducationDepartmentController::class, 'createGroup'])->name('registration.groups.create');
+    Route::post('/groups', [App\Http\Controllers\EducationDepartmentController::class, 'storeGroup'])->name('registration.groups.store');
+    Route::get('/groups/{group}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editGroup'])->name('registration.groups.edit');
+    Route::put('/groups/{group}', [App\Http\Controllers\EducationDepartmentController::class, 'updateGroup'])->name('registration.groups.update');
+    
+    // Расписания
+    Route::get('/schedules', [App\Http\Controllers\EducationDepartmentController::class, 'schedules'])->name('registration.schedules.index');
+    Route::get('/schedules/create', [App\Http\Controllers\EducationDepartmentController::class, 'createSchedule'])->name('registration.schedules.create');
+    Route::post('/schedules', [App\Http\Controllers\EducationDepartmentController::class, 'storeSchedule'])->name('registration.schedules.store');
+    Route::get('/schedules/{schedule}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editSchedule'])->name('registration.schedules.edit');
+    Route::put('/schedules/{schedule}', [App\Http\Controllers\EducationDepartmentController::class, 'updateSchedule'])->name('registration.schedules.update');
+    
+    // Предметы
+    Route::get('/subjects', [App\Http\Controllers\EducationDepartmentController::class, 'subjects'])->name('registration.subjects.index');
+    Route::get('/subjects/create', [App\Http\Controllers\EducationDepartmentController::class, 'createSubject'])->name('registration.subjects.create');
+    Route::post('/subjects', [App\Http\Controllers\EducationDepartmentController::class, 'storeSubject'])->name('registration.subjects.store');
+    Route::get('/subjects/{subject}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editSubject'])->name('registration.subjects.edit');
+    Route::put('/subjects/{subject}', [App\Http\Controllers\EducationDepartmentController::class, 'updateSubject'])->name('registration.subjects.update');
+    
+    // Кафедры
+    Route::get('/departments', [App\Http\Controllers\EducationDepartmentController::class, 'departments'])->name('registration.departments.index');
+    Route::get('/departments/create', [App\Http\Controllers\EducationDepartmentController::class, 'createDepartment'])->name('registration.departments.create');
+    Route::post('/departments', [App\Http\Controllers\EducationDepartmentController::class, 'storeDepartment'])->name('registration.departments.store');
+    Route::get('/departments/{department}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editDepartment'])->name('registration.departments.edit');
+    Route::put('/departments/{department}', [App\Http\Controllers\EducationDepartmentController::class, 'updateDepartment'])->name('registration.departments.update');
+    
+    // Специальности
+    Route::get('/specialties', [App\Http\Controllers\EducationDepartmentController::class, 'specialties'])->name('registration.specialties.index');
+    Route::get('/specialties/create', [App\Http\Controllers\EducationDepartmentController::class, 'createSpecialty'])->name('registration.specialties.create');
+    Route::post('/specialties', [App\Http\Controllers\EducationDepartmentController::class, 'storeSpecialty'])->name('registration.specialties.store');
+    Route::get('/specialties/{specialty}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editSpecialty'])->name('registration.specialties.edit');
+    Route::put('/specialties/{specialty}', [App\Http\Controllers\EducationDepartmentController::class, 'updateSpecialty'])->name('registration.specialties.update');
+    
+    // Уроки (доступ как у учителя)
+    Route::get('/lessons', [App\Http\Controllers\Teacher\LessonController::class, 'index'])->name('registration.lessons.index');
+    Route::get('/lessons/schedule/{schedule}', [App\Http\Controllers\Teacher\LessonController::class, 'showSchedule'])->name('registration.lessons.schedule');
+    Route::get('/lessons/create', [App\Http\Controllers\Teacher\LessonController::class, 'create'])->name('registration.lessons.create');
+    Route::post('/lessons', [App\Http\Controllers\Teacher\LessonController::class, 'store'])->name('registration.lessons.store');
+    Route::get('/lessons/{lesson}', [App\Http\Controllers\Teacher\LessonController::class, 'show'])->name('registration.lessons.show');
+    Route::get('/lessons/{lesson}/edit', [App\Http\Controllers\Teacher\LessonController::class, 'edit'])->name('registration.lessons.edit');
+    Route::put('/lessons/{lesson}', [App\Http\Controllers\Teacher\LessonController::class, 'update'])->name('registration.lessons.update');
+    Route::delete('/lessons/{lesson}', [App\Http\Controllers\Teacher\LessonController::class, 'destroy'])->name('registration.lessons.destroy');
+    
+    // Тесты (доступ как у учителя)
+    Route::get('/tests', [App\Http\Controllers\Teacher\TestController::class, 'index'])->name('registration.tests.index');
+    Route::get('/schedules/{schedule}/test', [App\Http\Controllers\Teacher\TestController::class, 'show'])->name('registration.tests.show');
+    Route::put('/tests/{test}', [App\Http\Controllers\Teacher\TestController::class, 'update'])->name('registration.tests.update');
+    Route::post('/tests/{test}/toggle-status', [App\Http\Controllers\Teacher\TestController::class, 'toggleStatus'])->name('registration.tests.toggle-status');
+    
+    // Управление вопросами теста
+    Route::post('/tests/{test}/questions', [App\Http\Controllers\Teacher\QuestionController::class, 'store'])->name('registration.questions.store');
+    Route::put('/tests/{test}/questions/{question}', [App\Http\Controllers\Teacher\QuestionController::class, 'update'])->name('registration.questions.update');
+    Route::delete('/tests/{test}/questions/{question}', [App\Http\Controllers\Teacher\QuestionController::class, 'destroy'])->name('registration.questions.destroy');
+    Route::patch('/tests/{test}/questions/reorder', [App\Http\Controllers\Teacher\QuestionController::class, 'reorder'])->name('registration.questions.reorder');
+    
+    // Оценки студентов (доступ как у учителя)
+    Route::get('/grades', [App\Http\Controllers\Teacher\GradeController::class, 'index'])->name('registration.grades.index');
+    Route::get('/grades/schedule/{schedule}', [App\Http\Controllers\Teacher\GradeController::class, 'getGrades'])->name('registration.grades.get');
+    Route::put('/grades/{grade}', [App\Http\Controllers\Teacher\GradeController::class, 'updateGrade'])->name('registration.grades.update');
+    
+    // Студенты (доступ как у учителя)
+    Route::get('/students', [App\Http\Controllers\Teacher\StudentController::class, 'index'])->name('registration.students.index');
+    Route::get('/students/group/{group}', [App\Http\Controllers\Teacher\StudentController::class, 'show'])->name('registration.students.group');
+    Route::get('/students/student/{student}', [App\Http\Controllers\Teacher\StudentController::class, 'showStudent'])->name('registration.students.student');
+    
+    // Расписание (доступ как у учителя)
+    Route::get('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'index'])->name('registration.schedule.index');
+    Route::post('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'store'])->name('registration.schedule.store');
+    Route::get('/schedule/{schedule}', [App\Http\Controllers\Teacher\ScheduleController::class, 'show'])->name('registration.schedule.show');
+    Route::put('/schedule/{schedule}', [App\Http\Controllers\Teacher\ScheduleController::class, 'update'])->name('registration.schedule.update');
+    Route::delete('/schedule/{schedule}', [App\Http\Controllers\Teacher\ScheduleController::class, 'destroy'])->name('registration.schedule.destroy');
+    
+    // Управление силлабусами в расписании
+    Route::post('/schedule/{schedule}/syllabuses', [App\Http\Controllers\Teacher\ScheduleController::class, 'addSyllabus'])->name('registration.schedule.add-syllabus');
+    Route::post('/schedule/{schedule}/syllabuses/upload', [App\Http\Controllers\Teacher\ScheduleController::class, 'uploadSyllabus'])->name('registration.schedule.upload-syllabus');
+    Route::delete('/schedule/{schedule}/syllabuses/{syllabus}', [App\Http\Controllers\Teacher\ScheduleController::class, 'removeSyllabus'])->name('registration.schedule.remove-syllabus');
+    
+    // Управление уроками в расписании
+    Route::post('/schedule/{schedule}/lessons', [App\Http\Controllers\Teacher\ScheduleController::class, 'addLesson'])->name('registration.schedule.add-lesson');
+    Route::delete('/schedule/{schedule}/lessons/{lesson}', [App\Http\Controllers\Teacher\ScheduleController::class, 'removeLesson'])->name('registration.schedule.remove-lesson');
+    Route::patch('/schedule/{schedule}/lessons/reorder', [App\Http\Controllers\Teacher\ScheduleController::class, 'reorderLessons'])->name('registration.schedule.reorder-lessons');
+    
+    // Управление силлабусами
+    Route::get('/syllabuses', [App\Http\Controllers\Teacher\SyllabusController::class, 'index'])->name('registration.syllabuses.index');
+    Route::get('/syllabuses/create', [App\Http\Controllers\Teacher\SyllabusController::class, 'create'])->name('registration.syllabuses.create');
+    Route::post('/syllabuses', [App\Http\Controllers\Teacher\SyllabusController::class, 'store'])->name('registration.syllabuses.store');
+    Route::get('/syllabuses/{syllabus}', [App\Http\Controllers\Teacher\SyllabusController::class, 'show'])->name('registration.syllabuses.show');
+    Route::get('/syllabuses/{syllabus}/edit', [App\Http\Controllers\Teacher\SyllabusController::class, 'edit'])->name('registration.syllabuses.edit');
+    Route::put('/syllabuses/{syllabus}', [App\Http\Controllers\Teacher\SyllabusController::class, 'update'])->name('registration.syllabuses.update');
+    Route::delete('/syllabuses/{syllabus}', [App\Http\Controllers\Teacher\SyllabusController::class, 'destroy'])->name('registration.syllabuses.destroy');
+    Route::get('/syllabuses/{syllabus}/download', [App\Http\Controllers\Teacher\SyllabusController::class, 'download'])->name('registration.syllabuses.download');
+    Route::get('/syllabuses/{syllabus}/preview', [App\Http\Controllers\Teacher\SyllabusController::class, 'preview'])->name('registration.syllabuses.preview');
+    
+    // Материалы
+    Route::get('/materials', function () {
+        return Inertia::render('Teacher/Materials/Index');
+    })->name('registration.materials.index');
+    
+    Route::get('/materials/create', function () {
+        return Inertia::render('Teacher/Materials/Create');
+    })->name('registration.materials.create');
+    
+    // Отчеты
+    Route::get('/reports', function () {
+        return Inertia::render('Teacher/Reports/Index');
+    })->name('registration.reports.index');
+    
+    // Чат
+    Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('registration.chat.index');
+    Route::get('/chat/{chat}', [App\Http\Controllers\ChatController::class, 'show'])->name('registration.chat.show');
+    Route::post('/chat', [App\Http\Controllers\ChatController::class, 'store'])->name('registration.chat.store');
+    Route::post('/chat/{chat}/messages', [App\Http\Controllers\ChatController::class, 'sendMessage'])->name('registration.chat.send-message');
+    Route::get('/chat/{chat}/messages', [App\Http\Controllers\ChatController::class, 'getMessages'])->name('registration.chat.get-messages');
+    Route::post('/chat/{chat}/read', [App\Http\Controllers\ChatController::class, 'markAsRead'])->name('registration.chat.mark-read');
+    Route::delete('/chat/{chat}/leave', [App\Http\Controllers\ChatController::class, 'leave'])->name('registration.chat.leave');
+});
+
 // Тестовые маршруты для SMS (удалить в production или защитить middleware)
 Route::prefix('sms-test')->middleware('auth')->group(function () {
     Route::post('/send', [App\Http\Controllers\SmsTestController::class, 'send'])->name('sms.test.send');

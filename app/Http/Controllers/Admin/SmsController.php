@@ -208,6 +208,7 @@ class SmsController extends Controller
             'teacher' => 'Преподаватель',
             'student' => 'Студент',
             'education_department' => 'Отдел образования',
+            'registration_center' => 'Регистрационный центр',
         ];
 
         return $roleNames[$roleName] ?? $roleName;

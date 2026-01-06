@@ -84,6 +84,8 @@ class ChangePasswordController extends Controller
             return '/teacher/';
         } elseif ($user->isEducationDepartment()) {
             return '/education';
+        } elseif ($user->isRegistrationCenter()) {
+            return '/registration';
         } else {
             return '/student/';
         }

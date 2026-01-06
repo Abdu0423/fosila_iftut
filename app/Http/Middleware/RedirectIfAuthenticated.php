@@ -30,6 +30,8 @@ class RedirectIfAuthenticated
                     return redirect('/teacher/');
                 } elseif ($user->isEducationDepartment()) {
                     return redirect('/education');
+                } elseif ($user->isRegistrationCenter()) {
+                    return redirect('/registration');
                 } elseif ($user->isStudent()) {
                     return redirect('/student/');
                 }

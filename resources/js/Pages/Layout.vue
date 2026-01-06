@@ -198,7 +198,7 @@ const props = defineProps({
   role: {
     type: String,
     default: null, // Если не передан, берём из user.role
-    validator: (value) => !value || ['admin', 'teacher', 'student', 'education_department'].includes(value)
+    validator: (value) => !value || ['admin', 'teacher', 'student', 'education_department', 'registration_center'].includes(value)
   }
 })
 
@@ -261,6 +261,10 @@ const currentRole = computed(() => {
     return 'student'
   }
   
+  if (path.startsWith('/registration')) {
+    return 'registration_center'
+  }
+  
   // Если не определили из URL, берем из user.role
   return user.value?.role || 'student'
 })
@@ -270,6 +274,7 @@ const userRole = computed(() => {
     case 'admin': return t('roles.admin')
     case 'teacher': return t('roles.teacher')
     case 'education_department': return t('roles.education_department')
+    case 'registration_center': return t('roles.registration_center') || 'Регистрационный центр'
     default: return t('roles.student')
   }
 })
@@ -305,6 +310,7 @@ const headerIcon = computed(() => {
     case 'admin': return 'mdi-shield-crown'
     case 'teacher': return 'mdi-teach'
     case 'education_department': return 'mdi-domain'
+    case 'registration_center': return 'mdi-clipboard-account'
     default: return 'mdi-school'
   }
 })
@@ -314,6 +320,7 @@ const headerTitle = computed(() => {
     case 'admin': return t('panels.admin_title')
     case 'teacher': return t('panels.teacher_title')
     case 'education_department': return t('panels.education_title')
+    case 'registration_center': return t('panels.registration_title') || 'Регистрационный центр'
     default: return t('panels.student_title')
   }
 })
@@ -323,6 +330,7 @@ const headerSubtitle = computed(() => {
     case 'admin': return t('panels.admin_subtitle')
     case 'teacher': return t('panels.teacher_subtitle')
     case 'education_department': return t('panels.education_subtitle')
+    case 'registration_center': return t('panels.registration_subtitle') || 'Управление регистрацией'
     default: return t('panels.student_subtitle')
   }
 })
@@ -332,6 +340,7 @@ const appBarTitle = computed(() => {
     case 'admin': return t('panels.admin_title')
     case 'teacher': return t('panels.teacher_title')
     case 'education_department': return t('panels.education_title')
+    case 'registration_center': return t('panels.registration_title') || 'Регистрационный центр'
     default: return t('panels.student_title')
   }
 })
@@ -341,6 +350,7 @@ const appBarTitleShort = computed(() => {
     case 'admin': return t('roles.admin_short')
     case 'teacher': return t('roles.teacher')
     case 'education_department': return t('roles.education_department_short')
+    case 'registration_center': return t('roles.registration_center_short') || 'РЦ'
     default: return t('panels.student_title')
   }
 })
@@ -394,6 +404,24 @@ const menuItems = computed(() => {
         { title: t('navigation.schedule'), icon: 'mdi-calendar-clock', route: '/education/schedule' },
         { title: t('navigation.syllabuses'), icon: 'mdi-file-document-multiple', route: '/education/syllabuses' },
         { title: t('navigation.chat'), icon: 'mdi-chat', route: '/education/chat' },
+      ]
+    
+    case 'registration_center':
+      return [
+        { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: '/registration' },
+        { title: t('education_department.users_menu'), icon: 'mdi-account-group', route: '/registration/users' },
+        { title: t('education_department.groups_menu'), icon: 'mdi-account-multiple', route: '/registration/groups' },
+        { title: t('education_department.subjects_menu'), icon: 'mdi-book-open-page-variant', route: '/registration/subjects' },
+        { title: t('education_department.departments_menu'), icon: 'mdi-office-building', route: '/registration/departments' },
+        { title: t('education_department.specialties_menu'), icon: 'mdi-school', route: '/registration/specialties' },
+        { title: t('education_department.schedules_menu'), icon: 'mdi-calendar-clock', route: '/registration/schedules' },
+        { title: t('navigation.my_lessons'), icon: 'mdi-teach', route: '/registration/lessons' },
+        { title: t('navigation.my_tests'), icon: 'mdi-help-circle', route: '/registration/tests' },
+        { title: t('navigation.grades'), icon: 'mdi-star', route: '/registration/grades' },
+        { title: t('navigation.my_students'), icon: 'mdi-account-group', route: '/registration/students' },
+        { title: t('navigation.schedule'), icon: 'mdi-calendar-clock', route: '/registration/schedule' },
+        { title: t('navigation.syllabuses'), icon: 'mdi-file-document-multiple', route: '/registration/syllabuses' },
+        { title: t('navigation.chat'), icon: 'mdi-chat', route: '/registration/chat' },
       ]
     
     default: // student
