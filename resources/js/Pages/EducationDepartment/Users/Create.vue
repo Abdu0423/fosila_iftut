@@ -14,7 +14,7 @@
         <v-btn
           color="secondary"
           variant="outlined"
-          @click="navigateTo('/education/users')"
+          @click="navigateTo(`/${getRoutePrefix()}/users`)"
           prepend-icon="mdi-arrow-left"
         >
           {{ translations.messages?.back || 'Бозгашт' }}
@@ -147,7 +147,7 @@
                   <v-btn
                     color="secondary"
                     variant="outlined"
-                    @click="navigateTo('/education/users')"
+                    @click="navigateTo(`/${getRoutePrefix()}/users`)"
                   >
                     {{ translations.messages?.cancel || 'Бекор кардан' }}
                   </v-btn>
@@ -200,13 +200,23 @@ const form = useForm({
   group_id: ''
 })
 
+// Определяем префикс маршрута на основе текущего URL
+const getRoutePrefix = () => {
+  const path = window.location.pathname
+  if (path.startsWith('/registration')) {
+    return 'registration'
+  }
+  return 'education'
+}
+
 // Методы
 const navigateTo = (path) => {
   router.visit(path)
 }
 
 const submitForm = () => {
-  form.post('/education/users', {
+  const routePrefix = getRoutePrefix()
+  form.post(`/${routePrefix}/users`, {
     onSuccess: () => {
       // Форма автоматически перенаправит на список пользователей
     },

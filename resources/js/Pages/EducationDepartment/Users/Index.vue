@@ -181,8 +181,17 @@ const getRoleLabel = (role) => {
   return labels[role] || role
 }
 
+// Определяем префикс маршрута на основе текущего URL
+const getRoutePrefix = () => {
+  const path = window.location.pathname
+  if (path.startsWith('/registration')) {
+    return 'registration'
+  }
+  return 'education'
+}
+
 const handleSearch = () => {
-  router.get('/education/users', {
+  router.get(`/${getRoutePrefix()}/users`, {
     search: searchQuery.value,
     group: groupFilter.value
   }, {
@@ -192,7 +201,7 @@ const handleSearch = () => {
 }
 
 const handleGroupFilter = () => {
-  router.get('/education/users', {
+  router.get(`/${getRoutePrefix()}/users`, {
     search: searchQuery.value,
     group: groupFilter.value
   }, {
@@ -202,7 +211,7 @@ const handleGroupFilter = () => {
 }
 
 const handlePageChange = (pageNum) => {
-  router.get('/education/users', {
+  router.get(`/${getRoutePrefix()}/users`, {
     page: pageNum,
     search: searchQuery.value,
     group: groupFilter.value
@@ -223,11 +232,11 @@ const totalVisible = computed(() => {
 })
 
 const createUser = () => {
-  router.visit('/education/users/create')
+  router.visit(`/${getRoutePrefix()}/users/create`)
 }
 
 const editUser = (user) => {
-  router.visit(`/education/users/${user.id}/edit`)
+  router.visit(`/${getRoutePrefix()}/users/${user.id}/edit`)
 }
 </script>
 

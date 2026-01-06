@@ -59,16 +59,6 @@ class StudentManagementController extends Controller
     }
 
     /**
-     * Приказы
-     */
-    public function orders(Request $request)
-    {
-        return Inertia::render('Admin/Students/Orders', [
-            'filters' => $request->only(['search', 'type', 'date_from', 'date_to']),
-        ]);
-    }
-
-    /**
      * Переводы
      */
     public function transfers(Request $request)

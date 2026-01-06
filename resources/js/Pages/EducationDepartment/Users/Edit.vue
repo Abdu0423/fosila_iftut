@@ -14,7 +14,7 @@
         <v-btn
           color="secondary"
           variant="outlined"
-          @click="navigateTo('/education/users')"
+          @click="navigateTo(`/${getRoutePrefix()}/users`)"
           prepend-icon="mdi-arrow-left"
         >
           {{ translations.messages?.back || 'Бозгашт' }}
@@ -170,7 +170,7 @@
                   <v-btn
                     color="secondary"
                     variant="outlined"
-                    @click="navigateTo('/education/users')"
+                    @click="navigateTo(`/${getRoutePrefix()}/users`)"
                   >
                     {{ translations.messages?.cancel || 'Бекор кардан' }}
                   </v-btn>
@@ -257,6 +257,15 @@ onMounted(() => {
   form.group_id = props.user.group_id || ''
 })
 
+// Определяем префикс маршрута на основе текущего URL
+const getRoutePrefix = () => {
+  const path = window.location.pathname
+  if (path.startsWith('/registration')) {
+    return 'registration'
+  }
+  return 'education'
+}
+
 // Методы
 const navigateTo = (path) => {
   router.visit(path)
@@ -277,15 +286,17 @@ const submitForm = () => {
     return
   }
   
+  const routePrefix = getRoutePrefix()
+  
   // Используем form.transform().post() с _method: 'PUT' для правильной отправки
   form.transform((data) => ({
     ...data,
     _method: 'PUT'
-  })).post(`/education/users/${id}`, {
+  })).post(`/${routePrefix}/users/${id}`, {
     preserveState: false,
     preserveScroll: false,
     onSuccess: () => {
-      router.visit('/education/users')
+      router.visit(`/${routePrefix}/users`)
     },
     onError: (errors) => {
       console.error('Ошибки валидации:', errors)
