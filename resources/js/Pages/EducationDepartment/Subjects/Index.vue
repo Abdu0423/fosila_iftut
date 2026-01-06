@@ -14,7 +14,7 @@
         <v-btn
           color="primary"
           prepend-icon="mdi-plus"
-          @click="router.visit('/education/subjects/create')"
+          @click="router.visit(`/${getRoutePrefix()}/subjects/create`)"
         >
           {{ translations.messages?.add || 'Добавить' }}
         </v-btn>
@@ -84,7 +84,7 @@
               variant="text"
               color="primary"
               size="small"
-              @click="router.visit(`/education/subjects/${item.id}/edit`)"
+              @click="router.visit(`/${getRoutePrefix()}/subjects/${item.id}/edit`)"
               :title="translations.messages?.edit"
             >
               <v-icon>mdi-pencil</v-icon>
@@ -136,8 +136,17 @@ const headers = computed(() => [
   { title: translations.value.messages?.actions || 'Действия', key: 'actions', sortable: false }
 ])
 
+// Определяем префикс маршрута на основе текущего URL
+const getRoutePrefix = () => {
+  const path = window.location.pathname
+  if (path.startsWith('/registration')) {
+    return 'registration'
+  }
+  return 'education'
+}
+
 const handleSearch = () => {
-  router.get('/education/subjects', {
+  router.get(`/${getRoutePrefix()}/subjects`, {
     search: searchQuery.value
   }, {
     preserveState: true,
@@ -146,7 +155,7 @@ const handleSearch = () => {
 }
 
 const handlePageChange = (pageNum) => {
-  router.get('/education/subjects', {
+  router.get(`/${getRoutePrefix()}/subjects`, {
     page: pageNum,
     search: searchQuery.value
   }, {

@@ -181,8 +181,17 @@ const statusOptions = [
   { title: translations.value.messages?.inactive || 'Неактивна', value: false }
 ]
 
+// Определяем префикс маршрута на основе текущего URL
+const getRoutePrefix = () => {
+  const path = window.location.pathname
+  if (path.startsWith('/registration')) {
+    return 'registration'
+  }
+  return 'education'
+}
+
 const handleSearch = () => {
-  router.get('/education/specialties', {
+  router.get(`/${getRoutePrefix()}/specialties`, {
     search: searchQuery.value,
     status: statusFilter.value
   }, {
@@ -192,7 +201,7 @@ const handleSearch = () => {
 }
 
 const handleStatusFilter = () => {
-  router.get('/education/specialties', {
+  router.get(`/${getRoutePrefix()}/specialties`, {
     search: searchQuery.value,
     status: statusFilter.value
   }, {
@@ -202,7 +211,7 @@ const handleStatusFilter = () => {
 }
 
 const handlePageChange = (pageNum) => {
-  router.get('/education/specialties', {
+  router.get(`/${getRoutePrefix()}/specialties`, {
     page: pageNum,
     search: searchQuery.value,
     status: statusFilter.value
@@ -223,11 +232,11 @@ const totalVisible = computed(() => {
 })
 
 const createSpecialty = () => {
-  router.visit('/education/specialties/create')
+  router.visit(`/${getRoutePrefix()}/specialties/create`)
 }
 
 const editSpecialty = (specialty) => {
-  router.visit(`/education/specialties/${specialty.id}/edit`)
+  router.visit(`/${getRoutePrefix()}/specialties/${specialty.id}/edit`)
 }
 </script>
 

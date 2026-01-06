@@ -13,7 +13,7 @@
         <v-btn
           color="secondary"
           variant="outlined"
-          @click="navigateTo('/education/departments')"
+          @click="navigateTo(`/${getRoutePrefix()}/departments`)"
           prepend-icon="mdi-arrow-left"
         >
           {{ translations.messages?.back || 'Назад' }}
@@ -83,7 +83,7 @@
                   <v-btn
                     color="secondary"
                     variant="outlined"
-                    @click="navigateTo('/education/departments')"
+                    @click="navigateTo(`/${getRoutePrefix()}/departments`)"
                   >
                     {{ translations.messages?.cancel || 'Отмена' }}
                   </v-btn>
@@ -119,19 +119,29 @@ const form = useForm({
   is_active: true
 })
 
+// Определяем префикс маршрута на основе текущего URL
+const getRoutePrefix = () => {
+  const path = window.location.pathname
+  if (path.startsWith('/registration')) {
+    return 'registration'
+  }
+  return 'education'
+}
+
 const navigateTo = (path) => {
   router.visit(path)
 }
 
 const submitForm = () => {
+  const routePrefix = getRoutePrefix()
   form.transform((data) => ({
     ...data,
     _method: 'POST'
-  })).post('/education/departments', {
+  })).post(`/${routePrefix}/departments`, {
     preserveState: false,
     preserveScroll: false,
     onSuccess: () => {
-      router.visit('/education/departments')
+      router.visit(`/${routePrefix}/departments`)
     },
     onError: (errors) => {
       console.error('Ошибки валидации:', errors)

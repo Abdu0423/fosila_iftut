@@ -14,7 +14,7 @@
         <v-btn
           color="secondary"
           variant="outlined"
-          @click="navigateTo('/education/groups')"
+          @click="navigateTo(`/${getRoutePrefix()}/groups`)"
           prepend-icon="mdi-arrow-left"
         >
           {{ translations.messages?.back || 'Бозгашт' }}
@@ -148,7 +148,7 @@
                   <v-btn
                     color="secondary"
                     variant="outlined"
-                    @click="navigateTo('/education/groups')"
+                    @click="navigateTo(`/${getRoutePrefix()}/groups`)"
                   >
                     {{ translations.messages?.cancel || 'Бекор кардан' }}
                   </v-btn>
@@ -222,13 +222,22 @@ onMounted(() => {
   form.specialty_id = props.group.specialty_id || null
 })
 
+// Определяем префикс маршрута на основе текущего URL
+const getRoutePrefix = () => {
+  const path = window.location.pathname
+  if (path.startsWith('/registration')) {
+    return 'registration'
+  }
+  return 'education'
+}
+
 // Методы
 const navigateTo = (path) => {
   router.visit(path)
 }
 
 const submitForm = () => {
-  form.put(`/education/groups/${props.group.id}`, {
+  form.put(`/${getRoutePrefix()}/groups/${props.group.id}`, {
     onSuccess: () => {
       // Форма автоматически перенаправит на список групп
     },

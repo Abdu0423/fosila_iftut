@@ -177,6 +177,15 @@ const statusOptions = [
 // Debounced функция для поиска
 let searchTimeout = null
 
+// Определяем префикс маршрута на основе текущего URL
+const getRoutePrefix = () => {
+  const path = window.location.pathname
+  if (path.startsWith('/registration')) {
+    return 'registration'
+  }
+  return 'education'
+}
+
 const handleSearch = () => {
   clearTimeout(searchTimeout)
   searchTimeout = setTimeout(() => {
@@ -188,7 +197,7 @@ const handleSearch = () => {
       params.status = statusFilter.value
     }
     
-    router.get('/education/groups', params, {
+    router.get(`/${getRoutePrefix()}/groups`, params, {
       preserveState: true,
       preserveScroll: true
     })
@@ -204,7 +213,7 @@ const handleStatusFilter = () => {
     params.status = statusFilter.value
   }
   
-  router.get('/education/groups', params, {
+  router.get(`/${getRoutePrefix()}/groups`, params, {
     preserveState: true,
     preserveScroll: true
   })
@@ -221,7 +230,7 @@ const handlePageChange = (pageNum) => {
     params.status = statusFilter.value
   }
   
-  router.get('/education/groups', params, {
+  router.get(`/${getRoutePrefix()}/groups`, params, {
     preserveState: true,
     preserveScroll: true,
     replace: false
@@ -239,11 +248,11 @@ const totalVisible = computed(() => {
 })
 
 const createGroup = () => {
-  router.visit('/education/groups/create')
+  router.visit(`/${getRoutePrefix()}/groups/create`)
 }
 
 const editGroup = (group) => {
-  router.visit(`/education/groups/${group.id}/edit`)
+  router.visit(`/${getRoutePrefix()}/groups/${group.id}/edit`)
 }
 </script>
 

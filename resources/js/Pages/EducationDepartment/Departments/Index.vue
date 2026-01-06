@@ -161,8 +161,17 @@ const statusOptions = [
   { title: translations.value.messages?.inactive || 'Неактивна', value: false }
 ]
 
+// Определяем префикс маршрута на основе текущего URL
+const getRoutePrefix = () => {
+  const path = window.location.pathname
+  if (path.startsWith('/registration')) {
+    return 'registration'
+  }
+  return 'education'
+}
+
 const handleSearch = () => {
-  router.get('/education/departments', {
+  router.get(`/${getRoutePrefix()}/departments`, {
     search: searchQuery.value,
     status: statusFilter.value
   }, {
@@ -172,7 +181,7 @@ const handleSearch = () => {
 }
 
 const handleStatusFilter = () => {
-  router.get('/education/departments', {
+  router.get(`/${getRoutePrefix()}/departments`, {
     search: searchQuery.value,
     status: statusFilter.value
   }, {
@@ -182,7 +191,7 @@ const handleStatusFilter = () => {
 }
 
 const handlePageChange = (pageNum) => {
-  router.get('/education/departments', {
+  router.get(`/${getRoutePrefix()}/departments`, {
     page: pageNum,
     search: searchQuery.value,
     status: statusFilter.value
@@ -203,11 +212,11 @@ const totalVisible = computed(() => {
 })
 
 const createDepartment = () => {
-  router.visit('/education/departments/create')
+  router.visit(`/${getRoutePrefix()}/departments/create`)
 }
 
 const editDepartment = (department) => {
-  router.visit(`/education/departments/${department.id}/edit`)
+  router.visit(`/${getRoutePrefix()}/departments/${department.id}/edit`)
 }
 </script>
 

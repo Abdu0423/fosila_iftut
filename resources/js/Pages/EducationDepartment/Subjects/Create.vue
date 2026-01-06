@@ -6,7 +6,7 @@
         <v-btn
           icon="mdi-arrow-left"
           variant="text"
-          @click="router.visit(route('education.subjects.index'))"
+          @click="router.visit(`/${getRoutePrefix()}/subjects`)"
           class="mr-3"
         />
         <div>
@@ -92,7 +92,7 @@
                   </v-btn>
                   <v-btn
                     variant="outlined"
-                    @click="router.visit(route('education.subjects.index'))"
+                    @click="router.visit(`/${getRoutePrefix()}/subjects`)"
                     :disabled="form.processing"
                   >
                     {{ translations.messages?.cancel || 'Отмена' }}
@@ -131,11 +131,21 @@ const form = useForm({
 
 const errors = computed(() => page.props.errors || {})
 
+// Определяем префикс маршрута на основе текущего URL
+const getRoutePrefix = () => {
+  const path = window.location.pathname
+  if (path.startsWith('/registration')) {
+    return 'registration'
+  }
+  return 'education'
+}
+
 const submit = () => {
-  form.post(route('education.subjects.store'), {
+  const routePrefix = getRoutePrefix()
+  form.post(`/${routePrefix}/subjects`, {
     preserveScroll: true,
     onSuccess: () => {
-      router.visit(route('education.subjects.index'))
+      router.visit(`/${routePrefix}/subjects`)
     }
   })
 }

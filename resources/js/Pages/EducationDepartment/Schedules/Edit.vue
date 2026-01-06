@@ -6,7 +6,7 @@
         <v-btn
           icon="mdi-arrow-left"
           variant="text"
-          @click="router.visit(route('education.schedules.index'))"
+          @click="router.visit(`/${getRoutePrefix()}/schedules`)"
           class="mr-3"
         />
         <div>
@@ -167,7 +167,7 @@
                   </v-btn>
                   <v-btn
                     variant="outlined"
-                    @click="router.visit(route('education.schedules.index'))"
+                    @click="router.visit(`/${getRoutePrefix()}/schedules`)"
                     :disabled="form.processing"
                   >
                     {{ translations.messages?.cancel }}
@@ -228,11 +228,21 @@ const semesterItems = [
   { title: '2', value: 2 }
 ]
 
+// Определяем префикс маршрута на основе текущего URL
+const getRoutePrefix = () => {
+  const path = window.location.pathname
+  if (path.startsWith('/registration')) {
+    return 'registration'
+  }
+  return 'education'
+}
+
 const submit = () => {
-  form.put(route('education.schedules.update', props.schedule.id), {
+  const routePrefix = getRoutePrefix()
+  form.put(`/${routePrefix}/schedules/${props.schedule.id}`, {
     preserveScroll: true,
     onSuccess: () => {
-      router.visit(route('education.schedules.index'))
+      router.visit(`/${routePrefix}/schedules`)
     }
   })
 }

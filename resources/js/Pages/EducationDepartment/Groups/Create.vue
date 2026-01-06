@@ -14,7 +14,7 @@
         <v-btn
           color="secondary"
           variant="outlined"
-          @click="navigateTo('/education/groups')"
+          @click="navigateTo(`/${getRoutePrefix()}/groups`)"
           prepend-icon="mdi-arrow-left"
         >
           {{ translations.messages?.back || 'Бозгашт' }}
@@ -146,7 +146,7 @@
                   <v-btn
                     color="secondary"
                     variant="outlined"
-                    @click="navigateTo('/education/groups')"
+                    @click="navigateTo(`/${getRoutePrefix()}/groups`)"
                   >
                     {{ translations.messages?.cancel || 'Бекор кардан' }}
                   </v-btn>
@@ -205,13 +205,22 @@ const statusOptions = [
   { title: translations.value.education_department?.suspended || 'Қатъшуда', value: 'suspended' }
 ]
 
+// Определяем префикс маршрута на основе текущего URL
+const getRoutePrefix = () => {
+  const path = window.location.pathname
+  if (path.startsWith('/registration')) {
+    return 'registration'
+  }
+  return 'education'
+}
+
 // Методы
 const navigateTo = (path) => {
   router.visit(path)
 }
 
 const submitForm = () => {
-  form.post('/education/groups', {
+  form.post(`/${getRoutePrefix()}/groups`, {
     onSuccess: () => {
       // Форма автоматически перенаправит на список групп
     },

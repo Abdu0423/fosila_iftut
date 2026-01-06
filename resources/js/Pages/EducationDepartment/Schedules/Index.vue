@@ -14,7 +14,7 @@
         <v-btn
           color="primary"
           prepend-icon="mdi-plus"
-          @click="router.visit(route('education.schedules.create'))"
+          @click="router.visit(`/${getRoutePrefix()}/schedules/create`)"
         >
           {{ translations.messages?.add || 'Илова кардан' }}
         </v-btn>
@@ -87,7 +87,7 @@
                   variant="text"
                   color="primary"
                   size="small"
-                  @click="router.visit(route('education.schedules.edit', schedule.id))"
+                  @click="router.visit(`/${getRoutePrefix()}/schedules/${schedule.id}/edit`)"
                   :title="translations.messages?.edit || 'Таҳрир кардан'"
                 >
                   <v-icon>mdi-pencil</v-icon>
@@ -145,8 +145,17 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString(locale === 'tg' ? 'tg-TJ' : 'ru-RU')
 }
 
+// Определяем префикс маршрута на основе текущего URL
+const getRoutePrefix = () => {
+  const path = window.location.pathname
+  if (path.startsWith('/registration')) {
+    return 'registration'
+  }
+  return 'education'
+}
+
 const handleDateFilter = () => {
-  router.get('/education/schedules', {
+  router.get(`/${getRoutePrefix()}/schedules`, {
     date: dateFilter.value
   }, {
     preserveState: true,
@@ -155,7 +164,7 @@ const handleDateFilter = () => {
 }
 
 const handlePageChange = (pageNum) => {
-  router.get('/education/schedules', {
+  router.get(`/${getRoutePrefix()}/schedules`, {
     page: pageNum,
     date: dateFilter.value
   }, {
