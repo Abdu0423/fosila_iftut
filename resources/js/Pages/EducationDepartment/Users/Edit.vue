@@ -266,6 +266,11 @@ const getRoutePrefix = () => {
   return 'education'
 }
 
+// Определяем роль для Layout
+const getRole = computed(() => {
+  return getRoutePrefix() === 'registration' ? 'registration_center' : 'education_department'
+})
+
 // Методы
 const navigateTo = (path) => {
   router.visit(path)

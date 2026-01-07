@@ -1,5 +1,5 @@
 ﻿<template>
-  <Layout role="education_department">
+  <Layout :role="getRole">
     <v-container fluid class="pa-6">
       <!-- Заголовок -->
       <div class="d-flex align-center mb-6">
@@ -135,10 +135,6 @@ const form = useForm({
 
 const errors = computed(() => page.props.errors || {})
 
-const submit = () => {
-  if (!props.subject?.id) {
-    return
-  }
 // Определяем префикс маршрута на основе текущего URL
 const getRoutePrefix = () => {
   const path = window.location.pathname
@@ -148,6 +144,15 @@ const getRoutePrefix = () => {
   return 'education'
 }
 
+// Определяем роль для Layout
+const getRole = computed(() => {
+  return getRoutePrefix() === 'registration' ? 'registration_center' : 'education_department'
+})
+
+const submit = () => {
+  if (!props.subject?.id) {
+    return
+  }
   const routePrefix = getRoutePrefix()
   form.transform((data) => ({
     ...data,

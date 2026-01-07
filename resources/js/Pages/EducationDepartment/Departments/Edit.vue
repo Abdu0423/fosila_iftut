@@ -1,5 +1,5 @@
 <template>
-  <Layout role="education_department">
+  <Layout :role="getRole">
     <v-container fluid class="pa-6">
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
@@ -144,6 +144,11 @@ const getRoutePrefix = () => {
   }
   return 'education'
 }
+
+// Определяем роль для Layout
+const getRole = computed(() => {
+  return getRoutePrefix() === 'registration' ? 'registration_center' : 'education_department'
+})
 
 const navigateTo = (path) => {
   router.visit(path)
