@@ -92,8 +92,10 @@
     "teacher": "Преподаватель",
     "student": "Студент",
     "education_department": "Отдел образования",
+    "registration_center": "Регистрационный центр",
     "admin_short": "Админ",
-    "education_department_short": "Отдел"
+    "education_department_short": "Отдел",
+    "registration_center_short": "РЦ"
   },
   "panels": {
     "admin_title": "Панель администратора",
@@ -102,6 +104,8 @@
     "teacher_subtitle": "Управление курсами и студентами",
     "education_title": "Отдел образования",
     "education_subtitle": "Управление учебным процессом",
+    "registration_title": "Регистрационный центр",
+    "registration_subtitle": "Управление регистрацией студентов",
     "student_title": "ИФТУТ - Дистанционное обучение",
     "student_subtitle": "Образование"
   },
@@ -138,7 +142,6 @@
     "subject_code": "Код предмета",
     "subject_description": "Описание предмета",
     "subject_active": "Активен",
-    "schedules_title": "Расписание",
     "departments_menu": "Кафедры",
     "specialties_menu": "Специальности",
     "departments_title": "Кафедры",
@@ -328,7 +331,6 @@
       "new_password_hint": "Минимум 8 символов",
       "create_user_button": "Создать пользователя",
       "save_changes": "Сохранить изменения",
-      "cancel": "Отмена",
       "email_or_phone_required": "Необходимо указать хотя бы email или телефон"
     },
     "subjects": {

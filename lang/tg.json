@@ -92,8 +92,10 @@
     "teacher": "Муаллим",
     "student": "Донишҷӯ",
     "education_department": "Шӯъбаи таълим",
+    "registration_center": "Маркази бақайдгирӣ",
     "admin_short": "Маъмур",
-    "education_department_short": "ШМ"
+    "education_department_short": "ШТ",
+    "registration_center_short": "МБ"
   },
   "panels": {
     "admin_title": "Панели маъмур",
@@ -102,6 +104,8 @@
     "teacher_subtitle": "Идоракунии курсҳо ва донишҷӯён",
     "education_title": "Шӯъбаи таълим",
     "education_subtitle": "Идоракунии раванди таълим",
+    "registration_title": "Маркази бақайдгирӣ",
+    "registration_subtitle": "Идоракунии бақайдгирии донишҷӯён",
     "student_title": "ИФТУТ - Таълими фосилавӣ",
     "student_subtitle": "Таълим"
   },
