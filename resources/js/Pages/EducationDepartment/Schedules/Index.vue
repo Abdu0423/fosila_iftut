@@ -42,12 +42,58 @@
       <v-card>
         <v-data-table
           :headers="headers"
-          :items="paginatedSchedules"
+          :items="sortedSchedules"
           :items-per-page="itemsPerPage"
           :page="currentPage"
           hide-default-footer
           class="elevation-0"
+          :sort-by="sortBy"
+          :sort-desc="sortDesc"
+          @update:sort-by="updateSortBy"
+          @update:sort-desc="updateSortDesc"
         >
+          <template v-slot:header.subject>
+            <div class="d-flex align-center">
+              <v-icon size="small" class="mr-2">mdi-book-open-page-variant</v-icon>
+              <span>{{ translations.education_department?.schedule_subject || 'Предмет' }}</span>
+            </div>
+          </template>
+          <template v-slot:header.group>
+            <div class="d-flex align-center">
+              <v-icon size="small" class="mr-2">mdi-account-group</v-icon>
+              <span>{{ translations.education_department?.schedule_group || 'Группа' }}</span>
+            </div>
+          </template>
+          <template v-slot:header.teacher>
+            <div class="d-flex align-center">
+              <v-icon size="small" class="mr-2">mdi-teach</v-icon>
+              <span>{{ translations.education_department?.schedule_teacher || 'Преподаватель' }}</span>
+            </div>
+          </template>
+          <template v-slot:header.semester>
+            <div class="d-flex align-center">
+              <v-icon size="small" class="mr-2">mdi-numeric</v-icon>
+              <span>{{ translations.education_department?.schedule_semester || 'Семестр' }}</span>
+            </div>
+          </template>
+          <template v-slot:header.study_year>
+            <div class="d-flex align-center">
+              <v-icon size="small" class="mr-2">mdi-calendar-year</v-icon>
+              <span>{{ translations.education_department?.schedule_study_year || 'Год обучения' }}</span>
+            </div>
+          </template>
+          <template v-slot:header.status>
+            <div class="d-flex align-center">
+              <v-icon size="small" class="mr-2">mdi-check-circle</v-icon>
+              <span>{{ translations.messages?.status || 'Статус' }}</span>
+            </div>
+          </template>
+          <template v-slot:header.actions>
+            <div class="d-flex align-center">
+              <v-icon size="small" class="mr-2">mdi-cog</v-icon>
+              <span>{{ translations.messages?.actions || 'Действия' }}</span>
+            </div>
+          </template>
           <template v-slot:item.subject="{ item }">
             <div class="font-weight-medium">
               {{ item.subject?.name || translations.education_department?.no_subject || 'Не указан' }}
@@ -112,8 +158,8 @@
         </v-data-table>
 
         <!-- Пагинация -->
-        <v-divider v-if="filteredSchedules.length > itemsPerPage"></v-divider>
-        <div v-if="filteredSchedules.length > itemsPerPage" class="d-flex justify-center pa-4">
+        <v-divider v-if="sortedSchedules.length > itemsPerPage"></v-divider>
+        <div v-if="sortedSchedules.length > itemsPerPage" class="d-flex justify-center pa-4">
           <v-pagination
             :length="totalPages"
             v-model="currentPage"
@@ -143,6 +189,8 @@ const props = defineProps({
 const statusFilter = ref('active') // По умолчанию активные
 const currentPage = ref(1)
 const itemsPerPage = ref(20)
+const sortBy = ref([])
+const sortDesc = ref([])
 
 const statusOptions = [
   { title: translations.value.messages?.active || 'Активные', value: 'active' },
@@ -151,13 +199,41 @@ const statusOptions = [
 ]
 
 const headers = computed(() => [
-  { title: translations.value.education_department?.schedule_subject || 'Предмет', key: 'subject', sortable: false },
-  { title: translations.value.education_department?.schedule_group || 'Группа', key: 'group', sortable: false },
-  { title: translations.value.education_department?.schedule_teacher || 'Преподаватель', key: 'teacher', sortable: false },
-  { title: translations.value.education_department?.schedule_semester || 'Семестр', key: 'semester', sortable: false },
-  { title: translations.value.education_department?.schedule_study_year || 'Год обучения', key: 'study_year', sortable: false },
-  { title: translations.value.messages?.status || 'Статус', key: 'status', sortable: false },
-  { title: translations.value.messages?.actions || 'Действия', key: 'actions', sortable: false }
+  { 
+    title: translations.value.education_department?.schedule_subject || 'Предмет', 
+    key: 'subject', 
+    sortable: true
+  },
+  { 
+    title: translations.value.education_department?.schedule_group || 'Группа', 
+    key: 'group', 
+    sortable: true
+  },
+  { 
+    title: translations.value.education_department?.schedule_teacher || 'Преподаватель', 
+    key: 'teacher', 
+    sortable: true
+  },
+  { 
+    title: translations.value.education_department?.schedule_semester || 'Семестр', 
+    key: 'semester', 
+    sortable: true
+  },
+  { 
+    title: translations.value.education_department?.schedule_study_year || 'Год обучения', 
+    key: 'study_year', 
+    sortable: true
+  },
+  { 
+    title: translations.value.messages?.status || 'Статус', 
+    key: 'status', 
+    sortable: true
+  },
+  { 
+    title: translations.value.messages?.actions || 'Действия', 
+    key: 'actions', 
+    sortable: false
+  }
 ])
 
 // Фильтруем расписания на клиенте
@@ -175,16 +251,84 @@ const filteredSchedules = computed(() => {
   return filtered
 })
 
+// Функции для обновления сортировки
+const updateSortBy = (value) => {
+  sortBy.value = value
+  currentPage.value = 1 // Сбрасываем страницу при сортировке
+}
+
+const updateSortDesc = (value) => {
+  sortDesc.value = value
+  currentPage.value = 1 // Сбрасываем страницу при сортировке
+}
+
+// Сортировка расписаний
+const sortedSchedules = computed(() => {
+  let sorted = [...filteredSchedules.value]
+  
+  if (sortBy.value && sortBy.value.length > 0) {
+    const sortKey = sortBy.value[0]
+    const isDesc = sortDesc.value && sortDesc.value.length > 0 ? sortDesc.value[0] : false
+    
+    sorted.sort((a, b) => {
+      let aValue, bValue
+      
+      // Получаем значения для сортировки в зависимости от ключа
+      switch (sortKey) {
+        case 'subject':
+          aValue = a.subject?.name || ''
+          bValue = b.subject?.name || ''
+          break
+        case 'group':
+          aValue = a.group?.name || ''
+          bValue = b.group?.name || ''
+          break
+        case 'teacher':
+          aValue = a.teacher ? `${a.teacher.name} ${a.teacher.last_name}` : ''
+          bValue = b.teacher ? `${b.teacher.name} ${b.teacher.last_name}` : ''
+          break
+        case 'semester':
+          aValue = a.semester || 0
+          bValue = b.semester || 0
+          break
+        case 'study_year':
+          aValue = a.study_year || 0
+          bValue = b.study_year || 0
+          break
+        case 'status':
+          aValue = a.is_active ? 1 : 0
+          bValue = b.is_active ? 1 : 0
+          break
+        default:
+          return 0
+      }
+      
+      // Сравнение значений
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return isDesc 
+          ? bValue.localeCompare(aValue)
+          : aValue.localeCompare(bValue)
+      } else {
+        return isDesc 
+          ? (bValue > aValue ? 1 : bValue < aValue ? -1 : 0)
+          : (aValue > bValue ? 1 : aValue < bValue ? -1 : 0)
+      }
+    })
+  }
+  
+  return sorted
+})
+
 // Пагинация на клиенте
 const paginatedSchedules = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value
   const end = start + itemsPerPage.value
-  return filteredSchedules.value.slice(start, end)
+  return sortedSchedules.value.slice(start, end)
 })
 
 // Вычисляемое свойство для общего количества страниц
 const totalPages = computed(() => {
-  return Math.ceil(filteredSchedules.value.length / itemsPerPage.value)
+  return Math.ceil(sortedSchedules.value.length / itemsPerPage.value)
 })
 
 // Вычисляемое свойство для видимых страниц пагинации
