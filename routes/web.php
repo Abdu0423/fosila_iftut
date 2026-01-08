@@ -236,6 +236,8 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.password.change'])->
     // Управление студентами
     Route::get('/students', [App\Http\Controllers\Admin\StudentManagementController::class, 'index'])->name('admin.students.index');
     Route::get('/students/transfers', [App\Http\Controllers\Admin\StudentManagementController::class, 'transfers'])->name('admin.students.transfers');
+    Route::get('/students/transfers/create', [App\Http\Controllers\Admin\StudentManagementController::class, 'createTransfer'])->name('admin.students.transfers.create');
+    Route::post('/students/transfers', [App\Http\Controllers\Admin\StudentManagementController::class, 'storeTransfer'])->name('admin.students.transfers.store');
     
     // Управление силлабусами
     Route::get('/syllabuses', [App\Http\Controllers\Admin\SyllabusController::class, 'index'])->name('admin.syllabuses.index');
