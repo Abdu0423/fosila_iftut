@@ -102,26 +102,71 @@
       <v-card>
         <v-data-table
           :headers="headers"
-          :items="props.schedules.data"
+          :items="sortedSchedules"
           :loading="loading"
           item-value="id"
           v-model="selected"
           show-select
           class="elevation-1"
+          :sort-by="sortBy"
+          :sort-desc="sortDesc"
+          @update:sort-by="updateSortBy"
+          @update:sort-desc="updateSortDesc"
         >
+          <template v-slot:header.subject>
+            <div class="d-flex align-center">
+              <v-icon size="small" class="mr-2">mdi-book-open-page-variant</v-icon>
+              <span>Предмет</span>
+            </div>
+          </template>
+          <template v-slot:header.group>
+            <div class="d-flex align-center">
+              <v-icon size="small" class="mr-2">mdi-account-group</v-icon>
+              <span>Группа</span>
+            </div>
+          </template>
+          <template v-slot:header.teacher>
+            <div class="d-flex align-center">
+              <v-icon size="small" class="mr-2">mdi-teach</v-icon>
+              <span>Преподаватель</span>
+            </div>
+          </template>
+          <template v-slot:header.semester>
+            <div class="d-flex align-center">
+              <v-icon size="small" class="mr-2">mdi-numeric</v-icon>
+              <span>Семестр</span>
+            </div>
+          </template>
+          <template v-slot:header.study_year>
+            <div class="d-flex align-center">
+              <v-icon size="small" class="mr-2">mdi-calendar-year</v-icon>
+              <span>Год обучения</span>
+            </div>
+          </template>
+          <template v-slot:header.status>
+            <div class="d-flex align-center">
+              <v-icon size="small" class="mr-2">mdi-check-circle</v-icon>
+              <span>Статус</span>
+            </div>
+          </template>
+          <template v-slot:header.actions>
+            <div class="d-flex align-center">
+              <v-icon size="small" class="mr-2">mdi-cog</v-icon>
+              <span>Действия</span>
+            </div>
+          </template>
+
           <template v-slot:item.subject="{ item }">
             <div class="font-weight-medium">
               {{ item.subject?.name }}
-              <div class="text-caption text-medium-emphasis">
-              </div>
             </div>
           </template>
 
           <template v-slot:item.teacher="{ item }">
             <div class="font-weight-medium">
-              {{ item.teacher?.name }}
-              <div class="text-caption text-medium-emphasis">
-                {{ item.teacher?.email }}
+              {{ item.teacher ? `${item.teacher.name} ${item.teacher.last_name}` : '—' }}
+              <div class="text-caption text-medium-emphasis" v-if="item.teacher?.email">
+                {{ item.teacher.email }}
               </div>
             </div>
           </template>
@@ -132,76 +177,34 @@
               color="primary"
               variant="tonal"
             >
-              {{ item.group?.name }}
+              {{ item.group?.name || '—' }}
             </v-chip>
           </template>
 
           <template v-slot:item.semester="{ item }">
             <v-chip
               size="small"
-              :color="item.semester === 1 ? 'success' : 'info'"
-              variant="tonal"
+              color="primary"
+              variant="flat"
             >
-              {{ item.semester }} семестр
+              {{ item.semester || '—' }}
             </v-chip>
           </template>
 
-          <template v-slot:item.scheduled_at="{ item }">
-            <div v-if="item.scheduled_at">
-              <div class="font-weight-medium">
-                {{ formatDate(item.scheduled_at) }}
-              </div>
-              <div class="text-caption text-medium-emphasis">
-                {{ formatTime(item.scheduled_at) }}
-              </div>
+          <template v-slot:item.study_year="{ item }">
+            <div>
+              {{ item.study_year || '—' }}
             </div>
-            <span v-else class="text-medium-emphasis">Не назначено</span>
           </template>
 
-          <template v-slot:item.periodic_exam_1_date="{ item }">
-            <div v-if="item.periodic_exam_1_date">
-              <div class="font-weight-medium text-primary">
-                {{ formatDate(item.periodic_exam_1_date) }}
-              </div>
-              <div class="text-caption text-medium-emphasis">
-                {{ formatTime(item.periodic_exam_1_date) }}
-              </div>
-            </div>
-            <span v-else class="text-medium-emphasis">Не назначено</span>
-          </template>
-
-          <template v-slot:item.periodic_exam_2_date="{ item }">
-            <div v-if="item.periodic_exam_2_date">
-              <div class="font-weight-medium text-primary">
-                {{ formatDate(item.periodic_exam_2_date) }}
-              </div>
-              <div class="text-caption text-medium-emphasis">
-                {{ formatTime(item.periodic_exam_2_date) }}
-              </div>
-            </div>
-            <span v-else class="text-medium-emphasis">Не назначено</span>
-          </template>
-
-          <template v-slot:item.final_exam_date="{ item }">
-            <div v-if="item.final_exam_date">
-              <div class="font-weight-medium text-error">
-                {{ formatDate(item.final_exam_date) }}
-              </div>
-              <div class="text-caption text-medium-emphasis">
-                {{ formatTime(item.final_exam_date) }}
-              </div>
-            </div>
-            <span v-else class="text-medium-emphasis">Не назначено</span>
-          </template>
-
-          <template v-slot:item.is_active="{ item }">
-            <v-switch
-              :model-value="item.is_active"
-              @change="toggleStatus(item)"
-              color="success"
-              hide-details
-              density="compact"
-            />
+          <template v-slot:item.status="{ item }">
+            <v-chip
+              :color="item.is_active ? 'success' : 'error'"
+              size="small"
+              variant="flat"
+            >
+              {{ item.is_active ? 'Активен' : 'Неактивен' }}
+            </v-chip>
           </template>
 
           <template v-slot:item.actions="{ item }">
@@ -320,28 +323,32 @@ const selectedSchedule = ref(null)
 const selected = ref([])
 const showBulkDialog = ref(false)
 const bulkAction = ref(null)
+const sortBy = ref([])
+const sortDesc = ref([])
 
 // Заголовки таблицы
 const headers = [
-  { title: 'ID', key: 'id', width: '80px' },
-  { title: 'Предмет', key: 'subject' },
-  { title: 'Преподаватель', key: 'teacher' },
-  { title: 'Группа', key: 'group', width: '120px' },
-  { title: 'Семестр', key: 'semester', width: '120px' },
-  { title: 'Кредиты', key: 'credits', width: '100px' },
-  { title: 'Год обучения', key: 'study_year', width: '120px' },
-  { title: 'Дата/Время', key: 'scheduled_at', width: '150px' },
-  { title: 'Период. экз. 1', key: 'periodic_exam_1_date', width: '150px' },
-  { title: 'Период. экз. 2', key: 'periodic_exam_2_date', width: '150px' },
-  { title: 'Итоговый экз.', key: 'final_exam_date', width: '150px' },
-  { title: 'Статус', key: 'is_active', width: '100px' },
-  { title: 'Действия', key: 'actions', width: '150px', sortable: false }
+  { title: 'Предмет', key: 'subject', sortable: true },
+  { title: 'Группа', key: 'group', sortable: true },
+  { title: 'Преподаватель', key: 'teacher', sortable: true },
+  { title: 'Семестр', key: 'semester', sortable: true },
+  { title: 'Год обучения', key: 'study_year', sortable: true },
+  { title: 'Статус', key: 'status', sortable: true },
+  { title: 'Действия', key: 'actions', sortable: false }
 ]
 
 // Варианты для фильтров
 const semesterItems = [
-  { title: '1 семестр', value: 1 },
-  { title: '2 семестр', value: 2 }
+  { title: '1', value: 1 },
+  { title: '2', value: 2 },
+  { title: '3', value: 3 },
+  { title: '4', value: 4 },
+  { title: '5', value: 5 },
+  { title: '6', value: 6 },
+  { title: '7', value: 7 },
+  { title: '8', value: 8 },
+  { title: '9', value: 9 },
+  { title: '10', value: 10 }
 ]
 
 const statusItems = [
@@ -363,6 +370,72 @@ const subjectItems = computed(() => {
 
 const groupItems = computed(() => {
   return props.groups || []
+})
+
+// Функции для обновления сортировки
+const updateSortBy = (value) => {
+  sortBy.value = value
+}
+
+const updateSortDesc = (value) => {
+  sortDesc.value = value
+}
+
+// Сортировка расписаний
+const sortedSchedules = computed(() => {
+  let sorted = [...(props.schedules?.data || [])]
+  
+  if (sortBy.value && sortBy.value.length > 0) {
+    const sortKey = sortBy.value[0]
+    const isDesc = sortDesc.value && sortDesc.value.length > 0 ? sortDesc.value[0] : false
+    
+    sorted.sort((a, b) => {
+      let aValue, bValue
+      
+      // Получаем значения для сортировки в зависимости от ключа
+      switch (sortKey) {
+        case 'subject':
+          aValue = a.subject?.name || ''
+          bValue = b.subject?.name || ''
+          break
+        case 'group':
+          aValue = a.group?.name || ''
+          bValue = b.group?.name || ''
+          break
+        case 'teacher':
+          aValue = a.teacher ? `${a.teacher.name} ${a.teacher.last_name}` : ''
+          bValue = b.teacher ? `${b.teacher.name} ${b.teacher.last_name}` : ''
+          break
+        case 'semester':
+          aValue = a.semester || 0
+          bValue = b.semester || 0
+          break
+        case 'study_year':
+          aValue = a.study_year || 0
+          bValue = b.study_year || 0
+          break
+        case 'status':
+          aValue = a.is_active ? 1 : 0
+          bValue = b.is_active ? 1 : 0
+          break
+        default:
+          return 0
+      }
+      
+      // Сравнение значений
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return isDesc 
+          ? bValue.localeCompare(aValue)
+          : aValue.localeCompare(bValue)
+      } else {
+        return isDesc 
+          ? (bValue > aValue ? 1 : bValue < aValue ? -1 : 0)
+          : (aValue > bValue ? 1 : aValue < bValue ? -1 : 0)
+      }
+    })
+  }
+  
+  return sorted
 })
 
 // Server-side фильтрация
@@ -497,20 +570,6 @@ const executeBulkAction = () => {
 const exportSchedules = () => {
   router.get('/admin/schedules/export', props.filters, {
     preserveState: true
-  })
-}
-
-// Utility functions
-const formatDate = (dateString) => {
-  if (!dateString) return ''
-  return new Date(dateString).toLocaleDateString('ru-RU')
-}
-
-const formatTime = (dateString) => {
-  if (!dateString) return ''
-  return new Date(dateString).toLocaleTimeString('ru-RU', {
-    hour: '2-digit',
-    minute: '2-digit'
   })
 }
 </script>
