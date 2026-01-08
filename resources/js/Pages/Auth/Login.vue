@@ -137,10 +137,13 @@
                 closable
                 @click:close="clearErrors"
                 prominent
+                border="start"
+                color="error"
               >
                 <template v-slot:prepend>
-                  <v-icon>mdi-alert-circle</v-icon>
+                  <v-icon color="error">mdi-alert-circle</v-icon>
                 </template>
+                <v-alert-title class="text-h6 mb-2">Ошибка входа</v-alert-title>
                 <div class="text-body-2">
                   <template v-for="(error, field) in form.errors" :key="field">
                     <div v-if="Array.isArray(error)">
@@ -427,24 +430,17 @@ const clearErrors = () => {
 }
 
 const submit = () => {
-  // Очищаем предыдущие ошибки
-  form.clearErrors()
-  
   form.post('/login', {
     preserveScroll: true,
+    preserveState: false, // Важно: не сохраняем состояние, чтобы ошибки обновились
     onSuccess: (page) => {
       // Доверяем серверному перенаправлению - не делаем принудительный redirect
     },
     onError: (errors) => {
-      // Ошибки автоматически попадают в form.errors
-      console.log('Ошибки входа:', errors)
-      console.log('form.errors:', form.errors)
-      
-      // Убеждаемся, что ошибки установлены
-      if (errors && Object.keys(errors).length > 0) {
-        // Inertia автоматически устанавливает ошибки в form.errors
-        // Но мы можем явно проверить их наличие
-      }
+      // Ошибки автоматически попадают в form.errors через Inertia
+      console.log('Ошибки входа получены:', errors)
+      console.log('form.errors после ошибки:', form.errors)
+      console.log('Ключи ошибок:', Object.keys(form.errors))
     }
   })
 }

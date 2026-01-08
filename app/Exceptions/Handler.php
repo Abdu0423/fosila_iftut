@@ -30,8 +30,11 @@ class Handler extends ExceptionHandler
         $this->renderable(function (Throwable $e, $request) {
             if ($request->header('X-Inertia')) {
                 if ($e instanceof \Illuminate\Validation\ValidationException) {
-                    // Стандартный подход Laravel для Inertia - back() автоматически работает с Inertia
-                    return back()->withErrors($e->errors())->withInput();
+                    // Для Inertia используем стандартный подход Laravel
+                    // back() автоматически работает с Inertia и передает ошибки
+                    return redirect()->back()
+                        ->withErrors($e->errors())
+                        ->withInput($request->except('password'));
                 }
                 
                 if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {

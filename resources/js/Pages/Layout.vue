@@ -441,7 +441,6 @@ const menuItems = computed(() => {
     case 'education_department':
       return [
         { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: '/education' },
-        { title: t('education_department.subjects_menu'), icon: 'mdi-book-open-page-variant', route: '/education/subjects' },
         { title: t('education_department.schedules_menu'), icon: 'mdi-calendar-clock', route: '/education/schedules' },
         { title: t('navigation.my_lessons'), icon: 'mdi-teach', route: '/education/lessons' },
         { title: t('navigation.my_tests'), icon: 'mdi-help-circle', route: '/education/tests' },
