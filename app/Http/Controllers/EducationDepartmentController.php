@@ -606,32 +606,13 @@ class EducationDepartmentController extends Controller
         
         $this->checkRole($user);
         
-        $query = Schedule::with(['group', 'subject', 'teacher']);
-        
-        // Фильтр по статусу (по умолчанию только активные)
-        $statusFilter = $request->get('status', 'active');
-        if ($statusFilter === 'active') {
-            $query->where('is_active', true);
-        } elseif ($statusFilter === 'inactive') {
-            $query->where('is_active', false);
-        }
-        // Если 'all', то не фильтруем
-        
-        // Фильтр по дате (используем scheduled_at)
-        if ($request->has('date')) {
-            $query->whereDate('scheduled_at', $request->date);
-        }
-        
-        // Фильтр по группе
-        if ($request->has('group_id')) {
-            $query->where('group_id', $request->group_id);
-        }
-        
-        $schedules = $query->orderBy('scheduled_at', 'desc')->paginate(20);
+        // Загружаем все расписания без фильтрации (фильтрация на клиенте)
+        $schedules = Schedule::with(['group', 'subject', 'teacher'])
+            ->orderBy('scheduled_at', 'desc')
+            ->get();
         
         return Inertia::render('EducationDepartment/Schedules/Index', [
             'schedules' => $schedules,
-            'filters' => $request->only(['date', 'group_id', 'status']),
         ]);
     }
     

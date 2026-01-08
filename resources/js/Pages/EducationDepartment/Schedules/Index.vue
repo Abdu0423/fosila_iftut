@@ -30,23 +30,9 @@
                 :items="statusOptions"
                 :label="translations.messages?.status || 'Статус'"
                 prepend-inner-icon="mdi-filter"
-                clearable
                 variant="outlined"
                 density="comfortable"
-                @update:model-value="handleStatusFilter"
               ></v-select>
-            </v-col>
-            <v-col cols="12" md="4">
-              <v-text-field
-                v-model="dateFilter"
-                :label="translations.education_department?.filter_by_date || 'Фильтр по дате'"
-                type="date"
-                prepend-inner-icon="mdi-calendar"
-                clearable
-                variant="outlined"
-                density="comfortable"
-                @update:model-value="handleDateFilter"
-              ></v-text-field>
             </v-col>
           </v-row>
         </v-card-text>
@@ -56,8 +42,9 @@
       <v-card>
         <v-data-table
           :headers="headers"
-          :items="schedules.data || []"
-          :items-per-page="schedules.per_page || 20"
+          :items="paginatedSchedules"
+          :items-per-page="itemsPerPage"
+          :page="currentPage"
           hide-default-footer
           class="elevation-0"
         >
@@ -125,12 +112,11 @@
         </v-data-table>
 
         <!-- Пагинация -->
-        <v-divider v-if="schedules && schedules.data && schedules.data.length > 0"></v-divider>
-        <div v-if="schedules && schedules.data && schedules.data.length > 0" class="d-flex justify-center pa-4">
+        <v-divider v-if="filteredSchedules.length > itemsPerPage"></v-divider>
+        <div v-if="filteredSchedules.length > itemsPerPage" class="d-flex justify-center pa-4">
           <v-pagination
             :length="totalPages"
-            :model-value="schedules.current_page || 1"
-            @update:model-value="handlePageChange"
+            v-model="currentPage"
             :total-visible="totalVisible"
           ></v-pagination>
         </div>
@@ -149,22 +135,14 @@ const translations = computed(() => page.props.translations || {})
 
 const props = defineProps({
   schedules: {
-    type: Object,
-    default: () => ({
-      data: [],
-      total: 0,
-      per_page: 20,
-      current_page: 1
-    })
-  },
-  filters: {
-    type: Object,
-    default: () => ({})
+    type: Array,
+    default: () => []
   }
 })
 
-const dateFilter = ref(props.filters.date || '')
-const statusFilter = ref(props.filters.status || 'active') // По умолчанию активные
+const statusFilter = ref('active') // По умолчанию активные
+const currentPage = ref(1)
+const itemsPerPage = ref(20)
 
 const statusOptions = [
   { title: translations.value.messages?.active || 'Активные', value: 'active' },
@@ -182,6 +160,39 @@ const headers = computed(() => [
   { title: translations.value.messages?.actions || 'Действия', key: 'actions', sortable: false }
 ])
 
+// Фильтруем расписания на клиенте
+const filteredSchedules = computed(() => {
+  let filtered = props.schedules || []
+  
+  // Фильтр по статусу
+  if (statusFilter.value === 'active') {
+    filtered = filtered.filter(schedule => schedule.is_active === true)
+  } else if (statusFilter.value === 'inactive') {
+    filtered = filtered.filter(schedule => schedule.is_active === false)
+  }
+  // Если 'all', то не фильтруем
+  
+  return filtered
+})
+
+// Пагинация на клиенте
+const paginatedSchedules = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return filteredSchedules.value.slice(start, end)
+})
+
+// Вычисляемое свойство для общего количества страниц
+const totalPages = computed(() => {
+  return Math.ceil(filteredSchedules.value.length / itemsPerPage.value)
+})
+
+// Вычисляемое свойство для видимых страниц пагинации
+const totalVisible = computed(() => {
+  const total = totalPages.value
+  return total <= 5 ? total : 5
+})
+
 // Определяем префикс маршрута на основе текущего URL
 const getRoutePrefix = () => {
   const path = window.location.pathname
@@ -196,44 +207,14 @@ const getRole = computed(() => {
   return getRoutePrefix() === 'registration' ? 'registration_center' : 'education_department'
 })
 
-const handleDateFilter = () => {
-  router.get(`/${getRoutePrefix()}/schedules`, {
-    date: dateFilter.value,
-    status: statusFilter.value
-  }, {
-    preserveState: true,
-    preserveScroll: true
-  })
+// Сбрасываем страницу при изменении фильтра
+const resetPage = () => {
+  currentPage.value = 1
 }
 
-const handleStatusFilter = () => {
-  router.get(`/${getRoutePrefix()}/schedules`, {
-    date: dateFilter.value,
-    status: statusFilter.value
-  }, {
-    preserveState: true,
-    preserveScroll: true
-  })
-}
-
-const handlePageChange = (pageNum) => {
-  router.get(`/${getRoutePrefix()}/schedules`, {
-    page: pageNum,
-    date: dateFilter.value,
-    status: statusFilter.value
-  }, {
-    preserveState: true,
-    preserveScroll: true
-  })
-}
-
-// Вычисляемое свойство для общего количества страниц
-const totalPages = computed(() => Math.ceil((props.schedules.total || 0) / (props.schedules.per_page || 20)))
-
-// Вычисляемое свойство для видимых страниц пагинации
-// Если страниц <= 5, показываем все, иначе максимум 5
-const totalVisible = computed(() => {
-  const total = totalPages.value
-  return total <= 5 ? total : 5
+// Отслеживаем изменение фильтра статуса
+import { watch } from 'vue'
+watch(statusFilter, () => {
+  resetPage()
 })
 </script>
