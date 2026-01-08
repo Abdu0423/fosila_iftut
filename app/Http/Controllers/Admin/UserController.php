@@ -68,14 +68,17 @@ class UserController extends Controller
             }
         }
 
-        $users = $query->orderBy('created_at', 'desc')
+        $users = $query->orderBy('last_name', 'asc')
+            ->orderBy('name', 'asc')
             ->get()
             ->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name ?? 'Не указано',
                     'last_name' => $user->last_name ?? 'Не указано',
+                    'middle_name' => $user->middle_name ?? '',
                     'email' => $user->email ?? 'Не указано',
+                    'phone' => $user->phone ?? '',
                     'role' => $user->role ? $user->role->name : 'Не назначена',
                     'role_id' => $user->role_id,
                     'created_at' => $user->created_at ? $user->created_at->format('d.m.Y H:i') : 'Не указано',

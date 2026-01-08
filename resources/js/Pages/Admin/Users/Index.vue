@@ -111,6 +111,8 @@
             variant="outlined"
             density="compact"
             clearable
+            @update:model-value="applySearch"
+            @keyup.enter="applySearch"
           ></v-text-field>
         </v-col>
         <v-col cols="12" md="3">
@@ -121,6 +123,7 @@
             variant="outlined"
             density="compact"
             clearable
+            @update:model-value="applyFilters"
           ></v-select>
         </v-col>
         <v-col cols="12" md="3">
@@ -131,6 +134,7 @@
             variant="outlined"
             density="compact"
             clearable
+            @update:model-value="applyFilters"
           ></v-select>
         </v-col>
         <v-col cols="12" md="2">
@@ -149,8 +153,7 @@
       <v-card>
         <v-data-table
           :headers="headers"
-          :items="filteredUsers"
-          :search="search"
+          :items="props.users"
           :loading="loading"
           class="elevation-1"
         >
@@ -283,6 +286,10 @@ const props = defineProps({
   stats: {
     type: Object,
     default: () => ({})
+  },
+  filters: {
+    type: Object,
+    default: () => ({})
   }
 })
 
@@ -292,9 +299,9 @@ const flash = computed(() => page.props.flash || {})
 
 // Состояние
 const loading = ref(false)
-const search = ref('')
-const roleFilter = ref(null)
-const statusFilter = ref(null)
+const search = ref(props.filters?.search || '')
+const roleFilter = ref(props.filters?.role || null)
+const statusFilter = ref(props.filters?.status || null)
 const deleteDialog = ref(false)
 const userToDelete = ref(null)
 const deleting = ref(false)
@@ -322,31 +329,39 @@ const statusOptions = computed(() => [
   { title: t('admin.users.not_confirmed', {}, { default: 'Не подтвержден' }), value: 'Не подтвержден' }
 ])
 
-// Отфильтрованные пользователи
-const filteredUsers = computed(() => {
-  let filtered = props.users
+// Применение поиска и фильтров на сервере
+let searchTimeout = null
+const applySearch = () => {
+  clearTimeout(searchTimeout)
+  searchTimeout = setTimeout(() => {
+    applyFilters()
+  }, 500)
+}
 
-  // Поиск по ФИО, email
+const applyFilters = () => {
+  loading.value = true
+  const params = {}
+  
   if (search.value) {
-    const searchLower = search.value.toLowerCase()
-    filtered = filtered.filter(user => 
-      (user.name && user.name.toLowerCase().includes(searchLower)) ||
-      (user.last_name && user.last_name.toLowerCase().includes(searchLower)) ||
-      (user.middle_name && user.middle_name && user.middle_name.toLowerCase().includes(searchLower)) ||
-      (user.email && user.email.toLowerCase().includes(searchLower))
-    )
+    params.search = search.value
   }
-
+  
   if (roleFilter.value) {
-    filtered = filtered.filter(user => user.role === roleFilter.value)
+    params.role = roleFilter.value
   }
-
+  
   if (statusFilter.value) {
-    filtered = filtered.filter(user => user.status === statusFilter.value)
+    params.status = statusFilter.value
   }
-
-  return filtered
-})
+  
+  router.get('/admin/users', params, {
+    preserveState: true,
+    preserveScroll: true,
+    onFinish: () => {
+      loading.value = false
+    }
+  })
+}
 
 // Методы
 const navigateTo = (route) => {
@@ -375,6 +390,7 @@ const clearFilters = () => {
   search.value = ''
   roleFilter.value = null
   statusFilter.value = null
+  applyFilters()
 }
 
 const viewUser = (user) => {
