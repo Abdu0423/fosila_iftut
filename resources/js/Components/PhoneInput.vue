@@ -41,6 +41,9 @@
           :density="density"
           prepend-inner-icon="mdi-phone"
           class="phone-number-field"
+          type="tel"
+          autocomplete="tel"
+          inputmode="numeric"
         />
       </v-col>
     </v-row>

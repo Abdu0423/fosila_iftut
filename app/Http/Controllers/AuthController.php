@@ -17,59 +17,60 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        Log::info('Получен запрос на вход', [
-            'login' => $request->login,
-            'has_password' => !empty($request->password)
-        ]);
+        try {
+            Log::info('Получен запрос на вход', [
+                'login' => $request->login,
+                'has_password' => !empty($request->password)
+            ]);
 
-        // Валидация
-        $validated = $request->validate([
-            'login' => 'required|string',
-            'password' => 'required',
-        ]);
+            // Валидация
+            $validated = $request->validate([
+                'login' => 'required|string',
+                'password' => 'required',
+            ]);
 
-        $login = $validated['login'];
-        $password = $validated['password'];
+            $login = $validated['login'];
+            $password = $validated['password'];
 
-        // Нормализуем номер телефона (убираем все нецифровые символы кроме +)
-        $normalizedPhone = preg_replace('/[^0-9+]/', '', $login);
+            // Нормализуем номер телефона (убираем все нецифровые символы кроме +)
+            $normalizedPhone = preg_replace('/[^0-9+]/', '', $login);
 
-        Log::info('Попытка входа', [
-            'login' => $login,
-            'normalized_phone' => $normalizedPhone
-        ]);
+            Log::info('Попытка входа', [
+                'login' => $login,
+                'normalized_phone' => $normalizedPhone
+            ]);
 
-        // Ищем пользователя по телефону с загрузкой роли
-        // Нормализуем телефон для поиска (убираем все кроме цифр)
-        $phoneDigits = preg_replace('/[^0-9]/', '', $login);
-        
-        // Ищем по телефону (точное совпадение или нормализованное)
-        $user = \App\Models\User::with('role')->where(function ($query) use ($login, $normalizedPhone, $phoneDigits) {
-            $query->where('phone', $login)
-                ->orWhere('phone', $normalizedPhone)
-                ->orWhere('phone', $phoneDigits);
+            // Ищем пользователя по телефону с загрузкой роли
+            // Нормализуем телефон для поиска (убираем все кроме цифр)
+            $phoneDigits = preg_replace('/[^0-9]/', '', $login);
             
-            // Если номер достаточно длинный (больше 7 цифр), ищем по последним цифрам
-            if (strlen($phoneDigits) >= 7) {
-                $lastDigits = substr($phoneDigits, -7);
-                $query->orWhere('phone', 'like', '%' . $lastDigits);
+            // Ищем по телефону (точное совпадение или нормализованное)
+            $user = \App\Models\User::with('role')->where(function ($query) use ($login, $normalizedPhone, $phoneDigits) {
+                $query->where('phone', $login)
+                    ->orWhere('phone', $normalizedPhone)
+                    ->orWhere('phone', $phoneDigits);
+                
+                // Если номер достаточно длинный (больше 7 цифр), ищем по последним цифрам
+                if (strlen($phoneDigits) >= 7) {
+                    $lastDigits = substr($phoneDigits, -7);
+                    $query->orWhere('phone', 'like', '%' . $lastDigits);
+                }
+            })->first();
+
+            if (!$user) {
+                Log::warning('Пользователь не найден', ['login' => $login]);
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'login' => ['Неверный номер телефона или пароль.'],
+                ]);
             }
-        })->first();
 
-        if (!$user) {
-            Log::warning('Пользователь не найден', ['login' => $login]);
-            return Inertia::back()->withErrors([
-                'login' => 'Предоставленные учетные данные не соответствуют нашим записям.',
-            ])->withInput(['login' => $login]);
-        }
-
-        // Проверяем пароль
-        if (!\Hash::check($password, $user->password)) {
-            Log::warning('Неверный пароль', ['user_id' => $user->id]);
-            return Inertia::back()->withErrors([
-                'login' => 'Предоставленные учетные данные не соответствуют нашим записям.',
-            ])->withInput(['login' => $login]);
-        }
+            // Проверяем пароль
+            if (!\Hash::check($password, $user->password)) {
+                Log::warning('Неверный пароль', ['user_id' => $user->id]);
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'login' => ['Неверный номер телефона или пароль.'],
+                ]);
+            }
 
         // Авторизуем пользователя
         Auth::login($user, $request->boolean('remember'));
@@ -126,13 +127,29 @@ class AuthController extends Controller
             return Inertia::location('/student/');
         }
 
-        // Если роль не определена, перенаправляем на общий dashboard
-        Log::warning('Неопределенная роль пользователя, перенаправление на /dashboard', [
-            'user_id' => $user->id,
-            'role_id' => $user->role_id,
-            'role_name' => $user->role ? $user->role->name : 'no role'
-        ]);
-        return Inertia::location('/');
+            // Если роль не определена, перенаправляем на общий dashboard
+            Log::warning('Неопределенная роль пользователя, перенаправление на /dashboard', [
+                'user_id' => $user->id,
+                'role_id' => $user->role_id,
+                'role_name' => $user->role ? $user->role->name : 'no role'
+            ]);
+            return Inertia::location('/');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Обработка ошибок валидации - Inertia автоматически обработает это
+            Log::warning('Ошибка валидации при входе', [
+                'errors' => $e->errors()
+            ]);
+            throw $e; // Пробрасываем дальше, чтобы Inertia обработал
+        } catch (\Exception $e) {
+            // Обработка других ошибок
+            Log::error('Ошибка при входе', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'login' => ['Произошла ошибка при входе. Пожалуйста, попробуйте снова.'],
+            ]);
+        }
     }
 
     public function logout(Request $request)

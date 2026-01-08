@@ -421,21 +421,14 @@ const clearErrors = () => {
 }
 
 const submit = () => {
-  console.log('Отправка формы входа:', form.data())
-  
   form.post('/login', {
-    preserveState: true,
     preserveScroll: true,
     onSuccess: (page) => {
-      console.log('Успешный вход:', page)
       // Доверяем серверному перенаправлению - не делаем принудительный redirect
     },
     onError: (errors) => {
-      console.log('Ошибки входа:', errors)
       // Ошибки автоматически попадают в form.errors
-    },
-    onFinish: () => {
-      console.log('Запрос завершен')
+      console.log('Ошибки входа:', errors)
     }
   })
 }
