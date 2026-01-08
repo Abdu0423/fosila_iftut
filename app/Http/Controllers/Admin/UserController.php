@@ -21,12 +21,21 @@ class UserController extends Controller
         // Поиск по ФИО, email, телефону
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            // Заменяем пробелы на % для поиска по полному ФИО
+            $searchTerm = str_replace(' ', '%', trim($search));
+            
+            $query->where(function($q) use ($search, $searchTerm) {
+                // Поиск по отдельным полям
                 $q->where('name', 'like', "%{$search}%")
                   ->orWhere('last_name', 'like', "%{$search}%")
                   ->orWhere('middle_name', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('phone', 'like', "%{$search}%");
+                
+                // Поиск по полному ФИО (с учетом пробелов как %)
+                if ($searchTerm !== $search) {
+                    $q->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(last_name, ''), ' ', COALESCE(middle_name, '')) LIKE ?", ["%{$searchTerm}%"]);
+                }
             });
         }
 

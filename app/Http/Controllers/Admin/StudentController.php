@@ -36,11 +36,23 @@ class StudentController extends Controller
         session(['students_sort_by' => $sortBy]);
         session(['students_sort_desc' => $sortDesc]);
 
-        // Поиск по имени или email
+        // Поиск по ФИО, email, телефону
         if ($search) {
-            $query->where(function($q) use ($search) {
+            // Заменяем пробелы на % для поиска по полному ФИО
+            $searchTerm = str_replace(' ', '%', trim($search));
+            
+            $query->where(function($q) use ($search, $searchTerm) {
+                // Поиск по отдельным полям
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('middle_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+                
+                // Поиск по полному ФИО (с учетом пробелов как %)
+                if ($searchTerm !== $search) {
+                    $q->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(last_name, ''), ' ', COALESCE(middle_name, '')) LIKE ?", ["%{$searchTerm}%"]);
+                }
             });
         }
 
@@ -81,12 +93,24 @@ class StudentController extends Controller
             $q->where('name', 'student');
         })->with('role');
 
-        // Поиск по имени или email
+        // Поиск по ФИО, email, телефону
         if ($request->filled('search')) {
             $search = $request->get('search');
-            $query->where(function($q) use ($search) {
+            // Заменяем пробелы на % для поиска по полному ФИО
+            $searchTerm = str_replace(' ', '%', trim($search));
+            
+            $query->where(function($q) use ($search, $searchTerm) {
+                // Поиск по отдельным полям
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                  ->orWhere('last_name', 'like', "%{$search}%")
+                  ->orWhere('middle_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
+                
+                // Поиск по полному ФИО (с учетом пробелов как %)
+                if ($searchTerm !== $search) {
+                    $q->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(last_name, ''), ' ', COALESCE(middle_name, '')) LIKE ?", ["%{$searchTerm}%"]);
+                }
             });
         }
 
