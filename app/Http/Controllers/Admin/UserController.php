@@ -72,6 +72,12 @@ class UserController extends Controller
             ->orderBy('name', 'asc')
             ->get()
             ->map(function ($user) {
+                // Формируем полное ФИО для аватара
+                $fullName = trim(($user->last_name ?? '') . ' ' . ($user->name ?? '') . ' ' . ($user->middle_name ?? ''));
+                if (empty($fullName)) {
+                    $fullName = $user->name ?? 'User';
+                }
+                
                 return [
                     'id' => $user->id,
                     'name' => $user->name ?? 'Не указано',
@@ -84,7 +90,7 @@ class UserController extends Controller
                     'created_at' => $user->created_at ? $user->created_at->format('d.m.Y H:i') : 'Не указано',
                     'updated_at' => $user->updated_at ? $user->updated_at->format('d.m.Y H:i') : 'Не указано',
                     'status' => $user->email_verified_at ? 'Подтвержден' : 'Не подтвержден',
-                    'avatar' => $user->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($user->name ?? 'User')
+                    'avatar' => $user->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($fullName)
                 ];
             });
 
@@ -124,6 +130,12 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
+        // Формируем полное ФИО для аватара
+        $fullName = trim(($user->last_name ?? '') . ' ' . ($user->name ?? '') . ' ' . ($user->middle_name ?? ''));
+        if (empty($fullName)) {
+            $fullName = $user->name ?? 'User';
+        }
+        
         $userData = [
             'id' => $user->id,
             'name' => $user->name ?? 'Не указано',
@@ -142,7 +154,7 @@ class UserController extends Controller
             'updated_at' => $user->updated_at ? $user->updated_at->format('d.m.Y H:i') : 'Не указано',
             'email_verified_at' => $user->email_verified_at ? $user->email_verified_at->format('d.m.Y H:i') : null,
             'status' => $user->email_verified_at ? 'Подтвержден' : 'Не подтвержден',
-            'avatar' => $user->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($user->name ?? 'User')
+            'avatar' => $user->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($fullName)
         ];
 
         return Inertia::render('Admin/Users/Show', [
