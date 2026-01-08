@@ -24,7 +24,7 @@
               <PhoneInput
                 v-model="form.login"
                 :label="getTranslation('auth.phone', 'Телефон')"
-                :error-messages="form.errors.login"
+                :error-messages="Array.isArray(form.errors.login) ? form.errors.login : (form.errors.login ? [form.errors.login] : [])"
                 :disabled="form.processing"
                 class="mb-4"
                 required
@@ -136,17 +136,19 @@
                 rounded="lg"
                 closable
                 @click:close="clearErrors"
+                prominent
               >
                 <template v-slot:prepend>
                   <v-icon>mdi-alert-circle</v-icon>
                 </template>
                 <div class="text-body-2">
-                  <div v-for="(error, field) in form.errors" :key="field">
+                  <template v-for="(error, field) in form.errors" :key="field">
                     <div v-if="Array.isArray(error)">
-                      <div v-for="(err, index) in error" :key="index">{{ err }}</div>
+                      <div v-for="(err, index) in error" :key="index" class="mb-1">{{ err }}</div>
                     </div>
-                    <div v-else>{{ error }}</div>
-                  </div>
+                    <div v-else-if="typeof error === 'string'" class="mb-1">{{ error }}</div>
+                    <div v-else class="mb-1">{{ String(error) }}</div>
+                  </template>
                 </div>
               </v-alert>
             </form>
@@ -412,7 +414,11 @@ const currentYear = computed(() => new Date().getFullYear())
 
 // Проверка наличия ошибок
 const hasErrors = computed(() => {
-  return Object.keys(form.errors).length > 0
+  const has = Object.keys(form.errors).length > 0
+  if (has) {
+    console.log('Есть ошибки в форме:', form.errors)
+  }
+  return has
 })
 
 // Очистка ошибок
@@ -421,6 +427,9 @@ const clearErrors = () => {
 }
 
 const submit = () => {
+  // Очищаем предыдущие ошибки
+  form.clearErrors()
+  
   form.post('/login', {
     preserveScroll: true,
     onSuccess: (page) => {
@@ -429,6 +438,13 @@ const submit = () => {
     onError: (errors) => {
       // Ошибки автоматически попадают в form.errors
       console.log('Ошибки входа:', errors)
+      console.log('form.errors:', form.errors)
+      
+      // Убеждаемся, что ошибки установлены
+      if (errors && Object.keys(errors).length > 0) {
+        // Inertia автоматически устанавливает ошибки в form.errors
+        // Но мы можем явно проверить их наличие
+      }
     }
   })
 }
