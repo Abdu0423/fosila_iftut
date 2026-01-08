@@ -608,6 +608,15 @@ class EducationDepartmentController extends Controller
         
         $query = Schedule::with(['group', 'subject', 'teacher']);
         
+        // Фильтр по статусу (по умолчанию только активные)
+        $statusFilter = $request->get('status', 'active');
+        if ($statusFilter === 'active') {
+            $query->where('is_active', true);
+        } elseif ($statusFilter === 'inactive') {
+            $query->where('is_active', false);
+        }
+        // Если 'all', то не фильтруем
+        
         // Фильтр по дате (используем scheduled_at)
         if ($request->has('date')) {
             $query->whereDate('scheduled_at', $request->date);
@@ -618,11 +627,11 @@ class EducationDepartmentController extends Controller
             $query->where('group_id', $request->group_id);
         }
         
-        $schedules = $query->orderBy('scheduled_at')->paginate(20);
+        $schedules = $query->orderBy('scheduled_at', 'desc')->paginate(20);
         
         return Inertia::render('EducationDepartment/Schedules/Index', [
             'schedules' => $schedules,
-            'filters' => $request->only(['date', 'group_id']),
+            'filters' => $request->only(['date', 'group_id', 'status']),
         ]);
     }
     
