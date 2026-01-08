@@ -28,7 +28,10 @@
     "my_syllabuses": "Силлабусҳои ман",
     "my_schedule": "Ҷадвали ман",
     "student": "Донишҷӯ",
-    "teacher": "Муаллим"
+    "teacher": "Муаллим",
+    "students_management": "Идоракунии донишҷӯён",
+    "orders": "Фармонҳо",
+    "transfers": "Интиқолҳо"
   },
   "auth": {
     "login_title": "ФДТТИ",

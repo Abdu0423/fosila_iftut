@@ -407,9 +407,8 @@ const menuItems = computed(() => {
           icon: 'mdi-school', 
           expanded: false,
           children: [
-            { title: t('navigation.students_management') || 'Управление студентами', icon: 'mdi-account-multiple', route: '/admin/students' },
-            { title: t('navigation.orders') || 'Приказы', icon: 'mdi-file-document-edit', route: '/admin/students/orders' },
-            { title: t('navigation.transfers') || 'Переводы', icon: 'mdi-swap-horizontal', route: '/admin/students/transfers' }
+            { title: t('navigation.students_management'), icon: 'mdi-account-multiple', route: '/admin/students' },
+            { title: t('navigation.transfers'), icon: 'mdi-swap-horizontal', route: '/admin/students/transfers' }
           ]
         },
         { title: t('navigation.subjects'), icon: 'mdi-book-education', route: '/admin/subjects' },

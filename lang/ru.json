@@ -28,7 +28,10 @@
     "my_syllabuses": "Мои силлабусы",
     "my_schedule": "Мое расписание",
     "student": "Студент",
-    "teacher": "Преподаватель"
+    "teacher": "Преподаватель",
+    "students_management": "Управление студентами",
+    "orders": "Приказы",
+    "transfers": "Переводы"
   },
   "auth": {
     "login_title": "ИФТУТ",
