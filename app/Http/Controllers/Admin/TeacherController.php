@@ -36,22 +36,36 @@ class TeacherController extends Controller
 
         // Поиск по ФИО, email, телефону
         if ($search) {
-            // Заменяем пробелы на % для поиска по полному ФИО
-            $searchTerm = str_replace(' ', '%', trim($search));
-            
-            $query->where(function($q) use ($search, $searchTerm) {
-                // Поиск по отдельным полям
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('middle_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
+            $search = trim($search);
+            if (!empty($search)) {
+                $searchLower = mb_strtolower($search);
                 
-                // Поиск по полному ФИО (с учетом пробелов как %)
-                if ($searchTerm !== $search) {
-                    $q->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(last_name, ''), ' ', COALESCE(middle_name, '')) LIKE ?", ["%{$searchTerm}%"]);
-                }
-            });
+                $query->where(function($q) use ($search, $searchLower) {
+                    // Поиск по отдельным полям (нечувствительный к регистру)
+                    $q->whereRaw('LOWER(name) LIKE ?', ["%{$searchLower}%"])
+                      ->orWhereRaw('LOWER(last_name) LIKE ?', ["%{$searchLower}%"])
+                      ->orWhereRaw('LOWER(middle_name) LIKE ?', ["%{$searchLower}%"])
+                      ->orWhereRaw('LOWER(email) LIKE ?', ["%{$searchLower}%"])
+                      ->orWhere('phone', 'like', "%{$search}%");
+                    
+                    // Поиск по полному ФИО (если есть пробелы)
+                    if (strpos($search, ' ') !== false) {
+                        $searchParts = array_filter(array_map('trim', explode(' ', $search)));
+                        if (count($searchParts) > 1) {
+                            $q->orWhere(function($subQ) use ($searchParts) {
+                                foreach ($searchParts as $part) {
+                                    $partLower = mb_strtolower($part);
+                                    $subQ->where(function($p) use ($partLower) {
+                                        $p->whereRaw('LOWER(name) LIKE ?', ["%{$partLower}%"])
+                                          ->orWhereRaw('LOWER(last_name) LIKE ?', ["%{$partLower}%"])
+                                          ->orWhereRaw('LOWER(middle_name) LIKE ?', ["%{$partLower}%"]);
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+            }
         }
 
         // Фильтр по статусу
@@ -92,23 +106,36 @@ class TeacherController extends Controller
 
         // Поиск по ФИО, email, телефону
         if ($request->filled('search')) {
-            $search = $request->get('search');
-            // Заменяем пробелы на % для поиска по полному ФИО
-            $searchTerm = str_replace(' ', '%', trim($search));
-            
-            $query->where(function($q) use ($search, $searchTerm) {
-                // Поиск по отдельным полям
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('middle_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
+            $search = trim($request->get('search'));
+            if (!empty($search)) {
+                $searchLower = mb_strtolower($search);
                 
-                // Поиск по полному ФИО (с учетом пробелов как %)
-                if ($searchTerm !== $search) {
-                    $q->orWhereRaw("CONCAT(COALESCE(name, ''), ' ', COALESCE(last_name, ''), ' ', COALESCE(middle_name, '')) LIKE ?", ["%{$searchTerm}%"]);
-                }
-            });
+                $query->where(function($q) use ($search, $searchLower) {
+                    // Поиск по отдельным полям (нечувствительный к регистру)
+                    $q->whereRaw('LOWER(name) LIKE ?', ["%{$searchLower}%"])
+                      ->orWhereRaw('LOWER(last_name) LIKE ?', ["%{$searchLower}%"])
+                      ->orWhereRaw('LOWER(middle_name) LIKE ?', ["%{$searchLower}%"])
+                      ->orWhereRaw('LOWER(email) LIKE ?', ["%{$searchLower}%"])
+                      ->orWhere('phone', 'like', "%{$search}%");
+                    
+                    // Поиск по полному ФИО (если есть пробелы)
+                    if (strpos($search, ' ') !== false) {
+                        $searchParts = array_filter(array_map('trim', explode(' ', $search)));
+                        if (count($searchParts) > 1) {
+                            $q->orWhere(function($subQ) use ($searchParts) {
+                                foreach ($searchParts as $part) {
+                                    $partLower = mb_strtolower($part);
+                                    $subQ->where(function($p) use ($partLower) {
+                                        $p->whereRaw('LOWER(name) LIKE ?', ["%{$partLower}%"])
+                                          ->orWhereRaw('LOWER(last_name) LIKE ?', ["%{$partLower}%"])
+                                          ->orWhereRaw('LOWER(middle_name) LIKE ?', ["%{$partLower}%"]);
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+            }
         }
 
         // Фильтр по статусу
