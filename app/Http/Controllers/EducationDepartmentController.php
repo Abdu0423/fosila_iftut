@@ -748,10 +748,24 @@ class EducationDepartmentController extends Controller
         $this->checkRole($user);
         
         $subjects = Subject::where('is_active', true)->get();
-        $groups = Group::all();
+        $groups = Group::all()->map(function ($group) {
+            return [
+                'id' => $group->id,
+                'name' => $group->name,
+                'full_name' => $group->full_name
+            ];
+        });
         $teachers = User::whereHas('role', function($q) {
             $q->where('name', 'teacher');
-        })->get();
+        })->get()->map(function ($teacher) {
+            return [
+                'id' => $teacher->id,
+                'name' => $teacher->name,
+                'last_name' => $teacher->last_name,
+                'middle_name' => $teacher->middle_name,
+                'email' => $teacher->email
+            ];
+        });
         
         return Inertia::render('EducationDepartment/Schedules/Create', [
             'subjects' => $subjects,
@@ -773,7 +787,7 @@ class EducationDepartmentController extends Controller
             'subject_id' => 'required|exists:subjects,id',
             'teacher_id' => 'required|exists:users,id',
             'group_id' => 'required|exists:groups,id',
-            'semester' => 'required|integer|in:1,2',
+            'semester' => 'required|integer|min:1|max:10',
             'credits' => 'required|integer|min:1|max:10',
             'study_year' => 'required|integer|min:2020|max:2030',
             'order' => 'required|integer|min:1',
@@ -798,10 +812,24 @@ class EducationDepartmentController extends Controller
         
         $schedule->load(['subject', 'teacher', 'group']);
         $subjects = Subject::where('is_active', true)->get();
-        $groups = Group::all();
+        $groups = Group::all()->map(function ($group) {
+            return [
+                'id' => $group->id,
+                'name' => $group->name,
+                'full_name' => $group->full_name
+            ];
+        });
         $teachers = User::whereHas('role', function($q) {
             $q->where('name', 'teacher');
-        })->get();
+        })->get()->map(function ($teacher) {
+            return [
+                'id' => $teacher->id,
+                'name' => $teacher->name,
+                'last_name' => $teacher->last_name,
+                'middle_name' => $teacher->middle_name,
+                'email' => $teacher->email
+            ];
+        });
         
         return Inertia::render('EducationDepartment/Schedules/Edit', [
             'schedule' => $schedule,
@@ -824,7 +852,7 @@ class EducationDepartmentController extends Controller
             'subject_id' => 'required|exists:subjects,id',
             'teacher_id' => 'required|exists:users,id',
             'group_id' => 'required|exists:groups,id',
-            'semester' => 'required|integer|in:1,2',
+            'semester' => 'required|integer|min:1|max:10',
             'credits' => 'required|integer|min:1|max:10',
             'study_year' => 'required|integer|min:2020|max:2030',
             'order' => 'required|integer|min:1',

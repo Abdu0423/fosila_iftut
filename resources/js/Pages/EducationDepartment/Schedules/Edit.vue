@@ -31,47 +31,69 @@
                 <v-row>
                   <!-- Предмет -->
                   <v-col cols="12" md="6">
-                    <v-select
-                      :model-value="form.subject_id"
-                      @update:model-value="form.subject_id = $event"
+                    <v-autocomplete
+                      v-model="form.subject_id"
                       :items="subjects || []"
                       item-title="name"
                       item-value="id"
                       :label="(translations.education_department?.schedule_subject) + ' *'"
                       variant="outlined"
                       :error-messages="errors.subject_id"
+                      prepend-inner-icon="mdi-magnify"
+                      clearable
+                      auto-select-first
                       required
                     />
                   </v-col>
 
                   <!-- Преподаватель -->
                   <v-col cols="12" md="6">
-                    <v-select
-                      :model-value="form.teacher_id"
-                      @update:model-value="form.teacher_id = $event"
-                      :items="teachers || []"
-                      item-title="name"
+                    <v-autocomplete
+                      v-model="form.teacher_id"
+                      :items="teacherItems"
+                      item-title="displayName"
                       item-value="id"
                       :label="(translations.education_department?.schedule_teacher) + ' *'"
                       variant="outlined"
                       :error-messages="errors.teacher_id"
+                      prepend-inner-icon="mdi-magnify"
+                      clearable
+                      auto-select-first
                       required
-                    />
+                    >
+                      <template v-slot:item="{ props, item }">
+                        <v-list-item v-bind="props">
+                          <v-list-item-title>{{ item.raw.name }} {{ item.raw.last_name }}</v-list-item-title>
+                          <v-list-item-subtitle v-if="item.raw.email">{{ item.raw.email }}</v-list-item-subtitle>
+                        </v-list-item>
+                      </template>
+                    </v-autocomplete>
                   </v-col>
 
                   <!-- Группа -->
                   <v-col cols="12" md="6">
-                    <v-select
-                      :model-value="form.group_id"
-                      @update:model-value="form.group_id = $event"
-                      :items="groups || []"
-                      item-title="name"
+                    <v-autocomplete
+                      v-model="form.group_id"
+                      :items="groupItems"
+                      item-title="displayName"
                       item-value="id"
                       :label="(translations.education_department?.schedule_group) + ' *'"
                       variant="outlined"
                       :error-messages="errors.group_id"
+                      prepend-inner-icon="mdi-magnify"
+                      clearable
+                      auto-select-first
                       required
-                    />
+                    >
+                      <template v-slot:item="{ props, item }">
+                        <v-list-item v-bind="props">
+                          <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
+                          <v-list-item-subtitle v-if="item.raw.full_name && item.raw.full_name !== item.raw.name">
+                            {{ item.raw.full_name }}
+                          </v-list-item-subtitle>
+                        </v-list-item>
+                      </template>
+                    </v-autocomplete>
                   </v-col>
 
                   <!-- Семестр -->
@@ -225,8 +247,32 @@ const errors = computed(() => page.props.errors || {})
 
 const semesterItems = [
   { title: '1', value: 1 },
-  { title: '2', value: 2 }
+  { title: '2', value: 2 },
+  { title: '3', value: 3 },
+  { title: '4', value: 4 },
+  { title: '5', value: 5 },
+  { title: '6', value: 6 },
+  { title: '7', value: 7 },
+  { title: '8', value: 8 },
+  { title: '9', value: 9 },
+  { title: '10', value: 10 }
 ]
+
+// Преобразуем преподавателей для автокомплита
+const teacherItems = computed(() => {
+  return (props.teachers || []).map(teacher => ({
+    ...teacher,
+    displayName: `${teacher.name} ${teacher.last_name}${teacher.middle_name ? ' ' + teacher.middle_name : ''}`
+  }))
+})
+
+// Преобразуем группы для автокомплита
+const groupItems = computed(() => {
+  return (props.groups || []).map(group => ({
+    ...group,
+    displayName: group.full_name || group.name
+  }))
+})
 
 // Определяем префикс маршрута на основе текущего URL
 const getRoutePrefix = () => {
