@@ -49,6 +49,10 @@
                   <v-icon start>mdi-message-text</v-icon>
                   Произвольное SMS
                 </v-tab>
+                <v-tab value="history">
+                  <v-icon start>mdi-history</v-icon>
+                  История отправки
+                </v-tab>
               </v-tabs>
             </v-card-text>
           </v-card>
@@ -242,6 +246,97 @@
           </v-card>
         </v-col>
       </v-row>
+
+      <!-- История отправки SMS -->
+      <v-row v-if="activeTab === 'history'">
+        <v-col cols="12">
+          <v-card>
+            <v-card-title class="d-flex justify-space-between align-center">
+              <span>История отправки SMS</span>
+            </v-card-title>
+            <v-card-text>
+              <!-- Поиск по номеру телефона -->
+              <v-row class="mb-4">
+                <v-col cols="12" md="4">
+                  <v-text-field
+                    v-model="phoneSearch"
+                    prepend-inner-icon="mdi-magnify"
+                    label="Поиск по номеру телефона"
+                    variant="outlined"
+                    density="compact"
+                    clearable
+                    @update:model-value="searchSmsHistory"
+                    @keyup.enter="searchSmsHistory"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+
+              <!-- Таблица истории -->
+              <v-data-table
+                :headers="smsHistoryHeaders"
+                :items="smsHistory?.data || []"
+                :loading="loadingHistory"
+                :items-per-page="smsHistory?.per_page || 50"
+                :page="smsHistory?.current_page || 1"
+                :server-items-length="smsHistory?.total || 0"
+                @update:page="loadSmsHistoryPage"
+                class="elevation-0"
+              >
+                <template v-slot:item.phone="{ item }">
+                  <span class="font-weight-medium">{{ item.phone }}</span>
+                </template>
+
+                <template v-slot:item.message="{ item }">
+                  <div class="text-body-2" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    {{ item.message }}
+                  </div>
+                </template>
+
+                <template v-slot:item.status="{ item }">
+                  <v-chip
+                    :color="getStatusColor(item.status)"
+                    size="small"
+                    variant="tonal"
+                  >
+                    {{ getStatusText(item.status) }}
+                  </v-chip>
+                </template>
+
+                <template v-slot:item.user_name="{ item }">
+                  <span v-if="item.user_name">{{ item.user_name }}</span>
+                  <span v-else class="text-medium-emphasis">—</span>
+                </template>
+
+                <template v-slot:item.sent_at="{ item }">
+                  <span v-if="item.sent_at">{{ item.sent_at }}</span>
+                  <span v-else class="text-medium-emphasis">—</span>
+                </template>
+
+                <template v-slot:item.created_at="{ item }">
+                  {{ item.created_at }}
+                </template>
+
+                <template v-slot:item.error="{ item }">
+                  <v-tooltip v-if="item.error" location="top">
+                    <template v-slot:activator="{ props }">
+                      <v-chip
+                        color="error"
+                        size="small"
+                        variant="tonal"
+                        v-bind="props"
+                      >
+                        Ошибка
+                      </v-chip>
+                    </template>
+                    <span>{{ item.error }}</span>
+                  </v-tooltip>
+                  <span v-else class="text-medium-emphasis">—</span>
+                </template>
+              </v-data-table>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
     </v-container>
   </Layout>
 </template>
@@ -267,6 +362,14 @@ const props = defineProps({
   groups: {
     type: Array,
     default: () => []
+  },
+  smsHistory: {
+    type: Object,
+    default: () => null
+  },
+  filters: {
+    type: Object,
+    default: () => ({})
   }
 })
 
@@ -282,6 +385,8 @@ const groupFilter = ref(null)
 const selectedUsers = ref([])
 const customMessage = ref('')
 const sending = ref(false)
+const phoneSearch = ref(props.filters?.phone_search || '')
+const loadingHistory = ref(false)
 
 // Заголовки таблицы
 const headers = [
@@ -290,6 +395,17 @@ const headers = [
   { title: 'Группа', key: 'group', sortable: true },
   { title: 'Телефон', key: 'phone', sortable: true },
   { title: 'Статус', key: 'credentials_sent', sortable: true },
+]
+
+// Заголовки таблицы истории SMS
+const smsHistoryHeaders = [
+  { title: 'Номер телефона', key: 'phone', sortable: false },
+  { title: 'Сообщение', key: 'message', sortable: false },
+  { title: 'Пользователь', key: 'user_name', sortable: false },
+  { title: 'Статус', key: 'status', sortable: false },
+  { title: 'Отправлено', key: 'sent_at', sortable: false },
+  { title: 'Создано', key: 'created_at', sortable: false },
+  { title: 'Ошибка', key: 'error', sortable: false },
 ]
 
 // Опции фильтров
@@ -386,8 +502,8 @@ const sendCredentials = () => {
       // Очищаем выбранных пользователей после успешной отправки
       selectedUsers.value = []
       sending.value = false
-      // Перезагружаем страницу для обновления flash сообщений
-      router.reload({ only: ['flash'] })
+      // Перезагружаем страницу для обновления flash сообщений и истории
+      router.reload({ only: ['flash', 'smsHistory'] })
     },
     onError: (errors) => {
       sending.value = false
@@ -425,8 +541,8 @@ const sendCustom = () => {
       selectedUsers.value = []
       customMessage.value = ''
       sending.value = false
-      // Перезагружаем страницу для обновления flash сообщений
-      router.reload({ only: ['flash'] })
+      // Перезагружаем страницу для обновления flash сообщений и истории
+      router.reload({ only: ['flash', 'smsHistory'] })
     },
     onError: (errors) => {
       sending.value = false
@@ -436,6 +552,55 @@ const sendCustom = () => {
       sending.value = false
     }
   })
+}
+
+// Методы для истории SMS
+const searchSmsHistory = () => {
+  loadingHistory.value = true
+  router.get('/admin/sms', {
+    phone_search: phoneSearch.value || undefined,
+    page: 1 // Сбрасываем на первую страницу при поиске
+  }, {
+    preserveState: true,
+    preserveScroll: true,
+    only: ['smsHistory', 'filters'],
+    onFinish: () => {
+      loadingHistory.value = false
+    }
+  })
+}
+
+const loadSmsHistoryPage = (page) => {
+  loadingHistory.value = true
+  router.get('/admin/sms', {
+    phone_search: phoneSearch.value || undefined,
+    page: page
+  }, {
+    preserveState: true,
+    preserveScroll: true,
+    only: ['smsHistory', 'filters'],
+    onFinish: () => {
+      loadingHistory.value = false
+    }
+  })
+}
+
+const getStatusColor = (status) => {
+  const colors = {
+    'pending': 'warning',
+    'sent': 'success',
+    'failed': 'error'
+  }
+  return colors[status] || 'grey'
+}
+
+const getStatusText = (status) => {
+  const texts = {
+    'pending': 'В ожидании',
+    'sent': 'Отправлено',
+    'failed': 'Ошибка'
+  }
+  return texts[status] || status
 }
 </script>
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Group;
+use App\Models\SmsMessage;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Facades\Sms;
@@ -53,10 +54,39 @@ class SmsController extends Controller
             ];
         });
 
+        // Получаем историю SMS с поиском по номеру телефона
+        $phoneSearch = $request->get('phone_search', '');
+        $smsHistoryQuery = SmsMessage::with('user')
+            ->orderBy('created_at', 'desc');
+
+        if ($phoneSearch) {
+            $smsHistoryQuery->where('phone', 'like', '%' . $phoneSearch . '%');
+        }
+
+        $smsHistory = $smsHistoryQuery->paginate(50)->through(function ($sms) {
+            return [
+                'id' => $sms->id,
+                'phone' => $sms->phone,
+                'message' => $sms->message,
+                'sender' => $sms->sender,
+                'status' => $sms->status,
+                'response' => $sms->response,
+                'error' => $sms->error,
+                'user_id' => $sms->user_id,
+                'user_name' => $sms->user ? ($sms->user->last_name . ' ' . $sms->user->name . ' ' . ($sms->user->middle_name ?? '')) : null,
+                'sent_at' => $sms->sent_at ? $sms->sent_at->format('d.m.Y H:i:s') : null,
+                'created_at' => $sms->created_at ? $sms->created_at->format('d.m.Y H:i:s') : null,
+            ];
+        });
+
         return Inertia::render('Admin/Sms/Index', [
             'users' => $users,
             'roles' => $roles,
             'groups' => $groups,
+            'smsHistory' => $smsHistory,
+            'filters' => [
+                'phone_search' => $phoneSearch,
+            ],
         ]);
     }
 
@@ -99,7 +129,7 @@ class SmsController extends Controller
                 $tempPassword = Str::random(8);
                 
                 // Формируем сообщение с предупреждением о безопасности
-                $message = "Логин ва пароли шумо барои ворид шудан ба iftut.tj:\nРаками тел: {$login}\nПарол: {$tempPassword}\nДар вакти бори аввал ворид шудан рамз бояд иваз карда шавад.\n\nДИҚҚАТ: Лутфан логин ва пароли худро ба ягон кас надиҳед!";
+                $message = "Логин ва пароли шумо барои ворид шудан ба fosila.iftut.tj\nРаками тел: {$login}\nПарол: {$tempPassword}\nДар вакти бори аввал ворид шудан рамз бояд иваз карда шавад.\n\nДИҚҚАТ: Лутфан логин ва пароли худро ба ягон кас надиҳед!";
 
                 $result = Sms::send($user->phone, $message);
 
