@@ -33,7 +33,7 @@
                 <v-row>
                   <!-- Предмет -->
                   <v-col cols="12" md="6">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.subject_id"
                       :items="subjects || []"
                       item-title="name"
@@ -41,40 +41,40 @@
                       label="Предмет *"
                       variant="outlined"
                       :error-messages="errors.subject_id"
+                      prepend-inner-icon="mdi-magnify"
+                      clearable
+                      auto-select-first
                       required
-                    >
-                      <template v-slot:item="{ props, item }">
-                        <v-list-item v-bind="props">
-                          <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
-                        </v-list-item>
-                      </template>
-                    </v-select>
+                    />
                   </v-col>
 
                   <!-- Преподаватель -->
                   <v-col cols="12" md="6">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.teacher_id"
-                      :items="teachers || []"
-                      item-title="name"
+                      :items="teacherItems"
+                      item-title="displayName"
                       item-value="id"
                       label="Преподаватель *"
                       variant="outlined"
                       :error-messages="errors.teacher_id"
+                      prepend-inner-icon="mdi-magnify"
+                      clearable
+                      auto-select-first
                       required
                     >
                       <template v-slot:item="{ props, item }">
                         <v-list-item v-bind="props">
-                          <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
-                          <v-list-item-subtitle>{{ item.raw.email }}</v-list-item-subtitle>
+                          <v-list-item-title>{{ item.raw.name }} {{ item.raw.last_name }}{{ item.raw.middle_name ? ' ' + item.raw.middle_name : '' }}</v-list-item-title>
+                          <v-list-item-subtitle v-if="item.raw.email">{{ item.raw.email }}</v-list-item-subtitle>
                         </v-list-item>
                       </template>
-                    </v-select>
+                    </v-autocomplete>
                   </v-col>
 
                   <!-- Группа -->
                   <v-col cols="12" md="6">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.group_id"
                       :items="groups || []"
                       item-title="name"
@@ -82,6 +82,9 @@
                       label="Группа *"
                       variant="outlined"
                       :error-messages="errors.group_id"
+                      prepend-inner-icon="mdi-magnify"
+                      clearable
+                      auto-select-first
                       required
                     />
                   </v-col>
@@ -285,7 +288,7 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, computed } from 'vue'
 import { useForm } from '@inertiajs/vue3'
 import { router } from '@inertiajs/vue3'
 import Layout from '../../Layout.vue'
@@ -359,6 +362,14 @@ const semesterItems = [
   { title: '1 семестр', value: 1 },
   { title: '2 семестр', value: 2 }
 ]
+
+// Преобразуем преподавателей для автокомплита
+const teacherItems = computed(() => {
+  return (props.teachers || []).map(teacher => ({
+    ...teacher,
+    displayName: `${teacher.name || ''} ${teacher.last_name || ''}${teacher.middle_name ? ' ' + teacher.middle_name : ''}`.trim()
+  }))
+})
 
 // Methods
 const submit = () => {

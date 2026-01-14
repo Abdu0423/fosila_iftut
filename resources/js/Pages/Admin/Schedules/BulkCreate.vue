@@ -63,35 +63,57 @@
                       <v-row>
                         <!-- Урок -->
                         <v-col cols="12" md="6">
-                          <v-select
+                          <v-autocomplete
                             v-model="schedule.lesson_id"
                             :items="lessons"
-                            item-title="name"
+                            item-title="title"
                             item-value="id"
                             label="Урок *"
                             variant="outlined"
                             density="compact"
+                            prepend-inner-icon="mdi-magnify"
+                            clearable
+                            auto-select-first
                             required
-                          ></v-select>
+                          >
+                            <template v-slot:item="{ props, item }">
+                              <v-list-item v-bind="props">
+                                <v-list-item-title>{{ item.raw.title }}</v-list-item-title>
+                                <v-list-item-subtitle v-if="item.raw.subject">
+                                  Предмет: {{ item.raw.subject.name }}
+                                </v-list-item-subtitle>
+                              </v-list-item>
+                            </template>
+                          </v-autocomplete>
                         </v-col>
 
                         <!-- Преподаватель -->
                         <v-col cols="12" md="6">
-                          <v-select
+                          <v-autocomplete
                             v-model="schedule.teacher_id"
-                            :items="teachers"
-                            item-title="name"
+                            :items="teacherItems"
+                            item-title="displayName"
                             item-value="id"
                             label="Преподаватель *"
                             variant="outlined"
                             density="compact"
+                            prepend-inner-icon="mdi-magnify"
+                            clearable
+                            auto-select-first
                             required
-                          ></v-select>
+                          >
+                            <template v-slot:item="{ props, item }">
+                              <v-list-item v-bind="props">
+                                <v-list-item-title>{{ item.raw.name }} {{ item.raw.last_name }}{{ item.raw.middle_name ? ' ' + item.raw.middle_name : '' }}</v-list-item-title>
+                                <v-list-item-subtitle v-if="item.raw.email">{{ item.raw.email }}</v-list-item-subtitle>
+                              </v-list-item>
+                            </template>
+                          </v-autocomplete>
                         </v-col>
 
                         <!-- Группа -->
                         <v-col cols="12" md="6">
-                          <v-select
+                          <v-autocomplete
                             v-model="schedule.group_id"
                             :items="groups"
                             item-title="name"
@@ -99,8 +121,11 @@
                             label="Группа *"
                             variant="outlined"
                             density="compact"
+                            prepend-inner-icon="mdi-magnify"
+                            clearable
+                            auto-select-first
                             required
-                          ></v-select>
+                          ></v-autocomplete>
                         </v-col>
 
                         <!-- Семестр -->
@@ -279,7 +304,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useForm, router } from '@inertiajs/vue3'
 import AdminApp from '../AdminApp.vue'
 
@@ -303,6 +328,14 @@ const props = defineProps({
 const lessons = ref(props.lessons)
 const groups = ref(props.groups)
 const teachers = ref(props.teachers)
+
+// Преобразуем преподавателей для автокомплита
+const teacherItems = computed(() => {
+  return (teachers.value || []).map(teacher => ({
+    ...teacher,
+    displayName: `${teacher.name || ''} ${teacher.last_name || ''}${teacher.middle_name ? ' ' + teacher.middle_name : ''}`.trim()
+  }))
+})
 
 const semesterOptions = ref([
   { value: 1, text: '1 семестр' },

@@ -76,7 +76,7 @@ class ScheduleController extends Controller
         $subjects = Subject::all();
         $groups = Group::all();
         $teachers = User::whereHas('role', function($q) {
-            $q->where('name', 'teacher');
+            $q->where('name', '!=', 'student');
         })->get();
 
         // Форматируем расписания для отображения дат экзаменов
@@ -117,7 +117,7 @@ class ScheduleController extends Controller
         $subjects = Subject::all();
         $groups = Group::all();
         $teachers = User::whereHas('role', function($q) {
-            $q->where('name', 'teacher');
+            $q->where('name', '!=', 'student');
         })->get();
         $syllabuses = Syllabus::with(['creator'])->get();
         $lessons = Lesson::with(['subject'])->get();
@@ -202,7 +202,7 @@ class ScheduleController extends Controller
         $subjects = Subject::all();
         $groups = Group::all();
         $teachers = User::whereHas('role', function($q) {
-            $q->where('name', 'teacher');
+            $q->where('name', '!=', 'student');
         })->get();
         $syllabuses = Syllabus::with(['creator'])->get();
         $lessons = Lesson::with(['subject'])->get();
@@ -386,14 +386,14 @@ class ScheduleController extends Controller
      */
     public function bulkCreate()
     {
-        $subjects = Subject::all();
+        $lessons = Lesson::with(['subject'])->get();
         $groups = Group::all();
         $teachers = User::whereHas('role', function($q) {
-            $q->where('name', 'teacher');
+            $q->where('name', '!=', 'student');
         })->get();
 
         return Inertia::render('Admin/Schedules/BulkCreate', [
-            'subjects' => $subjects,
+            'lessons' => $lessons,
             'groups' => $groups,
             'teachers' => $teachers,
         ]);

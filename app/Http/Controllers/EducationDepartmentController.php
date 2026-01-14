@@ -761,7 +761,7 @@ class EducationDepartmentController extends Controller
             ];
         });
         $teachers = User::whereHas('role', function($q) {
-            $q->where('name', 'teacher');
+            $q->where('name', '!=', 'student');
         })->get()->map(function ($teacher) {
             return [
                 'id' => $teacher->id,
@@ -825,7 +825,7 @@ class EducationDepartmentController extends Controller
             ];
         });
         $teachers = User::whereHas('role', function($q) {
-            $q->where('name', 'teacher');
+            $q->where('name', '!=', 'student');
         })->get()->map(function ($teacher) {
             return [
                 'id' => $teacher->id,
