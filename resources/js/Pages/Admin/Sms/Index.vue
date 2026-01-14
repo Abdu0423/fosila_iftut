@@ -59,196 +59,330 @@
         </v-col>
       </v-row>
 
-      <!-- Фильтры и поиск -->
-      <v-row class="mb-6">
-        <v-col cols="12" md="4">
-          <v-text-field
-            v-model="search"
-            prepend-inner-icon="mdi-magnify"
-            label="Поиск пользователей"
-            variant="outlined"
-            density="compact"
-            clearable
-          ></v-text-field>
-        </v-col>
-        <v-col cols="12" md="3">
-          <v-select
-            v-model="roleFilter"
-            :items="roleOptions"
-            label="Фильтр по роли"
-            variant="outlined"
-            density="compact"
-            clearable
-          ></v-select>
-        </v-col>
-        <v-col cols="12" md="3">
-          <v-select
-            v-model="groupFilter"
-            :items="groupOptions"
-            label="Фильтр по группе"
-            variant="outlined"
-            density="compact"
-            clearable
-          ></v-select>
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-btn
-            color="secondary"
-            variant="outlined"
-            @click="clearFilters"
-            prepend-icon="mdi-refresh"
-            block
-          >
-            Сбросить
-          </v-btn>
-        </v-col>
-      </v-row>
-
-      <!-- Выбор пользователей -->
-      <v-row class="mb-6">
-        <v-col cols="12">
-          <v-card>
-            <v-card-title class="d-flex justify-space-between align-center">
-              <span>Выбор пользователей ({{ selectedUsers.length }} выбрано)</span>
-              <div>
-                <v-btn
-                  size="small"
-                  variant="text"
-                  @click="selectAll"
-                  :disabled="filteredUsers.length === 0"
-                >
-                  Выбрать все
-                </v-btn>
-                <v-btn
-                  size="small"
-                  variant="text"
-                  @click="deselectAll"
-                  :disabled="selectedUsers.length === 0"
-                >
-                  Снять все
-                </v-btn>
-              </div>
-            </v-card-title>
-            <v-card-text>
-              <v-data-table
-                v-model="selectedUsers"
-                :headers="headers"
-                :items="filteredUsers"
-                :search="search"
-                show-select
-                item-value="id"
-                class="elevation-0"
-                :items-per-page="25"
-              >
-                <template v-slot:item.name="{ item }">
-                  <div>
-                    <div class="font-weight-medium">{{ item.name }} {{ item.last_name }}</div>
-                    <div class="text-caption text-medium-emphasis">{{ item.email || '—' }}</div>
-                  </div>
-                </template>
-
-                <template v-slot:item.role="{ item }">
-                  <v-chip
-                    :color="getRoleColor(item.role)"
-                    size="small"
-                    variant="tonal"
-                  >
-                    {{ item.role_display }}
-                  </v-chip>
-                </template>
-
-                <template v-slot:item.group="{ item }">
-                  <span v-if="item.group">{{ item.group }}</span>
-                  <span v-else class="text-medium-emphasis">—</span>
-                </template>
-
-                <template v-slot:item.phone="{ item }">
-                  <span v-if="item.phone">{{ item.phone }}</span>
-                  <v-chip v-else color="warning" size="small" variant="tonal">
-                    Нет телефона
-                  </v-chip>
-                </template>
-
-                <template v-slot:item.credentials_sent="{ item }">
-                  <v-chip
-                    :color="item.credentials_sent ? 'success' : 'grey'"
-                    size="small"
-                    variant="tonal"
-                  >
-                    {{ item.credentials_sent ? 'Отправлено' : 'Не отправлено' }}
-                  </v-chip>
-                </template>
-              </v-data-table>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <!-- Форма отправки логина и пароля -->
-      <v-row v-if="activeTab === 'credentials'">
-        <v-col cols="12">
-          <v-card>
-            <v-card-title>Отправка логина и пароля</v-card-title>
-            <v-card-text>
-              <v-alert type="info" variant="tonal" class="mb-4">
-                Выбранным пользователям будет отправлен SMS с их логином и новым временным паролем.
-                При первом входе пользователю потребуется сменить пароль.
-              </v-alert>
-              <v-btn
-                color="primary"
-                size="large"
-                prepend-icon="mdi-send"
-                @click="sendCredentials"
-                :disabled="selectedUsers.length === 0"
-                :loading="sending"
-                block
-              >
-                Отправить логин и пароль ({{ selectedUsers.length }})
-              </v-btn>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <!-- Форма отправки произвольного SMS -->
-      <v-row v-if="activeTab === 'custom'">
-        <v-col cols="12">
-          <v-card>
-            <v-card-title>Произвольное SMS</v-card-title>
-            <v-card-text>
-              <v-textarea
-                v-model="customMessage"
-                label="Текст сообщения"
+      <!-- Контент вкладок -->
+      <v-window v-model="activeTab">
+        <!-- Вкладка: Отправка логина и пароля -->
+        <v-window-item value="credentials">
+          <!-- Фильтры и поиск -->
+          <v-row class="mb-6">
+            <v-col cols="12" md="4">
+              <v-text-field
+                v-model="search"
+                prepend-inner-icon="mdi-magnify"
+                label="Поиск пользователей"
                 variant="outlined"
-                rows="4"
-                counter
-                maxlength="1000"
-                :rules="[rules.required, rules.maxLength]"
-                hint="Максимум 1000 символов"
-                persistent-hint
-                class="mb-4"
-              ></v-textarea>
-              <v-alert type="warning" variant="tonal" class="mb-4">
-                Сообщение будет отправлено всем выбранным пользователям.
-              </v-alert>
+                density="compact"
+                clearable
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" md="3">
+              <v-select
+                v-model="roleFilter"
+                :items="roleOptions"
+                label="Фильтр по роли"
+                variant="outlined"
+                density="compact"
+                clearable
+              ></v-select>
+            </v-col>
+            <v-col cols="12" md="3">
+              <v-select
+                v-model="groupFilter"
+                :items="groupOptions"
+                label="Фильтр по группе"
+                variant="outlined"
+                density="compact"
+                clearable
+              ></v-select>
+            </v-col>
+            <v-col cols="12" md="2">
               <v-btn
-                color="primary"
-                size="large"
-                prepend-icon="mdi-send"
-                @click="sendCustom"
-                :disabled="selectedUsers.length === 0 || !customMessage.trim()"
-                :loading="sending"
+                color="secondary"
+                variant="outlined"
+                @click="clearFilters"
+                prepend-icon="mdi-refresh"
                 block
               >
-                Отправить SMS ({{ selectedUsers.length }})
+                Сбросить
               </v-btn>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
+            </v-col>
+          </v-row>
 
-      <!-- История отправки SMS -->
-      <v-row v-if="activeTab === 'history'">
+          <!-- Выбор пользователей -->
+          <v-row class="mb-6">
+            <v-col cols="12">
+              <v-card>
+                <v-card-title class="d-flex justify-space-between align-center">
+                  <span>Выбор пользователей ({{ selectedUsers.length }} выбрано)</span>
+                  <div>
+                    <v-btn
+                      size="small"
+                      variant="text"
+                      @click="selectAll"
+                      :disabled="filteredUsers.length === 0"
+                    >
+                      Выбрать все
+                    </v-btn>
+                    <v-btn
+                      size="small"
+                      variant="text"
+                      @click="deselectAll"
+                      :disabled="selectedUsers.length === 0"
+                    >
+                      Снять все
+                    </v-btn>
+                  </div>
+                </v-card-title>
+                <v-card-text>
+                  <v-data-table
+                    v-model="selectedUsers"
+                    :headers="headers"
+                    :items="filteredUsers"
+                    :search="search"
+                    show-select
+                    item-value="id"
+                    class="elevation-0"
+                    :items-per-page="25"
+                  >
+                    <template v-slot:item.name="{ item }">
+                      <div>
+                        <div class="font-weight-medium">{{ item.name }} {{ item.last_name }}</div>
+                        <div class="text-caption text-medium-emphasis">{{ item.email || '—' }}</div>
+                      </div>
+                    </template>
+
+                    <template v-slot:item.role="{ item }">
+                      <v-chip
+                        :color="getRoleColor(item.role)"
+                        size="small"
+                        variant="tonal"
+                      >
+                        {{ item.role_display }}
+                      </v-chip>
+                    </template>
+
+                    <template v-slot:item.group="{ item }">
+                      <span v-if="item.group">{{ item.group }}</span>
+                      <span v-else class="text-medium-emphasis">—</span>
+                    </template>
+
+                    <template v-slot:item.phone="{ item }">
+                      <span v-if="item.phone">{{ item.phone }}</span>
+                      <v-chip v-else color="warning" size="small" variant="tonal">
+                        Нет телефона
+                      </v-chip>
+                    </template>
+
+                    <template v-slot:item.credentials_sent="{ item }">
+                      <v-chip
+                        :color="item.credentials_sent ? 'success' : 'grey'"
+                        size="small"
+                        variant="tonal"
+                      >
+                        {{ item.credentials_sent ? 'Отправлено' : 'Не отправлено' }}
+                      </v-chip>
+                    </template>
+                  </v-data-table>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <!-- Форма отправки логина и пароля -->
+          <v-row>
+            <v-col cols="12">
+              <v-card>
+                <v-card-title>Отправка логина и пароля</v-card-title>
+                <v-card-text>
+                  <v-alert type="info" variant="tonal" class="mb-4">
+                    Выбранным пользователям будет отправлен SMS с их логином и новым временным паролем.
+                    При первом входе пользователю потребуется сменить пароль.
+                  </v-alert>
+                  <v-btn
+                    color="primary"
+                    size="large"
+                    prepend-icon="mdi-send"
+                    @click="sendCredentials"
+                    :disabled="selectedUsers.length === 0"
+                    :loading="sending"
+                    block
+                  >
+                    Отправить логин и пароль ({{ selectedUsers.length }})
+                  </v-btn>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-window-item>
+
+        <!-- Вкладка: Произвольное SMS -->
+        <v-window-item value="custom">
+          <!-- Фильтры и поиск -->
+          <v-row class="mb-6">
+            <v-col cols="12" md="4">
+              <v-text-field
+                v-model="search"
+                prepend-inner-icon="mdi-magnify"
+                label="Поиск пользователей"
+                variant="outlined"
+                density="compact"
+                clearable
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" md="3">
+              <v-select
+                v-model="roleFilter"
+                :items="roleOptions"
+                label="Фильтр по роли"
+                variant="outlined"
+                density="compact"
+                clearable
+              ></v-select>
+            </v-col>
+            <v-col cols="12" md="3">
+              <v-select
+                v-model="groupFilter"
+                :items="groupOptions"
+                label="Фильтр по группе"
+                variant="outlined"
+                density="compact"
+                clearable
+              ></v-select>
+            </v-col>
+            <v-col cols="12" md="2">
+              <v-btn
+                color="secondary"
+                variant="outlined"
+                @click="clearFilters"
+                prepend-icon="mdi-refresh"
+                block
+              >
+                Сбросить
+              </v-btn>
+            </v-col>
+          </v-row>
+
+          <!-- Выбор пользователей -->
+          <v-row class="mb-6">
+            <v-col cols="12">
+              <v-card>
+                <v-card-title class="d-flex justify-space-between align-center">
+                  <span>Выбор пользователей ({{ selectedUsers.length }} выбрано)</span>
+                  <div>
+                    <v-btn
+                      size="small"
+                      variant="text"
+                      @click="selectAll"
+                      :disabled="filteredUsers.length === 0"
+                    >
+                      Выбрать все
+                    </v-btn>
+                    <v-btn
+                      size="small"
+                      variant="text"
+                      @click="deselectAll"
+                      :disabled="selectedUsers.length === 0"
+                    >
+                      Снять все
+                    </v-btn>
+                  </div>
+                </v-card-title>
+                <v-card-text>
+                  <v-data-table
+                    v-model="selectedUsers"
+                    :headers="headers"
+                    :items="filteredUsers"
+                    :search="search"
+                    show-select
+                    item-value="id"
+                    class="elevation-0"
+                    :items-per-page="25"
+                  >
+                    <template v-slot:item.name="{ item }">
+                      <div>
+                        <div class="font-weight-medium">{{ item.name }} {{ item.last_name }}</div>
+                        <div class="text-caption text-medium-emphasis">{{ item.email || '—' }}</div>
+                      </div>
+                    </template>
+
+                    <template v-slot:item.role="{ item }">
+                      <v-chip
+                        :color="getRoleColor(item.role)"
+                        size="small"
+                        variant="tonal"
+                      >
+                        {{ item.role_display }}
+                      </v-chip>
+                    </template>
+
+                    <template v-slot:item.group="{ item }">
+                      <span v-if="item.group">{{ item.group }}</span>
+                      <span v-else class="text-medium-emphasis">—</span>
+                    </template>
+
+                    <template v-slot:item.phone="{ item }">
+                      <span v-if="item.phone">{{ item.phone }}</span>
+                      <v-chip v-else color="warning" size="small" variant="tonal">
+                        Нет телефона
+                      </v-chip>
+                    </template>
+
+                    <template v-slot:item.credentials_sent="{ item }">
+                      <v-chip
+                        :color="item.credentials_sent ? 'success' : 'grey'"
+                        size="small"
+                        variant="tonal"
+                      >
+                        {{ item.credentials_sent ? 'Отправлено' : 'Не отправлено' }}
+                      </v-chip>
+                    </template>
+                  </v-data-table>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <!-- Форма отправки произвольного SMS -->
+          <v-row>
+            <v-col cols="12">
+              <v-card>
+                <v-card-title>Произвольное SMS</v-card-title>
+                <v-card-text>
+                  <v-textarea
+                    v-model="customMessage"
+                    label="Текст сообщения"
+                    variant="outlined"
+                    rows="4"
+                    counter
+                    maxlength="1000"
+                    :rules="[rules.required, rules.maxLength]"
+                    hint="Максимум 1000 символов"
+                    persistent-hint
+                    class="mb-4"
+                  ></v-textarea>
+                  <v-alert type="warning" variant="tonal" class="mb-4">
+                    Сообщение будет отправлено всем выбранным пользователям.
+                  </v-alert>
+                  <v-btn
+                    color="primary"
+                    size="large"
+                    prepend-icon="mdi-send"
+                    @click="sendCustom"
+                    :disabled="selectedUsers.length === 0 || !customMessage.trim()"
+                    :loading="sending"
+                    block
+                  >
+                    Отправить SMS ({{ selectedUsers.length }})
+                  </v-btn>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-window-item>
+
+        <!-- Вкладка: История отправки SMS -->
+        <v-window-item value="history">
+          <v-row>
         <v-col cols="12">
           <v-card>
             <v-card-title class="d-flex justify-space-between align-center">
@@ -337,6 +471,8 @@
           </v-card>
         </v-col>
       </v-row>
+        </v-window-item>
+      </v-window>
     </v-container>
   </Layout>
 </template>
