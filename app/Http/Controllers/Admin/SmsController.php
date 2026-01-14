@@ -18,7 +18,7 @@ class SmsController extends Controller
     /**
      * Показать страницу отправки SMS
      */
-    public function index()
+    public function index(Request $request)
     {
         $users = User::with(['role', 'group'])
             ->orderBy('last_name')
