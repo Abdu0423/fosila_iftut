@@ -410,10 +410,11 @@
                 :headers="smsHistoryHeaders"
                 :items="smsHistory?.data || []"
                 :loading="loadingHistory"
-                :items-per-page="smsHistory?.per_page || 50"
+                :items-per-page="smsHistory?.per_page || 200"
                 :page="smsHistory?.current_page || 1"
                 :server-items-length="smsHistory?.total || 0"
                 @update:page="loadSmsHistoryPage"
+                @update:items-per-page="loadSmsHistoryPage"
                 class="elevation-0"
               >
                 <template v-slot:item.phone="{ item }">
@@ -706,11 +707,12 @@ const searchSmsHistory = () => {
   })
 }
 
-const loadSmsHistoryPage = (page) => {
+const loadSmsHistoryPage = (page, perPage = 200) => {
   loadingHistory.value = true
   router.get('/admin/sms', {
     phone_search: phoneSearch.value || undefined,
-    page: page
+    page: page,
+    per_page: perPage
   }, {
     preserveState: true,
     preserveScroll: true,

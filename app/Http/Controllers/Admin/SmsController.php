@@ -56,6 +56,7 @@ class SmsController extends Controller
 
         // Получаем историю SMS с поиском по номеру телефона
         $phoneSearch = $request->get('phone_search', '');
+        $perPage = $request->get('per_page', 200); // Увеличиваем количество записей на странице
         $smsHistoryQuery = SmsMessage::with('user')
             ->orderBy('created_at', 'desc');
 
@@ -63,7 +64,7 @@ class SmsController extends Controller
             $smsHistoryQuery->where('phone', 'like', '%' . $phoneSearch . '%');
         }
 
-        $smsHistory = $smsHistoryQuery->paginate(50)->through(function ($sms) {
+        $smsHistory = $smsHistoryQuery->paginate($perPage)->through(function ($sms) {
             return [
                 'id' => $sms->id,
                 'phone' => $sms->phone,
