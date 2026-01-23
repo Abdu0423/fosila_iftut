@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -54,108 +54,121 @@
               </div>
               
               <div v-else>
-                <v-list>
-                  <v-list-item
-                    v-for="(question, index) in questions"
+                <!-- Поиск вопросов -->
+                <v-text-field
+                  v-model="searchQuery"
+                  prepend-inner-icon="mdi-magnify"
+                  label="Поиск вопросов"
+                  variant="outlined"
+                  density="compact"
+                  clearable
+                  class="mb-4"
+                  hide-details
+                ></v-text-field>
+
+                <!-- Аккордеон с вопросами -->
+                <v-expansion-panels variant="accordion">
+                  <v-expansion-panel
+                    v-for="(question, index) in filteredQuestions"
                     :key="question.id"
-                    class="mb-4"
+                    class="mb-2"
                   >
-                    <template v-slot:prepend>
-                      <v-avatar color="primary" size="32">
-                        <span class="text-white font-weight-bold">{{ index + 1 }}</span>
-                      </v-avatar>
-                    </template>
-                    
-                    <v-list-item-title class="font-weight-medium mb-2">
-                      {{ question.question }}
-                    </v-list-item-title>
-                    
-                    <v-list-item-subtitle>
-                      <div class="d-flex align-center gap-4 mb-2">
+                    <v-expansion-panel-title>
+                      <div class="d-flex align-center flex-grow-1">
+                        <v-avatar color="primary" size="28" class="mr-3">
+                          <span class="text-white text-caption font-weight-bold">{{ index + 1 }}</span>
+                        </v-avatar>
+                        <span class="font-weight-medium text-body-1">{{ question.question }}</span>
+                        <v-spacer></v-spacer>
                         <v-chip
                           :color="getQuestionTypeColor(question.type)"
-                          size="small"
+                          size="x-small"
                           variant="tonal"
+                          class="mr-2"
                         >
-                          {{ question.type_text }}
-                        </v-chip>
-                        
-                        <v-chip
-                          color="secondary"
-                          size="small"
-                          variant="tonal"
-                        >
-                          {{ question.answers.length }} ответов
+                          {{ question.answers.length }} отв.
                         </v-chip>
                       </div>
-                      
+                    </v-expansion-panel-title>
+                    
+                    <v-expansion-panel-text>
                       <!-- Ответы -->
-                      <div class="mt-3">
+                      <div class="pa-2">
                         <div
-                          v-for="(answer, answerIndex) in question.answers"
+                          v-for="answer in question.answers"
                           :key="answer.id"
-                          class="d-flex align-center mb-1"
+                          class="d-flex align-center py-1"
+                          :class="{ 'answer-correct': answer.is_correct }"
                         >
                           <v-icon
-                            :color="answer.is_correct ? 'success' : 'grey'"
-                            size="16"
+                            :color="answer.is_correct ? 'success' : 'grey-lighten-1'"
+                            size="18"
                             class="mr-2"
                           >
                             {{ answer.is_correct ? 'mdi-check-circle' : 'mdi-circle-outline' }}
                           </v-icon>
-                          <span class="text-body-2">{{ answer.answer }}</span>
+                          <span 
+                            class="text-body-2"
+                            :class="{ 'text-success font-weight-medium': answer.is_correct }"
+                          >
+                            {{ answer.answer }}
+                          </span>
+                          <v-chip
+                            v-if="answer.is_correct"
+                            color="success"
+                            size="x-small"
+                            variant="tonal"
+                            class="ml-2"
+                          >
+                            Правильный ответ
+                          </v-chip>
                         </div>
-                      </div>
-                      
-                      <!-- Объяснение -->
-                      <div v-if="question.explanation" class="mt-3">
+                        
+                        <!-- Объяснение -->
                         <v-alert
+                          v-if="question.explanation"
                           type="info"
                           variant="tonal"
                           density="compact"
-                          class="mb-0"
+                          class="mt-3"
                         >
                           <strong>Объяснение:</strong> {{ question.explanation }}
                         </v-alert>
-                      </div>
-                    </v-list-item-subtitle>
-                    
-                    <template v-slot:append>
-                      <v-menu>
-                        <template v-slot:activator="{ props }">
+                        
+                        <!-- Действия -->
+                        <v-divider class="my-3"></v-divider>
+                        <div class="d-flex gap-2">
                           <v-btn
-                            icon="mdi-dots-vertical"
-                            variant="text"
                             size="small"
-                            v-bind="props"
-                          ></v-btn>
-                        </template>
-                        <v-list>
-                          <v-list-item
-                            @click="editQuestion(question)"
+                            variant="tonal"
+                            color="primary"
                             prepend-icon="mdi-pencil"
+                            @click.stop="editQuestion(question)"
                           >
-                            <v-list-item-title>Редактировать</v-list-item-title>
-                          </v-list-item>
-                          <v-list-item
-                            @click="duplicateQuestion(question)"
+                            Редактировать
+                          </v-btn>
+                          <v-btn
+                            size="small"
+                            variant="tonal"
                             prepend-icon="mdi-content-copy"
+                            @click.stop="duplicateQuestion(question)"
                           >
-                            <v-list-item-title>Дублировать</v-list-item-title>
-                          </v-list-item>
-                          <v-divider></v-divider>
-                          <v-list-item
-                            @click="deleteQuestion(question)"
-                            prepend-icon="mdi-delete"
+                            Дублировать
+                          </v-btn>
+                          <v-btn
+                            size="small"
+                            variant="tonal"
                             color="error"
+                            prepend-icon="mdi-delete"
+                            @click.stop="deleteQuestion(question)"
                           >
-                            <v-list-item-title>Удалить</v-list-item-title>
-                          </v-list-item>
-                        </v-list>
-                      </v-menu>
-                    </template>
-                  </v-list-item>
-                </v-list>
+                            Удалить
+                          </v-btn>
+                        </div>
+                      </div>
+                    </v-expansion-panel-text>
+                  </v-expansion-panel>
+                </v-expansion-panels>
               </div>
             </v-card-text>
           </v-card>
@@ -364,6 +377,17 @@ const questionTypes = ref(props.questionTypes)
 const showAddQuestionDialog = ref(false)
 const editingQuestion = ref(null)
 const correctAnswerId = ref(null)
+const searchQuery = ref('')
+
+// Фильтрация вопросов по поиску
+const filteredQuestions = computed(() => {
+  if (!searchQuery.value) return questions.value
+  const query = searchQuery.value.toLowerCase()
+  return questions.value.filter(q => 
+    q.question.toLowerCase().includes(query) ||
+    q.answers.some(a => a.answer.toLowerCase().includes(query))
+  )
+})
 
 // Форма вопроса
 const questionForm = useForm({
@@ -564,9 +588,19 @@ const closeQuestionDialog = () => {
   border-radius: 12px;
 }
 
-.v-list-item {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+.v-expansion-panel {
+  border-radius: 8px !important;
   margin-bottom: 8px;
+}
+
+.v-expansion-panel-title {
+  min-height: 48px;
+}
+
+.answer-correct {
+  background-color: rgba(76, 175, 80, 0.08);
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: 2px 0;
 }
 </style>
