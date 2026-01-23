@@ -24,7 +24,7 @@
               <PhoneInput
                 v-model="form.login"
                 :label="getTranslation('auth.phone', 'Телефон')"
-                :error-messages="Array.isArray(form.errors.login) ? form.errors.login : (form.errors.login ? [form.errors.login] : [])"
+                :error-messages="getLoginErrors"
                 :disabled="form.processing"
                 class="mb-4"
                 required
@@ -42,7 +42,7 @@
                 @click:append-inner="showPassword = !showPassword"
                 variant="outlined"
                 rounded="lg"
-                :error-messages="form.errors.password"
+                :error-messages="getPasswordErrors"
                 :disabled="form.processing"
                 class="mb-6"
                 autocomplete="current-password"
@@ -145,7 +145,7 @@
                 </template>
                 <v-alert-title class="text-h6 mb-2">Ошибка входа</v-alert-title>
                 <div class="text-body-2">
-                  <template v-for="(error, field) in form.errors" :key="field">
+                  <template v-for="(error, field) in displayErrors" :key="field">
                     <div v-if="Array.isArray(error)">
                       <div v-for="(err, index) in error" :key="index" class="mb-1">{{ err }}</div>
                     </div>
@@ -406,6 +406,9 @@ const agreeToTerms = ref(true)
 const showPrivacyDialog = ref(false)
 const showTermsDialog = ref(false)
 
+// Локальное состояние для ошибок (не зависит от Inertia)
+const loginErrors = ref({})
+
 const form = useForm({
   login: '+992',
   password: '',
@@ -415,39 +418,61 @@ const form = useForm({
 // Динамический год для футера
 const currentYear = computed(() => new Date().getFullYear())
 
-// Проверка наличия ошибок
+// Проверка наличия ошибок (проверяем и form.errors и локальные ошибки)
 const hasErrors = computed(() => {
-  const errors = form.errors
-  const has = errors && Object.keys(errors).length > 0
-  if (has) {
-    console.log('Есть ошибки в форме:', errors)
+  const formErrors = form.errors && Object.keys(form.errors).length > 0
+  const localErrors = loginErrors.value && Object.keys(loginErrors.value).length > 0
+  return formErrors || localErrors
+})
+
+// Объединенные ошибки для отображения
+const displayErrors = computed(() => {
+  if (Object.keys(form.errors).length > 0) {
+    return form.errors
   }
-  return has
+  return loginErrors.value
+})
+
+// Ошибки для поля логина
+const getLoginErrors = computed(() => {
+  const errors = displayErrors.value
+  if (!errors || !errors.login) return []
+  if (Array.isArray(errors.login)) return errors.login
+  return [errors.login]
+})
+
+// Ошибки для поля пароля
+const getPasswordErrors = computed(() => {
+  const errors = displayErrors.value
+  if (!errors || !errors.password) return []
+  if (Array.isArray(errors.password)) return errors.password
+  return [errors.password]
 })
 
 // Очистка ошибок
 const clearErrors = () => {
   form.clearErrors()
+  loginErrors.value = {}
 }
 
 const submit = () => {
-  form.clearErrors() // Очищаем предыдущие ошибки перед отправкой
+  // Очищаем предыдущие ошибки
+  form.clearErrors()
+  loginErrors.value = {}
+  
   form.post('/login', {
     preserveScroll: true,
-    preserveState: true, // Сохраняем состояние, чтобы не перезагружать страницу
-    only: ['errors'], // Обновляем только ошибки
+    preserveState: false, // Не сохраняем состояние - позволяем Inertia обновить страницу
     onSuccess: (page) => {
-      // Доверяем серверному перенаправлению - не делаем принудительный redirect
+      // Успешный вход - Inertia перенаправит автоматически
     },
     onError: (errors) => {
-      // Ошибки автоматически попадают в form.errors через Inertia
-      // Страница не перезагружается, ошибки отображаются в форме
-      console.log('Ошибки входа получены:', errors)
-      console.log('form.errors после ошибки:', form.errors)
+      // Сохраняем ошибки в локальное состояние
+      loginErrors.value = errors
+      console.log('Ошибки входа:', errors)
     },
     onFinish: () => {
-      // Убеждаемся, что форма не заблокирована после ошибки
-      console.log('Запрос завершен, form.errors:', form.errors)
+      // Запрос завершен
     }
   })
 }
