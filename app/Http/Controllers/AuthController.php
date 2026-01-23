@@ -17,10 +17,13 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        $isAjax = $request->expectsJson() || $request->ajax();
+        
         try {
             Log::info('Получен запрос на вход', [
                 'login' => $request->login,
-                'has_password' => !empty($request->password)
+                'has_password' => !empty($request->password),
+                'is_ajax' => $isAjax
             ]);
 
             // Валидация
@@ -59,6 +62,14 @@ class AuthController extends Controller
 
             if (!$user) {
                 Log::warning('Пользователь не найден', ['login' => $login]);
+                
+                if ($isAjax) {
+                    return response()->json([
+                        'message' => 'Неверный номер телефона или пароль.',
+                        'errors' => ['login' => ['Неверный номер телефона или пароль.']]
+                    ], 422);
+                }
+                
                 throw \Illuminate\Validation\ValidationException::withMessages([
                     'login' => ['Неверный номер телефона или пароль.'],
                 ]);
@@ -67,85 +78,90 @@ class AuthController extends Controller
             // Проверяем пароль
             if (!\Hash::check($password, $user->password)) {
                 Log::warning('Неверный пароль', ['user_id' => $user->id]);
+                
+                if ($isAjax) {
+                    return response()->json([
+                        'message' => 'Неверный номер телефона или пароль.',
+                        'errors' => ['login' => ['Неверный номер телефона или пароль.']]
+                    ], 422);
+                }
+                
                 throw \Illuminate\Validation\ValidationException::withMessages([
                     'login' => ['Неверный номер телефона или пароль.'],
                 ]);
             }
 
-        // Авторизуем пользователя
-        Auth::login($user, $request->boolean('remember'));
-        $request->session()->regenerate();
-        
-        // Обновляем время последнего входа
-        $user->update(['last_login_at' => now()]);
-        
-        Log::info('Пользователь успешно авторизован', [
-            'user_id' => $user->id,
-            'email' => $user->email,
-            'phone' => $user->phone,
-            'role_id' => $user->role_id,
-            'role' => $user->role ? $user->role->name : 'no role',
-            'must_change_password' => $user->must_change_password
-        ]);
-        
-        // ВАЖНО: Проверяем, нужно ли пользователю сменить пароль
-        if ($user->must_change_password) {
-            Log::info('Пользователь должен сменить пароль, перенаправление на /change-password', [
-                'user_id' => $user->id
-            ]);
-            return Inertia::location(route('change-password'));
-        }
-        
-        Log::info('Проверка роли пользователя', [
-            'role_id' => $user->role_id,
-            'role_name' => $user->role ? $user->role->name : 'no role'
-        ]);
-        
-        // Проверяем роль пользователя через методы модели
-        if ($user->isAdmin()) {
-            Log::info('Перенаправление администратора на /admin');
-            return Inertia::location('/admin');
-        }
-
-        if ($user->isTeacher()) {
-            Log::info('Перенаправление преподавателя на /teacher/');
-            return Inertia::location('/teacher/');
-        }
-
-        if ($user->isEducationDepartment()) {
-            Log::info('Перенаправление отдела образования на /education');
-            return Inertia::location('/education');
-        }
-
-        if ($user->isRegistrationCenter()) {
-            Log::info('Перенаправление регистрационного центра на /registration');
-            return Inertia::location('/registration');
-        }
-
-        if ($user->isStudent()) {
-            Log::info('Перенаправление студента на /student/');
-            return Inertia::location('/student/');
-        }
-
-            // Если роль не определена, перенаправляем на общий dashboard
-            Log::warning('Неопределенная роль пользователя, перенаправление на /dashboard', [
+            // Авторизуем пользователя
+            Auth::login($user, $request->boolean('remember'));
+            $request->session()->regenerate();
+            
+            // Обновляем время последнего входа
+            $user->update(['last_login_at' => now()]);
+            
+            Log::info('Пользователь успешно авторизован', [
                 'user_id' => $user->id,
+                'email' => $user->email,
+                'phone' => $user->phone,
                 'role_id' => $user->role_id,
-                'role_name' => $user->role ? $user->role->name : 'no role'
+                'role' => $user->role ? $user->role->name : 'no role',
+                'must_change_password' => $user->must_change_password
             ]);
-            return Inertia::location('/');
+            
+            // Определяем URL для редиректа
+            $redirectUrl = '/';
+            
+            if ($user->must_change_password) {
+                $redirectUrl = route('change-password');
+            } elseif ($user->isAdmin()) {
+                $redirectUrl = '/admin';
+            } elseif ($user->isTeacher()) {
+                $redirectUrl = '/teacher/';
+            } elseif ($user->isEducationDepartment()) {
+                $redirectUrl = '/education';
+            } elseif ($user->isRegistrationCenter()) {
+                $redirectUrl = '/registration';
+            } elseif ($user->isStudent()) {
+                $redirectUrl = '/student/';
+            }
+            
+            Log::info('Перенаправление на ' . $redirectUrl);
+            
+            // Для AJAX возвращаем JSON с URL для редиректа
+            if ($isAjax) {
+                return response()->json([
+                    'success' => true,
+                    'redirect' => $redirectUrl
+                ]);
+            }
+            
+            return Inertia::location($redirectUrl);
+            
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Обработка ошибок валидации - Inertia автоматически обработает это
             Log::warning('Ошибка валидации при входе', [
                 'errors' => $e->errors()
             ]);
-            throw $e; // Пробрасываем дальше, чтобы Inertia обработал
+            
+            if ($isAjax) {
+                return response()->json([
+                    'message' => 'Ошибка валидации',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            
+            throw $e;
         } catch (\Exception $e) {
-            // Обработка других ошибок
             Log::error('Ошибка при входе', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
+            
+            if ($isAjax) {
+                return response()->json([
+                    'message' => 'Произошла ошибка при входе.',
+                    'errors' => ['login' => ['Произошла ошибка при входе. Пожалуйста, попробуйте снова.']]
+                ], 500);
+            }
+            
             throw \Illuminate\Validation\ValidationException::withMessages([
                 'login' => ['Произошла ошибка при входе. Пожалуйста, попробуйте снова.'],
             ]);

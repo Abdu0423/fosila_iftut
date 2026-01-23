@@ -22,10 +22,10 @@
             <form @submit.prevent="submit" class="login-form">
               <!-- Телефон поле -->
               <PhoneInput
-                v-model="form.login"
+                v-model="login"
                 :label="getTranslation('auth.phone', 'Телефон')"
                 :error-messages="getLoginErrors"
-                :disabled="form.processing"
+                :disabled="processing"
                 class="mb-4"
                 required
                 :hint="getTranslation('auth.phone_hint', 'Введите номер телефона')"
@@ -34,7 +34,7 @@
 
               <!-- Пароль поле -->
               <v-text-field
-                v-model="form.password"
+                v-model="password"
                 :label="t('auth.password_label')"
                 :type="showPassword ? 'text' : 'password'"
                 prepend-inner-icon="mdi-lock"
@@ -43,7 +43,7 @@
                 variant="outlined"
                 rounded="lg"
                 :error-messages="getPasswordErrors"
-                :disabled="form.processing"
+                :disabled="processing"
                 class="mb-6"
                 autocomplete="current-password"
                 required
@@ -81,7 +81,7 @@
               <!-- Запомнить меня -->
               <div class="d-flex justify-space-between align-center mb-6">
                 <v-checkbox
-                  v-model="form.remember"
+                  v-model="remember"
                   :label="t('auth.remember_me')"
                   color="primary"
                   hide-details
@@ -105,13 +105,13 @@
                 size="large"
                 block
                 rounded="lg"
-                :loading="form.processing"
-                :disabled="form.processing || !agreeToTerms"
+                :loading="processing"
+                :disabled="processing || !agreeToTerms"
                 class="login-btn mb-6"
                 elevation="4"
               >
                 <v-icon start>mdi-login</v-icon>
-                {{ form.processing ? t('auth.logging_in') : t('auth.login_button') }}
+                {{ processing ? t('auth.logging_in') : t('auth.login_button') }}
               </v-btn>
               
               <!-- Предупреждение если не согласен -->
@@ -145,7 +145,7 @@
                 </template>
                 <v-alert-title class="text-h6 mb-2">Ошибка входа</v-alert-title>
                 <div class="text-body-2">
-                  <template v-for="(error, field) in displayErrors" :key="field">
+                  <template v-for="(error, field) in errors" :key="field">
                     <div v-if="Array.isArray(error)">
                       <div v-for="(err, index) in error" :key="index" class="mb-1">{{ err }}</div>
                     </div>
@@ -388,8 +388,9 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useForm, router } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import { useI18n } from 'vue-i18n'
+import axios from 'axios'
 import LanguageSwitcher from '../../Components/LanguageSwitcher.vue'
 import PhoneInput from '../../Components/PhoneInput.vue'
 
@@ -406,75 +407,84 @@ const agreeToTerms = ref(true)
 const showPrivacyDialog = ref(false)
 const showTermsDialog = ref(false)
 
-// Локальное состояние для ошибок (не зависит от Inertia)
-const loginErrors = ref({})
-
-const form = useForm({
-  login: '+992',
-  password: '',
-  remember: false,
-})
+// Состояние формы
+const login = ref('+992')
+const password = ref('')
+const remember = ref(false)
+const processing = ref(false)
+const errors = ref({})
 
 // Динамический год для футера
 const currentYear = computed(() => new Date().getFullYear())
 
-// Проверка наличия ошибок (проверяем и form.errors и локальные ошибки)
+// Проверка наличия ошибок
 const hasErrors = computed(() => {
-  const formErrors = form.errors && Object.keys(form.errors).length > 0
-  const localErrors = loginErrors.value && Object.keys(loginErrors.value).length > 0
-  return formErrors || localErrors
-})
-
-// Объединенные ошибки для отображения
-const displayErrors = computed(() => {
-  if (Object.keys(form.errors).length > 0) {
-    return form.errors
-  }
-  return loginErrors.value
+  return errors.value && Object.keys(errors.value).length > 0
 })
 
 // Ошибки для поля логина
 const getLoginErrors = computed(() => {
-  const errors = displayErrors.value
-  if (!errors || !errors.login) return []
-  if (Array.isArray(errors.login)) return errors.login
-  return [errors.login]
+  if (!errors.value || !errors.value.login) return []
+  if (Array.isArray(errors.value.login)) return errors.value.login
+  return [errors.value.login]
 })
 
 // Ошибки для поля пароля
 const getPasswordErrors = computed(() => {
-  const errors = displayErrors.value
-  if (!errors || !errors.password) return []
-  if (Array.isArray(errors.password)) return errors.password
-  return [errors.password]
+  if (!errors.value || !errors.value.password) return []
+  if (Array.isArray(errors.value.password)) return errors.value.password
+  return [errors.value.password]
 })
 
 // Очистка ошибок
 const clearErrors = () => {
-  form.clearErrors()
-  loginErrors.value = {}
+  errors.value = {}
 }
 
-const submit = () => {
+const submit = async () => {
   // Очищаем предыдущие ошибки
-  form.clearErrors()
-  loginErrors.value = {}
+  errors.value = {}
+  processing.value = true
   
-  form.post('/login', {
-    preserveScroll: true,
-    preserveState: false, // Не сохраняем состояние - позволяем Inertia обновить страницу
-    onSuccess: (page) => {
-      // Успешный вход - Inertia перенаправит автоматически
-    },
-    onError: (errors) => {
-      // Сохраняем ошибки в локальное состояние
-      loginErrors.value = errors
-      console.log('Ошибки входа:', errors)
-    },
-    onFinish: () => {
-      // Запрос завершен
+  try {
+    // Получаем CSRF токен
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
+    
+    const response = await axios.post('/login', {
+      login: login.value,
+      password: password.value,
+      remember: remember.value
+    }, {
+      headers: {
+        'X-CSRF-TOKEN': csrfToken,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+    
+    // Успешный вход - перенаправляем
+    if (response.data && response.data.redirect) {
+      window.location.href = response.data.redirect
+    } else {
+      // Перезагружаем страницу для редиректа от сервера
+      window.location.reload()
     }
-  })
+  } catch (error) {
+    processing.value = false
+    
+    if (error.response) {
+      if (error.response.status === 422) {
+        // Ошибки валидации
+        errors.value = error.response.data.errors || { login: ['Неверный номер телефона или пароль.'] }
+      } else if (error.response.status === 401) {
+        errors.value = { login: ['Неверный номер телефона или пароль.'] }
+      } else {
+        errors.value = { login: ['Произошла ошибка. Попробуйте снова.'] }
+      }
+    } else {
+      errors.value = { login: ['Ошибка сети. Проверьте подключение.'] }
+    }
+  }
 }
 
 const goToForgotPassword = () => {
