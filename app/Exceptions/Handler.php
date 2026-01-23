@@ -30,22 +30,10 @@ class Handler extends ExceptionHandler
         $this->renderable(function (Throwable $e, $request) {
             if ($request->header('X-Inertia')) {
                 if ($e instanceof \Illuminate\Validation\ValidationException) {
-                    // Для Inertia возвращаем ответ без редиректа
-                    // Определяем текущую страницу из Referer
-                    $referer = $request->header('Referer');
-                    $refererPath = $referer ? parse_url($referer, PHP_URL_PATH) : '/login';
-                    
-                    // Если это POST запрос на /login или Referer указывает на /login
-                    if ($request->is('login') || str_contains($refererPath, 'login')) {
-                        return \Inertia\Inertia::render('Auth/Login')
-                            ->withErrors($e->errors())
-                            ->withInput($request->except('password'))
-                            ->toResponse($request)
-                            ->setStatusCode(422);
-                    }
-                    
-                    // Для других страниц используем back(), но Inertia обработает это как частичное обновление
+                    // Для Inertia запросов используем back() с ошибками
+                    // Inertia автоматически обработает это как частичное обновление
                     // без полной перезагрузки страницы
+                    // Для POST запросов back() вернет ответ с ошибками без редиректа
                     return back()
                         ->withErrors($e->errors())
                         ->withInput($request->except('password'));

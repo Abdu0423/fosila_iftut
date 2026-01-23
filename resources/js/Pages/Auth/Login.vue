@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <v-app class="login-app">
     <v-main class="login-main">
       <div class="login-container">
@@ -417,9 +417,10 @@ const currentYear = computed(() => new Date().getFullYear())
 
 // Проверка наличия ошибок
 const hasErrors = computed(() => {
-  const has = Object.keys(form.errors).length > 0
+  const errors = form.errors
+  const has = errors && Object.keys(errors).length > 0
   if (has) {
-    console.log('Есть ошибки в форме:', form.errors)
+    console.log('Есть ошибки в форме:', errors)
   }
   return has
 })
@@ -434,7 +435,7 @@ const submit = () => {
   form.post('/login', {
     preserveScroll: true,
     preserveState: true, // Сохраняем состояние, чтобы не перезагружать страницу
-    only: [], // Не обновляем props, только обрабатываем ошибки
+    only: ['errors'], // Обновляем только ошибки
     onSuccess: (page) => {
       // Доверяем серверному перенаправлению - не делаем принудительный redirect
     },
@@ -442,6 +443,11 @@ const submit = () => {
       // Ошибки автоматически попадают в form.errors через Inertia
       // Страница не перезагружается, ошибки отображаются в форме
       console.log('Ошибки входа получены:', errors)
+      console.log('form.errors после ошибки:', form.errors)
+    },
+    onFinish: () => {
+      // Убеждаемся, что форма не заблокирована после ошибки
+      console.log('Запрос завершен, form.errors:', form.errors)
     }
   })
 }
