@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <Layout role="teacher">
     <v-container fluid>
       <!-- Заголовок -->
@@ -172,95 +172,100 @@
                   <p class="text-body-2 text-grey">Попробуйте изменить поисковый запрос</p>
                 </div>
 
-                <div v-else class="d-flex flex-column gap-4">
-                  <v-card
+                <!-- Аккордеон с вопросами -->
+                <v-expansion-panels v-else variant="accordion">
+                  <v-expansion-panel
                     v-for="(question, index) in filteredQuestions"
                     :key="question.id"
-                    variant="outlined"
-                    class="pa-4"
+                    class="mb-2"
                   >
-                    <div class="d-flex align-start gap-3 mb-3">
-                      <v-avatar color="primary" size="40">
-                        <span class="text-white font-weight-bold">{{ index + 1 }}</span>
-                      </v-avatar>
-                      <div class="flex-grow-1">
-                        <h3 class="text-h6 font-weight-medium mb-3">
-                          {{ question.question }}
-                        </h3>
-                        
+                    <v-expansion-panel-title>
+                      <div class="d-flex align-center flex-grow-1">
+                        <v-avatar color="primary" size="28" class="mr-3">
+                          <span class="text-white text-caption font-weight-bold">{{ index + 1 }}</span>
+                        </v-avatar>
+                        <span class="font-weight-medium text-body-1 question-title">{{ question.question }}</span>
+                        <v-spacer></v-spacer>
+                        <v-chip
+                          color="info"
+                          size="x-small"
+                          variant="tonal"
+                          class="mr-2"
+                        >
+                          {{ question.answers.length }} отв.
+                        </v-chip>
+                      </div>
+                    </v-expansion-panel-title>
+                    
+                    <v-expansion-panel-text>
+                      <div class="pa-2">
                         <!-- Ответы -->
-                        <div class="mb-3">
-                          <v-chip
-                            size="small"
-                            color="info"
-                            variant="tonal"
-                            class="mb-3"
+                        <div class="d-flex flex-column gap-2 mb-3">
+                          <!-- Правильные ответы -->
+                          <div
+                            v-for="answer in question.answers.filter(a => a.is_correct)"
+                            :key="`correct-${answer.id}`"
+                            class="pa-3 answer-correct"
                           >
-                            {{ question.answers.length }} ответов
-                          </v-chip>
+                            <div class="d-flex align-center">
+                              <v-icon color="success" size="18" class="mr-2">mdi-check-circle</v-icon>
+                              <span class="font-weight-medium text-success flex-grow-1">
+                                {{ answer.answer }}
+                              </span>
+                              <v-chip size="x-small" color="success" variant="tonal">
+                                Правильный ответ
+                              </v-chip>
+                            </div>
+                          </div>
                           
-                          <div class="mt-2 d-flex flex-column gap-2">
-                            <!-- Правильные ответы -->
-                            <div
-                              v-for="(answer, ansIndex) in question.answers.filter(a => a.is_correct)"
-                              :key="`correct-${answer.id}`"
-                              class="pa-3"
-                              style="background-color: rgba(var(--v-theme-success), 0.1); border-radius: 4px;"
-                            >
-                              <div class="d-flex align-center">
-                                <v-icon color="success" class="mr-2">mdi-check-circle</v-icon>
-                                <span class="font-weight-bold text-success flex-grow-1">
-                                  {{ answer.answer }}
-                                </span>
-                                <v-chip size="small" color="success" class="ml-2">
-                                  Правильный ответ
-                                </v-chip>
-                              </div>
-                            </div>
-                            
-                            <!-- Неправильные ответы -->
-                            <div
-                              v-for="(answer, ansIndex) in question.answers.filter(a => !a.is_correct)"
-                              :key="`wrong-${answer.id}`"
-                              class="pa-2"
-                            >
-                              <div class="d-flex align-center">
-                                <span class="text-body-2">
-                                  {{ answer.answer }}
-                                </span>
-                              </div>
-                            </div>
+                          <!-- Неправильные ответы -->
+                          <div
+                            v-for="answer in question.answers.filter(a => !a.is_correct)"
+                            :key="`wrong-${answer.id}`"
+                            class="pa-2 d-flex align-center"
+                          >
+                            <v-icon color="grey-lighten-1" size="18" class="mr-2">mdi-circle-outline</v-icon>
+                            <span class="text-body-2">{{ answer.answer }}</span>
                           </div>
                         </div>
 
-                        <div v-if="question.explanation" class="text-body-2 text-medium-emphasis mb-3">
+                        <!-- Объяснение -->
+                        <v-alert
+                          v-if="question.explanation"
+                          type="info"
+                          variant="tonal"
+                          density="compact"
+                          class="mb-3"
+                        >
                           <strong>Объяснение:</strong> {{ question.explanation }}
-                        </div>
+                        </v-alert>
 
+                        <!-- Действия -->
+                        <v-divider class="mb-3"></v-divider>
                         <div class="d-flex gap-2">
                           <v-btn
                             size="small"
-                            color="secondary"
-                            variant="text"
-                            @click="editQuestion(question)"
+                            variant="tonal"
+                            color="primary"
                             prepend-icon="mdi-pencil"
+                            @click.stop="editQuestion(question)"
                           >
                             Редактировать
                           </v-btn>
                           <v-btn
                             size="small"
+                            variant="tonal"
                             color="error"
-                            variant="text"
-                            @click="deleteQuestion(question)"
                             prepend-icon="mdi-delete"
+                            @click.stop="deleteQuestion(question)"
                           >
                             Удалить
                           </v-btn>
                         </div>
                       </div>
-                    </div>
-                  </v-card>
-                </div>
+                    </v-expansion-panel-text>
+                  </v-expansion-panel>
+                </v-expansion-panels>
               </div>
             </v-card-text>
           </v-card>
@@ -490,5 +495,26 @@ const deleteQuestion = (question) => {
 
 .border-success {
   border: 2px solid rgb(var(--v-theme-success)) !important;
+}
+
+.v-expansion-panel {
+  border-radius: 8px !important;
+  margin-bottom: 8px;
+}
+
+.v-expansion-panel-title {
+  min-height: 48px;
+}
+
+.question-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 70%;
+}
+
+.answer-correct {
+  background-color: rgba(76, 175, 80, 0.1);
+  border-radius: 6px;
 }
 </style>
