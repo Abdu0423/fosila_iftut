@@ -19,6 +19,8 @@ class Schedule extends Model
         'study_year',
         'order',
         'scheduled_at',
+        'distance_control_1_date',
+        'distance_control_2_date',
         'is_active'
     ];
 
@@ -28,6 +30,8 @@ class Schedule extends Model
         'study_year' => 'integer',
         'order' => 'integer',
         'scheduled_at' => 'datetime',
+        'distance_control_1_date' => 'date',
+        'distance_control_2_date' => 'date',
         'is_active' => 'boolean',
     ];
 

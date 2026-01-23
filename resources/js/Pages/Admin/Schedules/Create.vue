@@ -129,20 +129,6 @@
                     />
                   </v-col>
 
-                  <!-- Порядок -->
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model.number="form.order"
-                      label="Порядковый номер *"
-                      type="number"
-                      min="1"
-                      variant="outlined"
-                      :error-messages="errors.order"
-                      hint="Порядок проведения занятия в расписании"
-                      required
-                    />
-                  </v-col>
-
                   <!-- Дата и время -->
                   <v-col cols="12" md="6">
                     <v-text-field
@@ -152,6 +138,30 @@
                       variant="outlined"
                       :error-messages="errors.scheduled_at"
                       hint="Оставьте пустым, если дата не определена"
+                    />
+                  </v-col>
+
+                  <!-- Дата начала первого дистанционного рубежа -->
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      v-model="form.distance_control_1_date"
+                      label="Дата 1-го дистанционного рубежа"
+                      type="date"
+                      variant="outlined"
+                      :error-messages="errors.distance_control_1_date"
+                      hint="Дата начала первого дистанционного контроля"
+                    />
+                  </v-col>
+
+                  <!-- Дата начала второго дистанционного рубежа -->
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      v-model="form.distance_control_2_date"
+                      label="Дата 2-го дистанционного рубежа"
+                      type="date"
+                      variant="outlined"
+                      :error-messages="errors.distance_control_2_date"
+                      hint="Дата начала второго дистанционного контроля"
                     />
                   </v-col>
 
@@ -274,10 +284,11 @@
                 <p class="mb-2"><strong>Предмет:</strong> Выберите предмет из списка</p>
                 <p class="mb-2"><strong>Преподаватель:</strong> Назначенный преподаватель</p>
                 <p class="mb-2"><strong>Группа:</strong> Группа студентов</p>
-                <p class="mb-2"><strong>Семестр:</strong> 1 или 2 семестр</p>
+                <p class="mb-2"><strong>Семестр:</strong> От 1 до 10</p>
                 <p class="mb-2"><strong>Кредиты:</strong> От 1 до 10 кредитов</p>
                 <p class="mb-2"><strong>Год обучения:</strong> Академический год</p>
-                <p class="mb-2"><strong>Порядок:</strong> Номер занятия в расписании</p>
+                <p class="mb-2"><strong>1-й ДР:</strong> Дата первого дистанционного рубежа</p>
+                <p class="mb-2"><strong>2-й ДР:</strong> Дата второго дистанционного рубежа</p>
               </div>
             </v-card-text>
           </v-card>
@@ -348,8 +359,9 @@ const form = useForm({
   semester: null,
   credits: 3,
   study_year: new Date().getFullYear(),
-  order: 1,
-  scheduled_at: getCurrentDateTime(), // Устанавливаем текущую дату и время по умолчанию
+  scheduled_at: getCurrentDateTime(),
+  distance_control_1_date: null,
+  distance_control_2_date: null,
   is_active: true,
   syllabus_ids: [],
   lesson_ids: []
@@ -357,11 +369,11 @@ const form = useForm({
 
 const processing = ref(false)
 
-// Варианты семестров
-const semesterItems = [
-  { title: '1 семестр', value: 1 },
-  { title: '2 семестр', value: 2 }
-]
+// Варианты семестров (1-10)
+const semesterItems = Array.from({ length: 10 }, (_, i) => ({
+  title: `${i + 1} семестр`,
+  value: i + 1
+}))
 
 // Преобразуем преподавателей для автокомплита
 const teacherItems = computed(() => {

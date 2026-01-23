@@ -168,25 +168,34 @@
                           ></v-text-field>
                         </v-col>
 
-                        <!-- Порядок -->
+                        <!-- Запланированная дата -->
                         <v-col cols="12" md="4">
                           <v-text-field
-                            v-model.number="schedule.order"
-                            label="Порядок урока *"
-                            type="number"
-                            min="1"
+                            v-model="schedule.scheduled_at"
+                            label="Дата и время"
+                            type="datetime-local"
                             variant="outlined"
                             density="compact"
-                            required
                           ></v-text-field>
                         </v-col>
 
-                        <!-- Запланированная дата -->
-                        <v-col cols="12" md="6">
+                        <!-- Дата 1-го дистанционного рубежа -->
+                        <v-col cols="12" md="4">
                           <v-text-field
-                            v-model="schedule.scheduled_at"
-                            label="Запланированная дата и время"
-                            type="datetime-local"
+                            v-model="schedule.distance_control_1_date"
+                            label="Дата 1-го ДР"
+                            type="date"
+                            variant="outlined"
+                            density="compact"
+                          ></v-text-field>
+                        </v-col>
+
+                        <!-- Дата 2-го дистанционного рубежа -->
+                        <v-col cols="12" md="4">
+                          <v-text-field
+                            v-model="schedule.distance_control_2_date"
+                            label="Дата 2-го ДР"
+                            type="date"
                             variant="outlined"
                             density="compact"
                           ></v-text-field>
@@ -337,10 +346,10 @@ const teacherItems = computed(() => {
   }))
 })
 
-const semesterOptions = ref([
-  { value: 1, text: '1 семестр' },
-  { value: 2, text: '2 семестр' }
-])
+// Варианты семестров (1-10)
+const semesterOptions = ref(
+  Array.from({ length: 10 }, (_, i) => ({ value: i + 1, text: `${i + 1} семестр` }))
+)
 
 // Состояние
 const schedules = ref([createEmptySchedule()])
@@ -362,8 +371,9 @@ const createEmptySchedule = () => ({
   semester: 1,
   credits: 3,
   study_year: new Date().getFullYear(),
-  order: 1,
   scheduled_at: '',
+  distance_control_1_date: '',
+  distance_control_2_date: '',
   is_active: true
 })
 

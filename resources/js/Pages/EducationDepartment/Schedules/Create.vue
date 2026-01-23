@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <Layout :role="getRole">
     <v-container fluid class="pa-6">
       <!-- Заголовок -->
@@ -139,20 +139,6 @@
                     />
                   </v-col>
 
-                  <!-- Порядок -->
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      :model-value="form.order"
-                      @update:model-value="form.order = $event ? parseInt($event) : null"
-                      :label="getTranslation('messages.order', 'Порядок') + ' *'"
-                      type="number"
-                      min="1"
-                      variant="outlined"
-                      :error-messages="errors.order"
-                      required
-                    />
-                  </v-col>
-
                   <!-- Дата и время -->
                   <v-col cols="12" md="6">
                     <v-text-field
@@ -162,6 +148,30 @@
                       type="datetime-local"
                       variant="outlined"
                       :error-messages="errors.scheduled_at"
+                    />
+                  </v-col>
+
+                  <!-- Дата 1-го дистанционного рубежа -->
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      :model-value="form.distance_control_1_date"
+                      @update:model-value="form.distance_control_1_date = $event"
+                      label="Дата 1-го дистанционного рубежа"
+                      type="date"
+                      variant="outlined"
+                      :error-messages="errors.distance_control_1_date"
+                    />
+                  </v-col>
+
+                  <!-- Дата 2-го дистанционного рубежа -->
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      :model-value="form.distance_control_2_date"
+                      @update:model-value="form.distance_control_2_date = $event"
+                      label="Дата 2-го дистанционного рубежа"
+                      type="date"
+                      variant="outlined"
+                      :error-messages="errors.distance_control_2_date"
                     />
                   </v-col>
 
@@ -248,25 +258,19 @@ const form = useForm({
   semester: 1,
   credits: null,
   study_year: new Date().getFullYear(),
-  order: 1,
   scheduled_at: null,
+  distance_control_1_date: null,
+  distance_control_2_date: null,
   is_active: true
 })
 
 const errors = computed(() => page.props.errors || {})
 
-const semesterItems = [
-  { title: '1', value: 1 },
-  { title: '2', value: 2 },
-  { title: '3', value: 3 },
-  { title: '4', value: 4 },
-  { title: '5', value: 5 },
-  { title: '6', value: 6 },
-  { title: '7', value: 7 },
-  { title: '8', value: 8 },
-  { title: '9', value: 9 },
-  { title: '10', value: 10 }
-]
+// Варианты семестров (1-10)
+const semesterItems = Array.from({ length: 10 }, (_, i) => ({
+  title: `${i + 1} семестр`,
+  value: i + 1
+}))
 
 // Преобразуем преподавателей для автокомплита
 const teacherItems = computed(() => {

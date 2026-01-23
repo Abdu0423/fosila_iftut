@@ -795,8 +795,9 @@ class EducationDepartmentController extends Controller
             'semester' => 'required|integer|min:1|max:10',
             'credits' => 'required|integer|min:1|max:10',
             'study_year' => 'required|integer|min:2020|max:2030',
-            'order' => 'required|integer|min:1',
             'scheduled_at' => 'nullable|date',
+            'distance_control_1_date' => 'nullable|date',
+            'distance_control_2_date' => 'nullable|date',
             'is_active' => 'boolean',
         ]);
         
@@ -860,8 +861,9 @@ class EducationDepartmentController extends Controller
             'semester' => 'required|integer|min:1|max:10',
             'credits' => 'required|integer|min:1|max:10',
             'study_year' => 'required|integer|min:2020|max:2030',
-            'order' => 'required|integer|min:1',
             'scheduled_at' => 'nullable|date',
+            'distance_control_1_date' => 'nullable|date',
+            'distance_control_2_date' => 'nullable|date',
             'is_active' => 'boolean',
         ]);
         

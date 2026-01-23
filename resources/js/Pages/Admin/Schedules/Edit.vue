@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -129,20 +129,6 @@
                     />
                   </v-col>
 
-                  <!-- Порядок -->
-                  <v-col cols="12" md="6">
-                    <v-text-field
-                      v-model.number="form.order"
-                      label="Порядковый номер *"
-                      type="number"
-                      min="1"
-                      variant="outlined"
-                      :error-messages="errors.order"
-                      hint="Порядок проведения занятия в расписании"
-                      required
-                    />
-                  </v-col>
-
                   <!-- Дата и время -->
                   <v-col cols="12" md="6">
                     <v-text-field
@@ -152,6 +138,30 @@
                       variant="outlined"
                       :error-messages="errors.scheduled_at"
                       hint="Оставьте пустым, если дата не определена"
+                    />
+                  </v-col>
+
+                  <!-- Дата начала первого дистанционного рубежа -->
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      v-model="form.distance_control_1_date"
+                      label="Дата 1-го дистанционного рубежа"
+                      type="date"
+                      variant="outlined"
+                      :error-messages="errors.distance_control_1_date"
+                      hint="Дата начала первого дистанционного контроля"
+                    />
+                  </v-col>
+
+                  <!-- Дата начала второго дистанционного рубежа -->
+                  <v-col cols="12" md="6">
+                    <v-text-field
+                      v-model="form.distance_control_2_date"
+                      label="Дата 2-го дистанционного рубежа"
+                      type="date"
+                      variant="outlined"
+                      :error-messages="errors.distance_control_2_date"
+                      hint="Дата начала второго дистанционного контроля"
                     />
                   </v-col>
 
@@ -452,8 +462,9 @@ const form = useForm({
   semester: props.schedule?.semester || null,
   credits: props.schedule?.credits || 3,
   study_year: props.schedule?.study_year || new Date().getFullYear(),
-  order: props.schedule?.order || 1,
   scheduled_at: props.schedule?.scheduled_at ? formatDateTimeForInput(props.schedule.scheduled_at) : '',
+  distance_control_1_date: props.schedule?.distance_control_1_date || null,
+  distance_control_2_date: props.schedule?.distance_control_2_date || null,
   is_active: props.schedule?.is_active ?? true,
   syllabus_ids: props.schedule?.syllabuses?.map(s => s.id) || [],
   lesson_ids: props.schedule?.lessons?.map(l => l.id) || [],
@@ -464,11 +475,11 @@ const form = useForm({
 
 const processing = ref(false)
 
-// Варианты семестров
-const semesterItems = [
-  { title: '1 семестр', value: 1 },
-  { title: '2 семестр', value: 2 }
-]
+// Варианты семестров (1-10)
+const semesterItems = Array.from({ length: 10 }, (_, i) => ({
+  title: `${i + 1} семестр`,
+  value: i + 1
+}))
 
 // Преобразуем преподавателей для автокомплита
 const teacherItems = computed(() => {
