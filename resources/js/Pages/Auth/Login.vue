@@ -430,17 +430,18 @@ const clearErrors = () => {
 }
 
 const submit = () => {
+  form.clearErrors() // Очищаем предыдущие ошибки перед отправкой
   form.post('/login', {
     preserveScroll: true,
-    preserveState: false, // Важно: не сохраняем состояние, чтобы ошибки обновились
+    preserveState: true, // Сохраняем состояние, чтобы не перезагружать страницу
+    only: [], // Не обновляем props, только обрабатываем ошибки
     onSuccess: (page) => {
       // Доверяем серверному перенаправлению - не делаем принудительный redirect
     },
     onError: (errors) => {
       // Ошибки автоматически попадают в form.errors через Inertia
+      // Страница не перезагружается, ошибки отображаются в форме
       console.log('Ошибки входа получены:', errors)
-      console.log('form.errors после ошибки:', form.errors)
-      console.log('Ключи ошибок:', Object.keys(form.errors))
     }
   })
 }
