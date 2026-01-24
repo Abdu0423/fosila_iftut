@@ -78,7 +78,7 @@ return [
     'checked_at' => 'Санҷида шуд',
     
     // Вазифа
-    'create_task' => 'КМД эҷод кунед',
+    'create_task' => 'Сохтани КМД',
     'edit_task' => 'КМД-ро таҳрир кунед',
     'task_title' => 'Номи КМД',
     'task_description' => 'Тавсифи вазифа',
