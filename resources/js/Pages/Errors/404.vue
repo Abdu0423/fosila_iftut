@@ -1,31 +1,138 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50">
-    <div class="max-w-md w-full space-y-8">
-      <div class="text-center">
-        <div class="mx-auto h-24 w-24 text-gray-400">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.824-2.709M15 6.709A7.962 7.962 0 0012 5c-2.34 0-4.29 1.009-5.824 2.709"></path>
-          </svg>
-        </div>
-        <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
-          Страница не найдена
-        </h2>
-        <p class="mt-2 text-sm text-gray-600">
-          Запрашиваемая страница не существует или была перемещена.
-        </p>
-        <div class="mt-6">
-          <Link
-            :href="route('dashboard')"
-            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Перейти на главную
-          </Link>
-        </div>
-      </div>
-    </div>
-  </div>
+  <v-app>
+    <v-main class="d-flex align-center justify-center" style="min-height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+      <v-container>
+        <v-row justify="center">
+          <v-col cols="12" sm="10" md="8" lg="6">
+            <v-card class="pa-8 text-center" elevation="12" rounded="xl">
+              <!-- Анимированный 404 -->
+              <div class="error-code mb-4">
+                <span class="digit">4</span>
+                <span class="digit zero">
+                  <v-icon size="120" color="primary">mdi-emoticon-sad-outline</v-icon>
+                </span>
+                <span class="digit">4</span>
+              </div>
+              
+              <h1 class="text-h4 font-weight-bold mb-3 text-grey-darken-3">
+                Страница не найдена
+              </h1>
+              
+              <p class="text-body-1 text-grey mb-6">
+                К сожалению, запрашиваемая страница не существует или была перемещена.
+                <br>
+                Возможно, вы перешли по устаревшей ссылке или ввели неверный адрес.
+              </p>
+              
+              <v-divider class="mb-6"></v-divider>
+              
+              <div class="d-flex flex-column flex-sm-row gap-3 justify-center">
+                <v-btn
+                  color="primary"
+                  size="large"
+                  rounded="lg"
+                  prepend-icon="mdi-home"
+                  @click="goHome"
+                >
+                  На главную
+                </v-btn>
+                
+                <v-btn
+                  variant="outlined"
+                  color="secondary"
+                  size="large"
+                  rounded="lg"
+                  prepend-icon="mdi-arrow-left"
+                  @click="goBack"
+                >
+                  Назад
+                </v-btn>
+                
+                <v-btn
+                  variant="outlined"
+                  color="primary"
+                  size="large"
+                  rounded="lg"
+                  prepend-icon="mdi-login"
+                  @click="goLogin"
+                >
+                  Войти
+                </v-btn>
+              </div>
+              
+              <!-- Подсказки -->
+              <v-alert
+                type="info"
+                variant="tonal"
+                class="mt-6 text-left"
+                density="compact"
+              >
+                <template v-slot:title>Что можно сделать?</template>
+                <ul class="mt-2 pl-4">
+                  <li>Проверьте правильность введённого адреса</li>
+                  <li>Вернитесь на главную страницу</li>
+                  <li>Войдите в систему заново</li>
+                </ul>
+              </v-alert>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
+
+const goHome = () => {
+  window.location.href = '/'
+}
+
+const goBack = () => {
+  if (window.history.length > 1) {
+    window.history.back()
+  } else {
+    window.location.href = '/'
+  }
+}
+
+const goLogin = () => {
+  window.location.href = '/login'
+}
 </script>
+
+<style scoped>
+.error-code {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.digit {
+  font-size: 120px;
+  font-weight: 900;
+  color: #667eea;
+  line-height: 1;
+}
+
+.digit.zero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.digit.zero :deep(.v-icon) {
+  animation: bounce 2s ease-in-out infinite;
+}
+</style>

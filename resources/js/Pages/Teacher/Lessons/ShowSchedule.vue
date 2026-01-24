@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <Layout role="teacher">
     <v-container fluid>
       <!-- Заголовок -->
@@ -13,14 +13,14 @@
                 prepend-icon="mdi-arrow-left"
                 class="mb-2"
               >
-                Назад к расписаниям
+                {{ t('teacher.back_to_schedules', {}, { default: 'Назад к расписаниям' }) }}
               </v-btn>
               <h1 class="text-h4 font-weight-bold mb-2">
                 {{ schedule.subject?.name }}
               </h1>
               <p class="text-body-1 text-medium-emphasis">
-                Группа: {{ schedule.group?.name }} | 
-                Уроков: {{ lessons.length }}
+                {{ t('teacher.group', {}, { default: 'Группа' }) }}: {{ schedule.group?.name }} | 
+                {{ t('teacher.lessons_count', {}, { default: 'Уроков' }) }}: {{ lessons.length }}
               </p>
             </div>
           </div>
@@ -47,21 +47,21 @@
             <v-card-title class="d-flex justify-space-between align-center">
               <div class="d-flex align-center">
                 <v-icon start>mdi-teach</v-icon>
-                Уроки расписания ({{ lessons.length }})
+                {{ t('teacher.schedule_lessons', {}, { default: 'Уроки расписания' }) }} ({{ lessons.length }})
               </div>
               <v-btn
                 color="primary"
                 @click="createLesson"
                 prepend-icon="mdi-plus"
               >
-                Добавить урок
+                {{ t('teacher.add_lesson', {}, { default: 'Добавить урок' }) }}
               </v-btn>
             </v-card-title>
             <v-card-text>
               <div v-if="lessons.length === 0" class="text-center py-8">
                 <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-teach-outline</v-icon>
-                <h3 class="text-h6 text-grey">Нет уроков</h3>
-                <p class="text-body-2 text-grey">Добавьте уроки к этому расписанию</p>
+                <h3 class="text-h6 text-grey">{{ t('teacher.no_lessons', {}, { default: 'Нет уроков' }) }}</h3>
+                <p class="text-body-2 text-grey">{{ t('teacher.add_lessons_to_schedule', {}, { default: 'Добавьте уроки к этому расписанию' }) }}</p>
               </div>
               
               <div v-else>
@@ -96,7 +96,7 @@
                         </v-chip>
                         <span v-if="lesson.pivot?.order" class="text-caption">
                           <v-icon size="14">mdi-order-numeric-ascending</v-icon>
-                          Порядок: {{ lesson.pivot.order }}
+                          {{ t('teacher.order', {}, { default: 'Порядок' }) }}: {{ lesson.pivot.order }}
                         </span>
                         <span v-if="lesson.pivot?.start_time && lesson.pivot?.end_time" class="text-caption">
                           <v-icon size="14">mdi-clock</v-icon>
@@ -122,7 +122,7 @@
                           @click="editLesson(lesson)"
                           prepend-icon="mdi-pencil"
                         >
-                          Редактировать
+                          {{ t('common.edit', {}, { default: 'Редактировать' }) }}
                         </v-btn>
                         <v-btn
                           color="error"
@@ -131,7 +131,7 @@
                           @click="removeLesson(lesson)"
                           prepend-icon="mdi-delete"
                         >
-                          Удалить
+                          {{ t('common.delete', {}, { default: 'Удалить' }) }}
                         </v-btn>
                       </div>
                     </template>
@@ -149,9 +149,11 @@
 
 <script setup>
 import { usePage, router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
 
 const page = usePage()
+const { t } = useI18n()
 
 // Props
 const props = defineProps({
@@ -184,7 +186,8 @@ const editLesson = (lesson) => {
 }
 
 const removeLesson = (lesson) => {
-  if (!confirm(`Вы уверены, что хотите удалить урок "${lesson.title}" из расписания?`)) {
+  const confirmMsg = t('teacher.confirm_delete_lesson', { title: lesson.title }, { default: `Вы уверены, что хотите удалить урок "${lesson.title}" из расписания?` })
+  if (!confirm(confirmMsg)) {
     return
   }
 

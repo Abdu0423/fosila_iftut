@@ -1,47 +1,86 @@
-﻿<template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50">
-    <div class="max-w-md w-full space-y-8">
-      <div class="text-center">
-        <div class="mx-auto h-24 w-24 text-red-500">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-          </svg>
-        </div>
-        <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
-          Доступ запрещен
-        </h2>
-        <p class="mt-2 text-sm text-gray-600">
-          {{ message }}
-        </p>
-        <div class="mt-6">
-          <button
-            @click="goBack"
-            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Вернуться назад
-          </button>
-        </div>
-        <div class="mt-4">
-          <Link
-            :href="route('dashboard')"
-            class="text-indigo-600 hover:text-indigo-500 text-sm font-medium"
-          >
-            Перейти на главную
-          </Link>
-        </div>
-      </div>
-    </div>
-  </div>
+<template>
+  <v-app>
+    <v-main class="d-flex align-center justify-center" style="min-height: 100vh; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+      <v-container>
+        <v-row justify="center">
+          <v-col cols="12" sm="10" md="8" lg="6">
+            <v-card class="pa-8 text-center" elevation="12" rounded="xl">
+              <!-- Иконка -->
+              <div class="mb-4">
+                <v-icon size="120" color="error">mdi-shield-lock-outline</v-icon>
+              </div>
+              
+              <h1 class="text-h3 font-weight-bold mb-2" style="color: #f5576c;">
+                403
+              </h1>
+              
+              <h2 class="text-h5 font-weight-medium mb-3 text-grey-darken-3">
+                Доступ запрещён
+              </h2>
+              
+              <p class="text-body-1 text-grey mb-6">
+                У вас нет прав для просмотра этой страницы.
+                <br>
+                Обратитесь к администратору, если считаете это ошибкой.
+              </p>
+              
+              <v-divider class="mb-6"></v-divider>
+              
+              <div class="d-flex flex-column flex-sm-row gap-3 justify-center">
+                <v-btn
+                  color="primary"
+                  size="large"
+                  rounded="lg"
+                  prepend-icon="mdi-home"
+                  @click="goHome"
+                >
+                  На главную
+                </v-btn>
+                
+                <v-btn
+                  variant="outlined"
+                  color="secondary"
+                  size="large"
+                  rounded="lg"
+                  prepend-icon="mdi-arrow-left"
+                  @click="goBack"
+                >
+                  Назад
+                </v-btn>
+                
+                <v-btn
+                  variant="outlined"
+                  color="primary"
+                  size="large"
+                  rounded="lg"
+                  prepend-icon="mdi-login"
+                  @click="goLogin"
+                >
+                  Войти
+                </v-btn>
+              </div>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3'
-
-defineProps({
-  message: String
-})
+const goHome = () => {
+  window.location.href = '/'
+}
 
 const goBack = () => {
-  window.history.back()
+  if (window.history.length > 1) {
+    window.history.back()
+  } else {
+    window.location.href = '/'
+  }
+}
+
+const goLogin = () => {
+  window.location.href = '/login'
 }
 </script>

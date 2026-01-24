@@ -65,7 +65,17 @@ class GradeController extends Controller
         }
 
         // Получаем студентов группы
+        // Сначала пробуем получить через pivot-таблицу group_student
         $groupStudents = $schedule->group->students;
+        
+        // Если через pivot пусто, получаем напрямую через group_id
+        if ($groupStudents->isEmpty()) {
+            $groupStudents = User::where('group_id', $schedule->group_id)
+                ->whereHas('role', function ($q) {
+                    $q->where('slug', 'student');
+                })
+                ->get();
+        }
         
         $students = $groupStudents->map(function ($student) use ($schedule) {
             // Получаем или создаем запись оценок

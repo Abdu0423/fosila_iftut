@@ -51,6 +51,15 @@ class Handler extends ExceptionHandler
                     if ($statusCode === 404) {
                         return \Inertia\Inertia::render('Errors/404')->toResponse($request)->setStatusCode(404);
                     }
+                    
+                    if ($statusCode === 419) {
+                        return \Inertia\Inertia::render('Errors/419')->toResponse($request)->setStatusCode(419);
+                    }
+                }
+                
+                // Обработка истёкшей сессии/токена
+                if ($e instanceof \Illuminate\Session\TokenMismatchException) {
+                    return \Inertia\Inertia::render('Errors/419')->toResponse($request)->setStatusCode(419);
                 }
                 
                 // Обработка ошибок базы данных

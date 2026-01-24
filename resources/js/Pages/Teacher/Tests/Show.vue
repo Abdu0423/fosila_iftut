@@ -17,7 +17,7 @@
               @click="goBack"
               prepend-icon="mdi-arrow-left"
             >
-              К списку
+              {{ t('teacher.to_list', {}, { default: 'К списку' }) }}
             </v-btn>
           </div>
         </v-col>
@@ -38,7 +38,7 @@
           <v-card>
             <v-card-title class="text-h6">
               <v-icon start>mdi-plus-circle</v-icon>
-              Добавить вопрос
+              {{ t('teacher.add_question', {}, { default: 'Добавить вопрос' }) }}
             </v-card-title>
             <v-card-text>
               <v-form @submit.prevent="saveQuestion">
@@ -46,7 +46,7 @@
                   <v-col cols="12">
                     <v-textarea
                       v-model="questionForm.question"
-                      label="Текст вопроса *"
+                      :label="t('teacher.question_text', {}, { default: 'Текст вопроса' }) + ' *'"
                       variant="outlined"
                       rows="3"
                       :rules="[v => !!v]"
@@ -56,7 +56,7 @@
                   <!-- Ответы -->
                   <v-col cols="12">
                     <div class="d-flex justify-space-between align-center mb-3">
-                      <h3 class="text-h6">Ответы</h3>
+                      <h3 class="text-h6">{{ t('teacher.answers', {}, { default: 'Ответы' }) }}</h3>
                       <v-btn
                         size="small"
                         color="primary"
@@ -64,7 +64,7 @@
                         @click="addAnswer"
                         prepend-icon="mdi-plus"
                       >
-                        Добавить ответ
+                        {{ t('teacher.add_answer', {}, { default: 'Добавить ответ' }) }}
                       </v-btn>
                     </div>
 
@@ -89,7 +89,7 @@
                             ></v-radio>
                             <v-text-field
                               v-model="answer.answer"
-                              :label="`Ответ ${index + 1} *`"
+                              :label="t('teacher.answer_n', { n: index + 1 }, { default: `Ответ ${index + 1}` }) + ' *'"
                               variant="outlined"
                               density="compact"
                               hide-details
@@ -117,7 +117,7 @@
                         variant="text"
                         @click="resetQuestionForm"
                       >
-                        Очистить
+                        {{ t('common.clear', {}, { default: 'Очистить' }) }}
                       </v-btn>
                       <v-btn
                         color="primary"
@@ -126,7 +126,7 @@
                         :loading="questionForm.processing"
                         prepend-icon="mdi-content-save"
                       >
-                        Сохранить вопрос
+                        {{ t('teacher.save_question', {}, { default: 'Сохранить вопрос' }) }}
                       </v-btn>
                     </div>
                   </v-col>
@@ -143,13 +143,13 @@
           <v-card>
             <v-card-title class="text-h6">
               <v-icon start>mdi-help-circle</v-icon>
-              Вопросы теста ({{ searchQuery ? `${filteredQuestions.length} из ${test.questions.length}` : test.questions.length }})
+              {{ t('teacher.test_questions', {}, { default: 'Вопросы теста' }) }} ({{ searchQuery ? `${filteredQuestions.length} ${t('common.of', {}, { default: 'из' })} ${test.questions.length}` : test.questions.length }})
             </v-card-title>
             <v-card-text>
               <div v-if="test.questions.length === 0" class="text-center py-8">
                 <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-help-circle-outline</v-icon>
-                <h3 class="text-h6 text-grey">Нет вопросов</h3>
-                <p class="text-body-2 text-grey">Добавьте первый вопрос для теста</p>
+                <h3 class="text-h6 text-grey">{{ t('teacher.no_questions', {}, { default: 'Нет вопросов' }) }}</h3>
+                <p class="text-body-2 text-grey">{{ t('teacher.add_first_question', {}, { default: 'Добавьте первый вопрос для теста' }) }}</p>
               </div>
 
               <div v-else>
@@ -157,7 +157,7 @@
                 <div class="mb-4">
                   <v-text-field
                     v-model="searchQuery"
-                    label="Поиск вопросов"
+                    :label="t('teacher.search_questions', {}, { default: 'Поиск вопросов' })"
                     variant="outlined"
                     density="comfortable"
                     prepend-inner-icon="mdi-magnify"
@@ -168,8 +168,8 @@
 
                 <div v-if="filteredQuestions.length === 0" class="text-center py-8">
                   <v-icon size="64" color="grey-lighten-1" class="mb-4">mdi-magnify</v-icon>
-                  <h3 class="text-h6 text-grey">Вопросы не найдены</h3>
-                  <p class="text-body-2 text-grey">Попробуйте изменить поисковый запрос</p>
+                  <h3 class="text-h6 text-grey">{{ t('teacher.questions_not_found', {}, { default: 'Вопросы не найдены' }) }}</h3>
+                  <p class="text-body-2 text-grey">{{ t('teacher.try_change_search', {}, { default: 'Попробуйте изменить поисковый запрос' }) }}</p>
                 </div>
 
                 <!-- Аккордеон с вопросами -->
@@ -192,7 +192,7 @@
                           variant="tonal"
                           class="mr-2"
                         >
-                          {{ question.answers.length }} отв.
+                          {{ question.answers.length }} {{ t('teacher.answers_short', {}, { default: 'отв.' }) }}
                         </v-chip>
                       </div>
                     </v-expansion-panel-title>
@@ -213,7 +213,7 @@
                                 {{ answer.answer }}
                               </span>
                               <v-chip size="x-small" color="success" variant="tonal">
-                                Правильный ответ
+                                {{ t('teacher.correct_answer', {}, { default: 'Правильный ответ' }) }}
                               </v-chip>
                             </div>
                           </div>
@@ -237,7 +237,7 @@
                           density="compact"
                           class="mb-3"
                         >
-                          <strong>Объяснение:</strong> {{ question.explanation }}
+                          <strong>{{ t('teacher.explanation', {}, { default: 'Объяснение' }) }}:</strong> {{ question.explanation }}
                         </v-alert>
 
                         <!-- Действия -->
@@ -250,7 +250,7 @@
                             prepend-icon="mdi-pencil"
                             @click.stop="editQuestion(question)"
                           >
-                            Редактировать
+                            {{ t('common.edit', {}, { default: 'Редактировать' }) }}
                           </v-btn>
                           <v-btn
                             size="small"
@@ -259,7 +259,7 @@
                             prepend-icon="mdi-delete"
                             @click.stop="deleteQuestion(question)"
                           >
-                            Удалить
+                            {{ t('common.delete', {}, { default: 'Удалить' }) }}
                           </v-btn>
                         </div>
                       </div>
@@ -278,9 +278,11 @@
 <script setup>
 import { ref, reactive, computed, watch } from 'vue'
 import { useForm, usePage, router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
 
 const page = usePage()
+const { t } = useI18n()
 
 const props = defineProps({
   test: {
@@ -474,7 +476,8 @@ const saveQuestion = () => {
 }
 
 const deleteQuestion = (question) => {
-  if (!confirm('Вы уверены, что хотите удалить этот вопрос?')) {
+  const confirmMsg = t('teacher.confirm_delete_question', {}, { default: 'Вы уверены, что хотите удалить этот вопрос?' })
+  if (!confirm(confirmMsg)) {
     return
   }
 
