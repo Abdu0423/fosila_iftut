@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <Layout role="teacher">
     <v-container fluid>
       <!-- Заголовок -->
@@ -6,8 +6,8 @@
         <v-col cols="12">
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
-              <h1 class="text-h4 font-weight-bold mb-2">Создать урок</h1>
-              <p class="text-body-1 text-medium-emphasis">Добавьте новый урок к расписанию</p>
+              <h1 class="text-h4 font-weight-bold mb-2">{{ t('teacher.create_lesson', {}, { default: 'Создать урок' }) }}</h1>
+              <p class="text-body-1 text-medium-emphasis">{{ t('teacher.add_new_lesson_to_schedule', {}, { default: 'Добавьте новый урок к расписанию' }) }}</p>
             </div>
             <v-btn
               color="secondary"
@@ -15,7 +15,7 @@
               @click="goBack"
               prepend-icon="mdi-arrow-left"
             >
-              Назад к списку
+              {{ t('teacher.back_to_list', {}, { default: 'Назад к списку' }) }}
             </v-btn>
           </div>
         </v-col>
@@ -56,7 +56,7 @@
           <v-card>
             <v-card-title class="text-h6">
               <v-icon start>mdi-plus</v-icon>
-              Информация об уроке
+              {{ t('teacher.lesson_info', {}, { default: 'Информация об уроке' }) }}
             </v-card-title>
             <v-card-text>
               <v-form>
@@ -64,7 +64,7 @@
                   <v-col cols="12">
                     <v-text-field
                       v-model="formTitle"
-                      label="Название урока"
+                      :label="t('teacher.lesson_title', {}, { default: 'Название урока' })"
                       variant="outlined"
                       density="compact"
                       required
@@ -74,7 +74,7 @@
                   <v-col cols="12">
                     <v-textarea
                       v-model="formDescription"
-                      label="Описание урока"
+                      :label="t('teacher.lesson_description', {}, { default: 'Описание урока' })"
                       variant="outlined"
                       density="compact"
                       rows="4"
@@ -90,12 +90,12 @@
                             {{ selectedSchedule.subject?.name }}
                           </div>
                           <div class="text-caption text-medium-emphasis">
-                            Группа: {{ selectedSchedule.group?.name }}
+                            {{ t('teacher.group', {}, { default: 'Группа' }) }}: {{ selectedSchedule.group?.name }}
                           </div>
                         </div>
                         <div v-else>
                           <div class="text-body-1 font-weight-medium">
-                            Расписание выбрано
+                            {{ t('teacher.schedule_selected', {}, { default: 'Расписание выбрано' }) }}
                           </div>
                           <div class="text-caption text-medium-emphasis">
                             ID: {{ selectedScheduleId }}
@@ -107,7 +107,7 @@
                   <v-col cols="12">
                     <v-file-input
                       v-model="formFile"
-                      label="Файл урока (PDF, DOC, DOCX, PPT, PPTX, TXT)"
+                      :label="t('teacher.lesson_file', {}, { default: 'Файл урока (PDF, DOC, DOCX, PPT, PPTX, TXT)' })"
                       variant="outlined"
                       density="compact"
                       accept=".pdf,.doc,.docx,.ppt,.pptx,.txt"
@@ -119,7 +119,7 @@
                       variant="tonal"
                       class="mt-2"
                     >
-                      Максимальный размер файла: 10MB
+                      {{ t('teacher.max_file_size', {}, { default: 'Максимальный размер файла: 10MB' }) }}
                     </v-alert>
                   </v-col>
                 </v-row>
@@ -128,7 +128,7 @@
                     color="secondary"
                     @click="goBack"
                   >
-                    Отмена
+                    {{ t('common.cancel', {}, { default: 'Отмена' }) }}
                   </v-btn>
                   <v-btn
                     color="primary"
@@ -136,7 +136,7 @@
                     :loading="form.value?.processing"
                     :disabled="form.value?.processing"
                   >
-                    Создать урок
+                    {{ t('teacher.create_lesson', {}, { default: 'Создать урок' }) }}
                   </v-btn>
                 </div>
               </v-form>
@@ -148,26 +148,26 @@
           <v-card>
             <v-card-title class="text-h6">
               <v-icon start>mdi-information</v-icon>
-              Информация
+              {{ t('common.info', {}, { default: 'Информация' }) }}
             </v-card-title>
             <v-card-text>
               <div class="text-body-2 text-medium-emphasis mb-4">
-                <p>Создайте новый урок и добавьте его к одному из ваших расписаний.</p>
-                <p>Вы можете прикрепить файл с материалами урока.</p>
+                <p>{{ t('teacher.create_lesson_hint1', {}, { default: 'Создайте новый урок и добавьте его к одному из ваших расписаний.' }) }}</p>
+                <p>{{ t('teacher.create_lesson_hint2', {}, { default: 'Вы можете прикрепить файл с материалами урока.' }) }}</p>
               </div>
               
               <div v-if="selectedSchedule" class="mt-4">
-                <h3 class="text-h6 mb-2">Выбранное расписание:</h3>
+                <h3 class="text-h6 mb-2">{{ t('teacher.selected_schedule', {}, { default: 'Выбранное расписание' }) }}:</h3>
                 <v-card variant="outlined">
                   <v-card-text>
                     <div class="text-subtitle-1 font-weight-medium">
                       {{ selectedSchedule.subject?.name }}
                     </div>
                     <div class="text-body-2 text-medium-emphasis">
-                      Группа: {{ selectedSchedule.group?.name }}
+                      {{ t('teacher.group', {}, { default: 'Группа' }) }}: {{ selectedSchedule.group?.name }}
                     </div>
                     <div class="text-body-2 text-medium-emphasis">
-                      Период: {{ selectedSchedule.start_date }} - {{ selectedSchedule.end_date }}
+                      {{ t('teacher.period', {}, { default: 'Период' }) }}: {{ selectedSchedule.start_date }} - {{ selectedSchedule.end_date }}
                     </div>
                   </v-card-text>
                 </v-card>
@@ -183,10 +183,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
+import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
 import axios from 'axios'
 
 const page = usePage()
+const { t } = useI18n()
 
 // Props
 const props = defineProps({
@@ -258,7 +260,7 @@ const goBack = () => {
 const createLesson = async () => {
   // Проверяем обязательные поля
   if (!form.value?.title || !form.value?.schedule_id) {
-    alert('Пожалуйста, заполните все обязательные поля')
+    alert(t('teacher.fill_required_fields', {}, { default: 'Пожалуйста, заполните все обязательные поля' }))
     return
   }
 
@@ -301,7 +303,7 @@ const createLesson = async () => {
       }
     } else {
       // Другие ошибки
-      alert('Ошибка при создании урока: ' + (error.response?.data?.message || error.message))
+      alert(t('teacher.error_creating_lesson', {}, { default: 'Ошибка при создании урока' }) + ': ' + (error.response?.data?.message || error.message))
     }
   } finally {
     if (form.value) {

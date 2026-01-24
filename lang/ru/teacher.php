@@ -65,4 +65,21 @@ return [
     'select_schedule_instruction' => 'Выберите расписание из списка выше, чтобы увидеть студентов и управлять оценками',
     'error_loading_grades' => 'Ошибка при загрузке оценок',
     'error_updating_grade' => 'Ошибка при обновлении оценки',
+    
+    // Lessons
+    'create_lesson' => 'Создать урок',
+    'add_new_lesson_to_schedule' => 'Добавьте новый урок к расписанию',
+    'back_to_list' => 'Назад к списку',
+    'lesson_info' => 'Информация об уроке',
+    'lesson_title' => 'Название урока',
+    'lesson_description' => 'Описание урока',
+    'schedule_selected' => 'Расписание выбрано',
+    'lesson_file' => 'Файл урока (PDF, DOC, DOCX, PPT, PPTX, TXT)',
+    'max_file_size' => 'Максимальный размер файла: 10MB',
+    'create_lesson_hint1' => 'Создайте новый урок и добавьте его к одному из ваших расписаний.',
+    'create_lesson_hint2' => 'Вы можете прикрепить файл с материалами урока.',
+    'selected_schedule' => 'Выбранное расписание',
+    'period' => 'Период',
+    'fill_required_fields' => 'Пожалуйста, заполните все обязательные поля',
+    'error_creating_lesson' => 'Ошибка при создании урока',
 ];

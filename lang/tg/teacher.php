@@ -65,4 +65,21 @@ return [
     'select_schedule_instruction' => 'Ҷадвалро аз рӯйхати боло интихоб кунед, то донишҷӯёнро бинед ва баҳоҳоро идора кунед',
     'error_loading_grades' => 'Хато ҳангоми боргирии баҳоҳо',
     'error_updating_grade' => 'Хато ҳангоми навсозии баҳо',
+    
+    // Lessons
+    'create_lesson' => 'Сохтани дарс',
+    'add_new_lesson_to_schedule' => 'Дарси навро ба ҷадвал илова кунед',
+    'back_to_list' => 'Бозгашт ба рӯйхат',
+    'lesson_info' => 'Маълумот дар бораи дарс',
+    'lesson_title' => 'Номи дарс',
+    'lesson_description' => 'Тавсифи дарс',
+    'schedule_selected' => 'Ҷадвал интихоб шуд',
+    'lesson_file' => 'Файли дарс (PDF, DOC, DOCX, PPT, PPTX, TXT)',
+    'max_file_size' => 'Андозаи максималии файл: 10MB',
+    'create_lesson_hint1' => 'Дарси навро созед ва онро ба яке аз ҷадвалҳои худ илова кунед.',
+    'create_lesson_hint2' => 'Шумо метавонед файлро бо маводи дарсӣ замима кунед.',
+    'selected_schedule' => 'Ҷадвали интихобшуда',
+    'period' => 'Давра',
+    'fill_required_fields' => 'Лутфан ҳамаи майдонҳои ҳатмиро пур кунед',
+    'error_creating_lesson' => 'Хато ҳангоми сохтани дарс',
 ];
