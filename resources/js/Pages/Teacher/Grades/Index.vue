@@ -101,7 +101,7 @@
           <v-card>
             <v-card-text class="text-center py-8">
               <v-progress-circular indeterminate color="primary" size="48" class="mb-4"></v-progress-circular>
-              <h3 class="text-h6">{{ t('common.loading', {}, { default: 'Загрузка...' }) }}</h3>
+              <h3 class="text-h6">{{ t('messages.loading', {}, { default: 'Загрузка...' }) }}</h3>
             </v-card-text>
           </v-card>
         </v-col>
@@ -423,7 +423,7 @@
             variant="text"
             @click="confirmDialog = false"
           >
-            {{ t('common.cancel', {}, { default: 'Отмена' }) }}
+            {{ t('messages.cancel', {}, { default: 'Отмена' }) }}
           </v-btn>
           <v-btn
             color="primary"

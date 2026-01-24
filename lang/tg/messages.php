@@ -40,6 +40,7 @@ return [
     'settings' => 'Танзимот',
     
     // Status messages
+    'loading' => 'Боргирӣ...',
     'success' => 'Бо муваффақият!',
     'error' => 'Хато!',
     'warning' => 'Огоҳӣ!',

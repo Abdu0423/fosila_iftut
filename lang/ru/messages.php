@@ -40,6 +40,7 @@ return [
     'settings' => 'Настройки',
     
     // Status messages
+    'loading' => 'Загрузка...',
     'success' => 'Успешно!',
     'error' => 'Ошибка!',
     'warning' => 'Предупреждение!',
