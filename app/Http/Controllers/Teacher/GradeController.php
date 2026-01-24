@@ -72,7 +72,7 @@ class GradeController extends Controller
         if ($groupStudents->isEmpty()) {
             $groupStudents = User::where('group_id', $schedule->group_id)
                 ->whereHas('role', function ($q) {
-                    $q->where('slug', 'student');
+                    $q->where('name', 'student');
                 })
                 ->get();
         }
