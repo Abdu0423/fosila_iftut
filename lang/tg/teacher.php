@@ -65,6 +65,7 @@ return [
     'select_schedule_instruction' => 'Ҷадвалро аз рӯйхати боло интихоб кунед, то донишҷӯёнро бинед ва баҳоҳоро идора кунед',
     'error_loading_grades' => 'Хато ҳангоми боргирии баҳоҳо',
     'error_updating_grade' => 'Хато ҳангоми навсозии баҳо',
+    'grade_saved' => 'Баҳо нигоҳ дошта шуд',
     
     // Lessons
     'create_lesson' => 'Сохтани дарс',

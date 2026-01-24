@@ -65,6 +65,7 @@ return [
     'select_schedule_instruction' => 'Выберите расписание из списка выше, чтобы увидеть студентов и управлять оценками',
     'error_loading_grades' => 'Ошибка при загрузке оценок',
     'error_updating_grade' => 'Ошибка при обновлении оценки',
+    'grade_saved' => 'Оценка сохранена',
     
     // Lessons
     'create_lesson' => 'Создать урок',

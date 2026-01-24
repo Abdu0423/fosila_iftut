@@ -64,18 +64,44 @@ class GradeController extends Controller
             ], 404);
         }
 
-        // Получаем студентов группы
-        // Сначала пробуем получить через pivot-таблицу group_student
-        $groupStudents = $schedule->group->students;
+        // Получаем студентов группы несколькими способами
+        $groupStudents = collect();
         
-        // Если через pivot пусто, получаем напрямую через group_id
+        // 1. Пробуем получить через pivot-таблицу group_student
+        if ($schedule->group->students && $schedule->group->students->count() > 0) {
+            $groupStudents = $schedule->group->students;
+        }
+        
+        // 2. Если через pivot пусто, получаем напрямую через group_id с ролью student
         if ($groupStudents->isEmpty()) {
             $groupStudents = User::where('group_id', $schedule->group_id)
                 ->whereHas('role', function ($q) {
                     $q->where('name', 'student');
                 })
+                ->orderBy('last_name')
+                ->orderBy('name')
                 ->get();
         }
+        
+        // 3. Если всё ещё пусто, пробуем получить всех с group_id (без проверки роли)
+        if ($groupStudents->isEmpty()) {
+            $groupStudents = User::where('group_id', $schedule->group_id)
+                ->orderBy('last_name')
+                ->orderBy('name')
+                ->get();
+        }
+        
+        // Логируем для отладки
+        \Log::info('Loading grades for schedule', [
+            'schedule_id' => $schedule->id,
+            'group_id' => $schedule->group_id,
+            'students_count' => $groupStudents->count()
+        ]);
+        
+        // Сортируем студентов по алфавиту
+        $groupStudents = $groupStudents->sortBy(function ($student) {
+            return ($student->last_name ?? '') . ' ' . ($student->name ?? '');
+        });
         
         $students = $groupStudents->map(function ($student) use ($schedule) {
             // Получаем или создаем запись оценок
@@ -142,7 +168,11 @@ class GradeController extends Controller
                 'subject_name' => $schedule->subject ? $schedule->subject->name : 'Не указан',
                 'group_name' => $schedule->group->name,
             ],
-            'students' => $students,
+            'students' => $students->values()->toArray(),
+            'debug' => [
+                'group_id' => $schedule->group_id,
+                'students_found' => $groupStudents->count()
+            ]
         ]);
     }
 

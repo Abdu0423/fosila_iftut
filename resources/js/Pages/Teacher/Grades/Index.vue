@@ -46,6 +46,8 @@
                 prepend-inner-icon="mdi-school"
                 @update:model-value="loadGrades"
                 clearable
+                :loading="loading"
+                :disabled="loading"
               >
                 <template v-slot:item="{ props, item }">
                   <v-list-item v-bind="props">
@@ -61,8 +63,20 @@
         </v-col>
       </v-row>
 
+      <!-- Индикатор загрузки -->
+      <v-row v-if="loading">
+        <v-col cols="12">
+          <v-card>
+            <v-card-text class="text-center py-8">
+              <v-progress-circular indeterminate color="primary" size="48" class="mb-4"></v-progress-circular>
+              <h3 class="text-h6">{{ t('common.loading', {}, { default: 'Загрузка...' }) }}</h3>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+
       <!-- Таблица оценок -->
-      <v-row v-if="selectedScheduleId && students.length > 0">
+      <v-row v-if="!loading && selectedScheduleId && students.length > 0">
         <v-col cols="12">
           <v-card>
             <v-card-title>
@@ -86,7 +100,7 @@
                     <th class="text-center">{{ t('teacher.rating_teacher_2', {}, { default: 'Рейт. учитель 2' }) }}<br><span class="text-caption text-grey">({{ t('teacher.teacher_label', {}, { default: 'учитель' }) }})</span></th>
                     <th class="text-center">{{ t('teacher.rating_test_1', {}, { default: 'Рейт. тест 1' }) }}<br><span class="text-caption text-grey">({{ t('teacher.test_label', {}, { default: 'тест' }) }})</span></th>
                     <th class="text-center">{{ t('teacher.rating_test_2', {}, { default: 'Рейт. тест 2' }) }}<br><span class="text-caption text-grey">({{ t('teacher.test_label', {}, { default: 'тест' }) }})</span></th>
-                    <th class="text-center">{{ t('teacher.exam', {}, { default: 'Экзамен' }) }}<br><span class="text-caption text-grey">({{ getExamType(student) }})</span></th>
+                    <th class="text-center">{{ t('teacher.exam', {}, { default: 'Экзамен' }) }}<br><span class="text-caption text-grey">({{ t('teacher.test_label', {}, { default: 'тест' }) }})</span></th>
                     <th class="text-center">{{ t('teacher.final_100', {}, { default: 'Итоговая' }) }}<br><span class="text-caption text-grey">({{ t('teacher.points_100', {}, { default: '100 баллов' }) }})</span></th>
                     <th class="text-center">{{ t('teacher.final_10', {}, { default: 'Итоговая' }) }}<br><span class="text-caption text-grey">({{ t('teacher.points_10', {}, { default: '10 баллов' }) }})</span></th>
                     <th class="text-center">{{ t('teacher.final_letter', {}, { default: 'Итоговая' }) }}<br><span class="text-caption text-grey">({{ t('teacher.letter', {}, { default: 'буква' }) }})</span></th>
@@ -196,7 +210,7 @@
       </v-row>
 
       <!-- Пустое состояние -->
-      <v-row v-else-if="selectedScheduleId && students.length === 0">
+      <v-row v-else-if="!loading && selectedScheduleId && students.length === 0">
         <v-col cols="12">
           <v-card>
             <v-card-text class="text-center py-8">
@@ -209,7 +223,7 @@
       </v-row>
 
       <!-- Инструкция -->
-      <v-row v-else-if="!selectedScheduleId">
+      <v-row v-else-if="!loading && !selectedScheduleId">
         <v-col cols="12">
           <v-card variant="outlined">
             <v-card-text class="text-center py-8">
@@ -221,6 +235,24 @@
         </v-col>
       </v-row>
     </v-container>
+    
+    <!-- Snackbar для уведомлений -->
+    <v-snackbar
+      v-model="snackbar"
+      :color="snackbarColor"
+      :timeout="3000"
+      location="top right"
+    >
+      {{ snackbarText }}
+      <template v-slot:actions>
+        <v-btn
+          variant="text"
+          @click="snackbar = false"
+        >
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+      </template>
+    </v-snackbar>
   </Layout>
 </template>
 
@@ -247,6 +279,10 @@ const selectedScheduleId = ref(null)
 const students = ref([])
 const selectedSchedule = ref(null)
 const loading = ref(false)
+const saving = ref(false)
+const snackbar = ref(false)
+const snackbarText = ref('')
+const snackbarColor = ref('success')
 
 // Вычисляемые свойства
 const schedules = computed(() => {
@@ -265,14 +301,29 @@ const loadGrades = async () => {
   }
 
   loading.value = true
+  students.value = []
+  selectedSchedule.value = null
+  
   try {
-    const response = await axios.get(`/teacher/grades/schedule/${selectedScheduleId.value}`)
+    console.log('Loading grades for schedule:', selectedScheduleId.value)
+    const response = await axios.get(`/teacher/grades/schedule/${selectedScheduleId.value}`, {
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    console.log('Response:', response.data)
+    
     if (response.data.success) {
-      students.value = response.data.students
+      students.value = response.data.students || []
       selectedSchedule.value = response.data.schedule
+      console.log('Loaded students:', students.value.length)
+    } else {
+      console.error('Response not successful:', response.data)
     }
   } catch (error) {
     console.error('Ошибка при загрузке оценок:', error)
+    console.error('Error response:', error.response?.data)
     alert(t('teacher.error_loading_grades', {}, { default: 'Ошибка при загрузке оценок' }) + ': ' + (error.response?.data?.message || error.message))
   } finally {
     loading.value = false
@@ -284,6 +335,7 @@ const updateGrade = async (student) => {
     return
   }
 
+  saving.value = true
   try {
     const response = await axios.put(`/teacher/grades/${student.grade_id}`, {
       rating_teacher_1: student.rating_teacher_1,
@@ -291,7 +343,8 @@ const updateGrade = async (student) => {
     }, {
       headers: {
         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
-        'X-Requested-With': 'XMLHttpRequest'
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json'
       }
     })
 
@@ -302,18 +355,27 @@ const updateGrade = async (student) => {
         const updatedGrade = response.data.grade
         students.value[index] = {
           ...students.value[index],
-          rating_teacher_1: updatedGrade.rating_teacher_1,
-          rating_teacher_2: updatedGrade.rating_teacher_2,
-          final_grade_100: updatedGrade.final_grade_100,
-          final_grade_10: updatedGrade.final_grade_10,
+          rating_teacher_1: updatedGrade.rating_teacher_1 ? parseFloat(updatedGrade.rating_teacher_1) : null,
+          rating_teacher_2: updatedGrade.rating_teacher_2 ? parseFloat(updatedGrade.rating_teacher_2) : null,
+          final_grade_100: updatedGrade.final_grade_100 ? parseFloat(updatedGrade.final_grade_100) : null,
+          final_grade_10: updatedGrade.final_grade_10 ? parseFloat(updatedGrade.final_grade_10) : null,
           final_grade_letter: updatedGrade.final_grade_letter,
         }
       }
+      showSnackbar(t('teacher.grade_saved', {}, { default: 'Оценка сохранена' }), 'success')
     }
   } catch (error) {
     console.error('Ошибка при обновлении оценки:', error)
-    alert(t('teacher.error_updating_grade', {}, { default: 'Ошибка при обновлении оценки' }) + ': ' + (error.response?.data?.message || error.message))
+    showSnackbar(t('teacher.error_updating_grade', {}, { default: 'Ошибка при обновлении оценки' }), 'error')
+  } finally {
+    saving.value = false
   }
+}
+
+const showSnackbar = (text, color = 'success') => {
+  snackbarText.value = text
+  snackbarColor.value = color
+  snackbar.value = true
 }
 
 const getExamType = (student) => {
