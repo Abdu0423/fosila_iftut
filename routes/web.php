@@ -442,6 +442,7 @@ Route::prefix('teacher')->middleware(['auth', 'teacher', 'check.password.change'
     Route::get('/grades', [App\Http\Controllers\Teacher\GradeController::class, 'index'])->name('teacher.grades.index');
     Route::get('/grades/schedule/{schedule}', [App\Http\Controllers\Teacher\GradeController::class, 'getGrades'])->name('teacher.grades.get');
     Route::put('/grades/{grade}', [App\Http\Controllers\Teacher\GradeController::class, 'updateGrade'])->name('teacher.grades.update');
+    Route::post('/grades/save-rating', [App\Http\Controllers\Teacher\GradeController::class, 'saveRating'])->name('teacher.grades.save-rating');
     
     // Мои студенты
     Route::get('/students', [App\Http\Controllers\Teacher\StudentController::class, 'index'])->name('teacher.students.index');
@@ -584,6 +585,7 @@ Route::prefix('education')->middleware(['auth', 'education.department', 'check.p
     Route::get('/grades', [App\Http\Controllers\Teacher\GradeController::class, 'index'])->name('education.grades.index');
     Route::get('/grades/schedule/{schedule}', [App\Http\Controllers\Teacher\GradeController::class, 'getGrades'])->name('education.grades.get');
     Route::put('/grades/{grade}', [App\Http\Controllers\Teacher\GradeController::class, 'updateGrade'])->name('education.grades.update');
+    Route::post('/grades/save-rating', [App\Http\Controllers\Teacher\GradeController::class, 'saveRating'])->name('education.grades.save-rating');
     
     // Студенты (доступ как у учителя)
     Route::get('/students', [App\Http\Controllers\Teacher\StudentController::class, 'index'])->name('education.students.index');
@@ -716,6 +718,7 @@ Route::prefix('registration')->middleware(['auth', 'education.or.registration', 
     Route::get('/grades', [App\Http\Controllers\Teacher\GradeController::class, 'index'])->name('registration.grades.index');
     Route::get('/grades/schedule/{schedule}', [App\Http\Controllers\Teacher\GradeController::class, 'getGrades'])->name('registration.grades.get');
     Route::put('/grades/{grade}', [App\Http\Controllers\Teacher\GradeController::class, 'updateGrade'])->name('registration.grades.update');
+    Route::post('/grades/save-rating', [App\Http\Controllers\Teacher\GradeController::class, 'saveRating'])->name('registration.grades.save-rating');
     
     // Студенты (доступ как у учителя)
     Route::get('/students', [App\Http\Controllers\Teacher\StudentController::class, 'index'])->name('registration.students.index');

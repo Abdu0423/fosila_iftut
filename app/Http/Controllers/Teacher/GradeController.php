@@ -161,6 +161,11 @@ class GradeController extends Controller
             ];
         });
 
+        // Определяем статус закрытия рейтингов (проверяем первую запись)
+        $firstGrade = Grade::where('schedule_id', $schedule->id)->first();
+        $rating1Closed = $firstGrade ? (bool)$firstGrade->rating_1_closed : false;
+        $rating2Closed = $firstGrade ? (bool)$firstGrade->rating_2_closed : false;
+
         return response()->json([
             'success' => true,
             'schedule' => [
@@ -169,10 +174,8 @@ class GradeController extends Controller
                 'group_name' => $schedule->group->name,
             ],
             'students' => $students->values()->toArray(),
-            'debug' => [
-                'group_id' => $schedule->group_id,
-                'students_found' => $groupStudents->count()
-            ]
+            'rating1_closed' => $rating1Closed,
+            'rating2_closed' => $rating2Closed,
         ]);
     }
 
@@ -207,6 +210,79 @@ class GradeController extends Controller
             'message' => 'Оценка обновлена',
             'grade' => $grade->fresh(),
         ]);
+    }
+
+    /**
+     * Сохранить и закрыть рейтинг
+     */
+    public function saveRating(Request $request)
+    {
+        $teacher = Auth::user();
+        
+        $request->validate([
+            'schedule_id' => 'required|exists:schedules,id',
+            'rating_number' => 'required|in:1,2',
+            'grades' => 'required|array',
+            'grades.*.grade_id' => 'required|exists:grades,id',
+        ]);
+
+        $schedule = Schedule::findOrFail($request->schedule_id);
+        
+        // Проверяем доступ
+        if ($schedule->teacher_id !== $teacher->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'У вас нет доступа к этому расписанию'
+            ], 403);
+        }
+
+        $ratingNumber = $request->rating_number;
+
+        DB::beginTransaction();
+        try {
+            foreach ($request->grades as $gradeData) {
+                $grade = Grade::find($gradeData['grade_id']);
+                
+                if (!$grade || $grade->schedule_id !== $schedule->id) {
+                    continue;
+                }
+
+                // Проверяем, не закрыт ли уже рейтинг
+                if ($ratingNumber == 1 && $grade->rating_1_closed) {
+                    continue;
+                }
+                if ($ratingNumber == 2 && $grade->rating_2_closed) {
+                    continue;
+                }
+
+                // Обновляем оценку и закрываем рейтинг
+                if ($ratingNumber == 1) {
+                    $grade->rating_teacher_1 = $gradeData['rating_teacher_1'];
+                    $grade->rating_1_closed = true;
+                } else {
+                    $grade->rating_teacher_2 = $gradeData['rating_teacher_2'];
+                    $grade->rating_2_closed = true;
+                }
+
+                $grade->save();
+                $grade->updateFinalGrades();
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Рейтинг ' . $ratingNumber . ' сохранён и закрыт'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error saving rating', ['error' => $e->getMessage()]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка при сохранении: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
