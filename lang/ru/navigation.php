@@ -37,6 +37,7 @@ return [
     'my_students' => 'Мои студенты',
     'my_lessons' => 'Мои уроки',
     'my_tests' => 'Мои тесты',
+    'ssr' => 'ССР',
     
     // Student
     'student' => 'Студент',

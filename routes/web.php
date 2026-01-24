@@ -108,6 +108,14 @@ Route::prefix('student')->middleware(['auth', 'student', 'check.password.change'
     Route::post('/tests/{test}/start', [App\Http\Controllers\Student\TestController::class, 'startAttempt'])->name('student.tests.start');
     Route::post('/tests/{test}/submit', [App\Http\Controllers\Student\TestController::class, 'submitAttempt'])->name('student.tests.submit');
 
+    // ССР (Самостоятельная студенческая работа)
+    Route::get('/ssr', [App\Http\Controllers\Student\SsrController::class, 'index'])->name('student.ssr.index');
+    Route::get('/ssr/{task}', [App\Http\Controllers\Student\SsrController::class, 'show'])->name('student.ssr.show');
+    Route::post('/ssr/{task}/select-topic', [App\Http\Controllers\Student\SsrController::class, 'selectTopic'])->name('student.ssr.select-topic');
+    Route::post('/ssr/{task}/save', [App\Http\Controllers\Student\SsrController::class, 'saveWork'])->name('student.ssr.save');
+    Route::post('/ssr/{task}/submit', [App\Http\Controllers\Student\SsrController::class, 'submitWork'])->name('student.ssr.submit');
+    Route::delete('/ssr/{task}/file', [App\Http\Controllers\Student\SsrController::class, 'deleteFile'])->name('student.ssr.delete-file');
+
     // Профиль
     Route::get('/profile', function () {
         return Inertia::render('Profile/Index');
@@ -443,6 +451,17 @@ Route::prefix('teacher')->middleware(['auth', 'teacher', 'check.password.change'
     Route::get('/grades/schedule/{schedule}', [App\Http\Controllers\Teacher\GradeController::class, 'getGrades'])->name('teacher.grades.get');
     Route::put('/grades/{grade}', [App\Http\Controllers\Teacher\GradeController::class, 'updateGrade'])->name('teacher.grades.update');
     Route::post('/grades/save-rating', [App\Http\Controllers\Teacher\GradeController::class, 'saveRating'])->name('teacher.grades.save-rating');
+    
+    // ССР (Самостоятельная студенческая работа)
+    Route::get('/ssr', [App\Http\Controllers\Teacher\SsrController::class, 'index'])->name('teacher.ssr.index');
+    Route::get('/ssr/create', [App\Http\Controllers\Teacher\SsrController::class, 'create'])->name('teacher.ssr.create');
+    Route::post('/ssr', [App\Http\Controllers\Teacher\SsrController::class, 'store'])->name('teacher.ssr.store');
+    Route::get('/ssr/{task}', [App\Http\Controllers\Teacher\SsrController::class, 'show'])->name('teacher.ssr.show');
+    Route::get('/ssr/{task}/edit', [App\Http\Controllers\Teacher\SsrController::class, 'edit'])->name('teacher.ssr.edit');
+    Route::put('/ssr/{task}', [App\Http\Controllers\Teacher\SsrController::class, 'update'])->name('teacher.ssr.update');
+    Route::delete('/ssr/{task}', [App\Http\Controllers\Teacher\SsrController::class, 'destroy'])->name('teacher.ssr.destroy');
+    Route::get('/ssr/submission/{submission}', [App\Http\Controllers\Teacher\SsrController::class, 'showSubmission'])->name('teacher.ssr.submission');
+    Route::post('/ssr/submission/{submission}/check', [App\Http\Controllers\Teacher\SsrController::class, 'checkSubmission'])->name('teacher.ssr.check');
     
     // Мои студенты
     Route::get('/students', [App\Http\Controllers\Teacher\StudentController::class, 'index'])->name('teacher.students.index');

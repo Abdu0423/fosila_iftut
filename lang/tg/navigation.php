@@ -37,6 +37,7 @@ return [
     'my_students' => 'Донишҷӯёни ман',
     'my_lessons' => 'Дарсҳои ман',
     'my_tests' => 'Санҷишҳои ман',
+    'ssr' => 'КМД',
     
     // Student
     'student' => 'Донишҷӯ',

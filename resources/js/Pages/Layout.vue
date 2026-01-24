@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <v-app>
     <!-- Боковое меню -->
     <v-navigation-drawer
@@ -430,6 +430,7 @@ const menuItems = computed(() => {
         { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: '/teacher' },
         { title: t('navigation.my_lessons'), icon: 'mdi-teach', route: '/teacher/lessons' },
         { title: t('navigation.my_tests'), icon: 'mdi-help-circle', route: '/teacher/tests' },
+        { title: t('navigation.ssr'), icon: 'mdi-file-document-edit-outline', route: '/teacher/ssr' },
         { title: t('navigation.grades'), icon: 'mdi-star', route: '/teacher/grades' },
         { title: t('navigation.my_students'), icon: 'mdi-account-group', route: '/teacher/students' },
         { title: t('navigation.schedule'), icon: 'mdi-calendar-clock', route: '/teacher/schedule' },
@@ -473,6 +474,7 @@ const menuItems = computed(() => {
         { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: '/student/' },
         { title: t('navigation.schedule'), icon: 'mdi-calendar-clock', route: '/student/schedule' },
         { title: t('navigation.tests'), icon: 'mdi-file-document-edit', route: '/student/tests' },
+        { title: t('navigation.ssr'), icon: 'mdi-file-document-edit-outline', route: '/student/ssr' },
         { title: t('navigation.assignments'), icon: 'mdi-clipboard-text', route: '/student/assignments' },
         { title: t('navigation.chat'), icon: 'mdi-chat', route: '/student/chat' },
         { title: t('navigation.library'), icon: 'mdi-library', route: '/student/library' },
