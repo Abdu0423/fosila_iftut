@@ -159,7 +159,7 @@
                   <div v-else>
                     <v-list>
                       <v-list-item
-                        v-for="student in group.students"
+                        v-for="student in sortStudentsAlphabetically(group.students)"
                         :key="student.id"
                         class="mb-2"
                       >
@@ -275,6 +275,17 @@ const viewGroup = (group) => {
 
 const viewStudent = (student) => {
   navigateTo(`/teacher/students/student/${student.id}`)
+}
+
+// Сортировка студентов по алфавиту (А-Я)
+const sortStudentsAlphabetically = (students) => {
+  if (!students || students.length === 0) return []
+  return [...students].sort((a, b) => {
+    // Сортируем по фамилии, затем по имени
+    const nameA = (a.last_name || '') + ' ' + (a.name || '')
+    const nameB = (b.last_name || '') + ' ' + (b.name || '')
+    return nameA.localeCompare(nameB, 'ru')
+  })
 }
 </script>
 
