@@ -31,7 +31,8 @@
     "teacher": "Преподаватель",
     "students_management": "Управление студентами",
     "orders": "Приказы",
-    "transfers": "Переводы"
+    "transfers": "Переводы",
+    "ssr": "ССР"
   },
   "auth": {
     "login_title": "ИФТУТ",

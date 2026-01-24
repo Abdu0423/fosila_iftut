@@ -24,7 +24,7 @@
       <v-form @submit.prevent="submitForm">
         <v-row>
           <!-- Основная информация -->
-          <v-col cols="12" md="8">
+          <v-col cols="12" md="6">
             <v-card>
               <v-card-title>
                 <v-icon start>mdi-information</v-icon>
@@ -88,7 +88,7 @@
           </v-col>
 
           <!-- Темы -->
-          <v-col cols="12" md="4">
+          <v-col cols="12" md="6">
             <v-card>
               <v-card-title class="d-flex align-center">
                 <v-icon start>mdi-format-list-bulleted</v-icon>

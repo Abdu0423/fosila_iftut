@@ -31,7 +31,8 @@
     "teacher": "Муаллим",
     "students_management": "Идоракунии донишҷӯён",
     "orders": "Фармонҳо",
-    "transfers": "Интиқолҳо"
+    "transfers": "Интиқолҳо",
+    "ssr": "КМД"
   },
   "auth": {
     "login_title": "ФДТТИ",
