@@ -176,13 +176,26 @@
                   </v-col>
 
                   <!-- Активен -->
-                  <v-col cols="12">
+                  <v-col cols="12" md="6">
                     <v-switch
                       :model-value="form.is_active"
                       @update:model-value="form.is_active = $event"
                       :label="getTranslation('messages.active', 'Активен')"
                       color="primary"
                     />
+                  </v-col>
+
+                  <!-- Курсовая работа -->
+                  <v-col cols="12" md="6">
+                    <v-switch
+                      :model-value="form.has_coursework"
+                      @update:model-value="form.has_coursework = $event"
+                      :label="getTranslation('coursework.has_coursework', 'Есть курсовая работа')"
+                      color="warning"
+                    />
+                    <p v-if="form.has_coursework" class="text-caption text-grey mt-n2">
+                      {{ getTranslation('coursework.coursework_hint', 'Для этого предмета можно будет назначить курсовую работу с оценкой') }}
+                    </p>
                   </v-col>
                 </v-row>
 
@@ -261,7 +274,8 @@ const form = useForm({
   scheduled_at: null,
   distance_control_1_date: null,
   distance_control_2_date: null,
-  is_active: true
+  is_active: true,
+  has_coursework: false
 })
 
 const errors = computed(() => page.props.errors || {})

@@ -176,13 +176,26 @@
                   </v-col>
 
                   <!-- Активен -->
-                  <v-col cols="12">
+                  <v-col cols="12" md="6">
                     <v-switch
                       :model-value="form.is_active"
                       @update:model-value="form.is_active = $event"
                       :label="translations.messages?.active"
                       color="primary"
                     />
+                  </v-col>
+
+                  <!-- Курсовая работа -->
+                  <v-col cols="12" md="6">
+                    <v-switch
+                      :model-value="form.has_coursework"
+                      @update:model-value="form.has_coursework = $event"
+                      :label="translations.coursework?.has_coursework || 'Есть курсовая работа'"
+                      color="warning"
+                    />
+                    <p v-if="form.has_coursework" class="text-caption text-grey mt-n2">
+                      {{ translations.coursework?.coursework_hint || 'Для этого предмета можно будет назначить курсовую работу с оценкой' }}
+                    </p>
                   </v-col>
                 </v-row>
 
@@ -251,7 +264,8 @@ const form = useForm({
   scheduled_at: props.schedule?.scheduled_at ? new Date(props.schedule.scheduled_at).toISOString().slice(0, 16) : null,
   distance_control_1_date: props.schedule?.distance_control_1_date || null,
   distance_control_2_date: props.schedule?.distance_control_2_date || null,
-  is_active: props.schedule?.is_active !== undefined ? props.schedule.is_active : true
+  is_active: props.schedule?.is_active !== undefined ? props.schedule.is_active : true,
+  has_coursework: props.schedule?.has_coursework || false
 })
 
 const errors = computed(() => page.props.errors || {})

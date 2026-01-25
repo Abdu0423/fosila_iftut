@@ -799,6 +799,7 @@ class EducationDepartmentController extends Controller
             'distance_control_1_date' => 'nullable|date',
             'distance_control_2_date' => 'nullable|date',
             'is_active' => 'boolean',
+            'has_coursework' => 'boolean',
         ]);
         
         Schedule::create($validated);
@@ -865,6 +866,7 @@ class EducationDepartmentController extends Controller
             'distance_control_1_date' => 'nullable|date',
             'distance_control_2_date' => 'nullable|date',
             'is_active' => 'boolean',
+            'has_coursework' => 'boolean',
         ]);
         
         $schedule->update($validated);

@@ -116,6 +116,14 @@ Route::prefix('student')->middleware(['auth', 'student', 'check.password.change'
     Route::post('/ssr/{task}/submit', [App\Http\Controllers\Student\SsrController::class, 'submitWork'])->name('student.ssr.submit');
     Route::delete('/ssr/{task}/file', [App\Http\Controllers\Student\SsrController::class, 'deleteFile'])->name('student.ssr.delete-file');
 
+    // Курсовая работа
+    Route::get('/coursework', [App\Http\Controllers\Student\CourseworkController::class, 'index'])->name('student.coursework.index');
+    Route::get('/coursework/{schedule}', [App\Http\Controllers\Student\CourseworkController::class, 'show'])->name('student.coursework.show');
+    Route::post('/coursework/{schedule}/select-topic', [App\Http\Controllers\Student\CourseworkController::class, 'selectTopic'])->name('student.coursework.select-topic');
+    Route::post('/coursework/{schedule}/save', [App\Http\Controllers\Student\CourseworkController::class, 'saveWork'])->name('student.coursework.save');
+    Route::post('/coursework/{schedule}/submit', [App\Http\Controllers\Student\CourseworkController::class, 'submitWork'])->name('student.coursework.submit');
+    Route::delete('/coursework/{schedule}/file', [App\Http\Controllers\Student\CourseworkController::class, 'deleteFile'])->name('student.coursework.delete-file');
+
     // Профиль
     Route::get('/profile', function () {
         return Inertia::render('Profile/Index');
@@ -462,6 +470,14 @@ Route::prefix('teacher')->middleware(['auth', 'teacher', 'check.password.change'
     Route::delete('/ssr/{task}', [App\Http\Controllers\Teacher\SsrController::class, 'destroy'])->name('teacher.ssr.destroy');
     Route::get('/ssr/submission/{submission}', [App\Http\Controllers\Teacher\SsrController::class, 'showSubmission'])->name('teacher.ssr.submission');
     Route::post('/ssr/submission/{submission}/check', [App\Http\Controllers\Teacher\SsrController::class, 'checkSubmission'])->name('teacher.ssr.check');
+    
+    // Курсовая работа
+    Route::get('/coursework', [App\Http\Controllers\Teacher\CourseworkController::class, 'index'])->name('teacher.coursework.index');
+    Route::get('/coursework/{schedule}', [App\Http\Controllers\Teacher\CourseworkController::class, 'show'])->name('teacher.coursework.show');
+    Route::post('/coursework/{schedule}', [App\Http\Controllers\Teacher\CourseworkController::class, 'store'])->name('teacher.coursework.store');
+    Route::put('/coursework/{schedule}', [App\Http\Controllers\Teacher\CourseworkController::class, 'update'])->name('teacher.coursework.update');
+    Route::get('/coursework/submission/{submission}', [App\Http\Controllers\Teacher\CourseworkController::class, 'showSubmission'])->name('teacher.coursework.submission');
+    Route::post('/coursework/submission/{submission}/check', [App\Http\Controllers\Teacher\CourseworkController::class, 'checkSubmission'])->name('teacher.coursework.check');
     
     // Мои студенты
     Route::get('/students', [App\Http\Controllers\Teacher\StudentController::class, 'index'])->name('teacher.students.index');

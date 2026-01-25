@@ -21,7 +21,8 @@ class Schedule extends Model
         'scheduled_at',
         'distance_control_1_date',
         'distance_control_2_date',
-        'is_active'
+        'is_active',
+        'has_coursework'
     ];
 
     protected $casts = [
@@ -33,6 +34,7 @@ class Schedule extends Model
         'distance_control_1_date' => 'date',
         'distance_control_2_date' => 'date',
         'is_active' => 'boolean',
+        'has_coursework' => 'boolean',
     ];
 
     protected $appends = [
@@ -96,6 +98,14 @@ class Schedule extends Model
     public function grades()
     {
         return $this->hasMany(Grade::class);
+    }
+
+    /**
+     * Отношение к курсовой работе (one-to-one)
+     */
+    public function courseworkTask()
+    {
+        return $this->hasOne(CourseworkTask::class);
     }
 
     /**
