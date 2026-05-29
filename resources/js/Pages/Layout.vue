@@ -448,7 +448,7 @@ const menuItems = computed(() => {
         { title: t('navigation.my_tests'), icon: 'mdi-help-circle', route: '/education/tests' },
         { title: t('navigation.grades'), icon: 'mdi-star', route: '/education/grades' },
         { title: t('navigation.my_students'), icon: 'mdi-account-group', route: '/education/students' },
-        { title: t('navigation.schedule'), icon: 'mdi-calendar-clock', route: '/education/schedule' },
+        { title: t('navigation.my_schedules'), icon: 'mdi-calendar-clock', route: '/education/schedule' },
         { title: t('navigation.syllabuses'), icon: 'mdi-file-document-multiple', route: '/education/syllabuses' },
         { title: t('navigation.chat'), icon: 'mdi-chat', route: '/education/chat' },
       ]
@@ -466,7 +466,7 @@ const menuItems = computed(() => {
         { title: t('navigation.my_tests'), icon: 'mdi-help-circle', route: '/registration/tests' },
         { title: t('navigation.grades'), icon: 'mdi-star', route: '/registration/grades' },
         { title: t('navigation.my_students'), icon: 'mdi-account-group', route: '/registration/students' },
-        { title: t('navigation.schedule'), icon: 'mdi-calendar-clock', route: '/registration/schedule' },
+        { title: t('navigation.my_schedules'), icon: 'mdi-calendar-clock', route: '/registration/schedule' },
         { title: t('navigation.syllabuses'), icon: 'mdi-file-document-multiple', route: '/registration/syllabuses' },
         { title: t('navigation.chat'), icon: 'mdi-chat', route: '/registration/chat' },
       ]
