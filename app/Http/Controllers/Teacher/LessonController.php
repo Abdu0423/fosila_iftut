@@ -41,7 +41,7 @@ class LessonController extends Controller
                     'study_year' => $schedule->study_year,
                     'credits' => $schedule->credits,
                     'is_active' => $schedule->is_active,
-                    'created_at' => $schedule->created_at->format('d.m.Y H:i'),
+                    'created_at' => $schedule->created_at ? $schedule->created_at->format('d.m.Y H:i') : null,
                 ];
             });
 

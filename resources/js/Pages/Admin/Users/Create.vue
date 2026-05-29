@@ -143,35 +143,6 @@
                   </v-col>
                  </v-row>
 
-                 <!-- Пароль -->
-                 <h3 class="text-h6 mb-4 mt-6">{{ t('admin.users.password_section') }}</h3>
-                 <v-row>
-                   <v-col cols="12" md="6">
-                     <v-text-field
-                       v-model="form.password"
-                       :label="t('admin.users.password')"
-                       type="password"
-                       variant="outlined"
-                       density="compact"
-                       :error-messages="form.errors.password"
-                       :hint="t('admin.users.password_hint')"
-                       persistent-hint
-                     ></v-text-field>
-                   </v-col>
-                   <v-col cols="12" md="6">
-                     <v-text-field
-                       v-model="form.password_confirmation"
-                       :label="t('admin.users.password_confirmation')"
-                       type="password"
-                       variant="outlined"
-                       density="compact"
-                       :error-messages="form.errors.password_confirmation"
-                       :hint="t('admin.users.password_confirmation_hint')"
-                       persistent-hint
-                     ></v-text-field>
-                   </v-col>
-                 </v-row>
-
                 <v-alert
                   v-if="Object.keys(form.errors).length > 0"
                   type="error"
@@ -242,9 +213,7 @@ const form = useForm({
   dad_phone: '+992',
   mom_phone: '+992',
   role_id: '',
-  group_id: '',
-  password: '',
-  password_confirmation: ''
+  group_id: ''
 })
 
 // Проверяем, является ли выбранная роль студентом

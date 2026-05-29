@@ -76,7 +76,7 @@ class ScheduleController extends Controller
                         ];
                     }),
                     'tests_count' => $schedule->tests_count ?? 0,
-                    'created_at' => $schedule->created_at->format('d.m.Y H:i'),
+                    'created_at' => $schedule->created_at ? $schedule->created_at->format('d.m.Y H:i') : null,
                 ];
             });
 
