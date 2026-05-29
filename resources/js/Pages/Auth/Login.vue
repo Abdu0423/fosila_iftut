@@ -22,10 +22,10 @@
             <form @submit.prevent="submit" class="login-form">
               <!-- Телефон поле -->
               <PhoneInput
-                v-model="login"
+                v-model="form.login"
                 :label="getTranslation('auth.phone', 'Телефон')"
                 :error-messages="getLoginErrors"
-                :disabled="processing"
+                :disabled="form.processing"
                 class="mb-4"
                 required
                 :hint="getTranslation('auth.phone_hint', 'Введите номер телефона')"
@@ -34,7 +34,7 @@
 
               <!-- Пароль поле -->
               <v-text-field
-                v-model="password"
+                v-model="form.password"
                 :label="t('auth.password_label')"
                 :type="showPassword ? 'text' : 'password'"
                 prepend-inner-icon="mdi-lock"
@@ -43,7 +43,7 @@
                 variant="outlined"
                 rounded="lg"
                 :error-messages="getPasswordErrors"
-                :disabled="processing"
+                :disabled="form.processing"
                 class="mb-6"
                 autocomplete="current-password"
                 required
@@ -81,7 +81,7 @@
               <!-- Запомнить меня -->
               <div class="d-flex justify-space-between align-center mb-6">
                 <v-checkbox
-                  v-model="remember"
+                  v-model="form.remember"
                   :label="t('auth.remember_me')"
                   color="primary"
                   hide-details
@@ -105,13 +105,13 @@
                 size="large"
                 block
                 rounded="lg"
-                :loading="processing"
-                :disabled="processing || !agreeToTerms"
+                :loading="form.processing"
+                :disabled="form.processing || !agreeToTerms"
                 class="login-btn mb-6"
                 elevation="4"
               >
                 <v-icon start>mdi-login</v-icon>
-                {{ processing ? t('auth.logging_in') : t('auth.login_button') }}
+                {{ form.processing ? t('auth.logging_in') : t('auth.login_button') }}
               </v-btn>
               
               <!-- Предупреждение если не согласен -->
@@ -145,7 +145,7 @@
                 </template>
                 <v-alert-title class="text-h6 mb-2">Ошибка входа</v-alert-title>
                 <div class="text-body-2">
-                  <template v-for="(error, field) in errors" :key="field">
+                  <template v-for="(error, field) in form.errors" :key="field">
                     <div v-if="Array.isArray(error)">
                       <div v-for="(err, index) in error" :key="index" class="mb-1">{{ err }}</div>
                     </div>
@@ -388,9 +388,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router, useForm } from '@inertiajs/vue3'
 import { useI18n } from 'vue-i18n'
-import axios from 'axios'
 import LanguageSwitcher from '../../Components/LanguageSwitcher.vue'
 import PhoneInput from '../../Components/PhoneInput.vue'
 
@@ -407,84 +406,48 @@ const agreeToTerms = ref(true)
 const showPrivacyDialog = ref(false)
 const showTermsDialog = ref(false)
 
-// Состояние формы
-const login = ref('+992')
-const password = ref('')
-const remember = ref(false)
-const processing = ref(false)
-const errors = ref({})
+const form = useForm({
+  login: '+992',
+  password: '',
+  remember: false,
+})
 
 // Динамический год для футера
 const currentYear = computed(() => new Date().getFullYear())
 
 // Проверка наличия ошибок
 const hasErrors = computed(() => {
-  return errors.value && Object.keys(errors.value).length > 0
+  return form.errors && Object.keys(form.errors).length > 0
 })
 
 // Ошибки для поля логина
 const getLoginErrors = computed(() => {
-  if (!errors.value || !errors.value.login) return []
-  if (Array.isArray(errors.value.login)) return errors.value.login
-  return [errors.value.login]
+  if (!form.errors || !form.errors.login) return []
+  if (Array.isArray(form.errors.login)) return form.errors.login
+  return [form.errors.login]
 })
 
 // Ошибки для поля пароля
 const getPasswordErrors = computed(() => {
-  if (!errors.value || !errors.value.password) return []
-  if (Array.isArray(errors.value.password)) return errors.value.password
-  return [errors.value.password]
+  if (!form.errors || !form.errors.password) return []
+  if (Array.isArray(form.errors.password)) return form.errors.password
+  return [form.errors.password]
 })
 
 // Очистка ошибок
 const clearErrors = () => {
-  errors.value = {}
+  form.clearErrors()
 }
 
-const submit = async () => {
-  // Очищаем предыдущие ошибки
-  errors.value = {}
-  processing.value = true
-  
-  try {
-    // Получаем CSRF токен
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
-    
-    const response = await axios.post('/login', {
-      login: login.value,
-      password: password.value,
-      remember: remember.value
-    }, {
-      headers: {
-        'X-CSRF-TOKEN': csrfToken,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+const submit = () => {
+  form.post('/login', {
+    onError: (errors) => {
+      // 419 — истёк CSRF-токен, обновляем страницу
+      if (errors?.message?.includes?.('419') || errors?.csrf) {
+        window.location.reload()
       }
-    })
-    
-    // Успешный вход - перенаправляем
-    if (response.data && response.data.redirect) {
-      window.location.href = response.data.redirect
-    } else {
-      // Перезагружаем страницу для редиректа от сервера
-      window.location.reload()
-    }
-  } catch (error) {
-    processing.value = false
-    
-    if (error.response) {
-      if (error.response.status === 422) {
-        // Ошибки валидации
-        errors.value = error.response.data.errors || { login: ['Неверный номер телефона или пароль.'] }
-      } else if (error.response.status === 401) {
-        errors.value = { login: ['Неверный номер телефона или пароль.'] }
-      } else {
-        errors.value = { login: ['Произошла ошибка. Попробуйте снова.'] }
-      }
-    } else {
-      errors.value = { login: ['Ошибка сети. Проверьте подключение.'] }
-    }
-  }
+    },
+  })
 }
 
 const goToForgotPassword = () => {

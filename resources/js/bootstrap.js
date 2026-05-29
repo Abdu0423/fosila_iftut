@@ -10,6 +10,8 @@ import { Ziggy } from './ziggy.js';
 window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+window.axios.defaults.withCredentials = true;
+window.axios.defaults.withXSRFToken = true;
 
 // Добавляем функцию route в глобальную область
 window.route = (name, params, absolute, config = Ziggy) => {

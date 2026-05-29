@@ -17,13 +17,14 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $isAjax = $request->expectsJson() || $request->ajax();
+        // Inertia отправляет X-Requested-With, но CSRF обрабатывается через cookie — нужен redirect, не JSON
+        $wantsJson = !$request->header('X-Inertia') && ($request->expectsJson() || $request->ajax());
         
         try {
             Log::info('Получен запрос на вход', [
                 'login' => $request->login,
                 'has_password' => !empty($request->password),
-                'is_ajax' => $isAjax
+                'wants_json' => $wantsJson
             ]);
 
             // Валидация
@@ -63,7 +64,7 @@ class AuthController extends Controller
             if (!$user) {
                 Log::warning('Пользователь не найден', ['login' => $login]);
                 
-                if ($isAjax) {
+                if ($wantsJson) {
                     return response()->json([
                         'message' => 'Неверный номер телефона или пароль.',
                         'errors' => ['login' => ['Неверный номер телефона или пароль.']]
@@ -79,7 +80,7 @@ class AuthController extends Controller
             if (!\Hash::check($password, $user->password)) {
                 Log::warning('Неверный пароль', ['user_id' => $user->id]);
                 
-                if ($isAjax) {
+                if ($wantsJson) {
                     return response()->json([
                         'message' => 'Неверный номер телефона или пароль.',
                         'errors' => ['login' => ['Неверный номер телефона или пароль.']]
@@ -126,22 +127,22 @@ class AuthController extends Controller
             
             Log::info('Перенаправление на ' . $redirectUrl);
             
-            // Для AJAX возвращаем JSON с URL для редиректа
-            if ($isAjax) {
+            // Для чистых JSON/API запросов возвращаем JSON с URL для редиректа
+            if ($wantsJson) {
                 return response()->json([
                     'success' => true,
                     'redirect' => $redirectUrl
                 ]);
             }
             
-            return Inertia::location($redirectUrl);
+            return redirect($redirectUrl);
             
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::warning('Ошибка валидации при входе', [
                 'errors' => $e->errors()
             ]);
             
-            if ($isAjax) {
+            if ($wantsJson) {
                 return response()->json([
                     'message' => 'Ошибка валидации',
                     'errors' => $e->errors()
@@ -155,7 +156,7 @@ class AuthController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
             
-            if ($isAjax) {
+            if ($wantsJson) {
                 return response()->json([
                     'message' => 'Произошла ошибка при входе.',
                     'errors' => ['login' => ['Произошла ошибка при входе. Пожалуйста, попробуйте снова.']]
