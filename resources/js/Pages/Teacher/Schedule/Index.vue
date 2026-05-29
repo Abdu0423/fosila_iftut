@@ -6,7 +6,7 @@
         <v-col cols="12">
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
-              <h1 class="text-h4 font-weight-bold mb-2">{{ t('navigation.my_schedule') }}</h1>
+              <h1 class="text-h4 font-weight-bold mb-2">{{ t('navigation.my_schedules') }}</h1>
               <p class="text-body-1 text-medium-emphasis">{{ t('teacher.schedule.subtitle', {}, { default: 'Просмотр расписаний, силлабусов, уроков и тестов' }) }}</p>
             </div>
           </div>

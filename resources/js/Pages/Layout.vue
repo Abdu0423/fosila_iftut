@@ -434,7 +434,7 @@ const menuItems = computed(() => {
         { title: t('navigation.coursework'), icon: 'mdi-book-open-variant', route: '/teacher/coursework' },
         { title: t('navigation.grades'), icon: 'mdi-star', route: '/teacher/grades' },
         { title: t('navigation.my_students'), icon: 'mdi-account-group', route: '/teacher/students' },
-        { title: t('navigation.schedule'), icon: 'mdi-calendar-clock', route: '/teacher/schedule' },
+        { title: t('navigation.my_schedules'), icon: 'mdi-calendar-clock', route: '/teacher/schedule' },
         { title: t('navigation.syllabuses'), icon: 'mdi-file-document-multiple', route: '/teacher/syllabuses' },
         { title: t('navigation.chat'), icon: 'mdi-chat', route: '/teacher/chat' },
       ]
