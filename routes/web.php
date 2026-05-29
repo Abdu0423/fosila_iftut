@@ -179,6 +179,18 @@ Route::middleware('auth')->group(function () {
     })->name('test.notification');
 });
 
+// Управление пользователями (администратор или отдел образования)
+Route::prefix('admin')->middleware(['auth', 'manage.users', 'check.password.change'])->group(function () {
+    Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users.index');
+    Route::get('/users/create', [App\Http\Controllers\Admin\UserController::class, 'create'])->name('admin.users.create');
+    Route::post('/users', [App\Http\Controllers\Admin\UserController::class, 'store'])->name('admin.users.store');
+    Route::get('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'show'])->name('admin.users.show');
+    Route::get('/users/{user}/edit', [App\Http\Controllers\Admin\UserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.destroy');
+    Route::post('/users/{user}/delete', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.destroy.post');
+});
+
 // Админ панель (требует аутентификации и прав администратора)
 Route::prefix('admin')->middleware(['auth', 'admin', 'check.password.change'])->group(function () {
     // Выход из системы
@@ -193,16 +205,6 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.password.change'])->
     Route::post('/subjects/bulk-action', [App\Http\Controllers\Admin\SubjectController::class, 'bulkAction'])->name('admin.subjects.bulk-action');
     Route::post('/subjects/{subject}/duplicate', [App\Http\Controllers\Admin\SubjectController::class, 'duplicate'])->name('admin.subjects.duplicate');
     Route::get('/subjects-export', [App\Http\Controllers\Admin\SubjectController::class, 'export'])->name('admin.subjects.export');
-    
-    // Управление пользователями
-    Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users.index');
-    Route::get('/users/create', [App\Http\Controllers\Admin\UserController::class, 'create'])->name('admin.users.create');
-    Route::post('/users', [App\Http\Controllers\Admin\UserController::class, 'store'])->name('admin.users.store');
-    Route::get('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'show'])->name('admin.users.show');
-    Route::get('/users/{user}/edit', [App\Http\Controllers\Admin\UserController::class, 'edit'])->name('admin.users.edit');
-    Route::put('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'update'])->name('admin.users.update');
-    Route::delete('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.destroy');
-    Route::post('/users/{user}/delete', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('admin.users.destroy.post');
     
     // Управление курсами
     Route::get('/courses', function () {

@@ -284,6 +284,10 @@ const currentRole = computed(() => {
   if (path.startsWith('/education')) {
     return 'education_department'
   }
+
+  if (user.value?.role === 'education_department' && path.startsWith('/admin/users')) {
+    return 'education_department'
+  }
   
   // Если роль передана через props, используем её
   if (props.role) {
@@ -442,7 +446,7 @@ const menuItems = computed(() => {
     case 'education_department':
       return [
         { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: '/education' },
-        { title: t('education_department.users_menu'), icon: 'mdi-account-group', route: '/education/users' },
+        { title: t('education_department.users_work_menu'), icon: 'mdi-account-cog', route: '/admin/users' },
         { title: t('education_department.schedules_menu'), icon: 'mdi-calendar-clock', route: '/education/schedules' },
         { title: t('navigation.my_lessons'), icon: 'mdi-teach', route: '/education/lessons' },
         { title: t('navigation.my_tests'), icon: 'mdi-help-circle', route: '/education/tests' },
