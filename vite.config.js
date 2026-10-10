@@ -57,30 +57,16 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 manualChunks: (id) => {
-                    if (id.includes('node_modules')) {
-                        if (id.includes('vue-router') || (id.includes('vue') && !id.includes('vuetify') && !id.includes('vuedraggable'))) {
-                            return 'vue-runtime';
-                        }
+                    if (!id.includes('node_modules')) {
+                        return;
+                    }
 
-                        if (id.includes('@mdi/font')) {
-                            return 'mdi-icons';
-                        }
+                    if (id.includes('@mdi/font')) {
+                        return 'mdi-icons';
+                    }
 
-                        if (id.includes('pusher-js') || id.includes('laravel-echo')) {
-                            return 'realtime';
-                        }
-
-                        if (id.includes('vuedraggable')) {
-                            return 'drag-drop';
-                        }
-
-                        if (id.includes('axios')) {
-                            return 'axios';
-                        }
-
-                        if (!id.includes('vuetify')) {
-                            return 'vendor';
-                        }
+                    if (id.includes('pusher-js') || id.includes('laravel-echo')) {
+                        return 'realtime';
                     }
                 },
             },

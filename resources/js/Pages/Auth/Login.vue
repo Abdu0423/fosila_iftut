@@ -11,7 +11,7 @@
         </div>
 
         <!-- Основная форма входа -->
-        <v-card class="login-card" elevation="24" rounded="xl">
+        <v-card class="login-card" elevation="0" rounded="xl">
           <div class="login-header">
             <v-icon size="64" color="primary" class="mb-4">mdi-school</v-icon>
             <h1 class="text-h3 font-weight-bold text-primary mb-2">{{ t('auth.login_title') }}</h1>
@@ -108,7 +108,7 @@
                 :loading="form.processing"
                 :disabled="form.processing || !agreeToTerms"
                 class="login-btn mb-6"
-                elevation="4"
+                elevation="0"
               >
                 <v-icon start>mdi-login</v-icon>
                 {{ form.processing ? t('auth.logging_in') : t('auth.login_button') }}
@@ -457,7 +457,10 @@ const goToForgotPassword = () => {
 
 <style scoped>
 .login-app {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background:
+    radial-gradient(circle at 12% 18%, rgba(61, 79, 216, 0.16), transparent 34%),
+    radial-gradient(circle at 88% 82%, rgba(18, 21, 28, 0.08), transparent 28%),
+    #F4F1EC;
   min-height: 100vh;
 }
 
@@ -480,9 +483,9 @@ const goToForgotPassword = () => {
 }
 
 .login-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #FFFFFF;
+  border: 1px solid #E7E2DA;
+  box-shadow: 0 16px 40px rgba(28, 25, 23, 0.06);
   max-width: 500px;
   margin: 0 auto;
 }
@@ -518,9 +521,7 @@ const goToForgotPassword = () => {
 .info-card {
   text-align: center;
   padding: 40px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #12151C;
   border-radius: 24px;
   max-width: 400px;
 }
@@ -539,7 +540,7 @@ const goToForgotPassword = () => {
 .shape {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(61, 79, 216, 0.08);
   animation: float 6s ease-in-out infinite;
 }
 

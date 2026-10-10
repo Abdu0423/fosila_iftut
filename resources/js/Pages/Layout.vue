@@ -6,10 +6,8 @@
       app
       :temporary="isMobile"
       :permanent="!isMobile"
-      :color="navDrawerColor"
       :width="navDrawerWidth"
-      class="modern-drawer drawer-flex"
-      :class="{ 'drawer-dark': isDarkTheme }"
+      class="modern-drawer drawer-flex drawer-dark"
     >
       <!-- Заголовок меню -->
       <div class="drawer-header" :class="{ 'drawer-header-dark': isDarkTheme }">
@@ -110,7 +108,7 @@
     </v-navigation-drawer>
 
     <!-- Верхняя панель -->
-    <v-app-bar app :color="appBarColor" :elevation="appBarElevation" class="modern-appbar">
+    <v-app-bar app color="surface" elevation="0" class="modern-appbar">
       <v-app-bar-nav-icon 
         @click="drawer = !drawer"
         :color="appBarIconColor"
@@ -253,7 +251,6 @@ const windowWidth = ref(window.innerWidth)
 // Адаптивность
 const isMobile = computed(() => windowWidth.value < 960)
 const navDrawerWidth = computed(() => isMobile.value ? '280' : '300')
-const appBarElevation = computed(() => isMobile.value ? 2 : 1)
 
 // Обработчик изменения размера окна
 const handleResize = () => {
@@ -338,17 +335,14 @@ const notifications = ref([
 // Текущий год
 const currentYear = computed(() => new Date().getFullYear())
 
-// Вычисляемые свойства для темы (единый дизайн учителя для всех)
-const isDarkTheme = computed(() => true) // Темная тема для всех
-const navDrawerColor = computed(() => 'indigo-darken-3') // Единый цвет для всех
-const appBarColor = computed(() => 'indigo-darken-2') // Единый цвет для всех
-const appBarIconColor = computed(() => 'white')
-const appBarTitleClass = computed(() => 'text-white')
+const isDarkTheme = computed(() => true)
+const appBarIconColor = computed(() => undefined)
+const appBarTitleClass = computed(() => 'text-high-emphasis')
 const headerTitleClass = computed(() => 'text-white')
-const headerSubtitleClass = computed(() => 'text-grey-lighten-1')
+const headerSubtitleClass = computed(() => 'drawer-muted')
 const userInfoTextClass = computed(() => 'text-white')
-const userInfoSubtextClass = computed(() => 'text-grey-lighten-1')
-const footerTextClass = computed(() => 'text-grey-lighten-1')
+const userInfoSubtextClass = computed(() => 'drawer-muted')
+const footerTextClass = computed(() => 'drawer-muted')
 
 // Заголовки в зависимости от роли
 const headerIcon = computed(() => {
@@ -569,9 +563,9 @@ const logout = () => {
 <style scoped>
 /* Основные стили для навигационного меню */
 .modern-drawer {
-  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
+  border-right: 0 !important;
 }
 
 .drawer-flex {
@@ -580,7 +574,18 @@ const logout = () => {
 }
 
 .drawer-dark {
-  background: linear-gradient(180deg, var(--v-theme-background) 0%, rgba(0, 0, 0, 0.2) 100%);
+  background: #12151C !important;
+  color: #F5F2EC;
+}
+
+.drawer-dark :deep(.v-list) {
+  background: transparent;
+  color: #F5F2EC;
+}
+
+.drawer-dark .menu-item :deep(.v-list-item-title),
+.drawer-dark .menu-item :deep(.v-icon) {
+  color: #F5F2EC;
 }
 
 /* Заголовок меню */
@@ -590,8 +595,12 @@ const logout = () => {
 }
 
 .drawer-header-dark {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.drawer-muted {
+  color: rgba(245, 242, 236, 0.62);
 }
 
 /* Панель информации о пользователе */
@@ -608,11 +617,14 @@ const logout = () => {
 }
 
 .user-info-dark {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.06) 100%);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .user-info-dark:hover {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.1) 100%);
+  background: rgba(255, 255, 255, 0.1);
+  transform: none;
+  box-shadow: none;
 }
 
 /* Обертка для списка меню */
@@ -656,33 +668,43 @@ const logout = () => {
 }
 
 .menu-item:hover {
-  background: linear-gradient(90deg, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0.05) 100%);
-  transform: translateX(4px);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .menu-item-dark:hover {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .menu-item-active {
-  background: linear-gradient(90deg, rgba(33, 150, 243, 0.2) 0%, rgba(33, 150, 243, 0.1) 100%);
-  border-left: 4px solid rgb(33, 150, 243);
+  background: #F5F2EC;
+  color: #12151C;
   font-weight: 600;
-  transform: translateX(0);
 }
 
 .menu-item-active.menu-item-dark {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
-  border-left: 4px solid white;
+  background: #F5F2EC;
+  color: #12151C;
+  border-left: 0;
 }
 
-.menu-item-active:hover {
-  transform: translateX(0);
+.menu-item-active :deep(.v-list-item-title),
+.menu-item-active :deep(.v-icon) {
+  color: #12151C;
+  opacity: 1;
+}
+
+.menu-item-active:hover,
+.menu-item-active.menu-item-dark:hover {
+  background: #F5F2EC;
+  transform: none;
+}
+
+.menu-item-active :deep(.v-list-item__overlay) {
+  opacity: 0;
 }
 
 .active-icon {
-  color: rgb(33, 150, 243);
-  animation: iconPulse 1s ease-in-out;
+  color: #12151C;
 }
 
 @keyframes iconPulse {
@@ -701,7 +723,9 @@ const logout = () => {
 
 /* App Bar стили */
 .modern-appbar {
-  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #E7E2DA;
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(12px);
 }
 
 .appbar-nav-icon {
@@ -734,7 +758,7 @@ const logout = () => {
 }
 
 .profile-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(28, 25, 23, 0.05);
 }
 
 /* Меню профиля */

@@ -2,20 +2,93 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Дополнительные стили для дистанционного обучения */
-.v-application {
-    font-family: 'Roboto', sans-serif;
+.v-application,
+.v-application .text-body-1,
+.v-application .text-body-2,
+.v-application .text-caption,
+.v-application .text-h6,
+.v-application .text-h5,
+.v-application .text-h4,
+.v-application .text-h3 {
+    font-family: 'Manrope', sans-serif;
+}
+
+.v-main {
+    background: #F4F1EC;
+}
+
+.v-main > .v-container {
+    padding-top: 28px;
+    padding-bottom: 32px;
+}
+
+.v-card {
+    border: 1px solid #E7E2DA;
+    border-radius: 16px !important;
+    box-shadow: 0 1px 2px rgba(28, 25, 23, 0.04);
+}
+
+.v-card.rounded-xl {
+    border-radius: 24px !important;
+}
+
+.v-card-title {
+    letter-spacing: 0;
+    font-weight: 700;
+}
+
+.v-data-table {
+    background: #FFFFFF;
+    border: 1px solid #E7E2DA;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.v-data-table thead th {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #78716C !important;
+    background: #FAF8F5;
+}
+
+.v-data-table tbody tr:hover {
+    background: #F7F5F2;
+}
+
+.v-btn {
+    border-radius: 12px !important;
+    letter-spacing: 0;
+}
+
+.v-field,
+.v-field--variant-outlined {
+    border-radius: 12px;
+}
+
+.v-field--variant-outlined .v-field__outline__start {
+    border-radius: 12px 0 0 12px;
+}
+
+.v-field--variant-outlined .v-field__outline__end {
+    border-radius: 0 12px 12px 0;
+}
+
+h1.text-h4,
+h1.text-h3 {
+    letter-spacing: -0.03em;
 }
 
 /* Стили для карточек курсов */
 .course-card {
-    transition: all 0.3s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
 }
 
 .course-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: #C9C2B6;
+    box-shadow: 0 8px 24px rgba(28, 25, 23, 0.06);
 }
 
 /* Стили для видео плеера */
@@ -23,7 +96,9 @@
     position: relative;
     width: 100%;
     height: 0;
-    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    padding-bottom: 56.25%;
+    border-radius: 16px;
+    overflow: hidden;
 }
 
 .video-container iframe {
@@ -40,17 +115,8 @@
     overflow-y: auto;
 }
 
-/* Стили для уведомлений */
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 9999;
-}
-
-/* Адаптивность */
 @media (max-width: 768px) {
-    .course-card {
-        margin-bottom: 16px;
+    .v-main > .v-container {
+        padding-top: 16px;
     }
 }
