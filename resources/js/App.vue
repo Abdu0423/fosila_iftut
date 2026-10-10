@@ -1,9 +1,6 @@
 <template>
-  <Layout>
-    <slot />
-  </Layout>
+  <router-view />
 </template>
 
-<script setup>
-import Layout from './Pages/Layout.vue'
+<script setup lang="ts">
 </script>

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Grade;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 
 class GradeController extends Controller
@@ -74,7 +73,7 @@ class GradeController extends Controller
             $q->where('student_id', $student->id);
         })->distinct()->pluck('study_year')->sort()->values();
 
-        return Inertia::render('Grades/Index', [
+        return spa('Grades/Index', [
             'grades' => $grades,
             'stats' => $stats,
             'gradesBySemester' => $gradesBySemester,
@@ -96,7 +95,7 @@ class GradeController extends Controller
 
         $grade->load(['schedule.lesson', 'schedule.teacher', 'student']);
 
-        return Inertia::render('Grades/Show', [
+        return spa('Grades/Show', [
             'grade' => $grade
         ]);
     }

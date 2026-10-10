@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -27,79 +29,82 @@ class Handler extends ExceptionHandler
             //
         });
 
-        $this->renderable(function (Throwable $e, $request) {
-            if ($request->header('X-Inertia')) {
-                if ($e instanceof \Illuminate\Validation\ValidationException) {
-                    // Для Inertia запросов используем back() с ошибками
-                    // Inertia автоматически обработает это как частичное обновление
-                    // без полной перезагрузки страницы
-                    // Для POST запросов back() вернет ответ с ошибками без редиректа
-                    return back()
-                        ->withErrors($e->errors())
-                        ->withInput($request->except('password'));
-                }
-                
-                if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
-                    $statusCode = $e->getStatusCode();
-                    
-                    if ($statusCode === 403) {
-                        return \Inertia\Inertia::render('Errors/403', [
-                            'message' => $e->getMessage()
-                        ])->toResponse($request)->setStatusCode(403);
-                    }
-                    
-                    if ($statusCode === 404) {
-                        return \Inertia\Inertia::render('Errors/404')->toResponse($request)->setStatusCode(404);
-                    }
-                    
-                    if ($statusCode === 419) {
-                        return \Inertia\Inertia::render('Errors/419')->toResponse($request)->setStatusCode(419);
-                    }
-                }
-                
-                // Обработка истёкшей сессии/токена
-                if ($e instanceof \Illuminate\Session\TokenMismatchException) {
-                    return \Inertia\Inertia::render('Errors/419')->toResponse($request)->setStatusCode(419);
-                }
-                
-                // Обработка ошибок базы данных
-                if ($e instanceof \Illuminate\Database\QueryException) {
-                    $message = 'Произошла ошибка при работе с базой данных.';
-                    
-                    // Специальные сообщения для разных типов ошибок
-                    if (str_contains($e->getMessage(), 'Base table or view not found')) {
-                        $message = 'Таблица в базе данных не найдена. Обратитесь к администратору.';
-                    } elseif (str_contains($e->getMessage(), 'Duplicate entry')) {
-                        $message = 'Запись с такими данными уже существует.';
-                    } elseif (str_contains($e->getMessage(), 'Access denied')) {
-                        $message = 'Нет доступа к базе данных. Обратитесь к администратору.';
-                    }
-                    
-                    return back()->with('error', $message);
-                }
-                
-                // Обработка других исключений
-                if ($e instanceof \Exception) {
-                    $message = 'Произошла непредвиденная ошибка. Попробуйте еще раз.';
-                    
-                    // Логируем ошибку для отладки
-                    \Log::error('Inertia error', [
-                        'message' => $e->getMessage(),
-                        'file' => $e->getFile(),
-                        'line' => $e->getLine(),
-                        'trace' => $e->getTraceAsString()
-                    ]);
-                    
-                    return \Inertia\Inertia::render('Errors/500', [
-                        'message' => $message
-                    ])->toResponse($request)->setStatusCode(500);
-                }
-                
-                // Fallback для неизвестных ошибок
-                return \Inertia\Inertia::render('Errors/500', [
-                    'message' => 'Произошла ошибка. Попробуйте еще раз.'
-                ])->toResponse($request)->setStatusCode(500);
+        $this->renderable(function (Throwable $e, Request $request) {
+            if (! $this->wantsSpaJson($request)) {
+                return null;
             }
+
+            if ($e instanceof \Illuminate\Validation\ValidationException
+                || $e instanceof \Illuminate\Auth\AuthenticationException) {
+                return null;
+            }
+
+            if ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
+                return spa('Errors/404', [
+                    'message' => 'Запись не найдена',
+                ], 404);
+            }
+
+            if ($e instanceof HttpException) {
+                $statusCode = $e->getStatusCode();
+
+                if (! in_array($statusCode, [403, 404, 419, 500], true)) {
+                    return null;
+                }
+
+                $component = match ($statusCode) {
+                    403 => 'Errors/403',
+                    404 => 'Errors/404',
+                    419 => 'Errors/419',
+                    default => 'Errors/500',
+                };
+
+                return spa($component, [
+                    'message' => $e->getMessage(),
+                ], $statusCode);
+            }
+
+            if ($e instanceof \Illuminate\Session\TokenMismatchException) {
+                return spa('Errors/419', [
+                    'message' => 'Срок действия страницы истёк. Обновите её и попробуйте снова.',
+                ], 419);
+            }
+
+            if ($e instanceof \Illuminate\Database\QueryException) {
+                $message = 'Произошла ошибка при работе с базой данных.';
+
+                if (str_contains($e->getMessage(), 'Base table or view not found')) {
+                    $message = 'Таблица в базе данных не найдена. Обратитесь к администратору.';
+                } elseif (str_contains($e->getMessage(), 'Duplicate entry')) {
+                    $message = 'Запись с такими данными уже существует.';
+                } elseif (str_contains($e->getMessage(), 'Access denied')) {
+                    $message = 'Нет доступа к базе данных. Обратитесь к администратору.';
+                }
+
+                return spa('Errors/500', ['message' => $message], 500);
+            }
+
+            if ($e instanceof \Exception) {
+                \Log::error('SPA error', [
+                    'message' => $e->getMessage(),
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ]);
+
+                return spa('Errors/500', [
+                    'message' => 'Произошла непредвиденная ошибка. Попробуйте еще раз.',
+                ], 500);
+            }
+
+            return null;
         });
+    }
+
+    private function wantsSpaJson(Request $request): bool
+    {
+        return $request->header('X-Spa') === '1'
+            || $request->is('api')
+            || $request->is('api/*')
+            || $request->expectsJson();
     }
 }

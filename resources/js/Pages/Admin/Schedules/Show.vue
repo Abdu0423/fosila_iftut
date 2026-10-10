@@ -272,9 +272,9 @@
   </Layout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router } from '@/compat/inertia'
 import Layout from '../../Layout.vue'
 
 // Props

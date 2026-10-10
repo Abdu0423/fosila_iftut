@@ -32,9 +32,9 @@
   </v-menu>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref } from 'vue'
-import { usePage, router } from '@inertiajs/vue3'
+import { usePage, router } from '@/compat/inertia'
 
 defineProps({
   compact: {

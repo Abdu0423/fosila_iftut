@@ -9,7 +9,6 @@ use App\Models\Schedule;
 use App\Models\Group;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 
 class AssignmentController extends Controller
@@ -57,7 +56,7 @@ class AssignmentController extends Controller
         $lessons = Lesson::all();
         $groups = Group::all();
 
-        return Inertia::render('Admin/Assignments/Index', [
+        return spa('Admin/Assignments/Index', [
             'assignments' => $assignments,
             'lessons' => $lessons,
             'groups' => $groups,
@@ -77,7 +76,7 @@ class AssignmentController extends Controller
             $q->where('name', 'teacher');
         })->get();
 
-        return Inertia::render('Admin/Assignments/Create', [
+        return spa('Admin/Assignments/Create', [
             'lessons' => $lessons,
             'schedules' => $schedules,
             'groups' => $groups,
@@ -122,7 +121,7 @@ class AssignmentController extends Controller
     {
         $assignment->load(['lesson', 'schedule', 'group', 'teacher', 'submissions.student']);
 
-        return Inertia::render('Admin/Assignments/Show', [
+        return spa('Admin/Assignments/Show', [
             'assignment' => $assignment
         ]);
     }
@@ -141,7 +140,7 @@ class AssignmentController extends Controller
             $q->where('name', 'teacher');
         })->get();
 
-        return Inertia::render('Admin/Assignments/Edit', [
+        return spa('Admin/Assignments/Edit', [
             'assignment' => $assignment,
             'lessons' => $lessons,
             'schedules' => $schedules,

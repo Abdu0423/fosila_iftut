@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -74,7 +73,7 @@ class LibraryController extends Controller
         $total = count($files);
         $files = array_slice($files, ($page - 1) * $perPage, $perPage);
 
-        return Inertia::render('Admin/Library/Index', [
+        return spa('Admin/Library/Index', [
             'files' => [
                 'data' => $files,
                 'current_page' => (int)$page,

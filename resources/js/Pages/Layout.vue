@@ -221,15 +221,17 @@
   </v-app>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { usePage, router } from '@inertiajs/vue3'
+import { useRoute } from 'vue-router'
+import { usePage, router } from '@/compat/inertia'
 import { useDisplay } from 'vuetify'
 import { useI18n } from 'vue-i18n'
 import NotificationSnackbar from '../Components/NotificationSnackbar.vue'
 import LanguageSwitcher from '../Components/LanguageSwitcher.vue'
 
 const page = usePage()
+const currentRoute = useRoute()
 const { mobile, xs, sm, mdAndDown } = useDisplay()
 const { t } = useI18n()
 
@@ -280,7 +282,7 @@ const userAvatar = computed(() => user.value.avatar || `https://ui-avatars.com/a
 // Определяем роль: сначала из URL (если /education), затем из props, затем из user.role
 const currentRole = computed(() => {
   // Определяем роль из URL (приоритет для /education)
-  const path = window.location.pathname
+  const path = currentRoute.path
   if (path.startsWith('/education')) {
     return 'education_department'
   }
@@ -496,7 +498,7 @@ const navigateTo = (path) => {
 }
 
 const isActiveRoute = (route) => {
-  const currentPath = window.location.pathname
+  const currentPath = currentRoute.path
   // Для точного совпадения
   if (currentPath === route) {
     return true

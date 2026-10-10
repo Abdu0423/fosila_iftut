@@ -201,9 +201,9 @@
    </Layout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useForm, router } from '@inertiajs/vue3'
+import { useForm, router } from '@/compat/inertia'
 import Layout from '../../Layout.vue'
 
 // Props из Inertia

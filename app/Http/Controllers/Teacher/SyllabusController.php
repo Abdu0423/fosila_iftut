@@ -8,7 +8,6 @@ use App\Models\Subject;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
 
 class SyllabusController extends Controller
 {
@@ -59,7 +58,7 @@ class SyllabusController extends Controller
             'with_files' => $syllabuses->whereNotNull('file_name')->count(),
         ];
 
-        return Inertia::render('Teacher/Syllabuses/Index', [
+        return spa('Teacher/Syllabuses/Index', [
             'syllabuses' => $syllabuses->values(),
             'stats' => $stats,
             'schedules' => $schedules->map(function ($schedule) {
@@ -111,7 +110,7 @@ class SyllabusController extends Controller
             $warningMessage = 'У вас пока нет расписаний. Обратитесь к администратору для создания расписания.';
         }
 
-        return Inertia::render('Teacher/Syllabuses/Create', [
+        return spa('Teacher/Syllabuses/Create', [
             'subjects' => $subjects->values(),
             'years' => $years,
             'has_schedules' => $hasSchedules,
@@ -165,7 +164,7 @@ class SyllabusController extends Controller
 
             \Log::info('Силлабус создан', ['syllabus_id' => $syllabus->id]);
 
-            return Inertia::location(route('teacher.syllabuses.show', $syllabus->id));
+            return response()->json(['redirect' => route('teacher.syllabuses.show', $syllabus->id)]);
         } catch (\Exception $e) {
             \Log::error('Ошибка при создании силлабуса', [
                 'error' => $e->getMessage(),
@@ -211,7 +210,7 @@ class SyllabusController extends Controller
             'preview_url' => $syllabus->preview_url,
         ];
 
-        return Inertia::render('Teacher/Syllabuses/Show', [
+        return spa('Teacher/Syllabuses/Show', [
             'syllabus' => $syllabusData
         ]);
     }
@@ -258,7 +257,7 @@ class SyllabusController extends Controller
             $years[] = $i;
         }
 
-        return Inertia::render('Teacher/Syllabuses/Edit', [
+        return spa('Teacher/Syllabuses/Edit', [
             'syllabus' => [
                 'id' => $syllabus->id,
                 'name' => $syllabus->name,

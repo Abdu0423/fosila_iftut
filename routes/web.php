@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SpaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +20,8 @@ Route::get('/favicon.ico', function () {
     return response('', 204);
 });
 
+Route::get('/api/me', [SpaController::class, 'me'])->name('spa.me');
+
 // Маршруты аутентификации (доступны для гостей)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -34,11 +36,11 @@ Route::middleware('guest')->group(function () {
 
 // Юридические страницы (доступны всем)
 Route::get('/privacy', function () {
-    return Inertia::render('Legal/PrivacyPolicy');
+    return spa('Legal/PrivacyPolicy');
 })->name('privacy');
 
 Route::get('/terms', function () {
-    return Inertia::render('Legal/TermsOfService');
+    return spa('Legal/TermsOfService');
 })->name('terms');
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -59,21 +61,21 @@ Route::prefix('student')->middleware(['auth', 'student', 'check.password.change'
     
     // Главная страница студента
     Route::get('/', function () {
-        return Inertia::render('Dashboard');
+        return spa('Dashboard');
     })->name('student.dashboard');
 
     // Dashboard (альтернативный маршрут)
     Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
+        return spa('Dashboard');
     })->name('student.dashboard.alternative');
 
     // Курсы
     Route::get('/courses', function () {
-        return Inertia::render('Courses/Index');
+        return spa('Courses/Index');
     })->name('student.courses.index');
 
     Route::get('/courses/{course}', function ($course) {
-        return Inertia::render('Courses/Show', ['course' => $course]);
+        return spa('Courses/Show', ['course' => $course]);
     })->name('student.courses.show');
 
     // Расписание
@@ -126,12 +128,12 @@ Route::prefix('student')->middleware(['auth', 'student', 'check.password.change'
 
     // Профиль
     Route::get('/profile', function () {
-        return Inertia::render('Profile/Index');
+        return spa('Profile/Index');
     })->name('student.profile.index');
 
     // Настройки
     Route::get('/settings', function () {
-        return Inertia::render('Settings/Index');
+        return spa('Settings/Index');
     })->name('student.settings.index');
 });
 
@@ -208,15 +210,15 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.password.change'])->
     
     // Управление курсами
     Route::get('/courses', function () {
-        return Inertia::render('Admin/Courses/Index');
+        return spa('Admin/Courses/Index');
     })->name('admin.courses.index');
     
     Route::get('/courses/create', function () {
-        return Inertia::render('Admin/Courses/Create');
+        return spa('Admin/Courses/Create');
     })->name('admin.courses.create');
     
     Route::get('/courses/{course}/edit', function ($course) {
-        return Inertia::render('Admin/Courses/Edit', ['course' => $course]);
+        return spa('Admin/Courses/Edit', ['course' => $course]);
     })->name('admin.courses.edit');
     
     // Управление заданиями
@@ -232,7 +234,7 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.password.change'])->
     
     // Статистика и отчеты
     Route::get('/reports', function () {
-        return Inertia::render('Admin/Reports/Index');
+        return spa('Admin/Reports/Index');
     })->name('admin.reports.index');
     
     // Настройки системы
@@ -289,32 +291,32 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.password.change'])->
     
     // Управление тестами
     Route::get('/tests', function () {
-        return Inertia::render('Admin/Tests/Index');
+        return spa('Admin/Tests/Index');
     })->name('admin.tests.index');
     
     Route::get('/tests/create', function () {
-        return Inertia::render('Admin/Tests/Create');
+        return spa('Admin/Tests/Create');
     })->name('admin.tests.create');
     
     Route::get('/tests/{test}/edit', function ($test) {
-        return Inertia::render('Admin/Tests/Edit', ['test' => $test]);
+        return spa('Admin/Tests/Edit', ['test' => $test]);
     })->name('admin.tests.edit');
     
     Route::get('/tests/{test}/questions', function ($test) {
-        return Inertia::render('Admin/Tests/Questions', ['test' => $test]);
+        return spa('Admin/Tests/Questions', ['test' => $test]);
     })->name('admin.tests.questions');
     
     // Управление оценками
     Route::get('/grades', function () {
-        return Inertia::render('Admin/Grades/Index');
+        return spa('Admin/Grades/Index');
     })->name('admin.grades.index');
     
     Route::get('/grades/students', function () {
-        return Inertia::render('Admin/Grades/Students');
+        return spa('Admin/Grades/Students');
     })->name('admin.grades.students');
     
     Route::get('/grades/courses', function () {
-        return Inertia::render('Admin/Grades/Courses');
+        return spa('Admin/Grades/Courses');
     })->name('admin.grades.courses');
     
     // Управление расписанием (специфичные роуты ПЕРЕД resource)
@@ -422,16 +424,16 @@ Route::prefix('teacher')->middleware(['auth', 'teacher', 'check.password.change'
     
     // Главная страница учителя
     Route::get('/', function () {
-        return Inertia::render('Teacher/Dashboard');
+        return spa('Teacher/Dashboard');
     })->name('teacher.dashboard');
     
     // Мои курсы
     Route::get('/courses', function () {
-        return Inertia::render('Teacher/Courses/Index');
+        return spa('Teacher/Courses/Index');
     })->name('teacher.courses.index');
     
     Route::get('/courses/{course}', function ($course) {
-        return Inertia::render('Teacher/Courses/Show', ['course' => $course]);
+        return spa('Teacher/Courses/Show', ['course' => $course]);
     })->name('teacher.courses.show');
     
     // Мои уроки
@@ -516,26 +518,26 @@ Route::prefix('teacher')->middleware(['auth', 'teacher', 'check.password.change'
     
     // Материалы
     Route::get('/materials', function () {
-        return Inertia::render('Teacher/Materials/Index');
+        return spa('Teacher/Materials/Index');
     })->name('teacher.materials.index');
     
     Route::get('/materials/create', function () {
-        return Inertia::render('Teacher/Materials/Create');
+        return spa('Teacher/Materials/Create');
     })->name('teacher.materials.create');
     
     // Отчеты
     Route::get('/reports', function () {
-        return Inertia::render('Teacher/Reports/Index');
+        return spa('Teacher/Reports/Index');
     })->name('teacher.reports.index');
     
     // Профиль
     Route::get('/profile', function () {
-        return Inertia::render('Teacher/Profile/Index');
+        return spa('Teacher/Profile/Index');
     })->name('teacher.profile.index');
     
     // Настройки
     Route::get('/settings', function () {
-        return Inertia::render('Teacher/Settings/Index');
+        return spa('Teacher/Settings/Index');
     })->name('teacher.settings.index');
     
     // Чат
@@ -659,16 +661,16 @@ Route::prefix('education')->middleware(['auth', 'education.department', 'check.p
     
     // Материалы
     Route::get('/materials', function () {
-        return Inertia::render('Teacher/Materials/Index');
+        return spa('Teacher/Materials/Index');
     })->name('education.materials.index');
     
     Route::get('/materials/create', function () {
-        return Inertia::render('Teacher/Materials/Create');
+        return spa('Teacher/Materials/Create');
     })->name('education.materials.create');
     
     // Отчеты
     Route::get('/reports', function () {
-        return Inertia::render('Teacher/Reports/Index');
+        return spa('Teacher/Reports/Index');
     })->name('education.reports.index');
     
     // Чат
@@ -792,16 +794,16 @@ Route::prefix('registration')->middleware(['auth', 'education.or.registration', 
     
     // Материалы
     Route::get('/materials', function () {
-        return Inertia::render('Teacher/Materials/Index');
+        return spa('Teacher/Materials/Index');
     })->name('registration.materials.index');
     
     Route::get('/materials/create', function () {
-        return Inertia::render('Teacher/Materials/Create');
+        return spa('Teacher/Materials/Create');
     })->name('registration.materials.create');
     
     // Отчеты
     Route::get('/reports', function () {
-        return Inertia::render('Teacher/Reports/Index');
+        return spa('Teacher/Reports/Index');
     })->name('registration.reports.index');
     
     // Чат
@@ -820,3 +822,8 @@ Route::prefix('sms-test')->middleware('auth')->group(function () {
     Route::post('/send-verification', [App\Http\Controllers\SmsTestController::class, 'sendVerificationCode'])->name('sms.test.verification');
     Route::get('/check-config', [App\Http\Controllers\SmsTestController::class, 'checkConfig'])->name('sms.test.config');
 });
+
+// Оболочка Vue для адресов без отдельного файлового ответа.
+Route::get('{any}', function () {
+    return view('app');
+})->where('any', '^(?!api(?:/|$)).*$')->name('spa.shell');

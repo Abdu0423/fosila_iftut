@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use App\Models\CourseworkTask;
 use App\Models\CourseworkTopic;
 use App\Models\CourseworkSubmission;
@@ -49,7 +48,7 @@ class CourseworkController extends Controller
                 ];
             });
 
-        return Inertia::render('Teacher/Coursework/Index', [
+        return spa('Teacher/Coursework/Index', [
             'schedules' => $schedules,
         ]);
     }
@@ -76,7 +75,7 @@ class CourseworkController extends Controller
 
         if (!$task) {
             // Если задания нет, показываем форму создания
-            return Inertia::render('Teacher/Coursework/Create', [
+            return spa('Teacher/Coursework/Create', [
                 'schedule' => [
                     'id' => $schedule->id,
                     'subject' => $schedule->subject ? $schedule->subject->name : null,
@@ -114,7 +113,7 @@ class CourseworkController extends Controller
             ];
         });
 
-        return Inertia::render('Teacher/Coursework/Show', [
+        return spa('Teacher/Coursework/Show', [
             'schedule' => [
                 'id' => $schedule->id,
                 'subject' => $schedule->subject ? $schedule->subject->name : null,
@@ -267,7 +266,7 @@ class CourseworkController extends Controller
 
         $submission->load(['topic', 'student', 'courseworkTask.schedule.subject', 'courseworkTask.schedule.group']);
 
-        return Inertia::render('Teacher/Coursework/Submission', [
+        return spa('Teacher/Coursework/Submission', [
             'submission' => [
                 'id' => $submission->id,
                 'text' => $submission->text,

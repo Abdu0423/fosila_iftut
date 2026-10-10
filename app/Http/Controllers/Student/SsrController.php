@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use App\Models\SsrTask;
 use App\Models\SsrTopic;
 use App\Models\SsrSubmission;
@@ -71,7 +70,7 @@ class SsrController extends Controller
                 ];
             });
 
-        return Inertia::render('Student/Ssr/Index', [
+        return spa('Student/Ssr/Index', [
             'tasks' => $tasks,
         ]);
     }
@@ -117,7 +116,7 @@ class SsrController extends Controller
             ];
         });
 
-        return Inertia::render('Student/Ssr/Show', [
+        return spa('Student/Ssr/Show', [
             'task' => [
                 'id' => $task->id,
                 'title' => $task->title,

@@ -209,8 +209,8 @@
   </Layout>
 </template>
 
-<script setup>
-import { useForm } from '@inertiajs/vue3'
+<script setup lang="ts">
+import { useForm } from '@/compat/inertia'
 import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
 

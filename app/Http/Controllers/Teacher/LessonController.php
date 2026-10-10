@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use App\Models\Lesson;
 use App\Models\Subject;
 use App\Models\Group;
@@ -45,7 +44,7 @@ class LessonController extends Controller
                 ];
             });
 
-        return Inertia::render('Teacher/Lessons/Index', [
+        return spa('Teacher/Lessons/Index', [
             'schedules' => $schedules,
         ]);
     }
@@ -121,7 +120,7 @@ class LessonController extends Controller
             ];
         })->values();
 
-        return Inertia::render('Teacher/Lessons/ShowSchedule', [
+        return spa('Teacher/Lessons/ShowSchedule', [
             'schedule' => [
                 'id' => $schedule->id,
                 'subject' => $schedule->subject ? [
@@ -161,7 +160,7 @@ class LessonController extends Controller
         // Получаем schedule_id из query параметров, если есть
         $selectedScheduleId = $request->query('schedule_id');
 
-        return Inertia::render('Teacher/Lessons/Create', [
+        return spa('Teacher/Lessons/Create', [
             'schedules' => $schedules,
             'selectedScheduleId' => $selectedScheduleId,
         ]);
@@ -285,7 +284,7 @@ class LessonController extends Controller
 
         $lesson->load(['subject', 'schedules.group', 'schedules.subject']);
 
-        return Inertia::render('Teacher/Lessons/Show', [
+        return spa('Teacher/Lessons/Show', [
             'lesson' => $lesson,
             'schedule' => $schedule,
         ]);
@@ -313,7 +312,7 @@ class LessonController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return Inertia::render('Teacher/Lessons/Edit', [
+        return spa('Teacher/Lessons/Edit', [
             'lesson' => $lesson,
             'schedules' => $schedules,
         ]);

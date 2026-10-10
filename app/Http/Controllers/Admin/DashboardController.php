@@ -11,7 +11,6 @@ use App\Models\Grade;
 use App\Models\Assignment;
 use App\Models\Test;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -188,7 +187,7 @@ class DashboardController extends Controller
             'dbConnection' => config('database.default'),
         ];
 
-        return Inertia::render('Admin/Dashboard', [
+        return spa('Admin/Dashboard', [
             'stats' => $stats,
             'roleStats' => $roleStats,
             'recentUsers' => $recentUsers,

@@ -1,81 +1,14 @@
-/**
- * We'll load the axios HTTP library which allows us to easily issue requests
- * to our Laravel back-end. This library automatically handles sending the
- * CSRF token as a header based on the value of the "XSRF" token cookie.
- */
-
 import axios from 'axios';
-import { Ziggy } from './ziggy.js';
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
 
 window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+window.axios.defaults.headers.common['X-Spa'] = '1';
+window.axios.defaults.headers.common['Accept'] = 'application/json';
 window.axios.defaults.withCredentials = true;
 window.axios.defaults.withXSRFToken = true;
-
-// Добавляем функцию route в глобальную область
-window.route = (name, params, absolute, config = Ziggy) => {
-    if (typeof name === 'undefined') {
-        return config;
-    }
-    
-    if (typeof name === 'object') {
-        params = name;
-        name = undefined;
-    }
-    
-    if (typeof params === 'boolean') {
-        absolute = params;
-        params = undefined;
-    }
-    
-    if (typeof params === 'object' && params !== null) {
-        params = Object.keys(params).reduce((result, key) => {
-            if (params[key] !== null && params[key] !== undefined) {
-                result[key] = params[key];
-            }
-            return result;
-        }, {});
-    }
-    
-    const url = new URL(config.url);
-    
-    if (name) {
-        const route = config.routes[name];
-        if (!route) {
-            throw new Error(`Route [${name}] not found.`);
-        }
-        
-        let uri = route.uri;
-        
-        if (params) {
-            Object.keys(params).forEach(key => {
-                uri = uri.replace(`{${key}}`, params[key]);
-            });
-        }
-        
-        if (route.parameters) {
-            route.parameters.forEach(param => {
-                if (!params || !params[param]) {
-                    throw new Error(`Missing required parameter [${param}] for route [${name}].`);
-                }
-            });
-        }
-        
-        url.pathname = uri;
-    }
-    
-    return absolute ? url.href : url.pathname + url.search;
-};
-
-/**
- * Echo exposes an expressive API for subscribing to channels and listening
- * for events that are broadcast by Laravel. Echo and event broadcasting
- * allows your team to easily build robust real-time web applications.
- */
-
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
 
 window.Pusher = Pusher;
 

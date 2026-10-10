@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Role;
-use Inertia\Inertia;
 
 class TeacherController extends Controller
 {
@@ -82,7 +81,7 @@ class TeacherController extends Controller
 
         $teachers = $query->paginate(15);
 
-        return Inertia::render('Admin/Teachers/Index', [
+        return spa('Admin/Teachers/Index', [
             'teachers' => $teachers,
             'departments' => \App\Models\Department::all(),
             'filters' => [
@@ -160,7 +159,7 @@ class TeacherController extends Controller
         $perPage = $request->get('per_page', 15);
         $teachers = $query->paginate($perPage);
 
-        return Inertia::render('Admin/Teachers/Index', [
+        return spa('Admin/Teachers/Index', [
             'teachers' => $teachers,
             'departments' => \App\Models\Department::all(),
             'filters' => $request->only(['search', 'department_id', 'status']),

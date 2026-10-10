@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use App\Models\CourseworkTask;
 use App\Models\CourseworkTopic;
 use App\Models\CourseworkSubmission;
@@ -70,7 +69,7 @@ class CourseworkController extends Controller
                 ];
             });
 
-        return Inertia::render('Student/Coursework/Index', [
+        return spa('Student/Coursework/Index', [
             'courseworks' => $schedules,
         ]);
     }
@@ -120,7 +119,7 @@ class CourseworkController extends Controller
             ];
         });
 
-        return Inertia::render('Student/Coursework/Show', [
+        return spa('Student/Coursework/Show', [
             'schedule' => [
                 'id' => $schedule->id,
                 'subject' => $schedule->subject ? $schedule->subject->name : null,

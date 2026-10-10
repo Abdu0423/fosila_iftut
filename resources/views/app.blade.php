@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title inertia>{{ config('app.name', 'IFTUT - Дистанционное обучение') }}</title>
+        <title>{{ config('app.name', 'IFTUT - Дистанционное обучение') }}</title>
 
         <!-- Favicon -->
         <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
@@ -33,12 +33,9 @@
             window.__TRANSLATIONS__ = @json($translations);
         </script>
 
-        <!-- Scripts -->
-        @routes
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @inertiaHead
+        @vite(['resources/css/app.css', 'resources/js/app.ts'])
     </head>
     <body class="font-sans antialiased">
-        @inertia
+        <div id="app"></div>
     </body>
 </html>

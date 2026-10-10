@@ -30,9 +30,9 @@
   </v-snackbar>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { usePage } from '@inertiajs/vue3'
+import { usePage } from '@/compat/inertia'
 
 const page = usePage()
 const show = ref(false)

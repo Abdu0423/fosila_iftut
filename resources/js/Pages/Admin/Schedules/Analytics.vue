@@ -267,9 +267,9 @@
   </AdminApp>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router } from '@/compat/inertia'
 import AdminApp from '../AdminApp.vue'
 
 // Props из Inertia

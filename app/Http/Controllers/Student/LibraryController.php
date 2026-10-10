@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 
 class LibraryController extends Controller
@@ -73,7 +72,7 @@ class LibraryController extends Controller
         $total = count($files);
         $files = array_slice($files, ($page - 1) * $perPage, $perPage);
 
-        return Inertia::render('Library/Index', [
+        return spa('Library/Index', [
             'files' => [
                 'data' => $files,
                 'current_page' => (int)$page,

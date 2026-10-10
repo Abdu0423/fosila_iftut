@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Submission;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -102,7 +101,7 @@ class AssignmentController extends Controller
                 ->count()
         ];
 
-        return Inertia::render('Assignments/Index', [
+        return spa('Assignments/Index', [
             'assignments' => $assignments,
             'stats' => $stats,
             'filters' => $request->only(['search', 'submission_status', 'due_filter', 'sort_by', 'sort_order'])
@@ -133,7 +132,7 @@ class AssignmentController extends Controller
         $assignment->is_overdue = $assignment->due_date < now() && !$assignment->is_submitted;
         $assignment->can_submit = $assignment->due_date >= now() && !$assignment->is_submitted;
 
-        return Inertia::render('Assignments/Show', [
+        return spa('Assignments/Show', [
             'assignment' => $assignment
         ]);
     }

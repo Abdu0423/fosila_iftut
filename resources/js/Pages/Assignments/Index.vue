@@ -144,8 +144,8 @@
   </Layout>
 </template>
 
-<script>
-import { router } from '@inertiajs/vue3'
+<script lang="ts">
+import { router } from '@/compat/inertia'
 import Layout from '../Layout.vue'
 
 export default {
@@ -206,7 +206,7 @@ export default {
       }
     },
     openAssignment(assignmentId) {
-      router.visit(this.$route('assignments.show', { assignment: assignmentId }))
+      router.visit(window.route('assignments.show', { assignment: assignmentId }))
     }
   }
 }

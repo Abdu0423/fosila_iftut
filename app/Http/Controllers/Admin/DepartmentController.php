@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class DepartmentController extends Controller
 {
@@ -14,7 +13,7 @@ class DepartmentController extends Controller
         $departments = Department::orderBy('name')
             ->paginate(10);
 
-        return Inertia::render('Admin/Departments/Index', [
+        return spa('Admin/Departments/Index', [
             'departments' => $departments,
             'filters' => [],
         ]);
@@ -41,7 +40,7 @@ class DepartmentController extends Controller
             })
             ->paginate($request->get('per_page', 10));
 
-        return Inertia::render('Admin/Departments/Index', [
+        return spa('Admin/Departments/Index', [
             'departments' => $departments,
             'filters' => $request->only(['search', 'status']),
         ]);
@@ -49,7 +48,7 @@ class DepartmentController extends Controller
 
     public function create()
     {
-        return Inertia::render('Admin/Departments/Create');
+        return spa('Admin/Departments/Create');
     }
 
     public function store(Request $request)
@@ -70,14 +69,14 @@ class DepartmentController extends Controller
     {
         $department->load(['lessons', 'teachers']);
 
-        return Inertia::render('Admin/Departments/Show', [
+        return spa('Admin/Departments/Show', [
             'department' => $department,
         ]);
     }
 
     public function edit(Department $department)
     {
-        return Inertia::render('Admin/Departments/Edit', [
+        return spa('Admin/Departments/Edit', [
             'department' => $department,
         ]);
     }

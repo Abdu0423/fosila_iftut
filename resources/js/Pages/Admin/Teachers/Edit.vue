@@ -192,9 +192,9 @@
   </AdminLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import { useForm, router } from '@inertiajs/vue3'
+import { useForm, router } from '@/compat/inertia'
 import Layout from '../../Layout.vue'
 
 const props = defineProps({

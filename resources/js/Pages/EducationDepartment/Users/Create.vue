@@ -169,9 +169,9 @@
   </Layout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useForm, router, usePage } from '@inertiajs/vue3'
+import { useForm, router, usePage } from '@/compat/inertia'
 import Layout from '../../Layout.vue'
 import PhoneInput from '../../../Components/PhoneInput.vue'
 

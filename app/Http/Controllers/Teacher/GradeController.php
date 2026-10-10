@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use App\Models\Schedule;
 use App\Models\Grade;
 use App\Models\Test;
@@ -37,7 +36,7 @@ class GradeController extends Controller
                 ];
             });
 
-        return Inertia::render('Teacher/Grades/Index', [
+        return spa('Teacher/Grades/Index', [
             'schedules' => $schedules,
         ]);
     }

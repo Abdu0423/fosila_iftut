@@ -8,7 +8,6 @@ use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Inertia\Inertia;
 
 class PasswordResetController extends Controller
 {
@@ -24,7 +23,7 @@ class PasswordResetController extends Controller
      */
     public function showForgotPassword()
     {
-        return Inertia::render('Auth/ForgotPassword');
+        return spa('Auth/ForgotPassword');
     }
 
     /**
@@ -131,7 +130,7 @@ class PasswordResetController extends Controller
             ]);
         }
 
-        return Inertia::render('Auth/ResetPassword', [
+        return spa('Auth/ResetPassword', [
             'phone' => $phone,
         ]);
     }

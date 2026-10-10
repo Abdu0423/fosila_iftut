@@ -143,9 +143,9 @@
   </Layout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
-import { usePage } from '@inertiajs/vue3'
+import { usePage } from '@/compat/inertia'
 import Layout from '../Layout.vue'
 
 const page = usePage()

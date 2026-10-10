@@ -8,7 +8,6 @@ use App\Models\User;
 use App\Events\MessageSent;
 use App\Events\MessageRead;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 
 class ChatController extends Controller
@@ -56,7 +55,7 @@ class ChatController extends Controller
             $totalUnreadCount += $chat->unread_count ?? 0;
         }
 
-        return Inertia::render('Chat/Index', [
+        return spa('Chat/Index', [
             'chats' => $chats,
             'users' => $users,
             'unreadChatsCount' => $totalUnreadCount,
@@ -91,7 +90,7 @@ class ChatController extends Controller
             $query->where('user_id', '!=', $user->id);
         }]);
 
-        return Inertia::render('Chat/Show', [
+        return spa('Chat/Show', [
             'chat' => $chat,
             'messages' => $messages,
         ]);

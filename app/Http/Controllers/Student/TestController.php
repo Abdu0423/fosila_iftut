@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use App\Models\Test;
 use App\Models\TestAttempt;
 use App\Models\Schedule;
@@ -63,7 +62,7 @@ class TestController extends Controller
             ];
         })->filter()->values();
 
-        return Inertia::render('Student/Tests/Index', [
+        return spa('Student/Tests/Index', [
             'examsBySchedule' => $examsBySchedule,
         ]);
     }
@@ -126,7 +125,7 @@ class TestController extends Controller
                 ];
             });
 
-        return Inertia::render('Student/Tests/Show', [
+        return spa('Student/Tests/Show', [
             'test' => [
                 'id' => $test->id,
                 'title' => $test->title,

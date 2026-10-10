@@ -191,8 +191,8 @@
   </AdminLayout>
 </template>
 
-<script setup>
-import { useForm } from '@inertiajs/vue3'
+<script setup lang="ts">
+import { useForm } from '@/compat/inertia'
 import Layout from '../../Layout.vue'
 
 const props = defineProps({

@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Inertia\Inertia;
 
 class AdminMiddleware
 {
@@ -40,7 +39,7 @@ class AdminMiddleware
                 return response()->json(['message' => 'Доступ запрещен. Требуются права администратора.'], 403);
             }
             
-            return Inertia::render('Errors/403', [
+            return spa('Errors/403', [
                 'message' => 'Доступ запрещен. Требуются права администратора.'
             ])->toResponse($request)->setStatusCode(403);
         }

@@ -262,9 +262,9 @@
   </Layout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import { useForm, router, usePage } from '@inertiajs/vue3'
+import { useForm, router, usePage } from '@/compat/inertia'
 import Layout from '../Layout.vue'
 
 const page = usePage()

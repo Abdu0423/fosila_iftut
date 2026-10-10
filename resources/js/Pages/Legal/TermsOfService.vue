@@ -398,7 +398,7 @@
   </v-app>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 
 const lastUpdate = computed(() => {

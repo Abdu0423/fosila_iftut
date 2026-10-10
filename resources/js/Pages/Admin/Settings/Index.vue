@@ -491,9 +491,9 @@
   </AdminApp>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useForm, usePage } from '@inertiajs/vue3'
+import { useForm, usePage } from '@/compat/inertia'
 import AdminApp from '../AdminApp.vue'
 
 const page = usePage()

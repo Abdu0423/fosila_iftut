@@ -7,7 +7,6 @@ use App\Models\Syllabus;
 use App\Models\Subject;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\Settings;
 
@@ -45,7 +44,7 @@ class SyllabusController extends Controller
             'with_files' => Syllabus::whereNotNull('file_path')->count(),
         ];
 
-        return Inertia::render('Admin/Syllabuses/Index', [
+        return spa('Admin/Syllabuses/Index', [
             'syllabuses' => $syllabuses,
             'stats' => $stats
         ]);
@@ -70,7 +69,7 @@ class SyllabusController extends Controller
             $years[] = $i;
         }
 
-        return Inertia::render('Admin/Syllabuses/Create', [
+        return spa('Admin/Syllabuses/Create', [
             'subjects' => $subjects,
             'years' => $years
         ]);
@@ -122,7 +121,7 @@ class SyllabusController extends Controller
 
             \Log::info('Силлабус создан', ['syllabus_id' => $syllabus->id]);
 
-            return Inertia::location(route('admin.syllabuses.show', $syllabus->id));
+            return response()->json(['redirect' => route('admin.syllabuses.show', $syllabus->id)]);
         } catch (\Exception $e) {
             \Log::error('Ошибка при создании силлабуса', [
                 'error' => $e->getMessage(),
@@ -154,7 +153,7 @@ class SyllabusController extends Controller
             'preview_url' => $syllabus->preview_url,
         ];
 
-        return Inertia::render('Admin/Syllabuses/Show', [
+        return spa('Admin/Syllabuses/Show', [
             'syllabus' => $syllabusData
         ]);
     }
@@ -178,7 +177,7 @@ class SyllabusController extends Controller
             $years[] = $i;
         }
 
-        return Inertia::render('Admin/Syllabuses/Edit', [
+        return spa('Admin/Syllabuses/Edit', [
             'syllabus' => [
                 'id' => $syllabus->id,
                 'name' => $syllabus->name,

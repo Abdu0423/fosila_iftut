@@ -11,7 +11,7 @@
  */
 export function absoluteRoute(name, params = undefined) {
     // Получаем путь от Ziggy
-    let path = route(name, params);
+    let path = window.route(name, params);
     
     // Если путь не начинается с /, добавляем его
     if (!path.startsWith('/')) {

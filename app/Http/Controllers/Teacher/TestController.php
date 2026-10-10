@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use App\Models\Test;
 use App\Models\TestQuestion;
 use App\Models\Schedule;
@@ -48,7 +47,7 @@ class TestController extends Controller
                 ];
             });
 
-        return Inertia::render('Teacher/Tests/Index', [
+        return spa('Teacher/Tests/Index', [
             'schedules' => $schedules,
             'stats' => [
                 'total_schedules' => $schedules->count(),
@@ -132,7 +131,7 @@ class TestController extends Controller
             })
         ];
 
-        return Inertia::render('Teacher/Tests/Show', [
+        return spa('Teacher/Tests/Show', [
             'test' => $testData
         ]);
     }

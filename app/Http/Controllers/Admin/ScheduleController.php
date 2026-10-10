@@ -10,7 +10,6 @@ use App\Models\User;
 use App\Models\Syllabus;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class ScheduleController extends Controller
 {
@@ -91,7 +90,7 @@ class ScheduleController extends Controller
             return $schedule;
         });
 
-        return Inertia::render('Admin/Schedules/Index', [
+        return spa('Admin/Schedules/Index', [
             'schedules' => $schedules,
             'subjects' => $subjects,
             'groups' => $groups,
@@ -128,7 +127,7 @@ class ScheduleController extends Controller
         //     'teachers_count' => $teachers->count()
         // ]);
 
-        return Inertia::render('Admin/Schedules/Create', [
+        return spa('Admin/Schedules/Create', [
             'subjects' => $subjects,
             'groups' => $groups,
             'teachers' => $teachers,
@@ -186,7 +185,7 @@ class ScheduleController extends Controller
     {
         $schedule->load(['subject', 'teacher', 'group', 'syllabuses.creator', 'lessons.subject']);
 
-        return Inertia::render('Admin/Schedules/Show', [
+        return spa('Admin/Schedules/Show', [
             'schedule' => $schedule
         ]);
     }
@@ -215,7 +214,7 @@ class ScheduleController extends Controller
             'final_exam' => $schedule->tests->where('exam_type', 'final')->first() ?? null,
         ];
 
-        return Inertia::render('Admin/Schedules/Edit', [
+        return spa('Admin/Schedules/Edit', [
             'schedule' => $schedule,
             'subjects' => $subjects,
             'groups' => $groups,
@@ -378,7 +377,7 @@ class ScheduleController extends Controller
      */
     public function analytics()
     {
-        return Inertia::render('Admin/Schedules/Analytics', [
+        return spa('Admin/Schedules/Analytics', [
             'schedules' => Schedule::with(['subject', 'teacher', 'group'])->get()
         ]);
     }
@@ -394,7 +393,7 @@ class ScheduleController extends Controller
             $q->where('name', '!=', 'student');
         })->get();
 
-        return Inertia::render('Admin/Schedules/BulkCreate', [
+        return spa('Admin/Schedules/BulkCreate', [
             'lessons' => $lessons,
             'groups' => $groups,
             'teachers' => $teachers,
@@ -428,7 +427,7 @@ class ScheduleController extends Controller
         $schedule->load(['subject', 'teacher', 'group', 'lessons.subject']);
         $lessons = Lesson::with(['subject'])->get();
 
-        return Inertia::render('Admin/Schedules/Lessons', [
+        return spa('Admin/Schedules/Lessons', [
             'schedule' => $schedule,
             'lessons' => $lessons
         ]);

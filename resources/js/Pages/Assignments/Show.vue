@@ -132,7 +132,7 @@
   </Layout>
 </template>
 
-<script>
+<script lang="ts">
 import Layout from '../Layout.vue'
 
 export default {
@@ -173,7 +173,7 @@ export default {
   computed: {
     breadcrumbs() {
       return [
-        { title: 'Задания', href: this.$route('assignments.index') },
+        { title: 'Задания', href: window.route('assignments.index') },
         { title: this.assignment.title, disabled: true }
       ]
     }

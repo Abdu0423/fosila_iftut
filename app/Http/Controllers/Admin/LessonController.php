@@ -8,7 +8,6 @@ use App\Models\Lesson;
 use App\Models\Schedule;
 use App\Models\Subject;
 use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
 
 class LessonController extends Controller
 {
@@ -60,7 +59,7 @@ class LessonController extends Controller
                 ]
             ]);
 
-            return Inertia::render('Admin/Lessons/Index', [
+            return spa('Admin/Lessons/Index', [
                 'lessons' => $lessons ?: (object)['data' => []],
                 'subjects' => $subjects,
                 'filters' => [
@@ -76,7 +75,7 @@ class LessonController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
             
-            return Inertia::render('Admin/Lessons/Index', [
+            return spa('Admin/Lessons/Index', [
                 'lessons' => (object)['data' => []],
                 'subjects' => [],
                 'filters' => [],
@@ -114,7 +113,7 @@ class LessonController extends Controller
                 'filters' => $request->only(['search', 'subject_id'])
             ]);
 
-            return Inertia::render('Admin/Lessons/Index', [
+            return spa('Admin/Lessons/Index', [
                 'lessons' => $lessons,
                 'subjects' => $subjects,
                 'filters' => $request->only(['search', 'subject_id']),
@@ -125,7 +124,7 @@ class LessonController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
             
-            return Inertia::render('Admin/Lessons/Index', [
+            return spa('Admin/Lessons/Index', [
                 'lessons' => (object)['data' => []],
                 'subjects' => [],
                 'filters' => $request->only(['search', 'subject_id']),
@@ -153,7 +152,7 @@ class LessonController extends Controller
         $totalLessons = Lesson::count();
 
 
-        return Inertia::render('Admin/Lessons/Create', [
+        return spa('Admin/Lessons/Create', [
             'schedules' => $schedules,
             'totalLessons' => $totalLessons,
         ]);
@@ -219,7 +218,7 @@ class LessonController extends Controller
     public function show(Lesson $lesson)
     {
         $lesson->load(['subject', 'schedules.teacher', 'schedules.group']);
-        return Inertia::render('Admin/Lessons/Show', [
+        return spa('Admin/Lessons/Show', [
             'lesson' => $lesson,
         ]);
     }
@@ -235,7 +234,7 @@ class LessonController extends Controller
         // Получаем все расписания с их предметами
         $schedules = \App\Models\Schedule::with(['subject', 'group', 'teacher'])->get();
 
-        return Inertia::render('Admin/Lessons/Edit', [
+        return spa('Admin/Lessons/Edit', [
             'lesson' => $lesson,
             'schedules' => $schedules,
         ]);
@@ -305,7 +304,7 @@ class LessonController extends Controller
     public function materials(Lesson $lesson)
     {
         $lesson->load(['subject', 'schedules.teacher', 'schedules.group']);
-        return Inertia::render('Admin/Lessons/Materials', [
+        return spa('Admin/Lessons/Materials', [
             'lesson' => $lesson,
         ]);
     }

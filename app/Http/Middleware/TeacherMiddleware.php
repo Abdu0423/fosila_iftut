@@ -6,7 +6,6 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
-use Inertia\Inertia;
 
 class TeacherMiddleware
 {
@@ -26,7 +25,7 @@ class TeacherMiddleware
                 return response()->json(['message' => 'Доступ запрещен. Требуются права учителя.'], 403);
             }
             
-            return Inertia::render('Errors/403', [
+            return spa('Errors/403', [
                 'message' => 'Доступ запрещен. Требуются права учителя.'
             ])->toResponse($request)->setStatusCode(403);
         }

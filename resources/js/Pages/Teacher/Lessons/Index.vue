@@ -108,8 +108,8 @@
   </Layout>
 </template>
 
-<script setup>
-import { usePage, router } from '@inertiajs/vue3'
+<script setup lang="ts">
+import { usePage, router } from '@/compat/inertia'
 import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
 

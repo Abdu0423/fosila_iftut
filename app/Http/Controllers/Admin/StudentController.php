@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Role;
-use Inertia\Inertia;
 
 class StudentController extends Controller
 {
@@ -84,7 +83,7 @@ class StudentController extends Controller
 
         $students = $query->paginate(15);
 
-        return Inertia::render('Admin/Students/Index', [
+        return spa('Admin/Students/Index', [
             'students' => $students,
             'groups' => \App\Models\Group::all(),
             'filters' => [
@@ -163,7 +162,7 @@ class StudentController extends Controller
         $perPage = $request->get('per_page', 15);
         $students = $query->paginate($perPage);
 
-        return Inertia::render('Admin/Students/Index', [
+        return spa('Admin/Students/Index', [
             'students' => $students,
             'groups' => \App\Models\Group::all(),
             'filters' => $request->only(['search', 'group_id', 'course', 'status']),

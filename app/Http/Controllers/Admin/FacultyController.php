@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Faculty;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class FacultyController extends Controller
 {
@@ -14,7 +13,7 @@ class FacultyController extends Controller
         $faculties = Faculty::orderBy('name')
             ->paginate(10);
 
-        return Inertia::render('Admin/Faculties/Index', [
+        return spa('Admin/Faculties/Index', [
             'faculties' => $faculties,
             'filters' => [],
         ]);
@@ -41,7 +40,7 @@ class FacultyController extends Controller
             })
             ->paginate($request->get('per_page', 10));
 
-        return Inertia::render('Admin/Faculties/Index', [
+        return spa('Admin/Faculties/Index', [
             'faculties' => $faculties,
             'filters' => $request->only(['search', 'status']),
         ]);
@@ -49,7 +48,7 @@ class FacultyController extends Controller
 
     public function create()
     {
-        return Inertia::render('Admin/Faculties/Create');
+        return spa('Admin/Faculties/Create');
     }
 
     public function store(Request $request)
@@ -70,14 +69,14 @@ class FacultyController extends Controller
     {
         $faculty->load(['departments']);
 
-        return Inertia::render('Admin/Faculties/Show', [
+        return spa('Admin/Faculties/Show', [
             'faculty' => $faculty,
         ]);
     }
 
     public function edit(Faculty $faculty)
     {
-        return Inertia::render('Admin/Faculties/Edit', [
+        return spa('Admin/Faculties/Edit', [
             'faculty' => $faculty,
         ]);
     }

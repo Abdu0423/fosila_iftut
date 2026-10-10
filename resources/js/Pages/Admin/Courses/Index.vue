@@ -176,8 +176,8 @@
   </AdminApp>
 </template>
 
-<script>
-import { router } from '@inertiajs/vue3'
+<script lang="ts">
+import { router } from '@/compat/inertia'
 import AdminApp from '../AdminApp.vue'
 
 export default {

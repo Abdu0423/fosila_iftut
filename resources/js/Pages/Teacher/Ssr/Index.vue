@@ -136,9 +136,9 @@
   </Layout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router } from '@/compat/inertia'
 import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
 

@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Subject;
 use App\Models\Department;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class SubjectController extends Controller
 {
@@ -47,7 +46,7 @@ class SubjectController extends Controller
         // Загружаем отделения для фильтра
         $departments = \App\Models\Department::all();
 
-        return Inertia::render('Admin/Subjects/Index', [
+        return spa('Admin/Subjects/Index', [
             'subjects' => $subjects,
             'departments' => $departments,
             'filters' => [
@@ -69,7 +68,7 @@ class SubjectController extends Controller
         
         // \Log::info('Subjects Create - Departments loaded', ['count' => $departments->count()]);
 
-        return Inertia::render('Admin/Subjects/Create', [
+        return spa('Admin/Subjects/Create', [
             'departments' => $departments->toArray()
         ]);
     }
@@ -100,7 +99,7 @@ class SubjectController extends Controller
     {
         $subject->load('department', 'lessons', 'schedules');
 
-        return Inertia::render('Admin/Subjects/Show', [
+        return spa('Admin/Subjects/Show', [
             'subject' => $subject
         ]);
     }
@@ -119,7 +118,7 @@ class SubjectController extends Controller
         //     'departments_count' => $departments->count()
         // ]);
 
-        return Inertia::render('Admin/Subjects/Edit', [
+        return spa('Admin/Subjects/Edit', [
             'subject' => $subject->toArray(),
             'departments' => $departments->toArray()
         ]);

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Schedule;
@@ -47,7 +46,7 @@ class EducationDepartmentController extends Controller
             'total_schedules' => Schedule::count(),
         ];
         
-        return Inertia::render('EducationDepartment/Dashboard', [
+        return spa('EducationDepartment/Dashboard', [
             'stats' => $stats,
         ]);
     }
@@ -121,7 +120,7 @@ class EducationDepartmentController extends Controller
                 ];
             });
         
-        return Inertia::render('EducationDepartment/Users/Index', [
+        return spa('EducationDepartment/Users/Index', [
             'users' => $users,
             'groups' => $groups,
             'filters' => $request->only(['search', 'group']),
@@ -148,7 +147,7 @@ class EducationDepartmentController extends Controller
                 ];
             });
 
-        return Inertia::render('EducationDepartment/Users/Create', [
+        return spa('EducationDepartment/Users/Create', [
             'groups' => $groups
         ]);
     }
@@ -258,7 +257,7 @@ class EducationDepartmentController extends Controller
                 ];
             });
 
-        return Inertia::render('EducationDepartment/Users/Edit', [
+        return spa('EducationDepartment/Users/Edit', [
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name ?? '',
@@ -492,7 +491,7 @@ class EducationDepartmentController extends Controller
         
         $groups = $query->withCount('users')->orderBy('name')->paginate(20);
         
-        return Inertia::render('EducationDepartment/Groups/Index', [
+        return spa('EducationDepartment/Groups/Index', [
             'groups' => $groups,
             'filters' => $request->only(['search', 'status']),
         ]);
@@ -523,7 +522,7 @@ class EducationDepartmentController extends Controller
             ];
         });
 
-        return Inertia::render('EducationDepartment/Groups/Create', [
+        return spa('EducationDepartment/Groups/Create', [
             'departments' => $departments,
             'specialties' => $specialties
         ]);
@@ -579,7 +578,7 @@ class EducationDepartmentController extends Controller
             ];
         });
 
-        return Inertia::render('EducationDepartment/Groups/Edit', [
+        return spa('EducationDepartment/Groups/Edit', [
             'group' => [
                 'id' => $group->id,
                 'name' => $group->name,
@@ -635,7 +634,7 @@ class EducationDepartmentController extends Controller
             ->orderBy('scheduled_at', 'desc')
             ->get();
         
-        return Inertia::render('EducationDepartment/Schedules/Index', [
+        return spa('EducationDepartment/Schedules/Index', [
             'schedules' => $schedules,
         ]);
     }
@@ -659,7 +658,7 @@ class EducationDepartmentController extends Controller
         
         $subjects = $query->paginate(20);
         
-        return Inertia::render('EducationDepartment/Subjects/Index', [
+        return spa('EducationDepartment/Subjects/Index', [
             'subjects' => $subjects,
             'filters' => $request->only(['search']),
         ]);
@@ -676,7 +675,7 @@ class EducationDepartmentController extends Controller
         
         $departments = Department::all();
         
-        return Inertia::render('EducationDepartment/Subjects/Create', [
+        return spa('EducationDepartment/Subjects/Create', [
             'departments' => $departments,
         ]);
     }
@@ -715,7 +714,7 @@ class EducationDepartmentController extends Controller
         $subject->load('department');
         $departments = Department::all();
         
-        return Inertia::render('EducationDepartment/Subjects/Edit', [
+        return spa('EducationDepartment/Subjects/Edit', [
             'subject' => $subject,
             'departments' => $departments,
         ]);
@@ -772,7 +771,7 @@ class EducationDepartmentController extends Controller
             ];
         });
         
-        return Inertia::render('EducationDepartment/Schedules/Create', [
+        return spa('EducationDepartment/Schedules/Create', [
             'subjects' => $subjects,
             'groups' => $groups,
             'teachers' => $teachers,
@@ -838,7 +837,7 @@ class EducationDepartmentController extends Controller
             ];
         });
         
-        return Inertia::render('EducationDepartment/Schedules/Edit', [
+        return spa('EducationDepartment/Schedules/Edit', [
             'schedule' => $schedule,
             'subjects' => $subjects,
             'groups' => $groups,
@@ -904,7 +903,7 @@ class EducationDepartmentController extends Controller
             ->orderBy('name')
             ->paginate(15);
         
-        return Inertia::render('EducationDepartment/Departments/Index', [
+        return spa('EducationDepartment/Departments/Index', [
             'departments' => $departments,
         ]);
     }
@@ -918,7 +917,7 @@ class EducationDepartmentController extends Controller
         
         $this->checkRole($user);
         
-        return Inertia::render('EducationDepartment/Departments/Create');
+        return spa('EducationDepartment/Departments/Create');
     }
     
     /**
@@ -952,7 +951,7 @@ class EducationDepartmentController extends Controller
         
         $this->checkRole($user);
         
-        return Inertia::render('EducationDepartment/Departments/Edit', [
+        return spa('EducationDepartment/Departments/Edit', [
             'department' => [
                 'id' => $department->id,
                 'name' => $department->name,
@@ -1016,7 +1015,7 @@ class EducationDepartmentController extends Controller
             ->orderBy('name')
             ->paginate(15);
         
-        return Inertia::render('EducationDepartment/Specialties/Index', [
+        return spa('EducationDepartment/Specialties/Index', [
             'specialties' => $specialties,
         ]);
     }
@@ -1034,7 +1033,7 @@ class EducationDepartmentController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
         
-        return Inertia::render('EducationDepartment/Specialties/Create', [
+        return spa('EducationDepartment/Specialties/Create', [
             'departments' => $departments
         ]);
     }
@@ -1077,7 +1076,7 @@ class EducationDepartmentController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
         
-        return Inertia::render('EducationDepartment/Specialties/Edit', [
+        return spa('EducationDepartment/Specialties/Edit', [
             'specialty' => [
                 'id' => $specialty->id,
                 'name' => $specialty->name,

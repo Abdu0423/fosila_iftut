@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use App\Models\User;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Hash;
@@ -16,7 +15,7 @@ class SettingsController extends Controller
     {
         $settings = Setting::all()->pluck('value', 'key')->toArray();
         
-        return Inertia::render('Admin/Settings/Index', [
+        return spa('Admin/Settings/Index', [
             'settings' => [
                 'site_name' => $settings['site_name'] ?? 'Fosila',
                 'site_description' => $settings['site_description'] ?? 'Система дистанционного обучения',

@@ -175,9 +175,9 @@
   </v-app>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, computed } from 'vue'
-import { router, usePage } from '@inertiajs/vue3'
+import { router, usePage } from '@/compat/inertia'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()

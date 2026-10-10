@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use App\Models\Test;
 use App\Models\Lesson;
 use App\Models\User;
@@ -48,7 +47,7 @@ class TestController extends Controller
             ];
         });
 
-        return Inertia::render('Admin/Tests/Index', [
+        return spa('Admin/Tests/Index', [
             'tests' => $tests,
             'lessons' => $lessons,
             'testTypes' => [
@@ -78,7 +77,7 @@ class TestController extends Controller
             ];
         });
 
-        return Inertia::render('Admin/Tests/Create', [
+        return spa('Admin/Tests/Create', [
             'lessons' => $lessons,
             'testTypes' => [
                 ['value' => 'quiz', 'text' => 'Тест'],
@@ -96,7 +95,7 @@ class TestController extends Controller
     {
         $test->load(['lesson', 'creator']);
 
-        return Inertia::render('Admin/Tests/Show', [
+        return spa('Admin/Tests/Show', [
             'test' => [
                 'id' => $test->id,
                 'title' => $test->title,
@@ -169,7 +168,7 @@ class TestController extends Controller
             ];
         });
 
-        return Inertia::render('Admin/Tests/Edit', [
+        return spa('Admin/Tests/Edit', [
             'test' => [
                 'id' => $test->id,
                 'title' => $test->title,
@@ -243,7 +242,7 @@ class TestController extends Controller
     {
         $test->load(['questions.answers']);
 
-        return Inertia::render('Admin/Tests/Questions', [
+        return spa('Admin/Tests/Questions', [
             'test' => [
                 'id' => $test->id,
                 'title' => $test->title,
@@ -389,7 +388,7 @@ class TestController extends Controller
     {
         $test->load(['questions.answers']);
 
-        return Inertia::render('Admin/Tests/Preview', [
+        return spa('Admin/Tests/Preview', [
             'test' => [
                 'id' => $test->id,
                 'title' => $test->title,

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use App\Models\Schedule;
 use App\Models\Group;
 use Illuminate\Support\Facades\Auth;
@@ -28,7 +27,7 @@ class ScheduleController extends Controller
         $group = $student->group;
         
         if (!$group) {
-            return Inertia::render('Schedule/Index', [
+            return spa('Schedule/Index', [
                 'group' => null,
                 'schedules' => [],
                 'upcomingLessons' => [],
@@ -88,7 +87,7 @@ class ScheduleController extends Controller
             ];
         })->sortBy('scheduled_at')->values();
 
-        return Inertia::render('Schedule/Index', [
+        return spa('Schedule/Index', [
             'group' => [
                 'id' => $group->id,
                 'name' => $group->name,

@@ -227,9 +227,9 @@
   </Layout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { reactive, computed } from 'vue'
-import { useForm, router, usePage } from '@inertiajs/vue3'
+import { useForm, router, usePage } from '@/compat/inertia'
 import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
 

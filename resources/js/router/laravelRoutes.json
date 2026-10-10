@@ -1,0 +1,1268 @@
+{
+    "sanctum.csrf-cookie": {
+        "uri": "sanctum/csrf-cookie"
+    },
+    "ignition.healthCheck": {
+        "uri": "_ignition/health-check"
+    },
+    "ignition.executeSolution": {
+        "uri": "_ignition/execute-solution"
+    },
+    "ignition.updateConfig": {
+        "uri": "_ignition/update-config"
+    },
+    "login": {
+        "uri": "login"
+    },
+    "login.post": {
+        "uri": "login"
+    },
+    "password.forgot": {
+        "uri": "password/forgot"
+    },
+    "password.send-code": {
+        "uri": "password/forgot/send-code"
+    },
+    "password.reset": {
+        "uri": "password/reset"
+    },
+    "password.reset.post": {
+        "uri": "password/reset"
+    },
+    "privacy": {
+        "uri": "privacy"
+    },
+    "terms": {
+        "uri": "terms"
+    },
+    "logout": {
+        "uri": "logout"
+    },
+    "locale.set": {
+        "uri": "set-locale"
+    },
+    "change-password": {
+        "uri": "change-password"
+    },
+    "change-password.update": {
+        "uri": "change-password"
+    },
+    "student.logout": {
+        "uri": "student/logout"
+    },
+    "student.dashboard": {
+        "uri": "student"
+    },
+    "student.dashboard.alternative": {
+        "uri": "student/dashboard"
+    },
+    "student.courses.index": {
+        "uri": "student/courses"
+    },
+    "student.courses.show": {
+        "uri": "student/courses/{course}"
+    },
+    "student.schedule.index": {
+        "uri": "student/schedule"
+    },
+    "student.assignments.index": {
+        "uri": "student/assignments"
+    },
+    "student.assignments.show": {
+        "uri": "student/assignments/{assignment}"
+    },
+    "student.assignments.submit": {
+        "uri": "student/assignments/{assignment}/submit"
+    },
+    "student.assignments.update-submission": {
+        "uri": "student/assignments/{assignment}/submissions/{submission}"
+    },
+    "student.chat.index": {
+        "uri": "student/chat"
+    },
+    "student.chat.show": {
+        "uri": "student/chat/{chat}"
+    },
+    "student.chat.store": {
+        "uri": "student/chat"
+    },
+    "student.chat.send-message": {
+        "uri": "student/chat/{chat}/messages"
+    },
+    "student.chat.get-messages": {
+        "uri": "student/chat/{chat}/messages"
+    },
+    "student.chat.mark-read": {
+        "uri": "student/chat/{chat}/read"
+    },
+    "student.chat.leave": {
+        "uri": "student/chat/{chat}/leave"
+    },
+    "student.library.index": {
+        "uri": "student/library"
+    },
+    "student.library.download": {
+        "uri": "student/library/download"
+    },
+    "student.grades.index": {
+        "uri": "student/grades"
+    },
+    "student.grades.show": {
+        "uri": "student/grades/{grade}"
+    },
+    "student.tests.index": {
+        "uri": "student/tests"
+    },
+    "student.tests.show": {
+        "uri": "student/tests/{test}"
+    },
+    "student.tests.start": {
+        "uri": "student/tests/{test}/start"
+    },
+    "student.tests.submit": {
+        "uri": "student/tests/{test}/submit"
+    },
+    "student.ssr.index": {
+        "uri": "student/ssr"
+    },
+    "student.ssr.show": {
+        "uri": "student/ssr/{task}"
+    },
+    "student.ssr.select-topic": {
+        "uri": "student/ssr/{task}/select-topic"
+    },
+    "student.ssr.save": {
+        "uri": "student/ssr/{task}/save"
+    },
+    "student.ssr.submit": {
+        "uri": "student/ssr/{task}/submit"
+    },
+    "student.ssr.delete-file": {
+        "uri": "student/ssr/{task}/file"
+    },
+    "student.coursework.index": {
+        "uri": "student/coursework"
+    },
+    "student.coursework.show": {
+        "uri": "student/coursework/{schedule}"
+    },
+    "student.coursework.select-topic": {
+        "uri": "student/coursework/{schedule}/select-topic"
+    },
+    "student.coursework.save": {
+        "uri": "student/coursework/{schedule}/save"
+    },
+    "student.coursework.submit": {
+        "uri": "student/coursework/{schedule}/submit"
+    },
+    "student.coursework.delete-file": {
+        "uri": "student/coursework/{schedule}/file"
+    },
+    "student.profile.index": {
+        "uri": "student/profile"
+    },
+    "student.settings.index": {
+        "uri": "student/settings"
+    },
+    "dashboard": {
+        "uri": "/"
+    },
+    "dashboard.alternative": {
+        "uri": "dashboard"
+    },
+    "test.notification": {
+        "uri": "test-notification"
+    },
+    "admin.users.index": {
+        "uri": "admin/users"
+    },
+    "admin.users.create": {
+        "uri": "admin/users/create"
+    },
+    "admin.users.store": {
+        "uri": "admin/users"
+    },
+    "admin.users.show": {
+        "uri": "admin/users/{user}"
+    },
+    "admin.users.edit": {
+        "uri": "admin/users/{user}/edit"
+    },
+    "admin.users.update": {
+        "uri": "admin/users/{user}"
+    },
+    "admin.users.destroy": {
+        "uri": "admin/users/{user}"
+    },
+    "admin.users.destroy.post": {
+        "uri": "admin/users/{user}/delete"
+    },
+    "admin.logout": {
+        "uri": "admin/logout"
+    },
+    "admin.dashboard": {
+        "uri": "admin"
+    },
+    "admin.subjects.index": {
+        "uri": "admin/subjects"
+    },
+    "admin.subjects.create": {
+        "uri": "admin/subjects/create"
+    },
+    "admin.subjects.store": {
+        "uri": "admin/subjects"
+    },
+    "admin.subjects.show": {
+        "uri": "admin/subjects/{subject}"
+    },
+    "admin.subjects.edit": {
+        "uri": "admin/subjects/{subject}/edit"
+    },
+    "admin.subjects.update": {
+        "uri": "admin/subjects/{subject}"
+    },
+    "admin.subjects.destroy": {
+        "uri": "admin/subjects/{subject}"
+    },
+    "admin.subjects.toggle-status": {
+        "uri": "admin/subjects/{subject}/toggle-status"
+    },
+    "admin.subjects.bulk-action": {
+        "uri": "admin/subjects/bulk-action"
+    },
+    "admin.subjects.duplicate": {
+        "uri": "admin/subjects/{subject}/duplicate"
+    },
+    "admin.subjects.export": {
+        "uri": "admin/subjects-export"
+    },
+    "admin.courses.index": {
+        "uri": "admin/courses"
+    },
+    "admin.courses.create": {
+        "uri": "admin/courses/create"
+    },
+    "admin.courses.edit": {
+        "uri": "admin/courses/{course}/edit"
+    },
+    "admin.assignments.index": {
+        "uri": "admin/assignments"
+    },
+    "admin.assignments.create": {
+        "uri": "admin/assignments/create"
+    },
+    "admin.assignments.store": {
+        "uri": "admin/assignments"
+    },
+    "admin.assignments.show": {
+        "uri": "admin/assignments/{assignment}"
+    },
+    "admin.assignments.edit": {
+        "uri": "admin/assignments/{assignment}/edit"
+    },
+    "admin.assignments.update": {
+        "uri": "admin/assignments/{assignment}"
+    },
+    "admin.assignments.destroy": {
+        "uri": "admin/assignments/{assignment}"
+    },
+    "admin.assignments.bulk-action": {
+        "uri": "admin/assignments/bulk-action"
+    },
+    "admin.library.index": {
+        "uri": "admin/library"
+    },
+    "admin.library.store": {
+        "uri": "admin/library"
+    },
+    "admin.library.download": {
+        "uri": "admin/library/download"
+    },
+    "admin.library.destroy": {
+        "uri": "admin/library"
+    },
+    "admin.library.bulk-delete": {
+        "uri": "admin/library/bulk-delete"
+    },
+    "admin.reports.index": {
+        "uri": "admin/reports"
+    },
+    "admin.settings.index": {
+        "uri": "admin/settings"
+    },
+    "admin.settings.general": {
+        "uri": "admin/settings/general"
+    },
+    "admin.settings.files": {
+        "uri": "admin/settings/files"
+    },
+    "admin.settings.system": {
+        "uri": "admin/settings/system"
+    },
+    "admin.settings.email": {
+        "uri": "admin/settings/email"
+    },
+    "admin.settings.profile": {
+        "uri": "admin/settings/profile"
+    },
+    "admin.settings.test-email": {
+        "uri": "admin/settings/test-email"
+    },
+    "admin.settings.clear-cache": {
+        "uri": "admin/settings/clear-cache"
+    },
+    "admin.settings.backup-database": {
+        "uri": "admin/settings/backup-database"
+    },
+    "admin.sms.index": {
+        "uri": "admin/sms"
+    },
+    "admin.sms.send-credentials": {
+        "uri": "admin/sms/send-credentials"
+    },
+    "admin.sms.send-custom": {
+        "uri": "admin/sms/send-custom"
+    },
+    "admin.students.index": {
+        "uri": "admin/students"
+    },
+    "admin.students.transfers": {
+        "uri": "admin/students/transfers"
+    },
+    "admin.students.transfers.create": {
+        "uri": "admin/students/transfers/create"
+    },
+    "admin.students.transfers.store": {
+        "uri": "admin/students/transfers"
+    },
+    "admin.syllabuses.index": {
+        "uri": "admin/syllabuses"
+    },
+    "admin.syllabuses.create": {
+        "uri": "admin/syllabuses/create"
+    },
+    "admin.syllabuses.store": {
+        "uri": "admin/syllabuses"
+    },
+    "admin.syllabuses.show": {
+        "uri": "admin/syllabuses/{syllabus}"
+    },
+    "admin.syllabuses.edit": {
+        "uri": "admin/syllabuses/{syllabus}/edit"
+    },
+    "admin.syllabuses.update": {
+        "uri": "admin/syllabuses/{syllabus}"
+    },
+    "admin.syllabuses.destroy": {
+        "uri": "admin/syllabuses/{syllabus}"
+    },
+    "admin.syllabuses.download": {
+        "uri": "admin/syllabuses/{syllabus}/download"
+    },
+    "admin.syllabuses.preview": {
+        "uri": "admin/syllabuses/{syllabus}/preview"
+    },
+    "admin.syllabuses.content": {
+        "uri": "admin/syllabuses/{syllabus}/content"
+    },
+    "admin.syllabuses.pdf-viewer": {
+        "uri": "admin/syllabuses/{syllabus}/pdf-viewer"
+    },
+    "admin.syllabuses.word-viewer": {
+        "uri": "admin/syllabuses/{syllabus}/word-viewer"
+    },
+    "admin.syllabuses.word-html": {
+        "uri": "admin/syllabuses/{syllabus}/word-html"
+    },
+    "admin.lessons.index": {
+        "uri": "admin/lessons"
+    },
+    "admin.lessons.create": {
+        "uri": "admin/lessons/create"
+    },
+    "admin.lessons.store": {
+        "uri": "admin/lessons"
+    },
+    "admin.lessons.show": {
+        "uri": "admin/lessons/{lesson}"
+    },
+    "admin.lessons.edit": {
+        "uri": "admin/lessons/{lesson}/edit"
+    },
+    "admin.lessons.update": {
+        "uri": "admin/lessons/{lesson}"
+    },
+    "admin.lessons.destroy": {
+        "uri": "admin/lessons/{lesson}"
+    },
+    "admin.lessons.materials": {
+        "uri": "admin/lessons/{lesson}/materials"
+    },
+    "admin.lessons.filter": {
+        "uri": "admin/lessons/filter"
+    },
+    "admin.lessons.clear-filters": {
+        "uri": "admin/lessons/clear-filters"
+    },
+    "admin.lessons.download": {
+        "uri": "admin/lessons/{lesson}/download"
+    },
+    "admin.tests.index": {
+        "uri": "admin/tests"
+    },
+    "admin.tests.create": {
+        "uri": "admin/tests/create"
+    },
+    "admin.tests.edit": {
+        "uri": "admin/tests/{test}/edit"
+    },
+    "admin.tests.questions": {
+        "uri": "admin/tests/{test}/questions"
+    },
+    "admin.grades.index": {
+        "uri": "admin/grades"
+    },
+    "admin.grades.students": {
+        "uri": "admin/grades/students"
+    },
+    "admin.grades.courses": {
+        "uri": "admin/grades/courses"
+    },
+    "admin.schedules.analytics": {
+        "uri": "admin/schedules/analytics"
+    },
+    "admin.schedules.bulk-create": {
+        "uri": "admin/schedules/bulk-create"
+    },
+    "admin.schedules.bulk-store": {
+        "uri": "admin/schedules/bulk-store"
+    },
+    "admin.schedules.export": {
+        "uri": "admin/schedules/export"
+    },
+    "admin.schedules.export.post": {
+        "uri": "admin/schedules/export"
+    },
+    "admin.schedules.import": {
+        "uri": "admin/schedules/import"
+    },
+    "admin.schedules.bulk-action": {
+        "uri": "admin/schedules/bulk-action"
+    },
+    "admin.schedules.toggle-status": {
+        "uri": "admin/schedules/{schedule}/toggle-status"
+    },
+    "admin.schedules.duplicate": {
+        "uri": "admin/schedules/{schedule}/duplicate"
+    },
+    "admin.schedules.lessons": {
+        "uri": "admin/schedules/{schedule}/lessons"
+    },
+    "admin.schedules.lessons.add": {
+        "uri": "admin/schedules/{schedule}/lessons"
+    },
+    "admin.schedules.lessons.remove": {
+        "uri": "admin/schedules/{schedule}/lessons/{lesson}"
+    },
+    "admin.schedules.lessons.reorder": {
+        "uri": "admin/schedules/{schedule}/lessons/reorder"
+    },
+    "admin.schedules.index": {
+        "uri": "admin/schedules"
+    },
+    "admin.schedules.create": {
+        "uri": "admin/schedules/create"
+    },
+    "admin.schedules.store": {
+        "uri": "admin/schedules"
+    },
+    "admin.schedules.show": {
+        "uri": "admin/schedules/{schedule}"
+    },
+    "admin.schedules.edit": {
+        "uri": "admin/schedules/{schedule}/edit"
+    },
+    "admin.schedules.update": {
+        "uri": "admin/schedules/{schedule}"
+    },
+    "admin.schedules.destroy": {
+        "uri": "admin/schedules/{schedule}"
+    },
+    "admin.tests.store": {
+        "uri": "admin/tests"
+    },
+    "admin.tests.show": {
+        "uri": "admin/tests/{test}"
+    },
+    "admin.tests.update": {
+        "uri": "admin/tests/{test}"
+    },
+    "admin.tests.destroy": {
+        "uri": "admin/tests/{test}"
+    },
+    "admin.tests.questions.store": {
+        "uri": "admin/tests/{test}/questions"
+    },
+    "admin.tests.questions.update": {
+        "uri": "admin/tests/{test}/questions/{question}"
+    },
+    "admin.tests.questions.destroy": {
+        "uri": "admin/tests/{test}/questions/{question}"
+    },
+    "admin.tests.preview": {
+        "uri": "admin/tests/{test}/preview"
+    },
+    "admin.test-export": {
+        "uri": "admin/test-export"
+    },
+    "admin.test-export-public": {
+        "uri": "test-export-public"
+    },
+    "admin.test-schedule-export": {
+        "uri": "test-schedule-export"
+    },
+    "admin.test-export-schedule": {
+        "uri": "test-export-schedule"
+    },
+    "teacher.logout": {
+        "uri": "teacher/logout"
+    },
+    "teacher.dashboard": {
+        "uri": "teacher"
+    },
+    "teacher.courses.index": {
+        "uri": "teacher/courses"
+    },
+    "teacher.courses.show": {
+        "uri": "teacher/courses/{course}"
+    },
+    "teacher.lessons.index": {
+        "uri": "teacher/lessons"
+    },
+    "teacher.lessons.schedule": {
+        "uri": "teacher/lessons/schedule/{schedule}"
+    },
+    "teacher.lessons.create": {
+        "uri": "teacher/lessons/create"
+    },
+    "teacher.lessons.store": {
+        "uri": "teacher/lessons"
+    },
+    "teacher.lessons.show": {
+        "uri": "teacher/lessons/{lesson}"
+    },
+    "teacher.lessons.edit": {
+        "uri": "teacher/lessons/{lesson}/edit"
+    },
+    "teacher.lessons.update": {
+        "uri": "teacher/lessons/{lesson}"
+    },
+    "teacher.lessons.destroy": {
+        "uri": "teacher/lessons/{lesson}"
+    },
+    "teacher.tests.index": {
+        "uri": "teacher/tests"
+    },
+    "teacher.tests.show": {
+        "uri": "teacher/schedules/{schedule}/test"
+    },
+    "teacher.tests.update": {
+        "uri": "teacher/tests/{test}"
+    },
+    "teacher.tests.toggle-status": {
+        "uri": "teacher/tests/{test}/toggle-status"
+    },
+    "teacher.questions.store": {
+        "uri": "teacher/tests/{test}/questions"
+    },
+    "teacher.questions.update": {
+        "uri": "teacher/tests/{test}/questions/{question}"
+    },
+    "teacher.questions.destroy": {
+        "uri": "teacher/tests/{test}/questions/{question}"
+    },
+    "teacher.questions.reorder": {
+        "uri": "teacher/tests/{test}/questions/reorder"
+    },
+    "teacher.grades.index": {
+        "uri": "teacher/grades"
+    },
+    "teacher.grades.get": {
+        "uri": "teacher/grades/schedule/{schedule}"
+    },
+    "teacher.grades.update": {
+        "uri": "teacher/grades/{grade}"
+    },
+    "teacher.grades.save-rating": {
+        "uri": "teacher/grades/save-rating"
+    },
+    "teacher.ssr.index": {
+        "uri": "teacher/ssr"
+    },
+    "teacher.ssr.create": {
+        "uri": "teacher/ssr/create"
+    },
+    "teacher.ssr.store": {
+        "uri": "teacher/ssr"
+    },
+    "teacher.ssr.show": {
+        "uri": "teacher/ssr/{task}"
+    },
+    "teacher.ssr.edit": {
+        "uri": "teacher/ssr/{task}/edit"
+    },
+    "teacher.ssr.update": {
+        "uri": "teacher/ssr/{task}"
+    },
+    "teacher.ssr.destroy": {
+        "uri": "teacher/ssr/{task}"
+    },
+    "teacher.ssr.submission": {
+        "uri": "teacher/ssr/submission/{submission}"
+    },
+    "teacher.ssr.check": {
+        "uri": "teacher/ssr/submission/{submission}/check"
+    },
+    "teacher.coursework.index": {
+        "uri": "teacher/coursework"
+    },
+    "teacher.coursework.show": {
+        "uri": "teacher/coursework/{schedule}"
+    },
+    "teacher.coursework.store": {
+        "uri": "teacher/coursework/{schedule}"
+    },
+    "teacher.coursework.update": {
+        "uri": "teacher/coursework/{schedule}"
+    },
+    "teacher.coursework.submission": {
+        "uri": "teacher/coursework/submission/{submission}"
+    },
+    "teacher.coursework.check": {
+        "uri": "teacher/coursework/submission/{submission}/check"
+    },
+    "teacher.students.index": {
+        "uri": "teacher/students"
+    },
+    "teacher.students.group": {
+        "uri": "teacher/students/group/{group}"
+    },
+    "teacher.students.student": {
+        "uri": "teacher/students/student/{student}"
+    },
+    "teacher.schedule.index": {
+        "uri": "teacher/schedule"
+    },
+    "teacher.schedule.store": {
+        "uri": "teacher/schedule"
+    },
+    "teacher.schedule.show": {
+        "uri": "teacher/schedule/{schedule}"
+    },
+    "teacher.schedule.update": {
+        "uri": "teacher/schedule/{schedule}"
+    },
+    "teacher.schedule.destroy": {
+        "uri": "teacher/schedule/{schedule}"
+    },
+    "teacher.schedule.add-syllabus": {
+        "uri": "teacher/schedule/{schedule}/syllabuses"
+    },
+    "teacher.schedule.upload-syllabus": {
+        "uri": "teacher/schedule/{schedule}/syllabuses/upload"
+    },
+    "teacher.schedule.remove-syllabus": {
+        "uri": "teacher/schedule/{schedule}/syllabuses/{syllabus}"
+    },
+    "teacher.schedule.add-lesson": {
+        "uri": "teacher/schedule/{schedule}/lessons"
+    },
+    "teacher.schedule.remove-lesson": {
+        "uri": "teacher/schedule/{schedule}/lessons/{lesson}"
+    },
+    "teacher.schedule.reorder-lessons": {
+        "uri": "teacher/schedule/{schedule}/lessons/reorder"
+    },
+    "teacher.syllabuses.index": {
+        "uri": "teacher/syllabuses"
+    },
+    "teacher.syllabuses.create": {
+        "uri": "teacher/syllabuses/create"
+    },
+    "teacher.syllabuses.store": {
+        "uri": "teacher/syllabuses"
+    },
+    "teacher.syllabuses.show": {
+        "uri": "teacher/syllabuses/{syllabus}"
+    },
+    "teacher.syllabuses.edit": {
+        "uri": "teacher/syllabuses/{syllabus}/edit"
+    },
+    "teacher.syllabuses.update": {
+        "uri": "teacher/syllabuses/{syllabus}"
+    },
+    "teacher.syllabuses.destroy": {
+        "uri": "teacher/syllabuses/{syllabus}"
+    },
+    "teacher.syllabuses.download": {
+        "uri": "teacher/syllabuses/{syllabus}/download"
+    },
+    "teacher.syllabuses.preview": {
+        "uri": "teacher/syllabuses/{syllabus}/preview"
+    },
+    "teacher.materials.index": {
+        "uri": "teacher/materials"
+    },
+    "teacher.materials.create": {
+        "uri": "teacher/materials/create"
+    },
+    "teacher.reports.index": {
+        "uri": "teacher/reports"
+    },
+    "teacher.profile.index": {
+        "uri": "teacher/profile"
+    },
+    "teacher.settings.index": {
+        "uri": "teacher/settings"
+    },
+    "teacher.chat.index": {
+        "uri": "teacher/chat"
+    },
+    "teacher.chat.show": {
+        "uri": "teacher/chat/{chat}"
+    },
+    "teacher.chat.store": {
+        "uri": "teacher/chat"
+    },
+    "teacher.chat.send-message": {
+        "uri": "teacher/chat/{chat}/messages"
+    },
+    "teacher.chat.get-messages": {
+        "uri": "teacher/chat/{chat}/messages"
+    },
+    "teacher.chat.mark-read": {
+        "uri": "teacher/chat/{chat}/read"
+    },
+    "teacher.chat.leave": {
+        "uri": "teacher/chat/{chat}/leave"
+    },
+    "education.dashboard": {
+        "uri": "education"
+    },
+    "education.dashboard.alternative": {
+        "uri": "education/dashboard"
+    },
+    "education.users.index": {
+        "uri": "education/users"
+    },
+    "education.users.create": {
+        "uri": "education/users/create"
+    },
+    "education.users.store": {
+        "uri": "education/users"
+    },
+    "education.users.edit": {
+        "uri": "education/users/{user}/edit"
+    },
+    "education.users.update": {
+        "uri": "education/users/{user}"
+    },
+    "education.groups.index": {
+        "uri": "education/groups"
+    },
+    "education.groups.create": {
+        "uri": "education/groups/create"
+    },
+    "education.groups.store": {
+        "uri": "education/groups"
+    },
+    "education.groups.edit": {
+        "uri": "education/groups/{group}/edit"
+    },
+    "education.groups.update": {
+        "uri": "education/groups/{group}"
+    },
+    "education.schedules.index": {
+        "uri": "education/schedules"
+    },
+    "education.schedules.create": {
+        "uri": "education/schedules/create"
+    },
+    "education.schedules.store": {
+        "uri": "education/schedules"
+    },
+    "education.schedules.edit": {
+        "uri": "education/schedules/{schedule}/edit"
+    },
+    "education.schedules.update": {
+        "uri": "education/schedules/{schedule}"
+    },
+    "education.subjects.index": {
+        "uri": "education/subjects"
+    },
+    "education.subjects.create": {
+        "uri": "education/subjects/create"
+    },
+    "education.subjects.store": {
+        "uri": "education/subjects"
+    },
+    "education.subjects.edit": {
+        "uri": "education/subjects/{subject}/edit"
+    },
+    "education.subjects.update": {
+        "uri": "education/subjects/{subject}"
+    },
+    "education.departments.index": {
+        "uri": "education/departments"
+    },
+    "education.departments.create": {
+        "uri": "education/departments/create"
+    },
+    "education.departments.store": {
+        "uri": "education/departments"
+    },
+    "education.departments.edit": {
+        "uri": "education/departments/{department}/edit"
+    },
+    "education.departments.update": {
+        "uri": "education/departments/{department}"
+    },
+    "education.specialties.index": {
+        "uri": "education/specialties"
+    },
+    "education.specialties.create": {
+        "uri": "education/specialties/create"
+    },
+    "education.specialties.store": {
+        "uri": "education/specialties"
+    },
+    "education.specialties.edit": {
+        "uri": "education/specialties/{specialty}/edit"
+    },
+    "education.specialties.update": {
+        "uri": "education/specialties/{specialty}"
+    },
+    "education.lessons.index": {
+        "uri": "education/lessons"
+    },
+    "education.lessons.schedule": {
+        "uri": "education/lessons/schedule/{schedule}"
+    },
+    "education.lessons.create": {
+        "uri": "education/lessons/create"
+    },
+    "education.lessons.store": {
+        "uri": "education/lessons"
+    },
+    "education.lessons.show": {
+        "uri": "education/lessons/{lesson}"
+    },
+    "education.lessons.edit": {
+        "uri": "education/lessons/{lesson}/edit"
+    },
+    "education.lessons.update": {
+        "uri": "education/lessons/{lesson}"
+    },
+    "education.lessons.destroy": {
+        "uri": "education/lessons/{lesson}"
+    },
+    "education.tests.index": {
+        "uri": "education/tests"
+    },
+    "education.tests.show": {
+        "uri": "education/schedules/{schedule}/test"
+    },
+    "education.tests.update": {
+        "uri": "education/tests/{test}"
+    },
+    "education.tests.toggle-status": {
+        "uri": "education/tests/{test}/toggle-status"
+    },
+    "education.questions.store": {
+        "uri": "education/tests/{test}/questions"
+    },
+    "education.questions.update": {
+        "uri": "education/tests/{test}/questions/{question}"
+    },
+    "education.questions.destroy": {
+        "uri": "education/tests/{test}/questions/{question}"
+    },
+    "education.questions.reorder": {
+        "uri": "education/tests/{test}/questions/reorder"
+    },
+    "education.grades.index": {
+        "uri": "education/grades"
+    },
+    "education.grades.get": {
+        "uri": "education/grades/schedule/{schedule}"
+    },
+    "education.grades.update": {
+        "uri": "education/grades/{grade}"
+    },
+    "education.grades.save-rating": {
+        "uri": "education/grades/save-rating"
+    },
+    "education.students.index": {
+        "uri": "education/students"
+    },
+    "education.students.group": {
+        "uri": "education/students/group/{group}"
+    },
+    "education.students.student": {
+        "uri": "education/students/student/{student}"
+    },
+    "education.schedule.index": {
+        "uri": "education/schedule"
+    },
+    "education.schedule.store": {
+        "uri": "education/schedule"
+    },
+    "education.schedule.show": {
+        "uri": "education/schedule/{schedule}"
+    },
+    "education.schedule.update": {
+        "uri": "education/schedule/{schedule}"
+    },
+    "education.schedule.destroy": {
+        "uri": "education/schedule/{schedule}"
+    },
+    "education.schedule.add-syllabus": {
+        "uri": "education/schedule/{schedule}/syllabuses"
+    },
+    "education.schedule.upload-syllabus": {
+        "uri": "education/schedule/{schedule}/syllabuses/upload"
+    },
+    "education.schedule.remove-syllabus": {
+        "uri": "education/schedule/{schedule}/syllabuses/{syllabus}"
+    },
+    "education.schedule.add-lesson": {
+        "uri": "education/schedule/{schedule}/lessons"
+    },
+    "education.schedule.remove-lesson": {
+        "uri": "education/schedule/{schedule}/lessons/{lesson}"
+    },
+    "education.schedule.reorder-lessons": {
+        "uri": "education/schedule/{schedule}/lessons/reorder"
+    },
+    "education.syllabuses.index": {
+        "uri": "education/syllabuses"
+    },
+    "education.syllabuses.create": {
+        "uri": "education/syllabuses/create"
+    },
+    "education.syllabuses.store": {
+        "uri": "education/syllabuses"
+    },
+    "education.syllabuses.show": {
+        "uri": "education/syllabuses/{syllabus}"
+    },
+    "education.syllabuses.edit": {
+        "uri": "education/syllabuses/{syllabus}/edit"
+    },
+    "education.syllabuses.update": {
+        "uri": "education/syllabuses/{syllabus}"
+    },
+    "education.syllabuses.destroy": {
+        "uri": "education/syllabuses/{syllabus}"
+    },
+    "education.syllabuses.download": {
+        "uri": "education/syllabuses/{syllabus}/download"
+    },
+    "education.syllabuses.preview": {
+        "uri": "education/syllabuses/{syllabus}/preview"
+    },
+    "education.materials.index": {
+        "uri": "education/materials"
+    },
+    "education.materials.create": {
+        "uri": "education/materials/create"
+    },
+    "education.reports.index": {
+        "uri": "education/reports"
+    },
+    "education.chat.index": {
+        "uri": "education/chat"
+    },
+    "education.chat.show": {
+        "uri": "education/chat/{chat}"
+    },
+    "education.chat.store": {
+        "uri": "education/chat"
+    },
+    "education.chat.send-message": {
+        "uri": "education/chat/{chat}/messages"
+    },
+    "education.chat.get-messages": {
+        "uri": "education/chat/{chat}/messages"
+    },
+    "education.chat.mark-read": {
+        "uri": "education/chat/{chat}/read"
+    },
+    "education.chat.leave": {
+        "uri": "education/chat/{chat}/leave"
+    },
+    "registration.dashboard": {
+        "uri": "registration"
+    },
+    "registration.dashboard.alternative": {
+        "uri": "registration/dashboard"
+    },
+    "registration.users.index": {
+        "uri": "registration/users"
+    },
+    "registration.users.create": {
+        "uri": "registration/users/create"
+    },
+    "registration.users.store": {
+        "uri": "registration/users"
+    },
+    "registration.users.edit": {
+        "uri": "registration/users/{user}/edit"
+    },
+    "registration.users.update": {
+        "uri": "registration/users/{user}"
+    },
+    "registration.groups.index": {
+        "uri": "registration/groups"
+    },
+    "registration.groups.create": {
+        "uri": "registration/groups/create"
+    },
+    "registration.groups.store": {
+        "uri": "registration/groups"
+    },
+    "registration.groups.edit": {
+        "uri": "registration/groups/{group}/edit"
+    },
+    "registration.groups.update": {
+        "uri": "registration/groups/{group}"
+    },
+    "registration.schedules.index": {
+        "uri": "registration/schedules"
+    },
+    "registration.schedules.create": {
+        "uri": "registration/schedules/create"
+    },
+    "registration.schedules.store": {
+        "uri": "registration/schedules"
+    },
+    "registration.schedules.edit": {
+        "uri": "registration/schedules/{schedule}/edit"
+    },
+    "registration.schedules.update": {
+        "uri": "registration/schedules/{schedule}"
+    },
+    "registration.subjects.index": {
+        "uri": "registration/subjects"
+    },
+    "registration.subjects.create": {
+        "uri": "registration/subjects/create"
+    },
+    "registration.subjects.store": {
+        "uri": "registration/subjects"
+    },
+    "registration.subjects.edit": {
+        "uri": "registration/subjects/{subject}/edit"
+    },
+    "registration.subjects.update": {
+        "uri": "registration/subjects/{subject}"
+    },
+    "registration.departments.index": {
+        "uri": "registration/departments"
+    },
+    "registration.departments.create": {
+        "uri": "registration/departments/create"
+    },
+    "registration.departments.store": {
+        "uri": "registration/departments"
+    },
+    "registration.departments.edit": {
+        "uri": "registration/departments/{department}/edit"
+    },
+    "registration.departments.update": {
+        "uri": "registration/departments/{department}"
+    },
+    "registration.specialties.index": {
+        "uri": "registration/specialties"
+    },
+    "registration.specialties.create": {
+        "uri": "registration/specialties/create"
+    },
+    "registration.specialties.store": {
+        "uri": "registration/specialties"
+    },
+    "registration.specialties.edit": {
+        "uri": "registration/specialties/{specialty}/edit"
+    },
+    "registration.specialties.update": {
+        "uri": "registration/specialties/{specialty}"
+    },
+    "registration.lessons.index": {
+        "uri": "registration/lessons"
+    },
+    "registration.lessons.schedule": {
+        "uri": "registration/lessons/schedule/{schedule}"
+    },
+    "registration.lessons.create": {
+        "uri": "registration/lessons/create"
+    },
+    "registration.lessons.store": {
+        "uri": "registration/lessons"
+    },
+    "registration.lessons.show": {
+        "uri": "registration/lessons/{lesson}"
+    },
+    "registration.lessons.edit": {
+        "uri": "registration/lessons/{lesson}/edit"
+    },
+    "registration.lessons.update": {
+        "uri": "registration/lessons/{lesson}"
+    },
+    "registration.lessons.destroy": {
+        "uri": "registration/lessons/{lesson}"
+    },
+    "registration.tests.index": {
+        "uri": "registration/tests"
+    },
+    "registration.tests.show": {
+        "uri": "registration/schedules/{schedule}/test"
+    },
+    "registration.tests.update": {
+        "uri": "registration/tests/{test}"
+    },
+    "registration.tests.toggle-status": {
+        "uri": "registration/tests/{test}/toggle-status"
+    },
+    "registration.questions.store": {
+        "uri": "registration/tests/{test}/questions"
+    },
+    "registration.questions.update": {
+        "uri": "registration/tests/{test}/questions/{question}"
+    },
+    "registration.questions.destroy": {
+        "uri": "registration/tests/{test}/questions/{question}"
+    },
+    "registration.questions.reorder": {
+        "uri": "registration/tests/{test}/questions/reorder"
+    },
+    "registration.grades.index": {
+        "uri": "registration/grades"
+    },
+    "registration.grades.get": {
+        "uri": "registration/grades/schedule/{schedule}"
+    },
+    "registration.grades.update": {
+        "uri": "registration/grades/{grade}"
+    },
+    "registration.grades.save-rating": {
+        "uri": "registration/grades/save-rating"
+    },
+    "registration.students.index": {
+        "uri": "registration/students"
+    },
+    "registration.students.group": {
+        "uri": "registration/students/group/{group}"
+    },
+    "registration.students.student": {
+        "uri": "registration/students/student/{student}"
+    },
+    "registration.schedule.index": {
+        "uri": "registration/schedule"
+    },
+    "registration.schedule.store": {
+        "uri": "registration/schedule"
+    },
+    "registration.schedule.show": {
+        "uri": "registration/schedule/{schedule}"
+    },
+    "registration.schedule.update": {
+        "uri": "registration/schedule/{schedule}"
+    },
+    "registration.schedule.destroy": {
+        "uri": "registration/schedule/{schedule}"
+    },
+    "registration.schedule.add-syllabus": {
+        "uri": "registration/schedule/{schedule}/syllabuses"
+    },
+    "registration.schedule.upload-syllabus": {
+        "uri": "registration/schedule/{schedule}/syllabuses/upload"
+    },
+    "registration.schedule.remove-syllabus": {
+        "uri": "registration/schedule/{schedule}/syllabuses/{syllabus}"
+    },
+    "registration.schedule.add-lesson": {
+        "uri": "registration/schedule/{schedule}/lessons"
+    },
+    "registration.schedule.remove-lesson": {
+        "uri": "registration/schedule/{schedule}/lessons/{lesson}"
+    },
+    "registration.schedule.reorder-lessons": {
+        "uri": "registration/schedule/{schedule}/lessons/reorder"
+    },
+    "registration.syllabuses.index": {
+        "uri": "registration/syllabuses"
+    },
+    "registration.syllabuses.create": {
+        "uri": "registration/syllabuses/create"
+    },
+    "registration.syllabuses.store": {
+        "uri": "registration/syllabuses"
+    },
+    "registration.syllabuses.show": {
+        "uri": "registration/syllabuses/{syllabus}"
+    },
+    "registration.syllabuses.edit": {
+        "uri": "registration/syllabuses/{syllabus}/edit"
+    },
+    "registration.syllabuses.update": {
+        "uri": "registration/syllabuses/{syllabus}"
+    },
+    "registration.syllabuses.destroy": {
+        "uri": "registration/syllabuses/{syllabus}"
+    },
+    "registration.syllabuses.download": {
+        "uri": "registration/syllabuses/{syllabus}/download"
+    },
+    "registration.syllabuses.preview": {
+        "uri": "registration/syllabuses/{syllabus}/preview"
+    },
+    "registration.materials.index": {
+        "uri": "registration/materials"
+    },
+    "registration.materials.create": {
+        "uri": "registration/materials/create"
+    },
+    "registration.reports.index": {
+        "uri": "registration/reports"
+    },
+    "registration.chat.index": {
+        "uri": "registration/chat"
+    },
+    "registration.chat.show": {
+        "uri": "registration/chat/{chat}"
+    },
+    "registration.chat.store": {
+        "uri": "registration/chat"
+    },
+    "registration.chat.send-message": {
+        "uri": "registration/chat/{chat}/messages"
+    },
+    "registration.chat.get-messages": {
+        "uri": "registration/chat/{chat}/messages"
+    },
+    "registration.chat.mark-read": {
+        "uri": "registration/chat/{chat}/read"
+    },
+    "registration.chat.leave": {
+        "uri": "registration/chat/{chat}/leave"
+    },
+    "sms.test.send": {
+        "uri": "sms-test/send"
+    },
+    "sms.test.verification": {
+        "uri": "sms-test/send-verification"
+    },
+    "sms.test.config": {
+        "uri": "sms-test/check-config"
+    }
+}

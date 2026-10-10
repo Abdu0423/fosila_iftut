@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Group;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class StudentManagementController extends Controller
 {
@@ -51,7 +50,7 @@ class StudentManagementController extends Controller
                 ];
             });
 
-        return Inertia::render('Admin/Students/Management/Index', [
+        return spa('Admin/Students/Management/Index', [
             'students' => $students,
             'groups' => $groups,
             'filters' => $request->only(['search', 'group_id']),
@@ -73,7 +72,7 @@ class StudentManagementController extends Controller
                 ];
             });
 
-        return Inertia::render('Admin/Students/Transfers', [
+        return spa('Admin/Students/Transfers', [
             'groups' => $groups,
             'filters' => $request->only(['search', 'group_id']),
         ]);
@@ -113,7 +112,7 @@ class StudentManagementController extends Controller
             ];
         });
 
-        return Inertia::render('Admin/Students/Transfers/Create', [
+        return spa('Admin/Students/Transfers/Create', [
             'groups' => $groups,
             'students' => $students,
         ]);

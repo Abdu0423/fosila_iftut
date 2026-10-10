@@ -56,7 +56,7 @@
   </Layout>
 </template>
 
-<script>
+<script lang="ts">
 import Layout from '../Layout.vue'
 
 export default {
@@ -73,7 +73,7 @@ export default {
   computed: {
     breadcrumbs() {
       return [
-        { title: 'Курсы', href: this.$route('courses.index') },
+        { title: 'Курсы', href: window.route('courses.index') },
         { title: this.course.name, disabled: true }
       ]
     }

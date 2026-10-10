@@ -7,6 +7,6 @@
   </Layout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Layout from '../../Layout.vue'
 </script>

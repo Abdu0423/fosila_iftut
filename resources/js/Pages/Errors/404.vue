@@ -82,8 +82,8 @@
   </v-app>
 </template>
 
-<script setup>
-import { router } from '@inertiajs/vue3'
+<script setup lang="ts">
+import { router } from '@/compat/inertia'
 
 const goHome = () => {
   window.location.href = '/'

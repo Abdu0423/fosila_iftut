@@ -220,7 +220,7 @@
   </AdminApp>
 </template>
 
-<script>
+<script lang="ts">
 import AdminApp from '../AdminApp.vue'
 
 export default {

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use App\Models\Group;
 use App\Models\User;
 use App\Models\Schedule;
@@ -21,7 +20,7 @@ class StudentController extends Controller
             $query->where('teacher_id', $teacher->id);
         })->orderBy('name')->get();
 
-        return Inertia::render('Teacher/Students/Index', [
+        return spa('Teacher/Students/Index', [
             'groups' => $groups->map(function($group) {
                 // Получаем студентов этой группы через прямое отношение
                 $students = User::where('group_id', $group->id)
@@ -93,7 +92,7 @@ class StudentController extends Controller
                 ];
             });
 
-        return Inertia::render('Teacher/Students/Show', [
+        return spa('Teacher/Students/Show', [
             'group' => [
                 'id' => $group->id,
                 'name' => $group->name,
@@ -146,7 +145,7 @@ class StudentController extends Controller
             ->with(['lesson', 'subject'])
             ->get();
 
-        return Inertia::render('Teacher/Students/StudentShow', [
+        return spa('Teacher/Students/StudentShow', [
             'student' => [
                 'id' => $student->id,
                 'name' => $student->name,

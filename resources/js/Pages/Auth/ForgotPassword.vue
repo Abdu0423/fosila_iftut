@@ -94,9 +94,9 @@
   </v-app>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useForm, router, usePage } from '@inertiajs/vue3'
+import { useForm, router, usePage } from '@/compat/inertia'
 import LanguageSwitcher from '../../Components/LanguageSwitcher.vue'
 
 const page = usePage()

@@ -9,7 +9,6 @@ use App\Models\Lesson;
 use App\Models\Subject;
 use App\Models\Group;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -96,7 +95,7 @@ class ScheduleController extends Controller
                 ];
             });
 
-        return Inertia::render('Teacher/Schedule/Index', [
+        return spa('Teacher/Schedule/Index', [
             'schedules' => $schedules,
             'availableSyllabuses' => $availableSyllabuses,
         ]);
@@ -167,7 +166,7 @@ class ScheduleController extends Controller
             ->orderBy('title')
             ->get();
 
-        return Inertia::render('Teacher/Schedule/Show', [
+        return spa('Teacher/Schedule/Show', [
             'schedule' => $schedule,
             'subjects' => $subjects,
             'groups' => $groups,

@@ -296,7 +296,7 @@
   </Layout>
 </template>
 
-<script>
+<script lang="ts">
 import Layout from '../Layout.vue'
 
 export default {

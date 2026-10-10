@@ -242,9 +242,9 @@
   </Layout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { router } from '@/compat/inertia'
 import Layout from '../../Layout.vue'
 import draggable from 'vuedraggable'
 

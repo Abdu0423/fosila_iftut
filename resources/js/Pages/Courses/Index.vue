@@ -27,8 +27,8 @@
   </Layout>
 </template>
 
-<script>
-import { router } from '@inertiajs/vue3'
+<script lang="ts">
+import { router } from '@/compat/inertia'
 import Layout from '../Layout.vue'
 
 export default {
@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     openCourse(courseId) {
-      router.visit(this.$route('courses.show', { course: courseId }))
+      router.visit(window.route('courses.show', { course: courseId }))
     }
   }
 }

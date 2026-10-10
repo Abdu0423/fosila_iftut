@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\Group;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class UserController extends Controller
 {
@@ -117,7 +116,7 @@ class UserController extends Controller
             'unverified' => User::whereNull('email_verified_at')->count()
         ];
 
-        return Inertia::render('Admin/Users/Index', [
+        return spa('Admin/Users/Index', [
             'users' => $users,
             'roles' => $roles,
             'stats' => $stats,
@@ -157,7 +156,7 @@ class UserController extends Controller
             'avatar' => $user->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($fullName)
         ];
 
-        return Inertia::render('Admin/Users/Show', [
+        return spa('Admin/Users/Show', [
             'user' => $userData
         ]);
     }
@@ -186,7 +185,7 @@ class UserController extends Controller
                 ];
             });
 
-        return Inertia::render('Admin/Users/Create', [
+        return spa('Admin/Users/Create', [
             'roles' => $roles,
             'groups' => $groups
         ]);
@@ -252,7 +251,7 @@ class UserController extends Controller
 
             \Log::info('Пользователь успешно создан', ['user_id' => $user->id, 'email' => $user->email]);
 
-            return Inertia::location(route('admin.users.index'));
+            return response()->json(['redirect' => route('admin.users.index')]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             \Log::warning('Ошибка валидации при создании пользователя', ['errors' => $e->errors()]);
             
@@ -301,7 +300,7 @@ class UserController extends Controller
                 ];
             });
 
-        return Inertia::render('Admin/Users/Edit', [
+        return spa('Admin/Users/Edit', [
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name ?? '',

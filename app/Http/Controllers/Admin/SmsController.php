@@ -8,7 +8,6 @@ use App\Models\Role;
 use App\Models\Group;
 use App\Models\SmsMessage;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use App\Facades\Sms;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -80,7 +79,7 @@ class SmsController extends Controller
             ];
         });
 
-        return Inertia::render('Admin/Sms/Index', [
+        return spa('Admin/Sms/Index', [
             'users' => $users,
             'roles' => $roles,
             'groups' => $groups,

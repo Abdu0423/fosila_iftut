@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use App\Models\SsrTask;
 use App\Models\SsrTopic;
 use App\Models\SsrSubmission;
@@ -46,7 +45,7 @@ class SsrController extends Controller
                 ];
             });
 
-        return Inertia::render('Teacher/Ssr/Index', [
+        return spa('Teacher/Ssr/Index', [
             'tasks' => $tasks,
         ]);
     }
@@ -73,7 +72,7 @@ class SsrController extends Controller
                 ];
             });
 
-        return Inertia::render('Teacher/Ssr/Create', [
+        return spa('Teacher/Ssr/Create', [
             'schedules' => $schedules,
         ]);
     }
@@ -178,7 +177,7 @@ class SsrController extends Controller
             ];
         });
 
-        return Inertia::render('Teacher/Ssr/Show', [
+        return spa('Teacher/Ssr/Show', [
             'task' => [
                 'id' => $task->id,
                 'title' => $task->title,
@@ -223,7 +222,7 @@ class SsrController extends Controller
                 ];
             });
 
-        return Inertia::render('Teacher/Ssr/Edit', [
+        return spa('Teacher/Ssr/Edit', [
             'task' => [
                 'id' => $task->id,
                 'title' => $task->title,
@@ -353,7 +352,7 @@ class SsrController extends Controller
 
         $submission->load(['topic', 'student', 'ssrTask']);
 
-        return Inertia::render('Teacher/Ssr/Submission', [
+        return spa('Teacher/Ssr/Submission', [
             'submission' => [
                 'id' => $submission->id,
                 'text' => $submission->text,

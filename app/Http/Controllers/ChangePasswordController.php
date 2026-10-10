@@ -6,7 +6,6 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Inertia\Inertia;
 
 class ChangePasswordController extends Controller
 {
@@ -15,7 +14,7 @@ class ChangePasswordController extends Controller
      */
     public function show()
     {
-        return Inertia::render('Auth/ChangePassword', [
+        return spa('Auth/ChangePassword', [
             'user' => auth()->user()->only(['id', 'name', 'email']),
         ]);
     }

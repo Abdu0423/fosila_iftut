@@ -308,9 +308,9 @@
   </Layout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useForm, usePage, router } from '@inertiajs/vue3'
+import { useForm, usePage, router } from '@/compat/inertia'
 import Layout from '../../Layout.vue'
 
 const page = usePage()

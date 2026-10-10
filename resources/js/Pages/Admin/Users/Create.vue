@@ -180,9 +180,9 @@
   </AdminApp>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useForm, router } from '@inertiajs/vue3'
+import { useForm, router } from '@/compat/inertia'
 import { useI18n } from 'vue-i18n'
 import AdminApp from '../AdminApp.vue'
 import PhoneInput from '../../../Components/PhoneInput.vue'

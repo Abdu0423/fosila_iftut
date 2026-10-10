@@ -5,20 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Inertia\Inertia;
 
 class AuthController extends Controller
 {
     public function showLogin()
     {
         Log::info('Показана страница входа');
-        return Inertia::render('Auth/Login');
+        return spa('Auth/Login');
     }
 
     public function login(Request $request)
     {
-        // Inertia отправляет X-Requested-With, но CSRF обрабатывается через cookie — нужен redirect, не JSON
-        $wantsJson = !$request->header('X-Inertia') && ($request->expectsJson() || $request->ajax());
+        $wantsJson = $request->header('X-Spa') === '1' || $request->expectsJson() || $request->ajax();
         
         try {
             Log::info('Получен запрос на вход', [

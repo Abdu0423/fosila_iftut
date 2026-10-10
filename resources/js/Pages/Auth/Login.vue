@@ -386,9 +386,9 @@
   </v-app>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue'
-import { router, useForm } from '@inertiajs/vue3'
+import { router, useForm } from '@/compat/inertia'
 import { useI18n } from 'vue-i18n'
 import LanguageSwitcher from '../../Components/LanguageSwitcher.vue'
 import PhoneInput from '../../Components/PhoneInput.vue'

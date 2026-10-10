@@ -203,9 +203,9 @@
   </Layout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
-import { useForm } from '@inertiajs/vue3'
+import { useForm } from '@/compat/inertia'
 import { useI18n } from 'vue-i18n'
 import Layout from '../../Layout.vue'
 

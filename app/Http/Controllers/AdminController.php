@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Lesson;
 use App\Models\User;
 use App\Models\Schedule;
-use Inertia\Inertia;
 
 class AdminController extends Controller
 {
@@ -34,7 +33,7 @@ class AdminController extends Controller
             ->limit(5)
             ->get();
 
-        return Inertia::render('Admin/Dashboard', [
+        return spa('Admin/Dashboard', [
             'stats' => $stats,
             'recentLessons' => $recentLessons,
         ]);
