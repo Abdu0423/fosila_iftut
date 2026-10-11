@@ -57,8 +57,13 @@
                   {{ t('coursework.deadline', {}, { default: 'Срок' }) }}: {{ item.task.deadline }}
                 </div>
 
-                <v-chip v-if="!item.task.is_active" color="warning" size="small">
-                  {{ t('coursework.inactive', {}, { default: 'Неактивно' }) }}
+                <v-chip
+                  :color="item.task.is_active ? 'success' : 'warning'"
+                  size="small"
+                  class="status-toggle"
+                  @click="toggleStatus(item)"
+                >
+                  {{ item.task.is_active ? t('coursework.active', {}, { default: 'Активно' }) : t('coursework.inactive', {}, { default: 'Неактивно' }) }}
                 </v-chip>
               </template>
               <template v-else>
@@ -102,6 +107,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { router } from '@/compat/inertia'
 import Layout from '../../Layout.vue'
 
 const { t } = useI18n()
@@ -112,4 +118,23 @@ defineProps({
     default: () => []
   }
 })
+
+const toggleStatus = (item) => {
+  if (!item.task) {
+    return
+  }
+  const previous = item.task.is_active
+  item.task.is_active = !item.task.is_active
+  router.post(`/teacher/coursework/${item.id}/toggle-status`, {}, {
+    onError: () => {
+      item.task.is_active = previous
+    }
+  })
+}
 </script>
+
+<style scoped>
+.status-toggle {
+  cursor: pointer;
+}
+</style>

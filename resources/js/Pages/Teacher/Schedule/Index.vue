@@ -44,6 +44,8 @@
               <v-chip
                 :color="schedule.is_active ? 'success' : 'grey'"
                 size="small"
+                class="status-toggle"
+                @click="toggleScheduleStatus(schedule)"
               >
                 {{ schedule.is_active ? 'Активно' : 'Неактивно' }}
               </v-chip>
@@ -368,6 +370,27 @@ import axios from 'axios'
 const { t } = useI18n()
 
 const page = usePage()
+
+const scheduleToggleUrl = (schedule) => {
+  const path = window.location.pathname
+  if (path.startsWith('/education')) {
+    return `/education/schedules/${schedule.id}/toggle-status`
+  }
+  if (path.startsWith('/registration')) {
+    return `/registration/schedules/${schedule.id}/toggle-status`
+  }
+  return `/teacher/schedule/${schedule.id}/toggle-status`
+}
+
+const toggleScheduleStatus = (schedule) => {
+  const previous = schedule.is_active
+  schedule.is_active = !schedule.is_active
+  router.post(scheduleToggleUrl(schedule), {}, {
+    onError: () => {
+      schedule.is_active = previous
+    }
+  })
+}
 
 // Состояние для snackbar уведомлений
 const snackbar = reactive({
@@ -715,5 +738,9 @@ const uploadSyllabus = async (schedule) => {
 <style scoped>
 .v-card {
   border-radius: 12px;
+}
+
+.status-toggle {
+  cursor: pointer;
 }
 </style>

@@ -1114,5 +1114,52 @@ class EducationDepartmentController extends Controller
         return redirect()->route('education.specialties.index')
             ->with('success', __('messages.updated_successfully', ['resource' => __('education_department.specialties_title')]));
     }
+
+    public function toggleScheduleStatus(Schedule $schedule)
+    {
+        $this->checkRole(auth()->user());
+
+        $schedule->update(['is_active' => ! $schedule->is_active]);
+
+        return back()->with('success', 'Статус расписания изменен');
+    }
+
+    public function toggleSubjectStatus(Subject $subject)
+    {
+        $this->checkRole(auth()->user());
+
+        $subject->update(['is_active' => ! $subject->is_active]);
+
+        return back()->with('success', 'Статус предмета изменен');
+    }
+
+    public function toggleDepartmentStatus(Department $department)
+    {
+        $this->checkRole(auth()->user());
+
+        $department->update(['is_active' => ! $department->is_active]);
+
+        return back()->with('success', 'Статус кафедры изменен');
+    }
+
+    public function toggleSpecialtyStatus(Specialty $specialty)
+    {
+        $this->checkRole(auth()->user());
+
+        $specialty->update(['is_active' => ! $specialty->is_active]);
+
+        return back()->with('success', 'Статус специальности изменен');
+    }
+
+    public function toggleGroupStatus(Group $group)
+    {
+        $this->checkRole(auth()->user());
+
+        $group->update([
+            'status' => $group->status === 'active' ? 'suspended' : 'active',
+        ]);
+
+        return back()->with('success', 'Статус группы изменен');
+    }
 }
 

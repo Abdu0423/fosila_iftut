@@ -409,4 +409,17 @@ class SsrController extends Controller
 
         return back()->with('success', $message);
     }
+
+    public function toggleStatus(SsrTask $task)
+    {
+        $teacher = Auth::user();
+
+        if ($task->teacher_id !== $teacher->id && ! $teacher->isEducationDepartment() && ! $teacher->isRegistrationCenter() && ! $teacher->isAdmin()) {
+            abort(403, 'У вас нет доступа к этому заданию');
+        }
+
+        $task->update(['is_active' => ! $task->is_active]);
+
+        return back()->with('success', 'Статус задания изменен');
+    }
 }

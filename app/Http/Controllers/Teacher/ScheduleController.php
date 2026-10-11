@@ -412,4 +412,17 @@ class ScheduleController extends Controller
             'message' => 'Порядок уроков обновлен'
         ]);
     }
+
+    public function toggleStatus(Schedule $schedule)
+    {
+        $teacher = Auth::user();
+
+        if ($schedule->teacher_id !== $teacher->id && ! $teacher->isEducationDepartment() && ! $teacher->isRegistrationCenter() && ! $teacher->isAdmin()) {
+            abort(403, 'У вас нет доступа к этому расписанию');
+        }
+
+        $schedule->update(['is_active' => ! $schedule->is_active]);
+
+        return back()->with('success', 'Статус расписания изменен');
+    }
 }

@@ -173,6 +173,8 @@
                           :color="schedule.test.is_active ? 'success' : 'warning'"
                           size="small"
                           variant="tonal"
+                          class="status-toggle"
+                          @click.stop="toggleTestStatus(schedule)"
                         >
                           {{ t('navigation.tests', {}, { default: 'Тест' }) }}: {{ schedule.test.is_active ? t('teacher.test_active', {}, { default: 'Активен' }) : t('teacher.test_inactive', {}, { default: 'Неактивен' }) }}
                         </v-chip>
@@ -290,8 +292,37 @@ const filteredSchedules = computed(() => {
 })
 
 // Методы
+const testToggleUrl = (schedule) => {
+  const path = window.location.pathname
+  const prefix = path.startsWith('/education')
+    ? 'education'
+    : path.startsWith('/registration')
+      ? 'registration'
+      : 'teacher'
+  return `/${prefix}/tests/${schedule.test.id}/toggle-status`
+}
+
+const toggleTestStatus = (schedule) => {
+  if (!schedule.test?.id) {
+    return
+  }
+  const previous = schedule.test.is_active
+  schedule.test.is_active = !schedule.test.is_active
+  router.post(testToggleUrl(schedule), {}, {
+    onError: () => {
+      schedule.test.is_active = previous
+    }
+  })
+}
+
 const openTest = (schedule) => {
-  router.visit(`/teacher/schedules/${schedule.id}/test`)
+  const path = window.location.pathname
+  const prefix = path.startsWith('/education')
+    ? 'education'
+    : path.startsWith('/registration')
+      ? 'registration'
+      : 'teacher'
+  router.visit(`/${prefix}/schedules/${schedule.id}/test`)
 }
 </script>
 
@@ -304,5 +335,9 @@ const openTest = (schedule) => {
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   margin-bottom: 8px;
+}
+
+.status-toggle {
+  cursor: pointer;
 }
 </style>

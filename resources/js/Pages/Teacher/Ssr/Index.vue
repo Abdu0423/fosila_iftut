@@ -67,8 +67,13 @@
                 {{ t('ssr.deadline', {}, { default: 'Срок' }) }}: {{ task.deadline }}
               </div>
 
-              <v-chip v-if="!task.is_active" color="warning" size="small" class="mt-2">
-                {{ t('ssr.inactive', {}, { default: 'Неактивно' }) }}
+              <v-chip
+                :color="task.is_active ? 'success' : 'warning'"
+                size="small"
+                class="mt-2 status-toggle"
+                @click="toggleStatus(task)"
+              >
+                {{ task.is_active ? t('ssr.active', {}, { default: 'Активно' }) : t('ssr.inactive', {}, { default: 'Неактивно' }) }}
               </v-chip>
             </v-card-text>
 
@@ -165,6 +170,16 @@ const deleteTask = () => {
   }
   deleteDialog.value = false
 }
+
+const toggleStatus = (task) => {
+  const previous = task.is_active
+  task.is_active = !task.is_active
+  router.post(`/teacher/ssr/${task.id}/toggle-status`, {}, {
+    onError: () => {
+      task.is_active = previous
+    }
+  })
+}
 </script>
 
 <style scoped>
@@ -173,5 +188,9 @@ const deleteTask = () => {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.status-toggle {
+  cursor: pointer;
 }
 </style>

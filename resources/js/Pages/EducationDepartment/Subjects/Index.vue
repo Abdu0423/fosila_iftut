@@ -71,14 +71,25 @@
 
           <template v-slot:item.is_active="{ item }">
             <v-chip
-              :color="item.is_active ? 'success' : 'default'"
+              :color="item.is_active ? 'success' : 'error'"
               size="small"
+              class="status-toggle"
+              @click="toggleStatus(item)"
             >
               {{ item.is_active ? (translations.messages?.active || 'Фаъол') : (translations.messages?.inactive || 'Ғайрифаъол') }}
             </v-chip>
           </template>
 
           <template v-slot:item.actions="{ item }">
+            <v-btn
+              icon
+              variant="text"
+              :color="item.is_active ? 'success' : 'error'"
+              size="small"
+              @click="toggleStatus(item)"
+            >
+              <v-icon>{{ item.is_active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline' }}</v-icon>
+            </v-btn>
             <v-btn
               icon
               variant="text"
@@ -178,5 +189,21 @@ const totalVisible = computed(() => {
   const total = totalPages.value
   return total <= 5 ? total : 5
 })
+
+const toggleStatus = (item) => {
+  const previous = item.is_active
+  item.is_active = !item.is_active
+  router.post(`/${getRoutePrefix()}/subjects/${item.id}/toggle-status`, {}, {
+    onError: () => {
+      item.is_active = previous
+    }
+  })
+}
 </script>
+
+<style scoped>
+.status-toggle {
+  cursor: pointer;
+}
+</style>
 

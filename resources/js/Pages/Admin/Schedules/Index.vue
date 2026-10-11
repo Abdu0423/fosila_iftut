@@ -202,6 +202,8 @@
               :color="item.is_active ? 'success' : 'error'"
               size="small"
               variant="flat"
+              class="status-toggle"
+              @click="toggleStatus(item)"
             >
               {{ item.is_active ? 'Активен' : 'Неактивен' }}
             </v-chip>
@@ -215,6 +217,13 @@
                 variant="text"
                 color="info"
                 @click="navigateTo(`/admin/schedules/${item.id}`)"
+              />
+              <v-btn
+                :icon="item.is_active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline'"
+                size="small"
+                variant="text"
+                :color="item.is_active ? 'success' : 'error'"
+                @click="toggleStatus(item)"
               />
               <v-btn
                 icon="mdi-pencil"
@@ -500,13 +509,12 @@ const changePage = (page) => {
 }
 
 const toggleStatus = (schedule) => {
+  const previous = schedule.is_active
+  schedule.is_active = !schedule.is_active
   router.post(`/admin/schedules/${schedule.id}/toggle-status`, {}, {
     preserveState: true,
-    onSuccess: () => {
-      // Status updated successfully
-    },
-    onError: (errors) => {
-      console.error('Ошибка при изменении статуса:', errors)
+    onError: () => {
+      schedule.is_active = previous
     }
   })
 }
@@ -581,5 +589,9 @@ const exportSchedules = () => {
 
 .v-data-table {
   border-radius: 12px;
+}
+
+.status-toggle {
+  cursor: pointer;
 }
 </style>

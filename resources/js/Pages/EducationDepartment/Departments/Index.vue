@@ -84,6 +84,8 @@
             <v-chip
               :color="item.is_active ? 'success' : 'error'"
               size="small"
+              class="status-toggle"
+              @click="toggleStatus(item)"
             >
               {{ item.is_active ? (translations.messages?.active || 'Активна') : (translations.messages?.inactive || 'Неактивна') }}
             </v-chip>
@@ -91,6 +93,15 @@
 
           <template v-slot:item.actions="{ item }">
             <div class="d-flex gap-2">
+              <v-btn
+                icon
+                variant="text"
+                size="small"
+                :color="item.is_active ? 'success' : 'error'"
+                @click="toggleStatus(item)"
+              >
+                <v-icon>{{ item.is_active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline' }}</v-icon>
+              </v-btn>
               <v-btn
                 icon="mdi-pencil"
                 variant="text"
@@ -223,5 +234,21 @@ const createDepartment = () => {
 const editDepartment = (department) => {
   router.visit(`/${getRoutePrefix()}/departments/${department.id}/edit`)
 }
+
+const toggleStatus = (item) => {
+  const previous = item.is_active
+  item.is_active = !item.is_active
+  router.post(`/${getRoutePrefix()}/departments/${item.id}/toggle-status`, {}, {
+    onError: () => {
+      item.is_active = previous
+    }
+  })
+}
 </script>
+
+<style scoped>
+.status-toggle {
+  cursor: pointer;
+}
+</style>
 

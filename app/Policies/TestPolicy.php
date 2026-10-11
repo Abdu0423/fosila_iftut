@@ -21,7 +21,10 @@ class TestPolicy
      */
     public function update(User $user, Test $test): bool
     {
-        // Учитель может редактировать тест, если он владелец расписания
+        if ($user->isAdmin() || $user->isEducationDepartment() || $user->isRegistrationCenter()) {
+            return true;
+        }
+
         return $test->schedule && $test->schedule->teacher_id === $user->id;
     }
 

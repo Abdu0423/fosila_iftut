@@ -335,9 +335,14 @@ const deleteSubject = () => {
 }
 
 const toggleStatus = (subject) => {
+  const previous = subject.is_active
+  subject.is_active = !subject.is_active
   router.post(`/admin/subjects/${subject.id}/toggle-status`, {}, {
     preserveState: true,
-    preserveScroll: true
+    preserveScroll: true,
+    onError: () => {
+      subject.is_active = previous
+    }
   })
 }
 

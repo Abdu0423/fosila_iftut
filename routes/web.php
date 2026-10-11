@@ -471,6 +471,7 @@ Route::prefix('teacher')->middleware(['auth', 'teacher', 'check.password.change'
     Route::get('/ssr/{task}', [App\Http\Controllers\Teacher\SsrController::class, 'show'])->name('teacher.ssr.show');
     Route::get('/ssr/{task}/edit', [App\Http\Controllers\Teacher\SsrController::class, 'edit'])->name('teacher.ssr.edit');
     Route::put('/ssr/{task}', [App\Http\Controllers\Teacher\SsrController::class, 'update'])->name('teacher.ssr.update');
+    Route::post('/ssr/{task}/toggle-status', [App\Http\Controllers\Teacher\SsrController::class, 'toggleStatus'])->name('teacher.ssr.toggle-status');
     Route::delete('/ssr/{task}', [App\Http\Controllers\Teacher\SsrController::class, 'destroy'])->name('teacher.ssr.destroy');
     Route::get('/ssr/submission/{submission}', [App\Http\Controllers\Teacher\SsrController::class, 'showSubmission'])->name('teacher.ssr.submission');
     Route::post('/ssr/submission/{submission}/check', [App\Http\Controllers\Teacher\SsrController::class, 'checkSubmission'])->name('teacher.ssr.check');
@@ -480,6 +481,7 @@ Route::prefix('teacher')->middleware(['auth', 'teacher', 'check.password.change'
     Route::get('/coursework/{schedule}', [App\Http\Controllers\Teacher\CourseworkController::class, 'show'])->name('teacher.coursework.show');
     Route::post('/coursework/{schedule}', [App\Http\Controllers\Teacher\CourseworkController::class, 'store'])->name('teacher.coursework.store');
     Route::put('/coursework/{schedule}', [App\Http\Controllers\Teacher\CourseworkController::class, 'update'])->name('teacher.coursework.update');
+    Route::post('/coursework/{schedule}/toggle-status', [App\Http\Controllers\Teacher\CourseworkController::class, 'toggleStatus'])->name('teacher.coursework.toggle-status');
     Route::get('/coursework/submission/{submission}', [App\Http\Controllers\Teacher\CourseworkController::class, 'showSubmission'])->name('teacher.coursework.submission');
     Route::post('/coursework/submission/{submission}/check', [App\Http\Controllers\Teacher\CourseworkController::class, 'checkSubmission'])->name('teacher.coursework.check');
     
@@ -493,6 +495,7 @@ Route::prefix('teacher')->middleware(['auth', 'teacher', 'check.password.change'
     Route::post('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'store'])->name('teacher.schedule.store');
     Route::get('/schedule/{schedule}', [App\Http\Controllers\Teacher\ScheduleController::class, 'show'])->name('teacher.schedule.show');
     Route::put('/schedule/{schedule}', [App\Http\Controllers\Teacher\ScheduleController::class, 'update'])->name('teacher.schedule.update');
+    Route::post('/schedule/{schedule}/toggle-status', [App\Http\Controllers\Teacher\ScheduleController::class, 'toggleStatus'])->name('teacher.schedule.toggle-status');
     Route::delete('/schedule/{schedule}', [App\Http\Controllers\Teacher\ScheduleController::class, 'destroy'])->name('teacher.schedule.destroy');
     
     // Управление силлабусами в расписании
@@ -569,6 +572,7 @@ Route::prefix('education')->middleware(['auth', 'education.department', 'check.p
     Route::post('/groups', [App\Http\Controllers\EducationDepartmentController::class, 'storeGroup'])->name('education.groups.store');
     Route::get('/groups/{group}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editGroup'])->name('education.groups.edit');
     Route::put('/groups/{group}', [App\Http\Controllers\EducationDepartmentController::class, 'updateGroup'])->name('education.groups.update');
+    Route::post('/groups/{group}/toggle-status', [App\Http\Controllers\EducationDepartmentController::class, 'toggleGroupStatus'])->name('education.groups.toggle-status');
     
     // Расписания
     Route::get('/schedules', [App\Http\Controllers\EducationDepartmentController::class, 'schedules'])->name('education.schedules.index');
@@ -576,6 +580,7 @@ Route::prefix('education')->middleware(['auth', 'education.department', 'check.p
     Route::post('/schedules', [App\Http\Controllers\EducationDepartmentController::class, 'storeSchedule'])->name('education.schedules.store');
     Route::get('/schedules/{schedule}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editSchedule'])->name('education.schedules.edit');
     Route::put('/schedules/{schedule}', [App\Http\Controllers\EducationDepartmentController::class, 'updateSchedule'])->name('education.schedules.update');
+    Route::post('/schedules/{schedule}/toggle-status', [App\Http\Controllers\EducationDepartmentController::class, 'toggleScheduleStatus'])->name('education.schedules.toggle-status');
     
     // Предметы
     Route::get('/subjects', [App\Http\Controllers\EducationDepartmentController::class, 'subjects'])->name('education.subjects.index');
@@ -583,6 +588,7 @@ Route::prefix('education')->middleware(['auth', 'education.department', 'check.p
     Route::post('/subjects', [App\Http\Controllers\EducationDepartmentController::class, 'storeSubject'])->name('education.subjects.store');
     Route::get('/subjects/{subject}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editSubject'])->name('education.subjects.edit');
     Route::put('/subjects/{subject}', [App\Http\Controllers\EducationDepartmentController::class, 'updateSubject'])->name('education.subjects.update');
+    Route::post('/subjects/{subject}/toggle-status', [App\Http\Controllers\EducationDepartmentController::class, 'toggleSubjectStatus'])->name('education.subjects.toggle-status');
     
     // Кафедры
     Route::get('/departments', [App\Http\Controllers\EducationDepartmentController::class, 'departments'])->name('education.departments.index');
@@ -590,6 +596,7 @@ Route::prefix('education')->middleware(['auth', 'education.department', 'check.p
     Route::post('/departments', [App\Http\Controllers\EducationDepartmentController::class, 'storeDepartment'])->name('education.departments.store');
     Route::get('/departments/{department}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editDepartment'])->name('education.departments.edit');
     Route::put('/departments/{department}', [App\Http\Controllers\EducationDepartmentController::class, 'updateDepartment'])->name('education.departments.update');
+    Route::post('/departments/{department}/toggle-status', [App\Http\Controllers\EducationDepartmentController::class, 'toggleDepartmentStatus'])->name('education.departments.toggle-status');
     
     // Специальности
     Route::get('/specialties', [App\Http\Controllers\EducationDepartmentController::class, 'specialties'])->name('education.specialties.index');
@@ -597,6 +604,7 @@ Route::prefix('education')->middleware(['auth', 'education.department', 'check.p
     Route::post('/specialties', [App\Http\Controllers\EducationDepartmentController::class, 'storeSpecialty'])->name('education.specialties.store');
     Route::get('/specialties/{specialty}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editSpecialty'])->name('education.specialties.edit');
     Route::put('/specialties/{specialty}', [App\Http\Controllers\EducationDepartmentController::class, 'updateSpecialty'])->name('education.specialties.update');
+    Route::post('/specialties/{specialty}/toggle-status', [App\Http\Controllers\EducationDepartmentController::class, 'toggleSpecialtyStatus'])->name('education.specialties.toggle-status');
     
     // Уроки (доступ как у учителя)
     Route::get('/lessons', [App\Http\Controllers\Teacher\LessonController::class, 'index'])->name('education.lessons.index');
@@ -636,6 +644,7 @@ Route::prefix('education')->middleware(['auth', 'education.department', 'check.p
     Route::post('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'store'])->name('education.schedule.store');
     Route::get('/schedule/{schedule}', [App\Http\Controllers\Teacher\ScheduleController::class, 'show'])->name('education.schedule.show');
     Route::put('/schedule/{schedule}', [App\Http\Controllers\Teacher\ScheduleController::class, 'update'])->name('education.schedule.update');
+    Route::post('/schedule/{schedule}/toggle-status', [App\Http\Controllers\Teacher\ScheduleController::class, 'toggleStatus'])->name('education.schedule.toggle-status');
     Route::delete('/schedule/{schedule}', [App\Http\Controllers\Teacher\ScheduleController::class, 'destroy'])->name('education.schedule.destroy');
     
     // Управление силлабусами в расписании
@@ -702,6 +711,7 @@ Route::prefix('registration')->middleware(['auth', 'education.or.registration', 
     Route::post('/groups', [App\Http\Controllers\EducationDepartmentController::class, 'storeGroup'])->name('registration.groups.store');
     Route::get('/groups/{group}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editGroup'])->name('registration.groups.edit');
     Route::put('/groups/{group}', [App\Http\Controllers\EducationDepartmentController::class, 'updateGroup'])->name('registration.groups.update');
+    Route::post('/groups/{group}/toggle-status', [App\Http\Controllers\EducationDepartmentController::class, 'toggleGroupStatus'])->name('registration.groups.toggle-status');
     
     // Расписания
     Route::get('/schedules', [App\Http\Controllers\EducationDepartmentController::class, 'schedules'])->name('registration.schedules.index');
@@ -709,6 +719,7 @@ Route::prefix('registration')->middleware(['auth', 'education.or.registration', 
     Route::post('/schedules', [App\Http\Controllers\EducationDepartmentController::class, 'storeSchedule'])->name('registration.schedules.store');
     Route::get('/schedules/{schedule}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editSchedule'])->name('registration.schedules.edit');
     Route::put('/schedules/{schedule}', [App\Http\Controllers\EducationDepartmentController::class, 'updateSchedule'])->name('registration.schedules.update');
+    Route::post('/schedules/{schedule}/toggle-status', [App\Http\Controllers\EducationDepartmentController::class, 'toggleScheduleStatus'])->name('registration.schedules.toggle-status');
     
     // Предметы
     Route::get('/subjects', [App\Http\Controllers\EducationDepartmentController::class, 'subjects'])->name('registration.subjects.index');
@@ -716,6 +727,7 @@ Route::prefix('registration')->middleware(['auth', 'education.or.registration', 
     Route::post('/subjects', [App\Http\Controllers\EducationDepartmentController::class, 'storeSubject'])->name('registration.subjects.store');
     Route::get('/subjects/{subject}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editSubject'])->name('registration.subjects.edit');
     Route::put('/subjects/{subject}', [App\Http\Controllers\EducationDepartmentController::class, 'updateSubject'])->name('registration.subjects.update');
+    Route::post('/subjects/{subject}/toggle-status', [App\Http\Controllers\EducationDepartmentController::class, 'toggleSubjectStatus'])->name('registration.subjects.toggle-status');
     
     // Кафедры
     Route::get('/departments', [App\Http\Controllers\EducationDepartmentController::class, 'departments'])->name('registration.departments.index');
@@ -723,6 +735,7 @@ Route::prefix('registration')->middleware(['auth', 'education.or.registration', 
     Route::post('/departments', [App\Http\Controllers\EducationDepartmentController::class, 'storeDepartment'])->name('registration.departments.store');
     Route::get('/departments/{department}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editDepartment'])->name('registration.departments.edit');
     Route::put('/departments/{department}', [App\Http\Controllers\EducationDepartmentController::class, 'updateDepartment'])->name('registration.departments.update');
+    Route::post('/departments/{department}/toggle-status', [App\Http\Controllers\EducationDepartmentController::class, 'toggleDepartmentStatus'])->name('registration.departments.toggle-status');
     
     // Специальности
     Route::get('/specialties', [App\Http\Controllers\EducationDepartmentController::class, 'specialties'])->name('registration.specialties.index');
@@ -730,6 +743,7 @@ Route::prefix('registration')->middleware(['auth', 'education.or.registration', 
     Route::post('/specialties', [App\Http\Controllers\EducationDepartmentController::class, 'storeSpecialty'])->name('registration.specialties.store');
     Route::get('/specialties/{specialty}/edit', [App\Http\Controllers\EducationDepartmentController::class, 'editSpecialty'])->name('registration.specialties.edit');
     Route::put('/specialties/{specialty}', [App\Http\Controllers\EducationDepartmentController::class, 'updateSpecialty'])->name('registration.specialties.update');
+    Route::post('/specialties/{specialty}/toggle-status', [App\Http\Controllers\EducationDepartmentController::class, 'toggleSpecialtyStatus'])->name('registration.specialties.toggle-status');
     
     // Уроки (доступ как у учителя)
     Route::get('/lessons', [App\Http\Controllers\Teacher\LessonController::class, 'index'])->name('registration.lessons.index');
@@ -769,6 +783,7 @@ Route::prefix('registration')->middleware(['auth', 'education.or.registration', 
     Route::post('/schedule', [App\Http\Controllers\Teacher\ScheduleController::class, 'store'])->name('registration.schedule.store');
     Route::get('/schedule/{schedule}', [App\Http\Controllers\Teacher\ScheduleController::class, 'show'])->name('registration.schedule.show');
     Route::put('/schedule/{schedule}', [App\Http\Controllers\Teacher\ScheduleController::class, 'update'])->name('registration.schedule.update');
+    Route::post('/schedule/{schedule}/toggle-status', [App\Http\Controllers\Teacher\ScheduleController::class, 'toggleStatus'])->name('registration.schedule.toggle-status');
     Route::delete('/schedule/{schedule}', [App\Http\Controllers\Teacher\ScheduleController::class, 'destroy'])->name('registration.schedule.destroy');
     
     // Управление силлабусами в расписании

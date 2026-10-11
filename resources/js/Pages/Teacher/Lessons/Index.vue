@@ -53,6 +53,8 @@
                 <v-chip
                   :color="schedule.is_active ? 'success' : 'grey'"
                   size="small"
+                  class="status-toggle"
+                  @click.stop="toggleStatus(schedule)"
                 >
                   {{ schedule.is_active ? t('messages.active', {}, { default: 'Активно' }) : t('messages.inactive', {}, { default: 'Неактивно' }) }}
                 </v-chip>
@@ -125,6 +127,27 @@ const props = defineProps({
 })
 
 // Методы
+const scheduleToggleUrl = (schedule) => {
+  const path = window.location.pathname
+  if (path.startsWith('/education')) {
+    return `/education/schedules/${schedule.id}/toggle-status`
+  }
+  if (path.startsWith('/registration')) {
+    return `/registration/schedules/${schedule.id}/toggle-status`
+  }
+  return `/teacher/schedule/${schedule.id}/toggle-status`
+}
+
+const toggleStatus = (schedule) => {
+  const previous = schedule.is_active
+  schedule.is_active = !schedule.is_active
+  router.post(scheduleToggleUrl(schedule), {}, {
+    onError: () => {
+      schedule.is_active = previous
+    }
+  })
+}
+
 const viewSchedule = (schedule) => {
   console.log('Переход к расписанию:', schedule.id)
   if (!schedule || !schedule.id) {
@@ -163,5 +186,9 @@ const viewSchedule = (schedule) => {
 .schedule-card-wrapper:hover .schedule-card {
   transform: translateY(-4px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+.status-toggle {
+  cursor: pointer;
 }
 </style>

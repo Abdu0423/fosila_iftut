@@ -326,4 +326,23 @@ class CourseworkController extends Controller
 
         return back()->with('success', $message);
     }
+
+    public function toggleStatus(Schedule $schedule)
+    {
+        $teacher = Auth::user();
+
+        if ($schedule->teacher_id !== $teacher->id && ! $teacher->isEducationDepartment() && ! $teacher->isRegistrationCenter() && ! $teacher->isAdmin()) {
+            abort(403);
+        }
+
+        $task = $schedule->courseworkTask;
+
+        if (! $task) {
+            abort(404);
+        }
+
+        $task->update(['is_active' => ! $task->is_active]);
+
+        return back()->with('success', 'Статус курсовой изменен');
+    }
 }

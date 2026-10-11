@@ -129,12 +129,24 @@
               :color="item.is_active ? 'success' : 'error'"
               size="small"
               variant="flat"
+              class="status-toggle"
+              @click="toggleStatus(item)"
             >
               {{ item.is_active ? (translations.messages?.active || 'Активен') : (translations.messages?.inactive || 'Неактивен') }}
             </v-chip>
           </template>
 
           <template v-slot:item.actions="{ item }">
+            <v-btn
+              icon
+              variant="text"
+              :color="item.is_active ? 'success' : 'error'"
+              size="small"
+              @click="toggleStatus(item)"
+              :title="item.is_active ? (translations.messages?.inactive || 'Неактивен') : (translations.messages?.active || 'Активен')"
+            >
+              <v-icon>{{ item.is_active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline' }}</v-icon>
+            </v-btn>
             <v-btn
               icon
               variant="text"
@@ -351,6 +363,16 @@ const getRole = computed(() => {
   return getRoutePrefix() === 'registration' ? 'registration_center' : 'education_department'
 })
 
+const toggleStatus = (item) => {
+  const previous = item.is_active
+  item.is_active = !item.is_active
+  router.post(`/${getRoutePrefix()}/schedules/${item.id}/toggle-status`, {}, {
+    onError: () => {
+      item.is_active = previous
+    }
+  })
+}
+
 // Сбрасываем страницу при изменении фильтра
 const resetPage = () => {
   currentPage.value = 1
@@ -362,3 +384,9 @@ watch(statusFilter, () => {
   resetPage()
 })
 </script>
+
+<style scoped>
+.status-toggle {
+  cursor: pointer;
+}
+</style>
