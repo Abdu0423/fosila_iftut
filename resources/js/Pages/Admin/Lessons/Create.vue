@@ -66,7 +66,7 @@
                       v-model="form.schedule_id"
                       :items="schedules"
                       item-title="display_name"
-                      item-value="id"
+                      item-value="id" 
                       label="Расписание (Предмет)"
                       variant="outlined"
                       density="compact"
