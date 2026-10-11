@@ -588,6 +588,14 @@ const logout = () => {
   color: #F5F2EC;
 }
 
+.drawer-dark .menu-item-active,
+.drawer-dark .menu-item-active :deep(.v-list-item-title),
+.drawer-dark .menu-item-active :deep(.v-list-item__content),
+.drawer-dark .menu-item-active :deep(.v-icon) {
+  color: #12151C !important;
+  opacity: 1;
+}
+
 /* Заголовок меню */
 .drawer-header {
   background: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(33, 150, 243, 0.05) 100%);
