@@ -82,35 +82,29 @@
             </v-card-title>
             
             <v-card-text>
-              <v-data-table
-                :headers="gradeHeaders"
-                :items="course.assignments"
-                :items-per-page="10"
-                class="elevation-0"
-                hide-default-footer
-              >
-                <template v-slot:item.grade="{ item }">
-                  <v-chip :color="getGradeColor(item.grade)" small>
-                    {{ item.grade }}
+              <ExcelSheet :headers="gradeHeaders" :rows="course.assignments">
+                <template #cell-grade="{ row }">
+                  <v-chip :color="getGradeColor(row.grade)" small>
+                    {{ row.grade }}
                   </v-chip>
                 </template>
                 
-                <template v-slot:item.status="{ item }">
-                  <v-chip :color="getStatusColor(item.status)" small>
-                    {{ item.status }}
+                <template #cell-status="{ row }">
+                  <v-chip :color="getStatusColor(row.status)" small>
+                    {{ row.status }}
                   </v-chip>
                 </template>
                 
-                <template v-slot:item.actions="{ item }">
+                <template #cell-actions="{ row }">
                   <v-btn
                     icon
                     small
-                    @click="viewAssignment(item)"
+                    @click="viewAssignment(row)"
                   >
                     <v-icon>mdi-eye</v-icon>
                   </v-btn>
                 </template>
-              </v-data-table>
+              </ExcelSheet>
             </v-card-text>
           </v-card>
         </v-col>
@@ -188,6 +182,7 @@
 </template>
 
 <script setup lang="ts">
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 import { ref, computed } from 'vue'
 import { router } from '@/compat/inertia'
 import Layout from '../Layout.vue'

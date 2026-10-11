@@ -56,59 +56,53 @@
       <v-row>
         <v-col cols="12">
           <v-card>
-            <v-data-table
-              :headers="headers"
-              :items="filteredCourses"
-              :items-per-page="10"
-              :search="searchQuery"
-              class="elevation-1"
-            >
+            <ExcelSheet :headers="headers" :rows="filteredCourses">
               <!-- Название курса -->
-              <template v-slot:item.name="{ item }">
+              <template #cell-name="{ row }">
                 <div>
-                  <div class="font-weight-medium">{{ item.name }}</div>
-                  <div class="text-caption text-grey">{{ item.description }}</div>
+                  <div class="font-weight-medium">{{ row.name }}</div>
+                  <div class="text-caption text-grey">{{ row.description }}</div>
                 </div>
               </template>
               
               <!-- Преподаватель -->
-              <template v-slot:item.teacher="{ item }">
+              <template #cell-teacher="{ row }">
                 <div class="d-flex align-center">
                   <v-avatar size="24" class="mr-2">
                     <v-icon>mdi-account</v-icon>
                   </v-avatar>
-                  {{ item.teacher }}
+                  {{ row.teacher }}
                 </div>
               </template>
               
               <!-- Кредиты -->
-              <template v-slot:item.credits="{ item }">
+              <template #cell-credits="{ row }">
                 <v-chip color="primary" small>
-                  {{ item.credits }} кредитов
+                  {{ row.credits }} кредитов
                 </v-chip>
               </template>
               
               <!-- Статус -->
-              <template v-slot:item.status="{ item }">
-                <v-chip :color="getStatusColor(item.status)" small>
-                  {{ getStatusName(item.status) }}
+              <template #cell-status="{ row }">
+                <v-chip :color="getStatusColor(row.status)" small>
+                  {{ getStatusName(row.status) }}
                 </v-chip>
               </template>
               
               <!-- Студенты -->
-              <template v-slot:item.students_count="{ item }">
+              <template #cell-students_count="{ row }">
                 <v-chip color="info" small>
-                  {{ item.students_count }} студентов
+                  {{ row.students_count }} студентов
                 </v-chip>
               </template>
               
               <!-- Дата создания -->
-              <template v-slot:item.created_at="{ item }">
-                {{ formatDate(item.created_at) }}
+              <template #cell-created_at="{ row }">
+                {{ formatDate(row.created_at) }}
               </template>
               
               <!-- Действия -->
-              <template v-slot:item.actions="{ item }">
+              <template #cell-actions="{ row }">
                 <v-menu offset-y>
                   <template v-slot:activator="{ props }">
                     <v-btn icon small v-bind="props">
@@ -117,39 +111,39 @@
                   </template>
                   
                   <v-list dense>
-                    <v-list-item @click="viewCourse(item)">
-                      <v-list-item-icon>
+                    <v-list-row @click="viewCourse(row)">
+                      <v-list-row-icon>
                         <v-icon>mdi-eye</v-icon>
-                      </v-list-item-icon>
-                      <v-list-item-title>Просмотреть</v-list-item-title>
-                    </v-list-item>
+                      </v-list-row-icon>
+                      <v-list-row-title>Просмотреть</v-list-row-title>
+                    </v-list-row>
                     
-                    <v-list-item @click="editCourse(item)">
-                      <v-list-item-icon>
+                    <v-list-row @click="editCourse(row)">
+                      <v-list-row-icon>
                         <v-icon>mdi-pencil</v-icon>
-                      </v-list-item-icon>
-                      <v-list-item-title>Редактировать</v-list-item-title>
-                    </v-list-item>
+                      </v-list-row-icon>
+                      <v-list-row-title>Редактировать</v-list-row-title>
+                    </v-list-row>
                     
-                    <v-list-item @click="manageStudents(item)">
-                      <v-list-item-icon>
+                    <v-list-row @click="manageStudents(row)">
+                      <v-list-row-icon>
                         <v-icon>mdi-account-group</v-icon>
-                      </v-list-item-icon>
-                      <v-list-item-title>Управление студентами</v-list-item-title>
-                    </v-list-item>
+                      </v-list-row-icon>
+                      <v-list-row-title>Управление студентами</v-list-row-title>
+                    </v-list-row>
                     
                     <v-divider></v-divider>
                     
-                    <v-list-item @click="deleteCourse(item)" class="error--text">
-                      <v-list-item-icon>
+                    <v-list-row @click="deleteCourse(row)" class="error--text">
+                      <v-list-row-icon>
                         <v-icon color="error">mdi-delete</v-icon>
-                      </v-list-item-icon>
-                      <v-list-item-title>Удалить</v-list-item-title>
-                    </v-list-item>
+                      </v-list-row-icon>
+                      <v-list-row-title>Удалить</v-list-row-title>
+                    </v-list-row>
                   </v-list>
                 </v-menu>
               </template>
-            </v-data-table>
+            </ExcelSheet>
           </v-card>
         </v-col>
       </v-row>
@@ -179,11 +173,13 @@
 <script lang="ts">
 import { router } from '@/compat/inertia'
 import AdminApp from '../AdminApp.vue'
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 
 export default {
   name: 'AdminCoursesIndex',
   components: {
-    AdminApp
+    AdminApp,
+    ExcelSheet
   },
   data() {
     return {

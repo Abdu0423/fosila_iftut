@@ -117,33 +117,29 @@
         <v-card class="mt-4" v-if="student.schedules && student.schedules.length">
           <v-card-title>Расписание занятий</v-card-title>
           <v-card-text>
-            <v-data-table
-              :headers="scheduleHeaders"
-              :items="student.schedules"
-              :items-per-page="5"
-            >
-              <template v-slot:item.lesson="{ item }">
+            <ExcelSheet :headers="scheduleHeaders" :rows="student.schedules">
+              <template #cell-lesson="{ row }">
                 <v-btn
                   variant="text"
                   color="primary"
-                  :href="route('admin.lessons.show', item.raw.lesson.id)"
+                  :href="route('admin.lessons.show', row.lesson.id)"
                 >
-                  {{ item.raw.lesson.title }}
+                  {{ row.lesson.title }}
                 </v-btn>
               </template>
               
-              <template v-slot:item.teacher="{ item }">
-                {{ item.raw.teacher?.name }}
+              <template #cell-teacher="{ row }">
+                {{ row.teacher?.name }}
               </template>
               
-              <template v-slot:item.day_of_week="{ item }">
-                {{ getDayName(item.raw.day_of_week) }}
+              <template #cell-day_of_week="{ row }">
+                {{ getDayName(row.day_of_week) }}
               </template>
               
-              <template v-slot:item.time="{ item }">
-                {{ item.raw.time }}
+              <template #cell-time="{ row }">
+                {{ row.time }}
               </template>
-            </v-data-table>
+            </ExcelSheet>
           </v-card-text>
         </v-card>
       </v-col>
@@ -226,6 +222,7 @@
 </template>
 
 <script setup lang="ts">
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 import { ref, computed } from 'vue'
 import { router } from '@/compat/inertia'
 import Layout from '../../Layout.vue'

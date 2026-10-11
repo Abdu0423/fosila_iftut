@@ -489,10 +489,12 @@ class EducationDepartmentController extends Controller
             }
         }
         
-        $groups = $query->withCount('users')->orderBy('name')->paginate(20);
+        $groups = $query->with(['department', 'specialty'])->withCount('users')->orderBy('name')->get();
         
         return spa('EducationDepartment/Groups/Index', [
             'groups' => $groups,
+            'departments' => Department::orderBy('name')->get(['id', 'name']),
+            'specialties' => Specialty::orderBy('name')->get(['id', 'name']),
             'filters' => $request->only(['search', 'status']),
         ]);
     }
@@ -633,9 +635,18 @@ class EducationDepartmentController extends Controller
         $schedules = Schedule::with(['group', 'subject', 'teacher'])
             ->orderBy('scheduled_at', 'desc')
             ->get();
-        
+
+        $subjects = Subject::orderBy('name')->get(['id', 'name']);
+        $groups = Group::orderBy('name')->get(['id', 'name']);
+        $teachers = User::whereHas('role', function ($q) {
+            $q->where('name', '!=', 'student');
+        })->orderBy('name')->get(['id', 'name', 'last_name']);
+
         return spa('EducationDepartment/Schedules/Index', [
             'schedules' => $schedules,
+            'subjects' => $subjects,
+            'groups' => $groups,
+            'teachers' => $teachers,
         ]);
     }
     
@@ -656,10 +667,11 @@ class EducationDepartmentController extends Controller
             $query->where('name', 'like', "%{$search}%");
         }
         
-        $subjects = $query->paginate(20);
-        
+        $subjects = $query->orderBy('name')->get();
+
         return spa('EducationDepartment/Subjects/Index', [
             'subjects' => $subjects,
+            'departments' => Department::orderBy('name')->get(['id', 'name']),
             'filters' => $request->only(['search']),
         ]);
     }
@@ -901,7 +913,7 @@ class EducationDepartmentController extends Controller
         
         $departments = $query->withCount('groups')
             ->orderBy('name')
-            ->paginate(15);
+            ->get();
         
         return spa('EducationDepartment/Departments/Index', [
             'departments' => $departments,
@@ -1013,10 +1025,11 @@ class EducationDepartmentController extends Controller
         $specialties = $query->with('department:id,name')
             ->withCount('groups')
             ->orderBy('name')
-            ->paginate(15);
+            ->get();
         
         return spa('EducationDepartment/Specialties/Index', [
             'specialties' => $specialties,
+            'departments' => Department::orderBy('name')->get(['id', 'name']),
         ]);
     }
     
@@ -1106,7 +1119,8 @@ class EducationDepartmentController extends Controller
             'code' => 'nullable|string|max:50|unique:specialties,code,' . $specialty->id,
             'description' => 'nullable|string',
             'duration_years' => 'nullable|integer|min:1|max:10',
-            'is_active' => 'boolean'
+            'is_active' => 'boolean',
+            'department_id' => 'nullable|exists:departments,id',
         ]);
         
         $specialty->update($validated);

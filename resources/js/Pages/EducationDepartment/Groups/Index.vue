@@ -1,7 +1,6 @@
 ﻿<template>
   <Layout :role="getRole">
     <v-container fluid class="pa-6">
-      <!-- Заголовок -->
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
@@ -11,280 +10,125 @@
             {{ translations.education_department?.groups_subtitle || 'Тамошои ҳамаи гурӯҳҳо' }}
           </p>
         </div>
-        <v-btn
-          color="primary"
-          prepend-icon="mdi-plus"
-          @click="createGroup"
-        >
-          {{ translations.messages?.add || 'Илова кардан' }}
-        </v-btn>
       </div>
 
-      <!-- Фильтры и поиск -->
-      <v-card class="mb-6">
-        <v-card-text>
-          <v-row>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="searchQuery"
-                :label="translations.messages?.search || 'Ҷустуҷӯ'"
-                prepend-inner-icon="mdi-magnify"
-                clearable
-                variant="outlined"
-                density="comfortable"
-                @update:model-value="handleSearch"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-select
-                v-model="statusFilter"
-                :items="statusOptions"
-                :label="translations.education_department?.filter_by_status || 'Филтр аз рӯи вазъият'"
-                prepend-inner-icon="mdi-filter"
-                clearable
-                variant="outlined"
-                density="comfortable"
-                @update:model-value="handleStatusFilter"
-              ></v-select>
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-
-      <!-- Таблица групп -->
-      <v-card>
-        <v-data-table
-          :headers="headers"
-          :items="groups.data"
-          :items-per-page="groups.per_page"
-          hide-default-footer
-        >
-          <template v-slot:item.name="{ item }">
-            <div class="d-flex align-center py-2">
-              <v-avatar color="primary" size="40" class="mr-3">
-                <v-icon color="white">mdi-account-multiple</v-icon>
-              </v-avatar>
-              <div>
-                <div class="font-weight-medium">{{ item.name }}</div>
-                <div class="text-caption text-medium-emphasis" v-if="item.full_name">{{ item.full_name }}</div>
-              </div>
-            </div>
-          </template>
-
-          <template v-slot:item.users_count="{ item }">
-            <v-chip
-              color="info"
-              size="small"
-            >
-              {{ item.users_count || 0 }}
-            </v-chip>
-          </template>
-
-          <template v-slot:item.status="{ item }">
-            <v-chip
-              :color="item.status === 'active' ? 'success' : 'error'"
-              size="small"
-              class="status-toggle"
-              @click="toggleStatus(item)"
-            >
-              {{ item.status === 'active' ? (translations.messages?.active || 'Фаъол') : (translations.messages?.inactive || 'Ғайрифаъол') }}
-            </v-chip>
-          </template>
-
-          <template v-slot:item.actions="{ item }">
-            <div class="d-flex gap-2">
-              <v-btn
-                icon
-                variant="text"
-                size="small"
-                :color="item.status === 'active' ? 'success' : 'error'"
-                @click="toggleStatus(item)"
-              >
-                <v-icon>{{ item.status === 'active' ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline' }}</v-icon>
-              </v-btn>
-              <v-btn
-                icon
-                variant="text"
-                color="primary"
-                size="small"
-                @click="editGroup(item)"
-                :title="translations.messages?.edit || 'Таҳрир кардан'"
-              >
-                <v-icon>mdi-pencil</v-icon>
-              </v-btn>
-            </div>
-          </template>
-
-          <template v-slot:no-data>
-            <div class="text-center pa-8">
-              <v-icon size="64" color="grey-lighten-1">mdi-account-group-off</v-icon>
-              <p class="text-h6 mt-4 text-medium-emphasis">
-                {{ translations.education_department?.no_groups || 'Гурӯҳҳо ёфт нашуданд' }}
-              </p>
-            </div>
-          </template>
-        </v-data-table>
-
-        <!-- Пагинация -->
-        <v-divider v-if="groups.data && groups.data.length > 0"></v-divider>
-        <div v-if="groups.data && groups.data.length > 0 && totalPages > 1" class="d-flex justify-center pa-4">
-          <v-pagination
-            :length="totalPages"
-            :model-value="groups.current_page"
-            @update:model-value="handlePageChange"
-            :total-visible="totalVisible"
-          ></v-pagination>
-        </div>
-      </v-card>
+      <ExcelSheet
+        :columns="columns"
+        :rows="groupRows"
+        can-add
+        :search-placeholder="translations.messages?.search || 'Поиск'"
+        :empty-text="translations.education_department?.no_groups || 'Гурӯҳҳо ёфт нашуданд'"
+        :add-label="translations.messages?.add || 'Добавить'"
+        @create="createGroup"
+        @commit="updateGroup"
+      >
+        <template #cell-status="{ row }">
+          <v-chip
+            :color="row.status === 'active' ? 'success' : 'error'"
+            size="small"
+            @click.stop="toggleStatus(row)"
+          >
+            {{ row.status === 'active' ? (translations.messages?.active || 'Фаъол') : (translations.messages?.inactive || 'Ғайрифаъол') }}
+          </v-chip>
+        </template>
+        <template #cell-actions="{ row }">
+          <v-btn icon variant="text" size="small" :color="row.status === 'active' ? 'success' : 'error'" @click.stop="toggleStatus(row)">
+            <v-icon>{{ row.status === 'active' ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline' }}</v-icon>
+          </v-btn>
+          <v-btn icon variant="text" color="primary" size="small" @click.stop="router.visit(`/${prefix()}/groups/${row.id}/edit`)">
+            <v-icon>mdi-pencil</v-icon>
+          </v-btn>
+        </template>
+      </ExcelSheet>
     </v-container>
   </Layout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed } from 'vue'
 import { usePage, router } from '@/compat/inertia'
 import Layout from '../../Layout.vue'
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 
 const page = usePage()
 const translations = computed(() => page.props.translations || {})
 
 const props = defineProps({
-  groups: {
-    type: Object,
-    required: true
-  },
-  filters: {
-    type: Object,
-    default: () => ({})
-  }
+  groups: { type: [Array, Object], default: () => [] },
+  departments: { type: Array, default: () => [] },
+  specialties: { type: Array, default: () => [] }
 })
 
-const searchQuery = ref(props.filters.search || '')
-const statusFilter = ref(props.filters.status || null)
+const groupRows = computed(() => props.groups?.data || props.groups || [])
+const prefix = () => window.location.pathname.startsWith('/registration') ? 'registration' : 'education'
+const getRole = computed(() => prefix() === 'registration' ? 'registration_center' : 'education_department')
 
-// Синхронизируем значения с props после обновления (без вызова фильтров)
-watch(() => props.filters, (newFilters) => {
-  if (newFilters.search !== undefined) {
-    searchQuery.value = newFilters.search || ''
-  }
-  if (newFilters.status !== undefined) {
-    statusFilter.value = newFilters.status || null
-  }
-}, { deep: true })
-
-const headers = computed(() => [
-  { title: translations.value.education_department?.group_name || 'Номи гурӯҳ', key: 'name', sortable: false },
-  { title: translations.value.education_department?.group_students_count || 'Шумораи донишҷӯён', key: 'users_count', sortable: false },
-  { title: translations.value.messages?.status || 'Вазъият', key: 'status', sortable: false },
-  { title: translations.value.messages?.actions || 'Амалҳо', key: 'actions', sortable: false }
-])
-
+const departmentOptions = computed(() => (props.departments || []).map((item) => ({ title: item.name, value: item.id })))
+const specialtyOptions = computed(() => (props.specialties || []).map((item) => ({ title: item.name, value: item.id })))
 const statusOptions = [
-  { title: translations.value.messages?.active || 'Фаъол', value: 'active' },
-  { title: translations.value.education_department?.graduated || 'Выпущена', value: 'graduated' },
-  { title: translations.value.education_department?.suspended || 'Приостановлена', value: 'suspended' }
+  { title: 'Фаъол', value: 'active' },
+  { title: 'Выпущена', value: 'graduated' },
+  { title: 'Приостановлена', value: 'suspended' }
 ]
 
-// Debounced функция для поиска
-let searchTimeout = null
+const columns = computed(() => [
+  { key: 'name', title: translations.value.education_department?.group_name || 'Группа', editable: true, editor: 'text', inherit: true, required: true },
+  { key: 'enrollment_year', title: 'Год набора', editable: true, editor: 'number', required: true },
+  { key: 'graduation_year', title: 'Год выпуска', editable: true, editor: 'number', required: true },
+  {
+    key: 'department_id',
+    title: 'Кафедра',
+    editable: true,
+    editor: 'select',
+    inherit: true,
+    options: departmentOptions.value,
+    get: (row) => row.department_id,
+    text: (row) => row.department?.name || ''
+  },
+  {
+    key: 'specialty_id',
+    title: 'Специальность',
+    editable: true,
+    editor: 'select',
+    inherit: true,
+    options: specialtyOptions.value,
+    get: (row) => row.specialty_id,
+    text: (row) => row.specialty?.name || ''
+  },
+  {
+    key: 'status',
+    title: translations.value.messages?.status || 'Статус',
+    editor: 'slot',
+    text: (row) => row.status === 'active' ? (translations.value.messages?.active || 'Фаъол') : (translations.value.messages?.inactive || 'Ғайрифаъол')
+  },
+  { key: 'actions', title: translations.value.messages?.actions || 'Действия', editor: 'slot', text: () => '' }
+])
 
-// Определяем префикс маршрута на основе текущего URL
-const getRoutePrefix = () => {
-  const path = window.location.pathname
-  if (path.startsWith('/registration')) {
-    return 'registration'
-  }
-  return 'education'
-}
-
-// Определяем роль для Layout
-const getRole = computed(() => {
-  return getRoutePrefix() === 'registration' ? 'registration_center' : 'education_department'
+const payload = (source) => ({
+  name: source.name,
+  enrollment_year: Number(source.enrollment_year),
+  graduation_year: Number(source.graduation_year),
+  status: source.status || 'active',
+  department_id: source.department_id || null,
+  specialty_id: source.specialty_id || null,
+  course: source.course || null
 })
 
-const handleSearch = () => {
-  clearTimeout(searchTimeout)
-  searchTimeout = setTimeout(() => {
-    const params = {}
-    if (searchQuery.value) {
-      params.search = searchQuery.value
-    }
-    if (statusFilter.value) {
-      params.status = statusFilter.value
-    }
-    
-    router.get(`/${getRoutePrefix()}/groups`, params, {
-      preserveState: true,
-      preserveScroll: true
-    })
-  }, 500)
+const createGroup = (draft) => {
+  router.post(`/${prefix()}/groups`, payload({ ...draft, status: draft.status || 'active' }))
 }
 
-const handleStatusFilter = () => {
-  const params = {}
-  if (searchQuery.value) {
-    params.search = searchQuery.value
-  }
-  if (statusFilter.value) {
-    params.status = statusFilter.value
-  }
-  
-  router.get(`/${getRoutePrefix()}/groups`, params, {
-    preserveState: true,
-    preserveScroll: true
-  })
-}
-
-const handlePageChange = (pageNum) => {
-  const params = {
-    page: pageNum
-  }
-  if (searchQuery.value) {
-    params.search = searchQuery.value
-  }
-  if (statusFilter.value) {
-    params.status = statusFilter.value
-  }
-  
-  router.get(`/${getRoutePrefix()}/groups`, params, {
-    preserveState: true,
-    preserveScroll: true,
-    replace: false
-  })
-}
-
-// Вычисляемое свойство для общего количества страниц
-const totalPages = computed(() => Math.ceil(props.groups.total / props.groups.per_page))
-
-// Вычисляемое свойство для видимых страниц пагинации
-// Если страниц <= 5, показываем все, иначе максимум 5
-const totalVisible = computed(() => {
-  const total = totalPages.value
-  return total <= 5 ? total : 5
-})
-
-const createGroup = () => {
-  router.visit(`/${getRoutePrefix()}/groups/create`)
-}
-
-const editGroup = (group) => {
-  router.visit(`/${getRoutePrefix()}/groups/${group.id}/edit`)
+const updateGroup = ({ row, column, value }) => {
+  router.put(`/${prefix()}/groups/${row.id}`, payload({ ...row, [column.key]: value }))
 }
 
 const toggleStatus = (item) => {
   const previous = item.status
   item.status = item.status === 'active' ? 'suspended' : 'active'
-  router.post(`/${getRoutePrefix()}/groups/${item.id}/toggle-status`, {}, {
+  router.post(`/${prefix()}/groups/${item.id}/toggle-status`, {}, {
     onError: () => {
       item.status = previous
     }
   })
 }
 </script>
-
-<style scoped>
-.status-toggle {
-  cursor: pointer;
-}
-</style>
-

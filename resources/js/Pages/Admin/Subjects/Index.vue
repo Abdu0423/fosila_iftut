@@ -78,52 +78,44 @@
 
       <!-- Таблица предметов -->
       <v-card>
-        <v-data-table
-          :headers="headers"
-          :items="props.subjects.data"
-          :loading="loading"
-          item-value="id"
-          v-model="selected"
-          show-select
-          class="elevation-1"
-        >
-          <template v-slot:item.department="{ item }">
-            <span v-if="item.department">{{ item.department.name }}</span>
+        <ExcelSheet :headers="headers" :rows="props.subjects.data">
+          <template #cell-department="{ row }">
+            <span v-if="row.department">{{ row.department.name }}</span>
             <span v-else class="text-grey">{{ t('admin.subjects.not_specified_department') }}</span>
           </template>
 
-          <template v-slot:item.is_active="{ item }">
+          <template #cell-is_active="{ row }">
             <v-switch
-              :model-value="item.is_active"
-              @update:model-value="toggleStatus(item)"
+              :model-value="row.is_active"
+              @update:model-value="toggleStatus(row)"
               color="success"
               hide-details
               density="compact"
             />
           </template>
 
-          <template v-slot:item.actions="{ item }">
+          <template #cell-actions="{ row }">
             <div class="d-flex gap-2">
               <v-btn
                 icon="mdi-eye"
                 size="small"
                 variant="text"
                 color="info"
-                @click="navigateTo(`/admin/subjects/${item.id}`)"
+                @click="navigateTo(`/admin/subjects/${row.id}`)"
               />
               <v-btn
                 icon="mdi-pencil"
                 size="small"
                 variant="text"
                 color="warning"
-                @click="navigateTo(`/admin/subjects/${item.id}/edit`)"
+                @click="navigateTo(`/admin/subjects/${row.id}/edit`)"
               />
               <v-btn
                 icon="mdi-content-copy"
                 size="small"
                 variant="text"
                 color="info"
-                @click="duplicateSubject(item)"
+                @click="duplicateSubject(row)"
                 :title="t('admin.subjects.duplicate')"
               />
               <v-btn
@@ -131,12 +123,12 @@
                 size="small"
                 variant="text"
                 color="error"
-                @click="confirmDelete(item)"
+                @click="confirmDelete(row)"
                 :title="t('admin.subjects.delete')"
               />
             </div>
           </template>
-        </v-data-table>
+        </ExcelSheet>
       </v-card>
 
       <!-- Диалог подтверждения удаления -->
@@ -209,6 +201,7 @@
 </template>
 
 <script setup lang="ts">
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 import { ref, computed, onMounted, watch } from 'vue'
 import { router } from '@/compat/inertia'
 import { useI18n } from 'vue-i18n'

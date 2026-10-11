@@ -1,254 +1,94 @@
 <template>
   <Layout :role="getRole">
     <v-container fluid class="pa-6">
-      <!-- Заголовок -->
-      <div class="d-flex justify-space-between align-center mb-6">
-        <div>
-          <h1 class="text-h4 font-weight-bold mb-2">
-            {{ translations.education_department?.departments_title || 'Кафедры' }}
-          </h1>
-          <p class="text-body-1 text-medium-emphasis">
-            {{ translations.education_department?.departments_subtitle || 'Управление кафедрами' }}
-          </p>
-        </div>
-        <v-btn
-          color="primary"
-          prepend-icon="mdi-plus"
-          @click="createDepartment"
-        >
-          {{ translations.messages?.add || 'Добавить' }}
-        </v-btn>
+      <div class="mb-6">
+        <h1 class="text-h4 font-weight-bold mb-2">
+          {{ translations.education_department?.departments_title || 'Кафедры' }}
+        </h1>
+        <p class="text-body-1 text-medium-emphasis">
+          {{ translations.education_department?.departments_subtitle || 'Управление кафедрами' }}
+        </p>
       </div>
 
-      <!-- Фильтры и поиск -->
-      <v-card class="mb-6">
-        <v-card-text>
-          <v-row>
-            <v-col cols="12" md="6">
-              <v-text-field
-                v-model="searchQuery"
-                :label="translations.messages?.search || 'Поиск'"
-                prepend-inner-icon="mdi-magnify"
-                clearable
-                variant="outlined"
-                density="comfortable"
-                @update:model-value="handleSearch"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-select
-                v-model="statusFilter"
-                :items="statusOptions"
-                :label="translations.education_department?.filter_by_status || 'Фильтр по статусу'"
-                prepend-inner-icon="mdi-filter"
-                clearable
-                variant="outlined"
-                density="comfortable"
-                @update:model-value="handleStatusFilter"
-              ></v-select>
-            </v-col>
-          </v-row>
-        </v-card-text>
-      </v-card>
-
-      <!-- Таблица кафедр -->
-      <v-card>
-        <v-data-table
-          :headers="headers"
-          :items="departments.data"
-          :items-per-page="departments.per_page"
-          hide-default-footer
-        >
-          <template v-slot:item.name="{ item }">
-            <div class="d-flex align-center py-2">
-              <v-avatar color="primary" size="40" class="mr-3">
-                <v-icon color="white">mdi-office-building</v-icon>
-              </v-avatar>
-              <div>
-                <div class="font-weight-medium">{{ item.name }}</div>
-                <div class="text-caption text-medium-emphasis" v-if="item.code">{{ item.code }}</div>
-              </div>
-            </div>
-          </template>
-
-          <template v-slot:item.groups_count="{ item }">
-            <v-chip
-              color="info"
-              size="small"
-            >
-              {{ item.groups_count || 0 }}
-            </v-chip>
-          </template>
-
-          <template v-slot:item.is_active="{ item }">
-            <v-chip
-              :color="item.is_active ? 'success' : 'error'"
-              size="small"
-              class="status-toggle"
-              @click="toggleStatus(item)"
-            >
-              {{ item.is_active ? (translations.messages?.active || 'Активна') : (translations.messages?.inactive || 'Неактивна') }}
-            </v-chip>
-          </template>
-
-          <template v-slot:item.actions="{ item }">
-            <div class="d-flex gap-2">
-              <v-btn
-                icon
-                variant="text"
-                size="small"
-                :color="item.is_active ? 'success' : 'error'"
-                @click="toggleStatus(item)"
-              >
-                <v-icon>{{ item.is_active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline' }}</v-icon>
-              </v-btn>
-              <v-btn
-                icon="mdi-pencil"
-                variant="text"
-                size="small"
-                color="primary"
-                @click="editDepartment(item)"
-                :title="translations.messages?.edit || 'Редактировать'"
-              ></v-btn>
-            </div>
-          </template>
-
-          <template v-slot:no-data>
-            <div class="text-center pa-8">
-              <v-icon size="64" color="grey-lighten-1">mdi-office-building-outline</v-icon>
-              <p class="text-h6 mt-4 text-medium-emphasis">
-                {{ translations.education_department?.no_departments || 'Кафедры не найдены' }}
-              </p>
-            </div>
-          </template>
-        </v-data-table>
-
-        <!-- Пагинация -->
-        <v-divider></v-divider>
-        <div class="d-flex justify-center pa-4">
-          <v-pagination
-            :length="totalPages"
-            :model-value="departments.current_page"
-            @update:model-value="handlePageChange"
-            :total-visible="totalVisible"
-          ></v-pagination>
-        </div>
-      </v-card>
+      <ExcelSheet
+        :columns="columns"
+        :rows="departmentRows"
+        can-add
+        :search-placeholder="translations.messages?.search || 'Поиск'"
+        :empty-text="translations.education_department?.no_departments || 'Кафедры не найдены'"
+        :add-label="translations.messages?.add || 'Добавить'"
+        @create="createDepartment"
+        @commit="updateDepartment"
+      >
+        <template #cell-is_active="{ row }">
+          <v-chip :color="row.is_active ? 'success' : 'error'" size="small" @click.stop="toggleStatus(row)">
+            {{ row.is_active ? (translations.messages?.active || 'Активна') : (translations.messages?.inactive || 'Неактивна') }}
+          </v-chip>
+        </template>
+        <template #cell-actions="{ row }">
+          <v-btn icon variant="text" size="small" :color="row.is_active ? 'success' : 'error'" @click.stop="toggleStatus(row)">
+            <v-icon>{{ row.is_active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline' }}</v-icon>
+          </v-btn>
+          <v-btn icon variant="text" color="primary" size="small" @click.stop="router.visit(`/${prefix()}/departments/${row.id}/edit`)">
+            <v-icon>mdi-pencil</v-icon>
+          </v-btn>
+        </template>
+      </ExcelSheet>
     </v-container>
   </Layout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { usePage, router } from '@/compat/inertia'
 import Layout from '../../Layout.vue'
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 
 const page = usePage()
 const translations = computed(() => page.props.translations || {})
-
 const props = defineProps({
-  departments: {
-    type: Object,
-    required: true
-  },
-  filters: {
-    type: Object,
-    default: () => ({})
-  }
+  departments: { type: [Array, Object], default: () => [] }
 })
 
-const searchQuery = ref(props.filters.search || '')
-const statusFilter = ref(props.filters.status !== undefined ? props.filters.status : null)
+const departmentRows = computed(() => props.departments?.data || props.departments || [])
+const prefix = () => window.location.pathname.startsWith('/registration') ? 'registration' : 'education'
+const getRole = computed(() => prefix() === 'registration' ? 'registration_center' : 'education_department')
 
-const headers = computed(() => [
-  { title: translations.value.education_department?.department_name || 'Название', key: 'name', sortable: false },
-  { title: translations.value.education_department?.groups_count || 'Количество групп', key: 'groups_count', sortable: false },
-  { title: translations.value.messages?.status || 'Статус', key: 'is_active', sortable: false },
-  { title: translations.value.messages?.actions || 'Действия', key: 'actions', sortable: false }
+const columns = computed(() => [
+  { key: 'name', title: translations.value.education_department?.department_name || 'Название', editable: true, editor: 'text', inherit: true, required: true },
+  { key: 'code', title: 'Код', editable: true, editor: 'text', inherit: true },
+  { key: 'groups_count', title: translations.value.education_department?.groups_count || 'Группы', text: (row) => String(row.groups_count || 0) },
+  {
+    key: 'is_active',
+    title: translations.value.messages?.status || 'Статус',
+    editor: 'slot',
+    text: (row) => row.is_active ? (translations.value.messages?.active || 'Активна') : (translations.value.messages?.inactive || 'Неактивна')
+  },
+  { key: 'actions', title: translations.value.messages?.actions || 'Действия', editor: 'slot', text: () => '' }
 ])
 
-const statusOptions = [
-  { title: translations.value.messages?.active || 'Активна', value: true },
-  { title: translations.value.messages?.inactive || 'Неактивна', value: false }
-]
-
-// Определяем префикс маршрута на основе текущего URL
-const getRoutePrefix = () => {
-  const path = window.location.pathname
-  if (path.startsWith('/registration')) {
-    return 'registration'
-  }
-  return 'education'
-}
-
-// Определяем роль для Layout
-const getRole = computed(() => {
-  return getRoutePrefix() === 'registration' ? 'registration_center' : 'education_department'
+const payload = (source) => ({
+  name: source.name,
+  code: source.code || null,
+  description: source.description || null,
+  is_active: source.is_active ?? true
 })
 
-const handleSearch = () => {
-  router.get(`/${getRoutePrefix()}/departments`, {
-    search: searchQuery.value,
-    status: statusFilter.value
-  }, {
-    preserveState: true,
-    preserveScroll: true
-  })
+const createDepartment = (draft) => {
+  router.post(`/${prefix()}/departments`, payload({ ...draft, is_active: true }))
 }
 
-const handleStatusFilter = () => {
-  router.get(`/${getRoutePrefix()}/departments`, {
-    search: searchQuery.value,
-    status: statusFilter.value
-  }, {
-    preserveState: true,
-    preserveScroll: true
-  })
-}
-
-const handlePageChange = (pageNum) => {
-  router.get(`/${getRoutePrefix()}/departments`, {
-    page: pageNum,
-    search: searchQuery.value,
-    status: statusFilter.value
-  }, {
-    preserveState: true,
-    preserveScroll: true
-  })
-}
-
-// Вычисляемое свойство для общего количества страниц
-const totalPages = computed(() => Math.ceil(props.departments.total / props.departments.per_page))
-
-// Вычисляемое свойство для видимых страниц пагинации
-// Если страниц <= 5, показываем все, иначе максимум 5
-const totalVisible = computed(() => {
-  const total = totalPages.value
-  return total <= 5 ? total : 5
-})
-
-const createDepartment = () => {
-  router.visit(`/${getRoutePrefix()}/departments/create`)
-}
-
-const editDepartment = (department) => {
-  router.visit(`/${getRoutePrefix()}/departments/${department.id}/edit`)
+const updateDepartment = ({ row, column, value }) => {
+  router.put(`/${prefix()}/departments/${row.id}`, payload({ ...row, [column.key]: value }))
 }
 
 const toggleStatus = (item) => {
   const previous = item.is_active
   item.is_active = !item.is_active
-  router.post(`/${getRoutePrefix()}/departments/${item.id}/toggle-status`, {}, {
+  router.post(`/${prefix()}/departments/${item.id}/toggle-status`, {}, {
     onError: () => {
       item.is_active = previous
     }
   })
 }
 </script>
-
-<style scoped>
-.status-toggle {
-  cursor: pointer;
-}
-</style>
-

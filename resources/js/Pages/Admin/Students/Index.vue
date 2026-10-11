@@ -92,62 +92,48 @@
     <v-row>
       <v-col cols="12">
         <v-card>
-          <v-data-table
-            :headers="headers"
-            :items="students.data"
-            :loading="loading"
-            :items-per-page="students.per_page"
-            :total-items="students.total"
-            @update:options="handleTableUpdate"
-            :footer-props="{
-              'items-per-page-options': [10, 15, 25, 50, 100],
-              'show-first-last-page': true
-            }"
-            :pagination-props="{
-              'total-visible': 5
-            }"
-          >
-            <template v-slot:item.name="{ item }">
+          <ExcelSheet :headers="headers" :rows="students.data">
+            <template #cell-name="{ row }">
               <div class="d-flex align-center">
                 <v-avatar size="32" class="mr-2">
                   <v-img
-                    :src="`https://ui-avatars.com/api/?name=${item.raw.name}&background=random`"
-                    :alt="item.raw.name"
+                    :src="`https://ui-avatars.com/api/?name=${row.name}&background=random`"
+                    :alt="row.name"
                   ></v-img>
                 </v-avatar>
                 <div>
-                  <div class="font-weight-medium">{{ item.raw.name }}</div>
-                  <div class="text-caption">{{ item.raw.email }}</div>
+                  <div class="font-weight-medium">{{ row.name }}</div>
+                  <div class="text-caption">{{ row.email }}</div>
                 </div>
               </div>
             </template>
 
-            <template v-slot:item.group="{ item }">
-              {{ item.raw.group?.name }}
+            <template #cell-group="{ row }">
+              {{ row.group?.name }}
             </template>
 
-            <template v-slot:item.course="{ item }">
+            <template #cell-course="{ row }">
               <v-chip color="primary" size="small">
-                {{ item.raw.course }} {{ t('admin.students.course_label') }}
+                {{ row.course }} {{ t('admin.students.course_label') }}
               </v-chip>
             </template>
 
-            <template v-slot:item.is_active="{ item }">
+            <template #cell-is_active="{ row }">
               <v-chip
-                :color="item.raw.is_active ? 'success' : 'error'"
+                :color="row.is_active ? 'success' : 'error'"
                 size="small"
               >
-                {{ item.raw.is_active ? t('admin.students.active_status') : t('admin.students.inactive_status') }}
+                {{ row.is_active ? t('admin.students.active_status') : t('admin.students.inactive_status') }}
               </v-chip>
             </template>
 
-            <template v-slot:item.actions="{ item }">
+            <template #cell-actions="{ row }">
               <v-btn
                 icon="mdi-eye"
                 variant="text"
                 size="small"
                 color="info"
-                :href="route('admin.students.show', item.raw.id)"
+                :href="route('admin.students.show', row.id)"
               ></v-btn>
               
               <v-btn
@@ -155,7 +141,7 @@
                 variant="text"
                 size="small"
                 color="warning"
-                :href="route('admin.students.edit', item.raw.id)"
+                :href="route('admin.students.edit', row.id)"
               ></v-btn>
               
               <v-btn
@@ -163,10 +149,10 @@
                 variant="text"
                 size="small"
                 color="error"
-                @click="deleteStudent(item.raw.id)"
+                @click="deleteStudent(row.id)"
               ></v-btn>
             </template>
-          </v-data-table>
+          </ExcelSheet>
         </v-card>
       </v-col>
     </v-row>
@@ -189,6 +175,7 @@
 </template>
 
 <script setup lang="ts">
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 import { ref, reactive, computed } from 'vue'
 import { router } from '@/compat/inertia'
 import { useI18n } from 'vue-i18n'

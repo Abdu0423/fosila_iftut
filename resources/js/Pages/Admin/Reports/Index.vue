@@ -146,41 +146,36 @@
           <v-card>
             <v-card-title>Детальная статистика</v-card-title>
             <v-card-text>
-              <v-data-table
-                :headers="tableHeaders"
-                :items="reportData"
-                :items-per-page="10"
-                class="elevation-0"
-              >
+              <ExcelSheet :headers="tableHeaders" :rows="reportData">
                 <!-- Название -->
-                <template v-slot:item.name="{ item }">
-                  <div class="font-weight-medium">{{ item.name }}</div>
+                <template #cell-name="{ row }">
+                  <div class="font-weight-medium">{{ row.name }}</div>
                 </template>
                 
                 <!-- Значение -->
-                <template v-slot:item.value="{ item }">
-                  <div class="text-h6 font-weight-bold" :class="item.color + '--text'">
-                    {{ item.value }}
+                <template #cell-value="{ row }">
+                  <div class="text-h6 font-weight-bold" :class="row.color + '--text'">
+                    {{ row.value }}
                   </div>
                 </template>
                 
                 <!-- Изменение -->
-                <template v-slot:item.change="{ item }">
-                  <v-chip :color="item.change >= 0 ? 'success' : 'error'" small>
+                <template #cell-change="{ row }">
+                  <v-chip :color="row.change >= 0 ? 'success' : 'error'" small>
                     <v-icon left size="small">
-                      {{ item.change >= 0 ? 'mdi-trending-up' : 'mdi-trending-down' }}
+                      {{ row.change >= 0 ? 'mdi-trending-up' : 'mdi-trending-down' }}
                     </v-icon>
-                    {{ Math.abs(item.change) }}%
+                    {{ Math.abs(row.change) }}%
                   </v-chip>
                 </template>
                 
                 <!-- Статус -->
-                <template v-slot:item.status="{ item }">
-                  <v-chip :color="getStatusColor(item.status)" small>
-                    {{ item.status }}
+                <template #cell-status="{ row }">
+                  <v-chip :color="getStatusColor(row.status)" small>
+                    {{ row.status }}
                   </v-chip>
                 </template>
-              </v-data-table>
+              </ExcelSheet>
             </v-card-text>
           </v-card>
         </v-col>
@@ -222,11 +217,13 @@
 
 <script lang="ts">
 import AdminApp from '../AdminApp.vue'
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 
 export default {
   name: 'AdminReportsIndex',
   components: {
-    AdminApp
+    AdminApp,
+    ExcelSheet
   },
   data() {
     return {

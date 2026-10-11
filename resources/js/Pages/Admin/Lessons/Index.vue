@@ -69,47 +69,41 @@
       <v-row>
         <v-col cols="12">
           <v-card>
-            <v-data-table
-              :headers="headers"
-              :items="lessonsData"
-              :loading="loading"
-              :search="search"
-              class="elevation-1"
-            >
+            <ExcelSheet :headers="headers" :rows="lessonsData">
               <!-- Название урока -->
-              <template v-slot:item.title="{ item }">
+              <template #cell-title="{ row }">
                 <div class="d-flex align-center">
                   <v-icon color="primary" class="mr-2">mdi-book</v-icon>
                   <div>
-                    <div class="font-weight-medium">{{ item.title }}</div>
-                    <div class="text-caption text-medium-emphasis" v-if="item.description">
-                      {{ truncateText(item.description, 50) }}
+                    <div class="font-weight-medium">{{ row.title }}</div>
+                    <div class="text-caption text-medium-emphasis" v-if="row.description">
+                      {{ truncateText(row.description, 50) }}
                     </div>
                   </div>
                 </div>
               </template>
 
               <!-- Предмет -->
-              <template v-slot:item.subject="{ item }">
+              <template #cell-subject="{ row }">
                 <v-chip
-                  v-if="item.subject"
+                  v-if="row.subject"
                   color="primary"
                   variant="tonal"
                   size="small"
                 >
-                  {{ item.subject.name }}
+                  {{ row.subject.name }}
                 </v-chip>
                 <span v-else class="text-medium-emphasis">Не указан</span>
               </template>
 
               <!-- Файл -->
-              <template v-slot:item.file="{ item }">
-                <div v-if="item.file_name" class="d-flex align-center">
+              <template #cell-file="{ row }">
+                <div v-if="row.file_name" class="d-flex align-center">
                   <v-icon color="success" class="mr-2">mdi-file-check</v-icon>
                   <div>
-                    <div class="text-body-2">{{ item.file_name }}</div>
+                    <div class="text-body-2">{{ row.file_name }}</div>
                     <div class="text-caption text-medium-emphasis">
-                      {{ item.file_size_formatted }}
+                      {{ row.file_size_formatted }}
                     </div>
                   </div>
                 </div>
@@ -120,36 +114,36 @@
               </template>
 
               <!-- Дата создания -->
-              <template v-slot:item.created_at="{ item }">
+              <template #cell-created_at="{ row }">
                 <div class="text-body-2">
-                  {{ formatDate(item.created_at) }}
+                  {{ formatDate(row.created_at) }}
                 </div>
               </template>
 
               <!-- Действия -->
-              <template v-slot:item.actions="{ item }">
+              <template #cell-actions="{ row }">
                 <div class="d-flex gap-2">
                   <v-btn
                     icon="mdi-eye"
                     variant="text"
                     size="small"
                     color="info"
-                    @click="viewLesson(item)"
+                    @click="viewLesson(row)"
                   ></v-btn>
                   <v-btn
                     icon="mdi-pencil"
                     variant="text"
                     size="small"
                     color="primary"
-                    @click="editLesson(item)"
+                    @click="editLesson(row)"
                   ></v-btn>
                   <v-btn
                     icon="mdi-download"
                     variant="text"
                     size="small"
                     color="success"
-                    v-if="item.download_url"
-                    :href="item.download_url"
+                    v-if="row.download_url"
+                    :href="row.download_url"
                     target="_blank"
                   ></v-btn>
                   <v-btn
@@ -157,7 +151,7 @@
                     variant="text"
                     size="small"
                     color="error"
-                    @click="deleteLesson(item)"
+                    @click="deleteLesson(row)"
                   ></v-btn>
                 </div>
               </template>
@@ -178,7 +172,7 @@
                   </v-btn>
                 </div>
               </template>
-            </v-data-table>
+            </ExcelSheet>
           </v-card>
         </v-col>
       </v-row>
@@ -216,6 +210,7 @@
 </template>
 
 <script setup lang="ts">
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 import { ref, computed } from 'vue'
 import { router } from '@/compat/inertia'
 import Layout from '../../Layout.vue'

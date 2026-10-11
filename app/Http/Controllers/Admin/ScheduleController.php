@@ -68,8 +68,7 @@ class ScheduleController extends Controller
 
         $schedules = $query->with(['tests' => function($q) {
             $q->whereIn('exam_type', ['periodic', 'final'])->orderBy('exam_type')->orderBy('id');
-        }])->paginate(20)
-            ->withQueryString();
+        }])->get();
 
         // Данные для фильтров
         $subjects = Subject::all();
@@ -79,7 +78,7 @@ class ScheduleController extends Controller
         })->get();
 
         // Форматируем расписания для отображения дат экзаменов
-        $schedules->getCollection()->transform(function($schedule) {
+        $schedules->transform(function($schedule) {
             $periodicExams = $schedule->tests->where('exam_type', 'periodic');
             $finalExam = $schedule->tests->where('exam_type', 'final')->first();
             

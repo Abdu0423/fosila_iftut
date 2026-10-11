@@ -40,226 +40,40 @@
         </v-col>
       </v-row>
 
-      <!-- Фильтры и поиск -->
-      <v-row class="mb-4">
-        <v-col cols="12" md="3">
-          <v-text-field
-            v-model="search"
-            prepend-inner-icon="mdi-magnify"
-            label="Поиск по предмету, учителю или группе..."
-            variant="outlined"
-            density="compact"
-            clearable
+      <ExcelSheet
+        :columns="sheetColumns"
+        :rows="scheduleRows"
+        can-add
+        search-placeholder="Поиск по предмету, группе, преподавателю"
+        empty-text="Расписания не найдены"
+        @create="createSchedule"
+        @commit="updateSchedule"
+      >
+        <template #cell-status="{ row }">
+          <v-chip
+            :color="row.is_active ? 'success' : 'error'"
+            size="small"
+            variant="flat"
+            @click.stop="toggleStatus(row)"
+          >
+            {{ row.is_active ? 'Активен' : 'Неактивен' }}
+          </v-chip>
+        </template>
+        <template #cell-actions="{ row }">
+          <v-btn icon="mdi-eye" size="small" variant="text" color="info" @click.stop="navigateTo(`/admin/schedules/${row.id}`)" />
+          <v-btn
+            :icon="row.is_active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline'"
+            size="small"
+            variant="text"
+            :color="row.is_active ? 'success' : 'error'"
+            @click.stop="toggleStatus(row)"
           />
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-select
-            v-model="subjectFilter"
-            :items="subjectItems"
-            item-title="name"
-            item-value="id"
-            label="Предмет"
-            variant="outlined"
-            density="compact"
-            clearable
-          />
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-select
-            v-model="groupFilter"
-            :items="groupItems"
-            item-title="name"
-            item-value="id"
-            label="Группа"
-            variant="outlined"
-            density="compact"
-            clearable
-          />
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-select
-            v-model="semesterFilter"
-            :items="semesterItems"
-            label="Семестр"
-            variant="outlined"
-            density="compact"
-            clearable
-          />
-        </v-col>
-        <v-col cols="12" md="2">
-          <v-select
-            v-model="statusFilter"
-            :items="statusItems"
-            label="Статус"
-            variant="outlined"
-            density="compact"
-            clearable
-          />
-        </v-col>
-      </v-row>
+          <v-btn icon="mdi-pencil" size="small" variant="text" color="primary" @click.stop="navigateTo(`/admin/schedules/${row.id}/edit`)" />
+          <v-btn icon="mdi-content-copy" size="small" variant="text" color="success" @click.stop="duplicateSchedule(row)" />
+          <v-btn icon="mdi-delete" size="small" variant="text" color="error" @click.stop="confirmDelete(row)" />
+        </template>
+      </ExcelSheet>
 
-      <!-- Таблица расписаний -->
-      <v-card>
-        <v-data-table
-          :headers="headers"
-          :items="sortedSchedules"
-          :loading="loading"
-          item-value="id"
-          v-model="selected"
-          show-select
-          class="elevation-1"
-          :sort-by="sortBy"
-          :sort-desc="sortDesc"
-          @update:sort-by="updateSortBy"
-          @update:sort-desc="updateSortDesc"
-        >
-          <template v-slot:header.subject>
-            <div class="d-flex align-center">
-              <v-icon size="small" class="mr-2">mdi-book-open-page-variant</v-icon>
-              <span>Предмет</span>
-            </div>
-          </template>
-          <template v-slot:header.group>
-            <div class="d-flex align-center">
-              <v-icon size="small" class="mr-2">mdi-account-group</v-icon>
-              <span>Группа</span>
-            </div>
-          </template>
-          <template v-slot:header.teacher>
-            <div class="d-flex align-center">
-              <v-icon size="small" class="mr-2">mdi-teach</v-icon>
-              <span>Преподаватель</span>
-            </div>
-          </template>
-          <template v-slot:header.semester>
-            <div class="d-flex align-center">
-              <v-icon size="small" class="mr-2">mdi-numeric</v-icon>
-              <span>Семестр</span>
-            </div>
-          </template>
-          <template v-slot:header.study_year>
-            <div class="d-flex align-center">
-              <v-icon size="small" class="mr-2">mdi-calendar-year</v-icon>
-              <span>Год обучения</span>
-            </div>
-          </template>
-          <template v-slot:header.status>
-            <div class="d-flex align-center">
-              <v-icon size="small" class="mr-2">mdi-check-circle</v-icon>
-              <span>Статус</span>
-            </div>
-          </template>
-          <template v-slot:header.actions>
-            <div class="d-flex align-center">
-              <v-icon size="small" class="mr-2">mdi-cog</v-icon>
-              <span>Действия</span>
-            </div>
-          </template>
-
-          <template v-slot:item.subject="{ item }">
-            <div class="font-weight-medium">
-              {{ item.subject?.name }}
-            </div>
-          </template>
-
-          <template v-slot:item.teacher="{ item }">
-            <div class="font-weight-medium">
-              {{ item.teacher ? `${item.teacher.name} ${item.teacher.last_name}` : '—' }}
-              <div class="text-caption text-medium-emphasis" v-if="item.teacher?.email">
-                {{ item.teacher.email }}
-              </div>
-            </div>
-          </template>
-
-          <template v-slot:item.group="{ item }">
-            <v-chip
-              size="small"
-              color="primary"
-              variant="tonal"
-            >
-              {{ item.group?.name || '—' }}
-            </v-chip>
-          </template>
-
-          <template v-slot:item.semester="{ item }">
-            <v-chip
-              size="small"
-              color="primary"
-              variant="flat"
-            >
-              {{ item.semester || '—' }}
-            </v-chip>
-          </template>
-
-          <template v-slot:item.study_year="{ item }">
-            <div>
-              {{ item.study_year || '—' }}
-            </div>
-          </template>
-
-          <template v-slot:item.status="{ item }">
-            <v-chip
-              :color="item.is_active ? 'success' : 'error'"
-              size="small"
-              variant="flat"
-              class="status-toggle"
-              @click="toggleStatus(item)"
-            >
-              {{ item.is_active ? 'Активен' : 'Неактивен' }}
-            </v-chip>
-          </template>
-
-          <template v-slot:item.actions="{ item }">
-            <div class="d-flex gap-1">
-              <v-btn
-                icon="mdi-eye"
-                size="small"
-                variant="text"
-                color="info"
-                @click="navigateTo(`/admin/schedules/${item.id}`)"
-              />
-              <v-btn
-                :icon="item.is_active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline'"
-                size="small"
-                variant="text"
-                :color="item.is_active ? 'success' : 'error'"
-                @click="toggleStatus(item)"
-              />
-              <v-btn
-                icon="mdi-pencil"
-                size="small"
-                variant="text"
-                color="primary"
-                @click="navigateTo(`/admin/schedules/${item.id}/edit`)"
-              />
-              <v-btn
-                icon="mdi-content-copy"
-                size="small"
-                variant="text"
-                color="success"
-                @click="duplicateSchedule(item)"
-              />
-              <v-btn
-                icon="mdi-delete"
-                size="small"
-                variant="text"
-                color="error"
-                @click="confirmDelete(item)"
-              />
-            </div>
-          </template>
-        </v-data-table>
-
-        <!-- Пагинация -->
-        <div class="d-flex justify-center pa-4" v-if="props.schedules.last_page > 1">
-          <v-pagination
-            :model-value="props.schedules.current_page"
-            :length="props.schedules.last_page"
-            @update:model-value="changePage"
-            :total-visible="5"
-          />
-        </div>
-      </v-card>
     </v-container>
 
     <!-- Диалог массовых действий -->
@@ -310,6 +124,7 @@
 import { ref, computed, watch } from 'vue'
 import { router } from '@/compat/inertia'
 import Layout from '../../Layout.vue'
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 
 // Props
 const props = defineProps({
@@ -334,6 +149,121 @@ const showBulkDialog = ref(false)
 const bulkAction = ref(null)
 const sortBy = ref([])
 const sortDesc = ref([])
+
+const scheduleRows = computed(() => props.schedules?.data || props.schedules || [])
+
+const subjectOptions = computed(() => (props.subjects || []).map((subject) => ({
+  title: subject.name,
+  value: subject.id
+})))
+
+const groupOptions = computed(() => (props.groups || []).map((group) => ({
+  title: group.name,
+  value: group.id
+})))
+
+const teacherOptions = computed(() => (props.teachers || []).map((teacher) => ({
+  title: `${teacher.name || ''} ${teacher.last_name || ''}`.trim(),
+  value: teacher.id
+})))
+
+const sheetColumns = computed(() => [
+  {
+    key: 'subject_id',
+    title: 'Предмет',
+    editable: true,
+    editor: 'select',
+    inherit: true,
+    required: true,
+    options: subjectOptions.value,
+    get: (row) => row.subject_id,
+    text: (row) => row.subject?.name || ''
+  },
+  {
+    key: 'group_id',
+    title: 'Группа',
+    editable: true,
+    editor: 'select',
+    inherit: true,
+    required: true,
+    options: groupOptions.value,
+    get: (row) => row.group_id,
+    text: (row) => row.group?.name || ''
+  },
+  {
+    key: 'teacher_id',
+    title: 'Преподаватель',
+    editable: true,
+    editor: 'select',
+    inherit: true,
+    required: true,
+    options: teacherOptions.value,
+    get: (row) => row.teacher_id,
+    text: (row) => row.teacher ? `${row.teacher.name || ''} ${row.teacher.last_name || ''}`.trim() : ''
+  },
+  {
+    key: 'semester',
+    title: 'Семестр',
+    editable: true,
+    editor: 'number',
+    required: true,
+    text: (row) => row.semester ? String(row.semester) : ''
+  },
+  {
+    key: 'study_year',
+    title: 'Год обучения',
+    editable: true,
+    editor: 'number',
+    inherit: true,
+    required: true,
+    text: (row) => row.study_year ? String(row.study_year) : ''
+  },
+  {
+    key: 'status',
+    title: 'Статус',
+    editor: 'slot',
+    text: (row) => row.is_active ? 'Активен' : 'Неактивен'
+  },
+  {
+    key: 'actions',
+    title: 'Действия',
+    editor: 'slot',
+    text: () => ''
+  }
+])
+
+const creditsFor = (groupId, fallback) => {
+  const sibling = scheduleRows.value.find((item) => item.group_id === groupId && item.credits)
+  return sibling?.credits || fallback || 1
+}
+
+const schedulePayload = (source) => ({
+  subject_id: source.subject_id,
+  teacher_id: source.teacher_id,
+  group_id: source.group_id,
+  semester: Number(source.semester),
+  study_year: Number(source.study_year),
+  credits: Number(source.credits || creditsFor(source.group_id, 1)),
+  is_active: source.is_active ?? true,
+  scheduled_at: source.scheduled_at || null,
+  distance_control_1_date: source.distance_control_1_date || null,
+  distance_control_2_date: source.distance_control_2_date || null
+})
+
+const createSchedule = (draft) => {
+  router.post('/admin/schedules', schedulePayload({
+    ...draft,
+    credits: creditsFor(draft.group_id, 1),
+    is_active: true
+  }))
+}
+
+const updateSchedule = ({ row, column, value }) => {
+  router.put(`/admin/schedules/${row.id}`, schedulePayload({
+    ...row,
+    [column.key]: value
+  }))
+}
 
 // Заголовки таблицы
 const headers = [

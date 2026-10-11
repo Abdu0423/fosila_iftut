@@ -149,86 +149,80 @@
       <v-row>
         <v-col cols="12">
           <v-card>
-            <v-data-table
-              :headers="headers"
-              :items="filteredGrades"
-              :search="search"
-              :loading="loading"
-              class="elevation-1"
-            >
+            <ExcelSheet :headers="headers" :rows="filteredGrades">
               <!-- Студент -->
-              <template v-slot:item.student="{ item }">
+              <template #cell-student="{ row }">
                 <div class="d-flex align-center">
                   <v-avatar size="32" class="mr-3">
-                    <v-img :src="item.student.avatar" :alt="item.student.name">
+                    <v-img :src="row.student.avatar" :alt="row.student.name">
                       <template v-slot:placeholder>
                         <v-icon>mdi-account</v-icon>
                       </template>
                     </v-img>
                   </v-avatar>
                   <div>
-                    <div class="font-weight-medium">{{ item.student.name }}</div>
-                    <div class="text-caption text-medium-emphasis">{{ item.student.email }}</div>
+                    <div class="font-weight-medium">{{ row.student.name }}</div>
+                    <div class="text-caption text-medium-emphasis">{{ row.student.email }}</div>
                   </div>
                 </div>
               </template>
 
               <!-- Курс и урок -->
-              <template v-slot:item.course="{ item }">
+              <template #cell-course="{ row }">
                 <div>
-                  <div class="font-weight-medium">{{ item.course.name }}</div>
-                  <div class="text-caption text-medium-emphasis">{{ item.lesson.title }}</div>
+                  <div class="font-weight-medium">{{ row.course.name }}</div>
+                  <div class="text-caption text-medium-emphasis">{{ row.lesson.title }}</div>
                 </div>
               </template>
 
               <!-- Оценка -->
-              <template v-slot:item.grade="{ item }">
+              <template #cell-grade="{ row }">
                 <v-chip
-                  :color="getGradeColor(item.grade)"
+                  :color="getGradeColor(row.grade)"
                   size="small"
                   variant="tonal"
                 >
-                  {{ item.grade }}
+                  {{ row.grade }}
                 </v-chip>
               </template>
 
               <!-- Максимальный балл -->
-              <template v-slot:item.max_grade="{ item }">
-                <div class="text-body-2">{{ item.max_grade }}</div>
+              <template #cell-max_grade="{ row }">
+                <div class="text-body-2">{{ row.max_grade }}</div>
               </template>
 
               <!-- Процент -->
-              <template v-slot:item.percentage="{ item }">
+              <template #cell-percentage="{ row }">
                 <div class="d-flex align-center">
                   <v-progress-linear
-                    :model-value="item.percentage"
-                    :color="getGradeColor(item.grade)"
+                    :model-value="row.percentage"
+                    :color="getGradeColor(row.grade)"
                     height="8"
                     rounded
                     class="mr-2"
                   ></v-progress-linear>
-                  <span class="text-body-2">{{ item.percentage }}%</span>
+                  <span class="text-body-2">{{ row.percentage }}%</span>
                 </div>
               </template>
 
               <!-- Статус -->
-              <template v-slot:item.status="{ item }">
+              <template #cell-status="{ row }">
                 <v-chip
-                  :color="getStatusColor(item.status)"
+                  :color="getStatusColor(row.status)"
                   size="small"
                   variant="tonal"
                 >
-                  {{ getStatusText(item.status) }}
+                  {{ getStatusText(row.status) }}
                 </v-chip>
               </template>
 
               <!-- Дата -->
-              <template v-slot:item.graded_at="{ item }">
-                {{ formatDate(item.graded_at) }}
+              <template #cell-graded_at="{ row }">
+                {{ formatDate(row.graded_at) }}
               </template>
 
               <!-- Действия -->
-              <template v-slot:item.actions="{ item }">
+              <template #cell-actions="{ row }">
                 <v-menu>
                   <template v-slot:activator="{ props }">
                     <v-btn
@@ -239,42 +233,42 @@
                     ></v-btn>
                   </template>
                   <v-list>
-                    <v-list-item
-                      @click="viewDetails(item)"
+                    <v-list-row
+                      @click="viewDetails(row)"
                       prepend-icon="mdi-eye"
                     >
-                      <v-list-item-title>Детали</v-list-item-title>
-                    </v-list-item>
-                    <v-list-item
-                      @click="editGrade(item)"
+                      <v-list-row-title>Детали</v-list-row-title>
+                    </v-list-row>
+                    <v-list-row
+                      @click="editGrade(row)"
                       prepend-icon="mdi-pencil"
                     >
-                      <v-list-item-title>Изменить оценку</v-list-item-title>
-                    </v-list-item>
-                    <v-list-item
-                      @click="viewStudent(item)"
+                      <v-list-row-title>Изменить оценку</v-list-row-title>
+                    </v-list-row>
+                    <v-list-row
+                      @click="viewStudent(row)"
                       prepend-icon="mdi-account"
                     >
-                      <v-list-item-title>Профиль студента</v-list-item-title>
-                    </v-list-item>
+                      <v-list-row-title>Профиль студента</v-list-row-title>
+                    </v-list-row>
                     <v-divider></v-divider>
-                    <v-list-item
-                      @click="addComment(item)"
+                    <v-list-row
+                      @click="addComment(row)"
                       prepend-icon="mdi-comment"
                     >
-                      <v-list-item-title>Добавить комментарий</v-list-item-title>
-                    </v-list-item>
-                    <v-list-item
-                      @click="deleteGrade(item)"
+                      <v-list-row-title>Добавить комментарий</v-list-row-title>
+                    </v-list-row>
+                    <v-list-row
+                      @click="deleteGrade(row)"
                       prepend-icon="mdi-delete"
                       color="error"
                     >
-                      <v-list-item-title>Удалить оценку</v-list-item-title>
-                    </v-list-item>
+                      <v-list-row-title>Удалить оценку</v-list-row-title>
+                    </v-list-row>
                   </v-list>
                 </v-menu>
               </template>
-            </v-data-table>
+            </ExcelSheet>
           </v-card>
         </v-col>
       </v-row>
@@ -345,6 +339,7 @@
 </template>
 
 <script setup lang="ts">
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 import { ref, computed, onMounted } from 'vue'
 import { router } from '@/compat/inertia'
 import AdminApp from '../AdminApp.vue'

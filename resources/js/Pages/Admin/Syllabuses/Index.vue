@@ -71,54 +71,48 @@
           ></v-text-field>
         </v-card-title>
 
-        <v-data-table
-          :headers="headers"
-          :items="syllabuses"
-          :search="search"
-          :loading="loading"
-          class="elevation-1"
-        >
-          <template v-slot:item.name="{ item }">
-            <div class="font-weight-medium">{{ item.name }}</div>
-            <div class="text-caption text-medium-emphasis">{{ item.description }}</div>
+        <ExcelSheet :headers="headers" :rows="syllabuses">
+          <template #cell-name="{ row }">
+            <div class="font-weight-medium">{{ row.name }}</div>
+            <div class="text-caption text-medium-emphasis">{{ row.description }}</div>
           </template>
 
-          <template v-slot:item.lesson_name="{ item }">
+          <template #cell-lesson_name="{ row }">
             <v-chip
-              :color="item.lesson_name !== 'Не указан' ? 'primary' : 'grey'"
+              :color="row.lesson_name !== 'Не указан' ? 'primary' : 'grey'"
               variant="tonal"
               size="small"
             >
-              {{ item.lesson_name }}
+              {{ row.lesson_name }}
             </v-chip>
           </template>
 
-          <template v-slot:item.file_name="{ item }">
-            <div v-if="item.file_name">
+          <template #cell-file_name="{ row }">
+            <div v-if="row.file_name">
               <v-icon size="small" class="mr-1">mdi-file</v-icon>
-              {{ item.file_name }}
+              {{ row.file_name }}
               <div class="text-caption text-medium-emphasis">
-                {{ item.file_size_formatted }}
+                {{ row.file_size_formatted }}
               </div>
             </div>
             <span v-else class="text-medium-emphasis">Файл не загружен</span>
           </template>
 
-          <template v-slot:item.creation_year="{ item }">
+          <template #cell-creation_year="{ row }">
             <v-chip
               color="secondary"
               variant="tonal"
               size="small"
             >
-              {{ item.creation_year }}
+              {{ row.creation_year }}
             </v-chip>
           </template>
 
-          <template v-slot:item.created_at="{ item }">
-            {{ item.created_at }}
+          <template #cell-created_at="{ row }">
+            {{ row.created_at }}
           </template>
 
-          <template v-slot:item.actions="{ item }">
+          <template #cell-actions="{ row }">
             <v-menu>
               <template v-slot:activator="{ props }">
                 <v-btn
@@ -129,44 +123,44 @@
                 ></v-btn>
               </template>
               <v-list>
-                <v-list-item
-                  @click="navigateTo(`/admin/syllabuses/${item.id}`)"
+                <v-list-row
+                  @click="navigateTo(`/admin/syllabuses/${row.id}`)"
                   prepend-icon="mdi-eye"
                 >
-                  <v-list-item-title>Просмотр</v-list-item-title>
-                </v-list-item>
-                <v-list-item
-                  @click="navigateTo(`/admin/syllabuses/${item.id}/edit`)"
+                  <v-list-row-title>Просмотр</v-list-row-title>
+                </v-list-row>
+                <v-list-row
+                  @click="navigateTo(`/admin/syllabuses/${row.id}/edit`)"
                   prepend-icon="mdi-pencil"
                 >
-                  <v-list-item-title>Редактировать</v-list-item-title>
-                </v-list-item>
-                <v-list-item
-                  v-if="item.download_url"
-                  @click="downloadFile(item.download_url)"
+                  <v-list-row-title>Редактировать</v-list-row-title>
+                </v-list-row>
+                <v-list-row
+                  v-if="row.download_url"
+                  @click="downloadFile(row.download_url)"
                   prepend-icon="mdi-download"
                 >
-                  <v-list-item-title>Скачать</v-list-item-title>
-                </v-list-item>
-                <v-list-item
-                  v-if="item.preview_url"
-                  @click="previewFile(item.preview_url)"
+                  <v-list-row-title>Скачать</v-list-row-title>
+                </v-list-row>
+                <v-list-row
+                  v-if="row.preview_url"
+                  @click="previewFile(row.preview_url)"
                   prepend-icon="mdi-eye"
                 >
-                  <v-list-item-title>Предварительный просмотр</v-list-item-title>
-                </v-list-item>
+                  <v-list-row-title>Предварительный просмотр</v-list-row-title>
+                </v-list-row>
                 <v-divider></v-divider>
-                <v-list-item
-                  @click="confirmDelete(item)"
+                <v-list-row
+                  @click="confirmDelete(row)"
                   prepend-icon="mdi-delete"
                   color="error"
                 >
-                  <v-list-item-title>Удалить</v-list-item-title>
-                </v-list-item>
+                  <v-list-row-title>Удалить</v-list-row-title>
+                </v-list-row>
               </v-list>
             </v-menu>
           </template>
-        </v-data-table>
+        </ExcelSheet>
       </v-card>
 
       <!-- Диалог подтверждения удаления -->
@@ -201,6 +195,7 @@
 </template>
 
 <script setup lang="ts">
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 import { ref, computed } from 'vue'
 import { router } from '@/compat/inertia'
 import Layout from '../../Layout.vue'

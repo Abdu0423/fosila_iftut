@@ -1,7 +1,6 @@
 ﻿<template>
   <Layout :role="getRole">
     <v-container fluid class="pa-6">
-      <!-- Заголовок -->
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">
@@ -11,199 +10,97 @@
             {{ translations.education_department?.subjects_subtitle || 'Список всех предметов' }}
           </p>
         </div>
-        <v-btn
-          color="primary"
-          prepend-icon="mdi-plus"
-          @click="router.visit(`/${getRoutePrefix()}/subjects/create`)"
-        >
-          {{ translations.messages?.add || 'Добавить' }}
-        </v-btn>
       </div>
 
-      <!-- Поиск -->
-      <v-card class="mb-6">
-        <v-card-text>
-          <v-text-field
-            v-model="searchQuery"
-            :label="translations.messages?.search || 'Поиск'"
-            prepend-inner-icon="mdi-magnify"
-            clearable
-            variant="outlined"
-            density="comfortable"
-            @update:model-value="handleSearch"
-          ></v-text-field>
-        </v-card-text>
-      </v-card>
-
-      <!-- Список предметов -->
-      <v-card>
-        <v-card-text v-if="subjects.data.length === 0">
-          <div class="text-center py-8">
-            <v-icon size="64" color="grey-lighten-1">mdi-book-open-page-variant-outline</v-icon>
-            <p class="text-h6 text-medium-emphasis mt-4">
-              {{ translations.education_department?.no_subjects || 'Предметы не найдены' }}
-            </p>
-          </div>
-        </v-card-text>
-
-        <v-data-table
-          v-else
-          :headers="headers"
-          :items="subjects.data"
-          :items-per-page="subjects.per_page"
-          hide-default-footer
-        >
-          <template v-slot:item.name="{ item }">
-            <div class="d-flex align-center py-2">
-              <v-avatar color="primary" size="40" class="mr-3">
-                <v-icon color="white">mdi-book-open-page-variant</v-icon>
-              </v-avatar>
-              <div>
-                <div class="font-weight-medium">{{ item.name }}</div>
-              </div>
-            </div>
-          </template>
-
-          <template v-slot:item.department="{ item }">
-            <span v-if="item.department?.name" class="text-body-2">{{ item.department.name }}</span>
-            <span v-else class="text-medium-emphasis">—</span>
-          </template>
-
-          <template v-slot:item.is_active="{ item }">
-            <v-chip
-              :color="item.is_active ? 'success' : 'error'"
-              size="small"
-              class="status-toggle"
-              @click="toggleStatus(item)"
-            >
-              {{ item.is_active ? (translations.messages?.active || 'Фаъол') : (translations.messages?.inactive || 'Ғайрифаъол') }}
-            </v-chip>
-          </template>
-
-          <template v-slot:item.actions="{ item }">
-            <v-btn
-              icon
-              variant="text"
-              :color="item.is_active ? 'success' : 'error'"
-              size="small"
-              @click="toggleStatus(item)"
-            >
-              <v-icon>{{ item.is_active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline' }}</v-icon>
-            </v-btn>
-            <v-btn
-              icon
-              variant="text"
-              color="primary"
-              size="small"
-              @click="router.visit(`/${getRoutePrefix()}/subjects/${item.id}/edit`)"
-              :title="translations.messages?.edit"
-            >
-              <v-icon>mdi-pencil</v-icon>
-            </v-btn>
-          </template>
-        </v-data-table>
-
-        <!-- Пагинация -->
-        <v-divider v-if="subjects.data.length > 0"></v-divider>
-        <div v-if="subjects.data.length > 0" class="d-flex justify-center pa-4">
-          <v-pagination
-            :length="totalPages"
-            :model-value="subjects.current_page"
-            @update:model-value="handlePageChange"
-            :total-visible="totalVisible"
-          ></v-pagination>
-        </div>
-      </v-card>
-
+      <ExcelSheet
+        :columns="columns"
+        :rows="subjectRows"
+        can-add
+        :search-placeholder="translations.messages?.search || 'Поиск'"
+        :empty-text="translations.education_department?.no_subjects || 'Предметы не найдены'"
+        :add-label="translations.messages?.add || 'Добавить'"
+        @create="createSubject"
+        @commit="updateSubject"
+      >
+        <template #cell-is_active="{ row }">
+          <v-chip :color="row.is_active ? 'success' : 'error'" size="small" @click.stop="toggleStatus(row)">
+            {{ row.is_active ? (translations.messages?.active || 'Фаъол') : (translations.messages?.inactive || 'Ғайрифаъол') }}
+          </v-chip>
+        </template>
+        <template #cell-actions="{ row }">
+          <v-btn icon variant="text" size="small" :color="row.is_active ? 'success' : 'error'" @click.stop="toggleStatus(row)">
+            <v-icon>{{ row.is_active ? 'mdi-toggle-switch' : 'mdi-toggle-switch-off-outline' }}</v-icon>
+          </v-btn>
+          <v-btn icon variant="text" color="primary" size="small" @click.stop="router.visit(`/${prefix()}/subjects/${row.id}/edit`)">
+            <v-icon>mdi-pencil</v-icon>
+          </v-btn>
+        </template>
+      </ExcelSheet>
     </v-container>
   </Layout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { usePage, router } from '@/compat/inertia'
 import Layout from '../../Layout.vue'
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 
 const page = usePage()
 const translations = computed(() => page.props.translations || {})
-
 const props = defineProps({
-  subjects: {
-    type: Object,
-    required: true
-  },
-  filters: {
-    type: Object,
-    default: () => ({})
-  }
+  subjects: { type: [Array, Object], default: () => [] },
+  departments: { type: Array, default: () => [] }
 })
 
-const searchQuery = ref(props.filters.search)
+const subjectRows = computed(() => props.subjects?.data || props.subjects || [])
+const prefix = () => window.location.pathname.startsWith('/registration') ? 'registration' : 'education'
+const getRole = computed(() => prefix() === 'registration' ? 'registration_center' : 'education_department')
+const departmentOptions = computed(() => (props.departments || []).map((item) => ({ title: item.name, value: item.id })))
 
-const headers = computed(() => [
-  { title: translations.value.education_department?.subject_name || 'Название', key: 'name', sortable: false },
-  { title: translations.value.education_department?.department || 'Кафедра', key: 'department', sortable: false },
-  { title: translations.value.messages?.status || 'Статус', key: 'is_active', sortable: false },
-  { title: translations.value.messages?.actions || 'Действия', key: 'actions', sortable: false }
+const columns = computed(() => [
+  { key: 'name', title: translations.value.education_department?.subject_name || 'Название', editable: true, editor: 'text', inherit: true, required: true },
+  {
+    key: 'department_id',
+    title: translations.value.education_department?.department || 'Кафедра',
+    editable: true,
+    editor: 'select',
+    inherit: true,
+    options: departmentOptions.value,
+    get: (row) => row.department_id,
+    text: (row) => row.department?.name || ''
+  },
+  {
+    key: 'is_active',
+    title: translations.value.messages?.status || 'Статус',
+    editor: 'slot',
+    text: (row) => row.is_active ? (translations.value.messages?.active || 'Фаъол') : (translations.value.messages?.inactive || 'Ғайрифаъол')
+  },
+  { key: 'actions', title: translations.value.messages?.actions || 'Действия', editor: 'slot', text: () => '' }
 ])
 
-// Определяем префикс маршрута на основе текущего URL
-const getRoutePrefix = () => {
-  const path = window.location.pathname
-  if (path.startsWith('/registration')) {
-    return 'registration'
-  }
-  return 'education'
-}
-
-// Определяем роль для Layout
-const getRole = computed(() => {
-  return getRoutePrefix() === 'registration' ? 'registration_center' : 'education_department'
+const payload = (source) => ({
+  name: source.name,
+  department_id: source.department_id || null,
+  description: source.description || null,
+  is_active: source.is_active ?? true
 })
 
-const handleSearch = () => {
-  router.get(`/${getRoutePrefix()}/subjects`, {
-    search: searchQuery.value
-  }, {
-    preserveState: true,
-    preserveScroll: true
-  })
+const createSubject = (draft) => {
+  router.post(`/${prefix()}/subjects`, payload({ ...draft, is_active: true }))
 }
 
-const handlePageChange = (pageNum) => {
-  router.get(`/${getRoutePrefix()}/subjects`, {
-    page: pageNum,
-    search: searchQuery.value
-  }, {
-    preserveState: true,
-    preserveScroll: true
-  })
+const updateSubject = ({ row, column, value }) => {
+  router.put(`/${prefix()}/subjects/${row.id}`, payload({ ...row, [column.key]: value }))
 }
-
-// Вычисляемое свойство для общего количества страниц
-const totalPages = computed(() => Math.ceil(props.subjects.total / props.subjects.per_page))
-
-// Вычисляемое свойство для видимых страниц пагинации
-// Если страниц <= 5, показываем все, иначе максимум 5
-const totalVisible = computed(() => {
-  const total = totalPages.value
-  return total <= 5 ? total : 5
-})
 
 const toggleStatus = (item) => {
   const previous = item.is_active
   item.is_active = !item.is_active
-  router.post(`/${getRoutePrefix()}/subjects/${item.id}/toggle-status`, {}, {
+  router.post(`/${prefix()}/subjects/${item.id}/toggle-status`, {}, {
     onError: () => {
       item.is_active = previous
     }
   })
 }
 </script>
-
-<style scoped>
-.status-toggle {
-  cursor: pointer;
-}
-</style>
-

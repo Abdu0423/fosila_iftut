@@ -56,48 +56,42 @@
           </div>
         </v-card-text>
 
-        <v-data-table
-          v-else
-          :headers="headers"
-          :items="students.data"
-          :items-per-page="students.per_page"
-          hide-default-footer
-        >
-          <template v-slot:item.name="{ item }">
+        <ExcelSheet :headers="headers" :rows="students.data">
+          <template #cell-name="{ row }">
             <div class="d-flex align-center py-2">
               <v-avatar color="primary" size="40" class="mr-3">
                 <v-icon color="white">mdi-account</v-icon>
               </v-avatar>
               <div>
-                <div class="font-weight-medium">{{ item.name }} {{ item.last_name }}</div>
-                <div class="text-caption text-medium-emphasis">{{ item.email || item.phone || '—' }}</div>
+                <div class="font-weight-medium">{{ row.name }} {{ row.last_name }}</div>
+                <div class="text-caption text-medium-emphasis">{{ row.email || row.phone || '—' }}</div>
               </div>
             </div>
           </template>
 
-          <template v-slot:item.group="{ item }">
-            <span v-if="item.group?.name" class="text-body-2">{{ item.group.name }}</span>
+          <template #cell-group="{ row }">
+            <span v-if="row.group?.name" class="text-body-2">{{ row.group.name }}</span>
             <span v-else class="text-medium-emphasis">—</span>
           </template>
 
-          <template v-slot:item.phone="{ item }">
-            <span v-if="item.phone" class="text-body-2">{{ item.phone }}</span>
+          <template #cell-phone="{ row }">
+            <span v-if="row.phone" class="text-body-2">{{ row.phone }}</span>
             <span v-else class="text-medium-emphasis">—</span>
           </template>
 
-          <template v-slot:item.actions="{ item }">
+          <template #cell-actions="{ row }">
             <v-btn
               icon
               variant="text"
               color="primary"
               size="small"
-              @click="router.visit(`/admin/users/${item.id}/edit`)"
+              @click="router.visit(`/admin/users/${row.id}/edit`)"
               :title="translations.messages?.edit || 'Редактировать'"
             >
               <v-icon>mdi-pencil</v-icon>
             </v-btn>
           </template>
-        </v-data-table>
+        </ExcelSheet>
 
         <!-- Пагинация -->
         <v-divider v-if="students.data.length > 0"></v-divider>
@@ -115,6 +109,7 @@
 </template>
 
 <script setup lang="ts">
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 import { ref, computed } from 'vue'
 import { usePage, router } from '@/compat/inertia'
 import Layout from '../../../Layout.vue'

@@ -134,55 +134,46 @@
                   </div>
                 </v-card-title>
                 <v-card-text>
-                  <v-data-table
-                    v-model="selectedUsers"
-                    :headers="headers"
-                    :items="filteredUsers"
-                    :search="search"
-                    show-select
-                    item-value="id"
-                    class="elevation-0"
-                    :items-per-page="25"
-                  >
-                    <template v-slot:item.name="{ item }">
+                  <ExcelSheet :headers="headers" :rows="filteredUsers">
+                    <template #cell-name="{ row }">
                       <div>
-                        <div class="font-weight-medium">{{ item.name }} {{ item.last_name }}</div>
-                        <div class="text-caption text-medium-emphasis">{{ item.email || '—' }}</div>
+                        <div class="font-weight-medium">{{ row.name }} {{ row.last_name }}</div>
+                        <div class="text-caption text-medium-emphasis">{{ row.email || '—' }}</div>
                       </div>
                     </template>
 
-                    <template v-slot:item.role="{ item }">
+                    <template #cell-role="{ row }">
                       <v-chip
-                        :color="getRoleColor(item.role)"
+                        :color="getRoleColor(row.role)"
                         size="small"
                         variant="tonal"
                       >
-                        {{ item.role_display }}
+                        {{ row.role_display }}
                       </v-chip>
                     </template>
 
-                    <template v-slot:item.group="{ item }">
-                      <span v-if="item.group">{{ item.group }}</span>
+                    <template #cell-group="{ row }">
+                      <span v-if="row.group">{{ row.group }}</span>
                       <span v-else class="text-medium-emphasis">—</span>
                     </template>
 
-                    <template v-slot:item.phone="{ item }">
-                      <span v-if="item.phone">{{ item.phone }}</span>
+                    <template #cell-phone="{ row }">
+                      <span v-if="row.phone">{{ row.phone }}</span>
                       <v-chip v-else color="warning" size="small" variant="tonal">
                         Нет телефона
                       </v-chip>
                     </template>
 
-                    <template v-slot:item.credentials_sent="{ item }">
+                    <template #cell-credentials_sent="{ row }">
                       <v-chip
-                        :color="item.credentials_sent ? 'success' : 'grey'"
+                        :color="row.credentials_sent ? 'success' : 'grey'"
                         size="small"
                         variant="tonal"
                       >
-                        {{ item.credentials_sent ? 'Отправлено' : 'Не отправлено' }}
+                        {{ row.credentials_sent ? 'Отправлено' : 'Не отправлено' }}
                       </v-chip>
                     </template>
-                  </v-data-table>
+                  </ExcelSheet>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -288,55 +279,46 @@
                   </div>
                 </v-card-title>
                 <v-card-text>
-                  <v-data-table
-                    v-model="selectedUsers"
-                    :headers="headers"
-                    :items="filteredUsers"
-                    :search="search"
-                    show-select
-                    item-value="id"
-                    class="elevation-0"
-                    :items-per-page="25"
-                  >
-                    <template v-slot:item.name="{ item }">
+                  <ExcelSheet :headers="headers" :rows="filteredUsers">
+                    <template #cell-name="{ row }">
                       <div>
-                        <div class="font-weight-medium">{{ item.name }} {{ item.last_name }}</div>
-                        <div class="text-caption text-medium-emphasis">{{ item.email || '—' }}</div>
+                        <div class="font-weight-medium">{{ row.name }} {{ row.last_name }}</div>
+                        <div class="text-caption text-medium-emphasis">{{ row.email || '—' }}</div>
                       </div>
                     </template>
 
-                    <template v-slot:item.role="{ item }">
+                    <template #cell-role="{ row }">
                       <v-chip
-                        :color="getRoleColor(item.role)"
+                        :color="getRoleColor(row.role)"
                         size="small"
                         variant="tonal"
                       >
-                        {{ item.role_display }}
+                        {{ row.role_display }}
                       </v-chip>
                     </template>
 
-                    <template v-slot:item.group="{ item }">
-                      <span v-if="item.group">{{ item.group }}</span>
+                    <template #cell-group="{ row }">
+                      <span v-if="row.group">{{ row.group }}</span>
                       <span v-else class="text-medium-emphasis">—</span>
                     </template>
 
-                    <template v-slot:item.phone="{ item }">
-                      <span v-if="item.phone">{{ item.phone }}</span>
+                    <template #cell-phone="{ row }">
+                      <span v-if="row.phone">{{ row.phone }}</span>
                       <v-chip v-else color="warning" size="small" variant="tonal">
                         Нет телефона
                       </v-chip>
                     </template>
 
-                    <template v-slot:item.credentials_sent="{ item }">
+                    <template #cell-credentials_sent="{ row }">
                       <v-chip
-                        :color="item.credentials_sent ? 'success' : 'grey'"
+                        :color="row.credentials_sent ? 'success' : 'grey'"
                         size="small"
                         variant="tonal"
                       >
-                        {{ item.credentials_sent ? 'Отправлено' : 'Не отправлено' }}
+                        {{ row.credentials_sent ? 'Отправлено' : 'Не отправлено' }}
                       </v-chip>
                     </template>
-                  </v-data-table>
+                  </ExcelSheet>
                 </v-card-text>
               </v-card>
             </v-col>
@@ -406,53 +388,43 @@
               </v-row>
 
               <!-- Таблица истории -->
-              <v-data-table
-                :headers="smsHistoryHeaders"
-                :items="smsHistory?.data || []"
-                :loading="loadingHistory"
-                :items-per-page="smsHistory?.per_page || 200"
-                :page="smsHistory?.current_page || 1"
-                :server-items-length="smsHistory?.total || 0"
-                @update:page="loadSmsHistoryPage"
-                @update:items-per-page="loadSmsHistoryPage"
-                class="elevation-0"
-              >
-                <template v-slot:item.phone="{ item }">
-                  <span class="font-weight-medium">{{ item.phone }}</span>
+              <ExcelSheet :headers="smsHistoryHeaders" :rows="smsHistory?.data || []">
+                <template #cell-phone="{ row }">
+                  <span class="font-weight-medium">{{ row.phone }}</span>
                 </template>
 
-                <template v-slot:item.message="{ item }">
+                <template #cell-message="{ row }">
                   <div class="text-body-2" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                    {{ item.message }}
+                    {{ row.message }}
                   </div>
                 </template>
 
-                <template v-slot:item.status="{ item }">
+                <template #cell-status="{ row }">
                   <v-chip
-                    :color="getStatusColor(item.status)"
+                    :color="getStatusColor(row.status)"
                     size="small"
                     variant="tonal"
                   >
-                    {{ getStatusText(item.status) }}
+                    {{ getStatusText(row.status) }}
                   </v-chip>
                 </template>
 
-                <template v-slot:item.user_name="{ item }">
-                  <span v-if="item.user_name">{{ item.user_name }}</span>
+                <template #cell-user_name="{ row }">
+                  <span v-if="row.user_name">{{ row.user_name }}</span>
                   <span v-else class="text-medium-emphasis">—</span>
                 </template>
 
-                <template v-slot:item.sent_at="{ item }">
-                  <span v-if="item.sent_at">{{ item.sent_at }}</span>
+                <template #cell-sent_at="{ row }">
+                  <span v-if="row.sent_at">{{ row.sent_at }}</span>
                   <span v-else class="text-medium-emphasis">—</span>
                 </template>
 
-                <template v-slot:item.created_at="{ item }">
-                  {{ item.created_at }}
+                <template #cell-created_at="{ row }">
+                  {{ row.created_at }}
                 </template>
 
-                <template v-slot:item.error="{ item }">
-                  <v-tooltip v-if="item.error" location="top">
+                <template #cell-error="{ row }">
+                  <v-tooltip v-if="row.error" location="top">
                     <template v-slot:activator="{ props }">
                       <v-chip
                         color="error"
@@ -463,11 +435,11 @@
                         Ошибка
                       </v-chip>
                     </template>
-                    <span>{{ item.error }}</span>
+                    <span>{{ row.error }}</span>
                   </v-tooltip>
                   <span v-else class="text-medium-emphasis">—</span>
                 </template>
-              </v-data-table>
+              </ExcelSheet>
             </v-card-text>
           </v-card>
         </v-col>
@@ -479,6 +451,7 @@
 </template>
 
 <script setup lang="ts">
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 import { ref, computed, onMounted } from 'vue'
 import { router, usePage, useForm } from '@/compat/inertia'
 import Layout from '../../Layout.vue'

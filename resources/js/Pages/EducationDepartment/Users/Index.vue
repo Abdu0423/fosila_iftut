@@ -55,53 +55,48 @@
 
       <!-- Таблица пользователей -->
       <v-card>
-        <v-data-table
-          :headers="headers"
-          :items="users.data"
-          :items-per-page="users.per_page"
-          hide-default-footer
-        >
-          <template v-slot:item.name="{ item }">
+        <ExcelSheet :headers="headers" :rows="users.data">
+          <template #cell-name="{ row }">
             <div class="d-flex align-center py-2">
               <v-avatar color="primary" size="40" class="mr-3">
-                <span class="text-white">{{ getInitials(item) }}</span>
+                <span class="text-white">{{ getInitials(row) }}</span>
               </v-avatar>
               <div>
-                <div class="font-weight-medium">{{ item.name }} {{ item.last_name }}</div>
-                <div class="text-caption text-medium-emphasis">{{ item.email }}</div>
+                <div class="font-weight-medium">{{ row.name }} {{ row.last_name }}</div>
+                <div class="text-caption text-medium-emphasis">{{ row.email }}</div>
               </div>
             </div>
           </template>
 
-          <template v-slot:item.role="{ item }">
+          <template #cell-role="{ row }">
             <v-chip
-              :color="getRoleColor(item.role?.name)"
+              :color="getRoleColor(row.role?.name)"
               size="small"
             >
-              {{ getRoleLabel(item.role?.name) }}
+              {{ getRoleLabel(row.role?.name) }}
             </v-chip>
           </template>
 
-          <template v-slot:item.group="{ item }">
-            <span v-if="item.group">{{ item.group.name }}</span>
+          <template #cell-group="{ row }">
+            <span v-if="row.group">{{ row.group.name }}</span>
             <span v-else class="text-medium-emphasis">—</span>
           </template>
 
-          <template v-slot:item.actions="{ item }">
+          <template #cell-actions="{ row }">
             <div class="d-flex gap-2">
               <v-btn
                 icon
                 variant="text"
                 color="primary"
                 size="small"
-                @click="editUser(item)"
+                @click="editUser(row)"
                 :title="translations.messages?.edit || 'Таҳрир кардан'"
               >
                 <v-icon>mdi-pencil</v-icon>
               </v-btn>
             </div>
           </template>
-        </v-data-table>
+        </ExcelSheet>
 
         <!-- Пагинация -->
         <v-divider></v-divider>
@@ -119,6 +114,7 @@
 </template>
 
 <script setup lang="ts">
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 import { ref, computed } from 'vue'
 import { usePage, router } from '@/compat/inertia'
 import Layout from '../../Layout.vue'

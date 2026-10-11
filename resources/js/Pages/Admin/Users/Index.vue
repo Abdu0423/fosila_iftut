@@ -151,63 +151,58 @@
 
       <!-- Таблица пользователей -->
       <v-card>
-        <v-data-table
-          :headers="headers"
-          :items="props.users"
-          :loading="loading"
-          class="elevation-1"
-        >
+        <ExcelSheet :headers="headers" :rows="props.users">
           <!-- Аватар пользователя -->
-          <template v-slot:item.avatar="{ item }">
+          <template #cell-avatar="{ row }">
             <v-avatar size="40">
-              <v-img :src="item.avatar" :alt="item.name"></v-img>
+              <v-img :src="row.avatar" :alt="row.name"></v-img>
             </v-avatar>
           </template>
 
           <!-- Имя пользователя -->
-          <template v-slot:item.name="{ item }">
+          <template #cell-name="{ row }">
             <div>
-              <div class="font-weight-medium">{{ item.name }} {{ item.last_name }}</div>
-              <div class="text-caption text-medium-emphasis">{{ item.email }}</div>
+              <div class="font-weight-medium">{{ row.name }} {{ row.last_name }}</div>
+              <div class="text-caption text-medium-emphasis">{{ row.email }}</div>
             </div>
           </template>
 
           <!-- Роль -->
-          <template v-slot:item.role="{ item }">
+          <template #cell-role="{ row }">
             <v-chip
-              :color="getRoleColor(item.role)"
+              :color="getRoleColor(row.role)"
               size="small"
               variant="tonal"
             >
-              {{ getRoleDisplayName(item.role) }}
+              {{ getRoleDisplayName(row.role) }}
             </v-chip>
           </template>
 
           <!-- Статус -->
-          <template v-slot:item.status="{ item }">
+          <template #cell-status="{ row }">
             <v-chip
-              :color="item.status === t('admin.users.confirmed', {}, { default: 'Подтвержден' }) ? 'success' : 'warning'"
+              :color="row.status === t('admin.users.confirmed', {}, { default: 'Подтвержден' }) ? 'success' : 'warning'"
               size="small"
               variant="tonal"
             >
-              {{ item.status }}
+              {{ row.status }}
             </v-chip>
           </template>
 
           <!-- Дата создания -->
-          <template v-slot:item.created_at="{ item }">
-            <div class="text-caption">{{ item.created_at }}</div>
+          <template #cell-created_at="{ row }">
+            <div class="text-caption">{{ row.created_at }}</div>
           </template>
 
           <!-- Действия -->
-          <template v-slot:item.actions="{ item }">
+          <template #cell-actions="{ row }">
             <div class="d-flex gap-2">
               <v-btn
                 icon="mdi-eye"
                 variant="text"
                 size="small"
                 color="info"
-                @click="viewUser(item)"
+                @click="viewUser(row)"
                 :title="t('admin.users.view', {}, { default: 'Просмотр' })"
               ></v-btn>
               <v-btn
@@ -215,7 +210,7 @@
                 variant="text"
                 size="small"
                 color="primary"
-                @click="editUser(item)"
+                @click="editUser(row)"
                 :title="t('admin.users.edit', {}, { default: 'Редактировать' })"
               ></v-btn>
               <v-btn
@@ -223,12 +218,12 @@
                 variant="text"
                 size="small"
                 color="error"
-                @click="deleteUser(item)"
+                @click="deleteUser(row)"
                 :title="t('admin.users.delete', {}, { default: 'Удалить' })"
               ></v-btn>
             </div>
           </template>
-        </v-data-table>
+        </ExcelSheet>
       </v-card>
 
       <!-- Диалог удаления -->
@@ -266,6 +261,7 @@
 </template>
 
 <script setup lang="ts">
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 import { ref, computed, onMounted } from 'vue'
 import { router, usePage } from '@/compat/inertia'
 import { useI18n } from 'vue-i18n'

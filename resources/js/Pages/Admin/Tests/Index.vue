@@ -89,78 +89,72 @@
       <v-row>
         <v-col cols="12">
           <v-card>
-            <v-data-table
-              :headers="headers"
-              :items="filteredTests"
-              :search="search"
-              :loading="loading"
-              class="elevation-1"
-            >
+            <ExcelSheet :headers="headers" :rows="filteredTests">
               <!-- Название и описание -->
-              <template v-slot:item.title="{ item }">
+              <template #cell-title="{ row }">
                 <div>
-                  <div class="font-weight-medium">{{ item.title }}</div>
-                  <div class="text-caption text-medium-emphasis">{{ item.description }}</div>
-                  <div class="text-caption text-medium-emphasis">{{ item.lesson_name }}</div>
+                  <div class="font-weight-medium">{{ row.title }}</div>
+                  <div class="text-caption text-medium-emphasis">{{ row.description }}</div>
+                  <div class="text-caption text-medium-emphasis">{{ row.lesson_name }}</div>
                 </div>
               </template>
 
               <!-- Тип теста -->
-              <template v-slot:item.type="{ item }">
+              <template #cell-type="{ row }">
                 <v-chip
-                  :color="getTypeColor(item.type)"
+                  :color="getTypeColor(row.type)"
                   size="small"
                   variant="tonal"
                 >
-                  {{ getTypeText(item.type) }}
+                  {{ getTypeText(row.type) }}
                 </v-chip>
               </template>
 
               <!-- Количество вопросов -->
-              <template v-slot:item.questions_count="{ item }">
+              <template #cell-questions_count="{ row }">
                 <v-chip
                   color="info"
                   size="small"
                   variant="tonal"
                 >
-                  {{ item.questions_count }} вопросов
+                  {{ row.questions_count }} вопросов
                 </v-chip>
               </template>
 
               <!-- Время выполнения -->
-              <template v-slot:item.time_limit="{ item }">
+              <template #cell-time_limit="{ row }">
                 <div class="d-flex align-center">
                   <v-icon size="16" class="mr-1">mdi-clock-outline</v-icon>
-                  {{ item.time_limit }} мин
+                  {{ row.time_limit }} мин
                 </div>
               </template>
 
               <!-- Проходной балл -->
-              <template v-slot:item.passing_score="{ item }">
+              <template #cell-passing_score="{ row }">
                 <div class="d-flex align-center">
                   <v-icon size="16" class="mr-1">mdi-percent</v-icon>
-                  {{ item.passing_score }}%
+                  {{ row.passing_score }}%
                 </div>
               </template>
 
               <!-- Статус -->
-              <template v-slot:item.status="{ item }">
+              <template #cell-status="{ row }">
                 <v-chip
-                  :color="getStatusColor(item.status)"
+                  :color="getStatusColor(row.status)"
                   size="small"
                   variant="tonal"
                 >
-                  {{ getStatusText(item.status) }}
+                  {{ getStatusText(row.status) }}
                 </v-chip>
               </template>
 
               <!-- Дата создания -->
-              <template v-slot:item.created_at="{ item }">
-                {{ formatDate(item.created_at) }}
+              <template #cell-created_at="{ row }">
+                {{ formatDate(row.created_at) }}
               </template>
 
               <!-- Действия -->
-              <template v-slot:item.actions="{ item }">
+              <template #cell-actions="{ row }">
                 <v-menu>
                   <template v-slot:activator="{ props }">
                     <v-btn
@@ -171,54 +165,54 @@
                     ></v-btn>
                   </template>
                   <v-list>
-                    <v-list-item
-                      @click="viewTest(item)"
+                    <v-list-row
+                      @click="viewTest(row)"
                       prepend-icon="mdi-eye"
                     >
-                      <v-list-item-title>Просмотр</v-list-item-title>
-                    </v-list-item>
-                    <v-list-item
-                      @click="editTest(item)"
+                      <v-list-row-title>Просмотр</v-list-row-title>
+                    </v-list-row>
+                    <v-list-row
+                      @click="editTest(row)"
                       prepend-icon="mdi-pencil"
                     >
-                      <v-list-item-title>Редактировать</v-list-item-title>
-                    </v-list-item>
-                    <v-list-item
-                      @click="manageQuestions(item)"
+                      <v-list-row-title>Редактировать</v-list-row-title>
+                    </v-list-row>
+                    <v-list-row
+                      @click="manageQuestions(row)"
                       prepend-icon="mdi-help-circle"
                     >
-                      <v-list-item-title>Вопросы</v-list-item-title>
-                    </v-list-item>
-                    <v-list-item
-                      @click="previewTest(item)"
+                      <v-list-row-title>Вопросы</v-list-row-title>
+                    </v-list-row>
+                    <v-list-row
+                      @click="previewTest(row)"
                       prepend-icon="mdi-play"
                     >
-                      <v-list-item-title>Предварительный просмотр</v-list-item-title>
-                    </v-list-item>
+                      <v-list-row-title>Предварительный просмотр</v-list-row-title>
+                    </v-list-row>
                     <v-divider></v-divider>
-                    <v-list-item
-                      @click="viewResults(item)"
+                    <v-list-row
+                      @click="viewResults(row)"
                       prepend-icon="mdi-chart-bar"
                     >
-                      <v-list-item-title>Результаты</v-list-item-title>
-                    </v-list-item>
-                    <v-list-item
-                      @click="duplicateTest(item)"
+                      <v-list-row-title>Результаты</v-list-row-title>
+                    </v-list-row>
+                    <v-list-row
+                      @click="duplicateTest(row)"
                       prepend-icon="mdi-content-copy"
                     >
-                      <v-list-item-title>Дублировать</v-list-item-title>
-                    </v-list-item>
-                    <v-list-item
-                      @click="deleteTest(item)"
+                      <v-list-row-title>Дублировать</v-list-row-title>
+                    </v-list-row>
+                    <v-list-row
+                      @click="deleteTest(row)"
                       prepend-icon="mdi-delete"
                       color="error"
                     >
-                      <v-list-item-title>Удалить</v-list-item-title>
-                    </v-list-item>
+                      <v-list-row-title>Удалить</v-list-row-title>
+                    </v-list-row>
                   </v-list>
                 </v-menu>
               </template>
-            </v-data-table>
+            </ExcelSheet>
           </v-card>
         </v-col>
       </v-row>
@@ -323,6 +317,7 @@
 </template>
 
 <script setup lang="ts">
+import ExcelSheet from '@/Components/ExcelSheet.vue'
 import { ref, computed, onMounted } from 'vue'
 import { router } from '@/compat/inertia'
 import AdminApp from '../AdminApp.vue'
