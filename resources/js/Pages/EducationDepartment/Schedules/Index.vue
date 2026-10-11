@@ -147,6 +147,7 @@ const columns = computed(() => [
     title: translations.value.education_department?.schedule_semester || 'Семестр',
     editable: true,
     editor: 'number',
+    inherit: true,
     required: true,
     get: (row) => row.semester,
     text: (row) => row.semester ? String(row.semester) : ''

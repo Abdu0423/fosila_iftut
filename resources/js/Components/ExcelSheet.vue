@@ -38,6 +38,28 @@
               {{ column.title }}
             </th>
           </tr>
+          <tr class="excel-filter-row">
+            <th class="excel-index"></th>
+            <th v-for="column in sheetColumns" :key="`filter-${column.key}`">
+              <template v-if="isFilterable(column)">
+                <input
+                  class="excel-filter-input"
+                  :class="{ 'has-value': columnFilters[column.key] }"
+                  :value="columnFilters[column.key] || ''"
+                  placeholder="Фильтр"
+                  :list="filterListId(column.key)"
+                  @input="onColumnFilter(column.key, $event)"
+                />
+                <datalist :id="filterListId(column.key)">
+                  <option
+                    v-for="choice in choiceMap[column.key] || []"
+                    :key="choice"
+                    :value="choice"
+                  />
+                </datalist>
+              </template>
+            </th>
+          </tr>
         </thead>
         <tbody>
           <tr v-for="(row, index) in pageRows" :key="rowKey(row, index)">
@@ -150,6 +172,7 @@ type SheetColumn = {
   editor?: 'text' | 'number' | 'select' | 'slot'
   options?: SheetOption[]
   inherit?: boolean
+  filter?: boolean
   required?: boolean
   text?: (row: Record<string, any>) => string
   get?: (row: Record<string, any>) => unknown
@@ -188,8 +211,10 @@ const page = ref(1)
 const draft = reactive<Record<string, any>>({})
 const dirty = ref<Record<string, boolean>>({})
 const dismissed = ref<Record<string, boolean>>({})
+const columnFilters = reactive<Record<string, string>>({})
 const editing = ref<{ id: string | number; key: string } | null>(null)
 const editValue = ref<unknown>(null)
+const sheetId = `excel-${Math.random().toString(36).slice(2, 8)}`
 
 const sheetColumns = computed<SheetColumn[]>(() => {
   if (props.columns?.length) {
@@ -247,13 +272,53 @@ function cellText(row: Record<string, any>, column: SheetColumn) {
   return String(value)
 }
 
+function isFilterable(column: SheetColumn) {
+  return column.filter !== false && column.key !== 'actions'
+}
+
+function filterListId(key: string) {
+  return `${sheetId}-${key.replace(/[^a-zA-Z0-9_-]/g, '_')}`
+}
+
+const choiceMap = computed(() => {
+  const map: Record<string, string[]> = {}
+  sheetColumns.value.forEach((column) => {
+    if (!isFilterable(column)) {
+      return
+    }
+    const values = new Set<string>()
+    ;(props.rows || []).forEach((row) => {
+      const text = cellText(row, column).trim()
+      if (text) {
+        values.add(text)
+      }
+    })
+    map[column.key] = [...values].sort((left, right) => left.localeCompare(right, 'ru', { numeric: true }))
+  })
+  return map
+})
+
+function rowMatchesColumnFilter(row: Record<string, any>, column: SheetColumn, raw: string) {
+  const query = raw.trim().toLowerCase()
+  if (!query) {
+    return true
+  }
+  const text = cellText(row, column).trim().toLowerCase()
+  const known = (choiceMap.value[column.key] || []).some((choice) => choice.toLowerCase() === query)
+  return known ? text === query : text.includes(query)
+}
+
 const filteredRows = computed(() => {
   const query = search.value.trim().toLowerCase()
-  const source = props.rows || []
-  if (!query) {
-    return source
-  }
-  return source.filter((row) => sheetColumns.value.some((column) => cellText(row, column).toLowerCase().includes(query)))
+  const active = sheetColumns.value
+    .map((column) => ({ column, value: (columnFilters[column.key] || '').trim() }))
+    .filter((item) => item.value)
+  return (props.rows || []).filter((row) => {
+    if (query && !sheetColumns.value.some((column) => cellText(row, column).toLowerCase().includes(query))) {
+      return false
+    }
+    return active.every((item) => rowMatchesColumnFilter(row, item.column, item.value))
+  })
 })
 
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredRows.value.length / props.pageSize)))
@@ -305,19 +370,65 @@ const inherited = computed(() => {
   return result
 })
 
-const contextChips = computed(() => sheetColumns.value
-  .filter((column) => inherited.value[column.key])
-  .map((column) => ({
-    key: column.key,
-    title: column.title,
-    label: inherited.value[column.key].title,
-  })))
-
-watch(inherited, (map) => {
-  Object.entries(map).forEach(([key, option]) => {
-    if (!dirty.value[key]) {
-      draft[key] = option.value
+function prefillFor(column: SheetColumn, label: string): SheetOption | null {
+  if (!column.editable || column.editor === 'slot') {
+    return null
+  }
+  if (column.editor === 'select') {
+    const lowered = label.toLowerCase()
+    return (column.options || []).find((item) => String(item.title).toLowerCase() === lowered || String(item.value) === label) || null
+  }
+  if (column.editor === 'number') {
+    const numeric = Number(String(label).replace(',', '.'))
+    if (Number.isNaN(numeric)) {
+      return null
     }
+    return { title: label, value: numeric }
+  }
+  return { title: label, value: label }
+}
+
+const activeFilters = computed(() => {
+  const result: Record<string, { label: string; prefill: SheetOption | null }> = {}
+  sheetColumns.value.forEach((column) => {
+    const label = (columnFilters[column.key] || '').trim()
+    if (!label) {
+      return
+    }
+    result[column.key] = { label, prefill: prefillFor(column, label) }
+  })
+  return result
+})
+
+const draftContext = computed(() => {
+  const map: Record<string, SheetOption> = { ...inherited.value }
+  sheetColumns.value.forEach((column) => {
+    const filter = activeFilters.value[column.key]
+    if (filter?.prefill) {
+      map[column.key] = filter.prefill
+    }
+  })
+  return map
+})
+
+const contextChips = computed(() => sheetColumns.value.flatMap((column) => {
+  const filter = activeFilters.value[column.key]
+  if (filter) {
+    return [{ key: column.key, title: column.title, label: filter.label }]
+  }
+  const auto = inherited.value[column.key]
+  if (!auto) {
+    return []
+  }
+  return [{ key: column.key, title: column.title, label: auto.title }]
+}))
+
+watch(draftContext, (map) => {
+  sheetColumns.value.forEach((column) => {
+    if (dirty.value[column.key]) {
+      return
+    }
+    draft[column.key] = map[column.key] ? map[column.key].value : null
   })
 }, { immediate: true })
 
@@ -341,9 +452,20 @@ function onSearch(value: string | null) {
   emit('update:modelValue', search.value)
 }
 
+function onColumnFilter(key: string, event: Event) {
+  const value = (event.target as HTMLInputElement).value
+  columnFilters[key] = value
+  page.value = 1
+  if (value.trim()) {
+    dismissed.value = { ...dismissed.value, [key]: false }
+    dirty.value = { ...dirty.value, [key]: false }
+  }
+}
+
 function clearContext(key: string) {
   dismissed.value = { ...dismissed.value, [key]: true }
-  delete draft[key]
+  columnFilters[key] = ''
+  draft[key] = null
   dirty.value = { ...dirty.value, [key]: false }
 }
 
@@ -352,7 +474,7 @@ function markDirty(key: string) {
 }
 
 function inheritedLabel(column: SheetColumn) {
-  return inherited.value[column.key]?.title || ''
+  return activeFilters.value[column.key]?.label || inherited.value[column.key]?.title || ''
 }
 
 function rowKey(row: Record<string, any>, index: number) {
@@ -398,11 +520,12 @@ function submitAdd() {
   }
   emit('create', { ...draft })
   sheetColumns.value.forEach((column) => {
-    if (inherited.value[column.key] && !dirty.value[column.key]) {
-      draft[column.key] = inherited.value[column.key].value
+    const kept = draftContext.value[column.key]
+    if (kept && !dirty.value[column.key]) {
+      draft[column.key] = kept.value
       return
     }
-    if (!inherited.value[column.key]) {
+    if (!kept) {
       draft[column.key] = null
       dirty.value[column.key] = false
     }
@@ -439,10 +562,41 @@ function submitAdd() {
 .excel-grid th {
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 3;
   background: #f7f4ef;
   font-weight: 600;
   text-align: left;
+}
+
+.excel-filter-row th {
+  top: 36px;
+  z-index: 2;
+  padding: 4px 6px;
+  background: #fff;
+  font-weight: 400;
+}
+
+.excel-filter-input {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: #f7f4ef;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.2;
+  padding: 4px 8px;
+  outline: none;
+  color: #12151c;
+}
+
+.excel-filter-input::placeholder {
+  color: #8a8175;
+}
+
+.excel-filter-input:focus,
+.excel-filter-input.has-value {
+  border-color: #3d4fd8;
+  background: #fff;
 }
 
 .excel-index {

@@ -206,6 +206,7 @@ const sheetColumns = computed(() => [
     title: 'Семестр',
     editable: true,
     editor: 'number',
+    inherit: true,
     required: true,
     text: (row) => row.semester ? String(row.semester) : ''
   },
