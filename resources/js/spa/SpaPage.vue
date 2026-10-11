@@ -1,7 +1,16 @@
 <template>
+  <Layout v-if="showShell">
+    <component
+      :is="pageComponent"
+      v-if="pageComponent"
+      :key="loadedPath"
+      v-bind="pageData"
+    />
+    <div v-else class="spa-loading">Загрузка...</div>
+  </Layout>
   <component
     :is="pageComponent"
-    v-if="pageComponent"
+    v-else-if="pageComponent"
     :key="loadedPath"
     v-bind="pageData"
   />
@@ -13,6 +22,7 @@ import { computed, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { api, toSpaPath } from '../api/client';
 import { signalPageLoaded, usePageStore } from '../stores/page';
+import Layout from '../Pages/Layout.vue';
 
 const currentRoute = useRoute();
 const vueRouter = useRouter();
@@ -21,6 +31,18 @@ const pages = import.meta.glob('../Pages/**/*.vue');
 
 const pageComponent = shallowRef<unknown>(null);
 const loadedPath = ref('');
+
+const barePaths = ['/login', '/password', '/change-password', '/privacy', '/terms'];
+
+function isBarePage(path: string, component: string): boolean {
+    if (component.startsWith('Auth/') || component.startsWith('Errors/') || component.startsWith('Legal/')) {
+        return true;
+    }
+
+    return barePaths.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
+}
+
+const showShell = computed(() => !isBarePage(currentRoute.path, pageStore.component));
 
 const pageData = computed(() => {
     const shared = new Set(['auth', 'flash', 'errors', 'locale', 'unreadChatsCount', 'translations']);
@@ -63,8 +85,9 @@ async function loadPage() {
 
         const componentName = data.component || 'Errors/404';
         const props = data.props && !Array.isArray(data.props) ? data.props : {};
+        const component = await resolveComponent(componentName);
         pageStore.setPage(componentName, props);
-        pageComponent.value = await resolveComponent(componentName);
+        pageComponent.value = component;
         loadedPath.value = path;
     } catch (error: unknown) {
         const response = (error as { response?: { status?: number; data?: { component?: string; props?: Record<string, unknown>; message?: string } } }).response;
@@ -76,8 +99,9 @@ async function loadPage() {
         }
 
         const componentName = body?.component || (status === 403 ? 'Errors/403' : status === 419 ? 'Errors/419' : 'Errors/500');
+        const component = await resolveComponent(componentName);
         pageStore.setPage(componentName, body?.props || { message: body?.message || '' });
-        pageComponent.value = await resolveComponent(componentName);
+        pageComponent.value = component;
         loadedPath.value = path;
     } finally {
         signalPageLoaded();

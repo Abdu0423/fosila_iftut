@@ -1,5 +1,6 @@
 <template>
-  <v-app>
+  <slot v-if="insideShell" />
+  <v-app v-else>
     <!-- Боковое меню -->
     <v-navigation-drawer
       v-model="drawer"
@@ -220,13 +221,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, inject, provide } from 'vue'
 import { useRoute } from 'vue-router'
 import { usePage, router } from '@/compat/inertia'
 import { useDisplay } from 'vuetify'
 import { useI18n } from 'vue-i18n'
 import NotificationSnackbar from '../Components/NotificationSnackbar.vue'
 import LanguageSwitcher from '../Components/LanguageSwitcher.vue'
+
+const insideShell = inject('appShell', false)
+provide('appShell', true)
 
 const page = usePage()
 const currentRoute = useRoute()
@@ -807,23 +811,6 @@ const logout = () => {
     padding: 16px !important;
   }
 
-}
-
-/* Анимации плавного появления */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.modern-drawer,
-.modern-appbar {
-  animation: fadeIn 0.3s ease-out;
 }
 
 /* Улучшенный скроллбар для темной темы */
