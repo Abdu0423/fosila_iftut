@@ -127,9 +127,8 @@ Route::prefix('student')->middleware(['auth', 'student', 'check.password.change'
     Route::delete('/coursework/{schedule}/file', [App\Http\Controllers\Student\CourseworkController::class, 'deleteFile'])->name('student.coursework.delete-file');
 
     // Профиль
-    Route::get('/profile', function () {
-        return spa('Profile/Index');
-    })->name('student.profile.index');
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('student.profile.index');
+    Route::post('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('student.profile.password');
 
     // Настройки
     Route::get('/settings', function () {
@@ -237,6 +236,10 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.password.change'])->
         return spa('Admin/Reports/Index');
     })->name('admin.reports.index');
     
+    // Профиль
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('admin.profile.index');
+    Route::post('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('admin.profile.password');
+
     // Настройки системы
     Route::get('/settings', [App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('admin.settings.index');
     Route::post('/settings/general', [App\Http\Controllers\Admin\SettingsController::class, 'updateGeneral'])->name('admin.settings.general');
@@ -534,9 +537,8 @@ Route::prefix('teacher')->middleware(['auth', 'teacher', 'check.password.change'
     })->name('teacher.reports.index');
     
     // Профиль
-    Route::get('/profile', function () {
-        return spa('Teacher/Profile/Index');
-    })->name('teacher.profile.index');
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('teacher.profile.index');
+    Route::post('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('teacher.profile.password');
     
     // Настройки
     Route::get('/settings', function () {
@@ -682,6 +684,10 @@ Route::prefix('education')->middleware(['auth', 'education.department', 'check.p
         return spa('Teacher/Reports/Index');
     })->name('education.reports.index');
     
+    // Профиль
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('education.profile.index');
+    Route::post('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('education.profile.password');
+
     // Чат
     Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('education.chat.index');
     Route::get('/chat/{chat}', [App\Http\Controllers\ChatController::class, 'show'])->name('education.chat.show');
@@ -821,6 +827,10 @@ Route::prefix('registration')->middleware(['auth', 'education.or.registration', 
         return spa('Teacher/Reports/Index');
     })->name('registration.reports.index');
     
+    // Профиль
+    Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('registration.profile.index');
+    Route::post('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('registration.profile.password');
+
     // Чат
     Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('registration.chat.index');
     Route::get('/chat/{chat}', [App\Http\Controllers\ChatController::class, 'show'])->name('registration.chat.show');

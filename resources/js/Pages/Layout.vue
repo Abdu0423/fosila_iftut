@@ -177,7 +177,7 @@
             <v-list-item-title>{{ t('navigation.profile') }}</v-list-item-title>
           </v-list-item>
           
-          <v-list-item @click="goToSettings" class="menu-action-item">
+          <v-list-item v-if="currentRole === 'admin'" @click="goToSettings" class="menu-action-item">
             <template v-slot:prepend>
               <v-icon color="primary">mdi-cog</v-icon>
             </template>
@@ -515,7 +515,7 @@ const isSubmenuActive = (item) => {
 }
 
 const goToProfile = () => {
-  switch (props.role) {
+  switch (currentRole.value) {
     case 'admin':
       router.visit('/admin/profile')
       break
@@ -525,22 +525,16 @@ const goToProfile = () => {
     case 'education_department':
       router.visit('/education/profile')
       break
+    case 'registration_center':
+      router.visit('/registration/profile')
+      break
     default:
       router.visit('/student/profile')
   }
 }
 
 const goToSettings = () => {
-  switch (props.role) {
-    case 'admin':
-      router.visit('/admin/settings')
-      break
-    case 'teacher':
-      router.visit('/teacher/settings')
-      break
-    default:
-      router.visit('/settings')
-  }
+  router.visit('/admin/settings')
 }
 
 // Определяем маршрут logout в зависимости от роли
