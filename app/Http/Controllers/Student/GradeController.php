@@ -18,7 +18,7 @@ class GradeController extends Controller
         $student = Auth::user();
         
         // Получаем оценки студента
-        $query = Grade::with(['schedule.lesson', 'schedule.teacher', 'student'])
+        $query = Grade::with(['schedule.subject', 'schedule.teacher', 'student'])
             ->where('student_id', $student->id);
 
         // Фильтр по семестру
@@ -93,7 +93,7 @@ class GradeController extends Controller
             abort(403, 'У вас нет доступа к этой оценке');
         }
 
-        $grade->load(['schedule.lesson', 'schedule.teacher', 'student']);
+        $grade->load(['schedule.subject', 'schedule.teacher', 'student']);
 
         return spa('Grades/Show', [
             'grade' => $grade

@@ -75,13 +75,13 @@ class StudentController extends Controller
         // Получаем расписание уроков для этой группы
         $schedules = Schedule::forTeachingUser($teacher)
             ->where('group_id', $group->id)
-            ->with(['lesson', 'subject'])
+            ->with(['subject', 'lessons'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function($schedule) {
                 return [
                     'id' => $schedule->id,
-                    'lesson_title' => $schedule->lesson->title ?? 'Урок без названия',
+                    'lesson_title' => $schedule->subject->name ?? ($schedule->lessons->first()->title ?? 'Урок без названия'),
                     'subject_name' => $schedule->subject->name ?? 'Не указан',
                     'day_of_week' => $schedule->day_of_week ?? '',
                     'start_time' => $schedule->start_time ?? '',
@@ -142,7 +142,7 @@ class StudentController extends Controller
         $group = $student->group;
         $schedules = Schedule::where('group_id', $group->id)
             ->when(! $teacher->seesAllTeachingRecords(), fn ($q) => $q->where('teacher_id', $teacher->id))
-            ->with(['lesson', 'subject'])
+            ->with(['subject', 'lessons'])
             ->get();
 
         return spa('Teacher/Students/StudentShow', [
@@ -164,7 +164,7 @@ class StudentController extends Controller
                     'schedules' => $schedules->map(function($schedule) {
                         return [
                             'id' => $schedule->id,
-                            'lesson_title' => $schedule->lesson->title ?? 'Урок без названия',
+                            'lesson_title' => $schedule->subject->name ?? ($schedule->lessons->first()->title ?? 'Урок без названия'),
                             'subject_name' => $schedule->subject->name ?? 'Не указан',
                             'day_of_week' => $schedule->day_of_week ?? '',
                             'start_time' => $schedule->start_time ?? '',

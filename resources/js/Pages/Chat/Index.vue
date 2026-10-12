@@ -269,17 +269,19 @@ import Layout from '../Layout.vue'
 
 const page = usePage()
 
-// Определяем роль пользователя на основе URL
-const userRole = computed(() => {
+const panelPrefix = computed(() => {
   const path = window.location.pathname
-  if (path.startsWith('/admin')) {
-    return 'admin'
-  } else if (path.startsWith('/teacher')) {
-    return 'teacher'
-  } else {
-    return 'student'
-  }
+  const prefixes = ['admin', 'teacher', 'education', 'registration', 'department', 'faculty', 'student']
+  return prefixes.find((item) => path === `/${item}` || path.startsWith(`/${item}/`)) || 'student'
 })
+
+const userRole = computed(() => {
+  if (panelPrefix.value === 'education') return 'education_department'
+  if (panelPrefix.value === 'registration') return 'registration_center'
+  return panelPrefix.value
+})
+
+const chatUrl = (suffix = '') => `/${panelPrefix.value}/chat${suffix}`
 
 // Props
 const props = defineProps({
@@ -398,14 +400,16 @@ const loadMessages = async () => {
   if (!selectedChatId.value) return
 
   // Определяем правильный роут в зависимости от роли
-  const messagesRoute = userRole.value === 'admin' 
-    ? `/admin/chat/${selectedChatId.value}/messages` 
-    : userRole.value === 'teacher' 
-    ? `/teacher/chat/${selectedChatId.value}/messages` 
-    : `/student/chat/${selectedChatId.value}/messages`
+  const messagesRoute = chatUrl(`/${selectedChatId.value}/messages`)
 
   try {
-    const response = await fetch(messagesRoute)
+    const response = await fetch(messagesRoute, {
+      headers: {
+        Accept: 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-Spa': '1'
+      }
+    })
     const data = await response.json()
     // Добавляем флаг is_from_current_user для каждого сообщения
     const userId = currentUserId.value
@@ -474,11 +478,7 @@ const updateChatsList = (chatId) => {
 const markMessagesAsRead = async (chatId) => {
   if (!chatId) return
   
-  const markRoute = userRole.value === 'admin' 
-    ? `/admin/chat/${chatId}/read` 
-    : userRole.value === 'teacher' 
-    ? `/teacher/chat/${chatId}/read` 
-    : `/student/chat/${chatId}/read`
+  const markRoute = chatUrl(`/${chatId}/read`)
   
   try {
     await fetch(markRoute, {
@@ -498,11 +498,7 @@ const sendMessage = async () => {
   if (!newMessage.value.trim() || !selectedChatId.value) return
 
   // Определяем правильный роут в зависимости от роли
-  const sendRoute = userRole.value === 'admin' 
-    ? `/admin/chat/${selectedChatId.value}/messages` 
-    : userRole.value === 'teacher' 
-    ? `/teacher/chat/${selectedChatId.value}/messages` 
-    : `/student/chat/${selectedChatId.value}/messages`
+  const sendRoute = chatUrl(`/${selectedChatId.value}/messages`)
 
   try {
     const response = await fetch(sendRoute, {
@@ -557,11 +553,7 @@ const createChat = () => {
   }
 
   // Определяем правильный роут в зависимости от роли
-  const chatRoute = userRole.value === 'admin' 
-    ? '/admin/chat' 
-    : userRole.value === 'teacher' 
-    ? '/teacher/chat' 
-    : '/student/chat'
+  const chatRoute = chatUrl()
 
   newChatForm.post(chatRoute, {
     preserveScroll: true,
@@ -583,11 +575,7 @@ const leaveChat = () => {
   if (!selectedChatId.value) return
 
   // Определяем правильный роут в зависимости от роли
-  const leaveRoute = userRole.value === 'admin' 
-    ? `/admin/chat/${selectedChatId.value}/leave` 
-    : userRole.value === 'teacher' 
-    ? `/teacher/chat/${selectedChatId.value}/leave` 
-    : `/student/chat/${selectedChatId.value}/leave`
+  const leaveRoute = chatUrl(`/${selectedChatId.value}/leave`)
 
   if (confirm('Вы уверены, что хотите покинуть этот чат?')) {
     router.delete(leaveRoute, {

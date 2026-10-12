@@ -70,7 +70,7 @@ class AssignmentController extends Controller
     public function create()
     {
         $lessons = Lesson::all();
-        $schedules = Schedule::with(['lesson', 'group'])->get();
+        $schedules = Schedule::with(['subject', 'group'])->get();
         $groups = Group::all();
         $teachers = User::whereHas('role', function($q) {
             $q->where('name', 'teacher');
@@ -134,7 +134,7 @@ class AssignmentController extends Controller
         $assignment->load(['lesson', 'schedule', 'group', 'teacher']);
         
         $lessons = Lesson::all();
-        $schedules = Schedule::with(['lesson', 'group'])->get();
+        $schedules = Schedule::with(['subject', 'group'])->get();
         $groups = Group::all();
         $teachers = User::whereHas('role', function($q) {
             $q->where('name', 'teacher');

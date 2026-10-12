@@ -202,7 +202,7 @@ const assignmentDialog = ref(false)
 const selectedGrade = ref(null)
 
 const gradeHeaders = [
-  { title: 'Урок', key: 'schedule.lesson.name' },
+  { title: 'Предмет', key: 'schedule.subject.name' },
   { title: 'Преподаватель', key: 'schedule.teacher.name' },
   { title: 'Оценка', key: 'grade' },
   { title: 'Дата', key: 'created_at' }

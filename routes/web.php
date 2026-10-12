@@ -253,6 +253,15 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.password.change'])->
         return spa('Admin/Reports/Index');
     })->name('admin.reports.index');
     
+    // Чат
+    Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('admin.chat.index');
+    Route::get('/chat/{chat}', [App\Http\Controllers\ChatController::class, 'show'])->name('admin.chat.show');
+    Route::post('/chat', [App\Http\Controllers\ChatController::class, 'store'])->name('admin.chat.store');
+    Route::post('/chat/{chat}/messages', [App\Http\Controllers\ChatController::class, 'sendMessage'])->name('admin.chat.send-message');
+    Route::get('/chat/{chat}/messages', [App\Http\Controllers\ChatController::class, 'getMessages'])->name('admin.chat.get-messages');
+    Route::post('/chat/{chat}/read', [App\Http\Controllers\ChatController::class, 'markAsRead'])->name('admin.chat.mark-read');
+    Route::delete('/chat/{chat}/leave', [App\Http\Controllers\ChatController::class, 'leave'])->name('admin.chat.leave');
+
     // Профиль
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('admin.profile.index');
     Route::post('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('admin.profile.password');
@@ -308,23 +317,6 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.password.change'])->
     Route::post('/lessons/filter', [App\Http\Controllers\Admin\LessonController::class, 'filter'])->name('admin.lessons.filter');
     Route::post('/lessons/clear-filters', [App\Http\Controllers\Admin\LessonController::class, 'clearFilters'])->name('admin.lessons.clear-filters');
     Route::get('/lessons/{lesson}/download', [App\Http\Controllers\Admin\LessonController::class, 'download'])->name('admin.lessons.download');
-    
-    // Управление тестами
-    Route::get('/tests', function () {
-        return spa('Admin/Tests/Index');
-    })->name('admin.tests.index');
-    
-    Route::get('/tests/create', function () {
-        return spa('Admin/Tests/Create');
-    })->name('admin.tests.create');
-    
-    Route::get('/tests/{test}/edit', function ($test) {
-        return spa('Admin/Tests/Edit', ['test' => $test]);
-    })->name('admin.tests.edit');
-    
-    Route::get('/tests/{test}/questions', function ($test) {
-        return spa('Admin/Tests/Questions', ['test' => $test]);
-    })->name('admin.tests.questions');
     
     // Управление оценками
     Route::get('/grades', function () {
@@ -382,7 +374,7 @@ Route::get('/test-export-public', function() {
 // Тестовый маршрут для проверки экспорта расписания
 Route::get('/test-schedule-export', function() {
     try {
-        $schedules = App\Models\Schedule::with(['lesson', 'teacher', 'group'])->get();
+        $schedules = App\Models\Schedule::with(['subject', 'teacher', 'group'])->get();
         return response()->json([
             'success' => true,
             'count' => $schedules->count(),
@@ -399,7 +391,7 @@ Route::get('/test-schedule-export', function() {
 // Тестовый маршрут для экспорта без middleware
 Route::get('/test-export-schedule', function() {
     try {
-        $schedules = App\Models\Schedule::with(['lesson', 'teacher', 'group'])->get();
+        $schedules = App\Models\Schedule::with(['subject', 'teacher', 'group'])->get();
         
         $filename = 'test_schedules_' . date('Y-m-d_H-i-s') . '.csv';
         $csvContent = '';
@@ -411,7 +403,7 @@ Route::get('/test-export-schedule', function() {
         foreach ($schedules as $schedule) {
             $row = [
                 $schedule->id,
-                $schedule->lesson->name ?? 'Не указано',
+                $schedule->subject->name ?? 'Не указано',
                 $schedule->teacher->name ?? 'Не указано',
                 $schedule->group->name ?? 'Не указано',
                 $schedule->semester,

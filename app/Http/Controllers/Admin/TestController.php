@@ -15,7 +15,7 @@ class TestController extends Controller
      */
     public function index()
     {
-        $tests = Test::with(['lesson', 'creator'])
+        $tests = Test::with(['schedule.subject', 'schedule.group', 'creator'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($test) {
@@ -23,7 +23,7 @@ class TestController extends Controller
                     'id' => $test->id,
                     'title' => $test->title,
                     'description' => $test->description,
-                    'lesson_name' => $test->lesson->name ?? 'Не указан',
+                    'lesson_name' => $this->relatedTitle($test),
                     'creator_name' => $test->creator->name ?? 'Не указан',
                     'type' => $test->type,
                     'type_text' => $this->getTypeText($test->type),
@@ -43,7 +43,7 @@ class TestController extends Controller
         $lessons = Lesson::all()->map(function ($lesson) {
             return [
                 'id' => $lesson->id,
-                'title' => $lesson->name,
+                'title' => $lesson->title,
             ];
         });
 
@@ -73,7 +73,7 @@ class TestController extends Controller
         $lessons = Lesson::all()->map(function ($lesson) {
             return [
                 'id' => $lesson->id,
-                'name' => $lesson->name,
+                'name' => $lesson->title,
             ];
         });
 
@@ -93,14 +93,14 @@ class TestController extends Controller
      */
     public function show(Test $test)
     {
-        $test->load(['lesson', 'creator']);
+        $test->load(['schedule.subject', 'schedule.group', 'creator']);
 
         return spa('Admin/Tests/Show', [
             'test' => [
                 'id' => $test->id,
                 'title' => $test->title,
                 'description' => $test->description,
-                'lesson_name' => $test->lesson->name ?? 'Не указан',
+                'lesson_name' => $this->relatedTitle($test),
                 'creator_name' => $test->creator->name ?? 'Не указан',
                 'type' => $test->type,
                 'time_limit' => $test->time_limit,
@@ -159,12 +159,12 @@ class TestController extends Controller
      */
     public function edit(Test $test)
     {
-        $test->load(['lesson', 'creator']);
+        $test->load(['schedule.subject', 'schedule.group', 'creator']);
 
         $lessons = Lesson::all()->map(function ($lesson) {
             return [
                 'id' => $lesson->id,
-                'name' => $lesson->name,
+                'name' => $lesson->title,
             ];
         });
 
@@ -173,8 +173,8 @@ class TestController extends Controller
                 'id' => $test->id,
                 'title' => $test->title,
                 'description' => $test->description,
-                'lesson_id' => $test->lesson_id,
-                'lesson_name' => $test->lesson->name ?? 'Не указан',
+                'lesson_id' => $test->schedule_id,
+                'lesson_name' => $this->relatedTitle($test),
                 'creator_name' => $test->creator->name ?? 'Не указан',
                 'type' => $test->type,
                 'time_limit' => $test->time_limit,
@@ -246,7 +246,7 @@ class TestController extends Controller
             'test' => [
                 'id' => $test->id,
                 'title' => $test->title,
-                'lesson_name' => $test->lesson->name ?? 'Не указан',
+                'lesson_name' => $this->relatedTitle($test),
             ],
             'questions' => $test->questions->map(function ($question) {
                 return [
@@ -393,7 +393,7 @@ class TestController extends Controller
                 'id' => $test->id,
                 'title' => $test->title,
                 'description' => $test->description,
-                'lesson_name' => $test->lesson->name ?? 'Не указан',
+                'lesson_name' => $this->relatedTitle($test),
                 'type' => $test->type,
                 'time_limit' => $test->time_limit,
                 'passing_score' => $test->passing_score,
@@ -425,6 +425,18 @@ class TestController extends Controller
                 ['value' => 'practice', 'text' => 'Практическая работа'],
             ],
         ]);
+    }
+
+    private function relatedTitle(Test $test): string
+    {
+        $subject = $test->schedule?->subject?->name;
+        $group = $test->schedule?->group?->name;
+
+        if ($subject && $group) {
+            return $subject.' — '.$group;
+        }
+
+        return $subject ?: ($group ?: 'Не указан');
     }
 
     /**

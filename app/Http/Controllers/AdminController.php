@@ -28,7 +28,7 @@ class AdminController extends Controller
             })->count(),
         ];
 
-        $recentLessons = Lesson::with('department')
+        $recentLessons = Lesson::with('subject')
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get();

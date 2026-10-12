@@ -12,6 +12,22 @@ use Illuminate\Support\Facades\DB;
 
 class ChatController extends Controller
 {
+    protected function chatRoute(string $action): string
+    {
+        $path = trim(request()->path(), '/');
+        if (str_starts_with($path, 'api/')) {
+            $path = substr($path, 4);
+        }
+
+        foreach (['admin', 'teacher', 'education', 'registration', 'department', 'faculty', 'student'] as $prefix) {
+            if ($path === $prefix || str_starts_with($path, $prefix.'/')) {
+                return $prefix.'.chat.'.$action;
+            }
+        }
+
+        return 'student.chat.'.$action;
+    }
+
     /**
      * Показать список чатов
      */
@@ -124,11 +140,7 @@ class ChatController extends Controller
                 ->first();
 
             if ($existingChat) {
-                // Определяем правильный роут в зависимости от роли пользователя
-                $role = $user->role ? $user->role->name : 'student';
-                $routeName = $role === 'admin' ? 'admin.chat.show' : 
-                           ($role === 'teacher' ? 'teacher.chat.show' : 'student.chat.show');
-                return redirect()->route($routeName, $existingChat);
+                return redirect()->route($this->chatRoute('show'), $existingChat);
             }
         }
 
@@ -148,11 +160,7 @@ class ChatController extends Controller
 
             DB::commit();
 
-            // Возвращаемся на страницу индекса с обновленным списком чатов
-            $role = $user->role ? $user->role->name : 'student';
-            $routeName = $role === 'admin' ? 'admin.chat.index' : 
-                       ($role === 'teacher' ? 'teacher.chat.index' : 'student.chat.index');
-            return redirect()->route($routeName)->with('success', 'Чат успешно создан');
+            return redirect()->route($this->chatRoute('index'))->with('success', 'Чат успешно создан');
         } catch (\Exception $e) {
             DB::rollback();
             return back()->with('error', 'Ошибка при создании чата: ' . $e->getMessage());
@@ -261,9 +269,9 @@ class ChatController extends Controller
         // Если это приватный чат и в нем остался только один пользователь, удаляем чат
         if ($chat->type === 'private' && $chat->users()->count() <= 1) {
             $chat->delete();
-            return redirect()->route('chat.index')->with('success', 'Чат удален');
+            return redirect()->route($this->chatRoute('index'))->with('success', 'Чат удален');
         }
 
-        return redirect()->route('chat.index')->with('success', 'Вы покинули чат');
+        return redirect()->route($this->chatRoute('index'))->with('success', 'Вы покинули чат');
     }
 }
