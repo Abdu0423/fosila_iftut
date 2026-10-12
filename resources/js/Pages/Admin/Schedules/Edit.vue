@@ -48,28 +48,24 @@
                     />
                   </v-col>
 
-                  <!-- Преподаватель -->
+                  <!-- Кафедра -->
                   <v-col cols="12" md="6">
                     <v-autocomplete
-                      v-model="form.teacher_id"
-                      :items="teacherItems"
-                      item-title="displayName"
+                      v-model="form.department_id"
+                      :items="departments || []"
+                      item-title="name"
                       item-value="id"
-                      label="Преподаватель *"
+                      label="Кафедра *"
                       variant="outlined"
-                      :error-messages="errors.teacher_id"
+                      :error-messages="errors.department_id"
                       prepend-inner-icon="mdi-magnify"
                       clearable
                       auto-select-first
                       required
-                    >
-                      <template v-slot:item="{ props, item }">
-                        <v-list-item v-bind="props">
-                          <v-list-item-title>{{ item.raw.name }} {{ item.raw.last_name }}{{ item.raw.middle_name ? ' ' + item.raw.middle_name : '' }}</v-list-item-title>
-                          <v-list-item-subtitle v-if="item.raw.email">{{ item.raw.email }}</v-list-item-subtitle>
-                        </v-list-item>
-                      </template>
-                    </v-autocomplete>
+                    />
+                    <div v-if="schedule?.teacher && !schedule?.department_id" class="text-caption text-medium-emphasis mt-1">
+                      Ранее: {{ schedule.teacher.name }} {{ schedule.teacher.last_name }}
+                    </div>
                   </v-col>
 
                   <!-- Группа -->
@@ -365,7 +361,7 @@
             <v-card-text class="pa-4">
               <div class="text-body-2">
                 <p class="mb-2"><strong>Предмет:</strong> Выберите предмет из списка</p>
-                <p class="mb-2"><strong>Преподаватель:</strong> Назначенный преподаватель</p>
+                <p class="mb-2"><strong>Кафедра:</strong> Кафедра, которая ведёт предмет</p>
                 <p class="mb-2"><strong>Группа:</strong> Группа студентов</p>
                 <p class="mb-2"><strong>Семестр:</strong> 1 или 2 семестр</p>
                 <p class="mb-2"><strong>Кредиты:</strong> От 1 до 10 кредитов</p>
@@ -402,7 +398,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useForm } from '@/compat/inertia'
 import { router } from '@/compat/inertia'
 import Layout from '../../Layout.vue'
@@ -421,7 +417,7 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  teachers: {
+  departments: {
     type: Array,
     default: () => []
   },
@@ -457,7 +453,7 @@ const formatDateTimeForInput = (dateString) => {
 // Form data
 const form = useForm({
   subject_id: props.schedule?.subject_id || null,
-  teacher_id: props.schedule?.teacher_id || null,
+  department_id: props.schedule?.department_id || null,
   group_id: props.schedule?.group_id || null,
   semester: props.schedule?.semester || null,
   credits: props.schedule?.credits || 3,
@@ -480,14 +476,6 @@ const semesterItems = Array.from({ length: 10 }, (_, i) => ({
   title: `${i + 1} семестр`,
   value: i + 1
 }))
-
-// Преобразуем преподавателей для автокомплита
-const teacherItems = computed(() => {
-  return (props.teachers || []).map(teacher => ({
-    ...teacher,
-    displayName: `${teacher.name || ''} ${teacher.last_name || ''}${teacher.middle_name ? ' ' + teacher.middle_name : ''}`.trim()
-  }))
-})
 
 // Methods
 const submit = () => {

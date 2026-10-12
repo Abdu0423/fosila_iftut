@@ -149,6 +149,10 @@ Route::middleware('auth')->group(function () {
             return redirect()->route('education.dashboard');
         } elseif ($user->isRegistrationCenter()) {
             return redirect()->route('registration.dashboard');
+        } elseif ($user->isDepartment()) {
+            return redirect()->route('department.dashboard');
+        } elseif ($user->isFaculty()) {
+            return redirect()->route('faculty.dashboard');
         } elseif ($user->isStudent()) {
             return redirect()->route('student.dashboard');
         } else {
@@ -167,6 +171,10 @@ Route::middleware('auth')->group(function () {
             return redirect()->route('education.dashboard');
         } elseif ($user->isRegistrationCenter()) {
             return redirect()->route('registration.dashboard');
+        } elseif ($user->isDepartment()) {
+            return redirect()->route('department.dashboard');
+        } elseif ($user->isFaculty()) {
+            return redirect()->route('faculty.dashboard');
         } elseif ($user->isStudent()) {
             return redirect()->route('student.dashboard');
         } else {
@@ -199,7 +207,16 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.password.change'])->
     
     // Главная страница админа
     Route::get('/', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('admin.dashboard');
+
+    Route::get('/access', [App\Http\Controllers\Admin\AccessController::class, 'index'])->name('admin.access.index');
+    Route::post('/access', [App\Http\Controllers\Admin\AccessController::class, 'update'])->name('admin.access.update');
     
+    // Факультеты и кафедры
+    Route::resource('faculties', App\Http\Controllers\Admin\FacultyController::class)->names('admin.faculties');
+    Route::post('/faculties/{faculty}/toggle-status', [App\Http\Controllers\Admin\FacultyController::class, 'toggleStatus'])->name('admin.faculties.toggle-status');
+    Route::resource('departments', App\Http\Controllers\Admin\DepartmentController::class)->names('admin.departments');
+    Route::post('/departments/{department}/toggle-status', [App\Http\Controllers\Admin\DepartmentController::class, 'toggleStatus'])->name('admin.departments.toggle-status');
+
     // Управление предметами
     Route::resource('subjects', App\Http\Controllers\Admin\SubjectController::class)->names('admin.subjects');
     Route::post('/subjects/{subject}/toggle-status', [App\Http\Controllers\Admin\SubjectController::class, 'toggleStatus'])->name('admin.subjects.toggle-status');
@@ -840,6 +857,8 @@ Route::prefix('registration')->middleware(['auth', 'education.or.registration', 
     Route::post('/chat/{chat}/read', [App\Http\Controllers\ChatController::class, 'markAsRead'])->name('registration.chat.mark-read');
     Route::delete('/chat/{chat}/leave', [App\Http\Controllers\ChatController::class, 'leave'])->name('registration.chat.leave');
 });
+
+require __DIR__.'/org_panels.php';
 
 // Тестовые маршруты для SMS (удалить в production или защитить middleware)
 Route::prefix('sms-test')->middleware('auth')->group(function () {

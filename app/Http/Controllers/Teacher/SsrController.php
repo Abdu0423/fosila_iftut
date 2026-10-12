@@ -20,7 +20,7 @@ class SsrController extends Controller
     {
         $teacher = Auth::user();
 
-        $tasks = SsrTask::where('teacher_id', $teacher->id)
+        $tasks = SsrTask::query()->when(! $teacher->seesAllTeachingRecords(), fn ($q) => $q->where('teacher_id', $teacher->id))
             ->with(['schedule.subject', 'schedule.group'])
             ->withCount(['topics', 'submissions'])
             ->orderBy('created_at', 'desc')
@@ -57,7 +57,7 @@ class SsrController extends Controller
     {
         $teacher = Auth::user();
 
-        $schedules = Schedule::where('teacher_id', $teacher->id)
+        $schedules = Schedule::forTeachingUser($teacher)
             ->with(['subject', 'group'])
             ->where('is_active', true)
             ->orderBy('created_at', 'desc')
@@ -101,7 +101,7 @@ class SsrController extends Controller
         // Проверяем, что расписание принадлежит учителю
         if ($request->schedule_id) {
             $schedule = Schedule::where('id', $request->schedule_id)
-                ->where('teacher_id', $teacher->id)
+                ->when(! $teacher->seesAllTeachingRecords(), fn ($q) => $q->where('teacher_id', $teacher->id))
                 ->first();
 
             if (!$schedule) {
@@ -143,7 +143,7 @@ class SsrController extends Controller
     {
         $teacher = Auth::user();
 
-        if ($task->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($task->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этому заданию');
         }
 
@@ -203,13 +203,13 @@ class SsrController extends Controller
     {
         $teacher = Auth::user();
 
-        if ($task->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($task->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этому заданию');
         }
 
         $task->load('topics');
 
-        $schedules = Schedule::where('teacher_id', $teacher->id)
+        $schedules = Schedule::forTeachingUser($teacher)
             ->with(['subject', 'group'])
             ->where('is_active', true)
             ->orderBy('created_at', 'desc')
@@ -250,7 +250,7 @@ class SsrController extends Controller
     {
         $teacher = Auth::user();
 
-        if ($task->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($task->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этому заданию');
         }
 
@@ -323,7 +323,7 @@ class SsrController extends Controller
     {
         $teacher = Auth::user();
 
-        if ($task->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($task->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этому заданию');
         }
 
@@ -346,7 +346,7 @@ class SsrController extends Controller
     {
         $teacher = Auth::user();
 
-        if ($submission->ssrTask->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($submission->ssrTask->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этой работе');
         }
 
@@ -389,7 +389,7 @@ class SsrController extends Controller
     {
         $teacher = Auth::user();
 
-        if ($submission->ssrTask->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($submission->ssrTask->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этой работе');
         }
 
@@ -414,7 +414,7 @@ class SsrController extends Controller
     {
         $teacher = Auth::user();
 
-        if ($task->teacher_id !== $teacher->id && ! $teacher->isEducationDepartment() && ! $teacher->isRegistrationCenter() && ! $teacher->isAdmin()) {
+        if (! $teacher->seesAllTeachingRecords() && ($task->teacher_id !== $teacher->id && ! $teacher->isEducationDepartment()) && ! $teacher->isRegistrationCenter() && ! $teacher->isAdmin()) {
             abort(403, 'У вас нет доступа к этому заданию');
         }
 

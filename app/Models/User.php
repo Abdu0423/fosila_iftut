@@ -136,6 +136,27 @@ class User extends Authenticatable
         return $this->role && $this->role->name === 'registration_center';
     }
 
+    public function isDepartment()
+    {
+        if (!$this->relationLoaded('role')) {
+            $this->load('role');
+        }
+        return $this->role && $this->role->name === 'department';
+    }
+
+    public function isFaculty()
+    {
+        if (!$this->relationLoaded('role')) {
+            $this->load('role');
+        }
+        return $this->role && $this->role->name === 'faculty';
+    }
+
+    public function seesAllTeachingRecords(): bool
+    {
+        return $this->isDepartment() || $this->isFaculty();
+    }
+
     /**
      * Чаты пользователя
      */

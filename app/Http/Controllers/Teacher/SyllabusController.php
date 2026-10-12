@@ -24,7 +24,7 @@ class SyllabusController extends Controller
         $syllabuses = Syllabus::where(function ($query) use ($teacherId) {
             $query->where('created_by', $teacherId)
                   ->orWhereHas('schedules', function ($q) use ($teacherId) {
-                      $q->where('teacher_id', $teacherId);
+                      $q->when(! auth()->user()->seesAllTeachingRecords(), fn ($inner) => $inner->where('teacher_id', $teacherId));
                   });
         })
         ->with(['subject', 'creator'])
@@ -47,7 +47,7 @@ class SyllabusController extends Controller
         });
         
         // Получаем расписания учителя для статистики
-        $schedules = Schedule::where('teacher_id', $teacherId)
+        $schedules = Schedule::forTeachingUser(auth()->user())
             ->with(['subject', 'group'])
             ->get();
 
@@ -81,7 +81,7 @@ class SyllabusController extends Controller
         $teacherId = auth()->id();
         
         // Получаем предметы из расписаний учителя
-        $schedules = Schedule::where('teacher_id', $teacherId)
+        $schedules = Schedule::forTeachingUser(auth()->user())
             ->with('subject')
             ->get();
         
@@ -184,7 +184,7 @@ class SyllabusController extends Controller
         
         // Проверяем, что силлабус создан текущим учителем ИЛИ привязан к расписанию учителя
         $hasAccess = $syllabus->created_by == $teacherId || 
-                     Schedule::where('teacher_id', $teacherId)
+                     Schedule::forTeachingUser(auth()->user())
                         ->whereHas('syllabuses', function ($query) use ($syllabus) {
                             $query->where('syllabus_id', $syllabus->id);
                         })
@@ -225,7 +225,7 @@ class SyllabusController extends Controller
         
         // Проверяем, что силлабус создан текущим учителем ИЛИ привязан к расписанию учителя
         $hasAccess = $syllabus->created_by == $teacherId || 
-                     Schedule::where('teacher_id', $teacherId)
+                     Schedule::forTeachingUser(auth()->user())
                         ->whereHas('syllabuses', function ($query) use ($syllabus) {
                             $query->where('syllabus_id', $syllabus->id);
                         })
@@ -236,7 +236,7 @@ class SyllabusController extends Controller
         }
 
         // Получаем предметы из расписаний учителя
-        $schedules = Schedule::where('teacher_id', $teacherId)
+        $schedules = Schedule::forTeachingUser(auth()->user())
             ->with('subject')
             ->get();
         
@@ -283,7 +283,7 @@ class SyllabusController extends Controller
         
         // Проверяем, что силлабус создан текущим учителем ИЛИ привязан к расписанию учителя
         $hasAccess = $syllabus->created_by == $teacherId || 
-                     Schedule::where('teacher_id', $teacherId)
+                     Schedule::forTeachingUser(auth()->user())
                         ->whereHas('syllabuses', function ($query) use ($syllabus) {
                             $query->where('syllabus_id', $syllabus->id);
                         })
@@ -345,7 +345,7 @@ class SyllabusController extends Controller
         
         // Проверяем, что силлабус создан текущим учителем ИЛИ привязан к расписанию учителя
         $hasAccess = $syllabus->created_by == $teacherId || 
-                     Schedule::where('teacher_id', $teacherId)
+                     Schedule::forTeachingUser(auth()->user())
                         ->whereHas('syllabuses', function ($query) use ($syllabus) {
                             $query->where('syllabus_id', $syllabus->id);
                         })
@@ -380,7 +380,7 @@ class SyllabusController extends Controller
         
         // Проверяем, что силлабус создан текущим учителем ИЛИ привязан к расписанию учителя
         $hasAccess = $syllabus->created_by == $teacherId || 
-                     Schedule::where('teacher_id', $teacherId)
+                     Schedule::forTeachingUser(auth()->user())
                         ->whereHas('syllabuses', function ($query) use ($syllabus) {
                             $query->where('syllabus_id', $syllabus->id);
                         })
@@ -407,7 +407,7 @@ class SyllabusController extends Controller
         
         // Проверяем, что силлабус создан текущим учителем ИЛИ привязан к расписанию учителя
         $hasAccess = $syllabus->created_by == $teacherId || 
-                     Schedule::where('teacher_id', $teacherId)
+                     Schedule::forTeachingUser(auth()->user())
                         ->whereHas('syllabuses', function ($query) use ($syllabus) {
                             $query->where('syllabus_id', $syllabus->id);
                         })

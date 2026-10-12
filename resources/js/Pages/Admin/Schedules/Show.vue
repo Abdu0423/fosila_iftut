@@ -49,9 +49,9 @@
                 
                 <v-col cols="12" md="6">
                   <div class="mb-4">
-                    <div class="text-subtitle-2 text-medium-emphasis mb-1">Преподаватель</div>
-                    <div class="text-h6">{{ schedule.teacher?.name }}</div>
-                    <div class="text-caption text-medium-emphasis">{{ schedule.teacher?.email }}</div>
+                    <div class="text-subtitle-2 text-medium-emphasis mb-1">Кафедра</div>
+                    <div class="text-h6">{{ schedule.department?.name || [schedule.teacher?.name, schedule.teacher?.last_name].filter(Boolean).join(' ') }}</div>
+                    <div v-if="!schedule.department && schedule.teacher?.email" class="text-caption text-medium-emphasis">{{ schedule.teacher.email }}</div>
                   </div>
                 </v-col>
 
@@ -260,7 +260,7 @@
           <br><br>
           <strong>Предмет:</strong> {{ schedule?.subject?.name }}<br>
           <strong>Группа:</strong> {{ schedule?.group?.name }}<br>
-          <strong>Преподаватель:</strong> {{ schedule?.teacher?.name }}
+          <strong>Кафедра:</strong> {{ schedule?.department?.name || [schedule?.teacher?.name, schedule?.teacher?.last_name].filter(Boolean).join(' ') }}
         </v-card-text>
         <v-card-actions>
           <v-spacer />

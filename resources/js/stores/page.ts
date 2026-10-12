@@ -74,8 +74,8 @@ export const usePageStore = defineStore('page', {
                 info: flash?.info ?? null,
             };
         },
-        setAuth(user: AuthUser | null, locale: string, unreadChatsCount: number) {
-            this.props.auth = { user };
+        setAuth(user: AuthUser | null, locale: string, unreadChatsCount: number, pages: string[] | null = null) {
+            this.props.auth = { user, pages };
             this.props.locale = locale;
             this.props.unreadChatsCount = unreadChatsCount;
         },

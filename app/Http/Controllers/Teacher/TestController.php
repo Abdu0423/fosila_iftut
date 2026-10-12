@@ -20,7 +20,7 @@ class TestController extends Controller
         $teacher = Auth::user();
         
         // Получаем расписания учителя с тестами
-        $schedules = Schedule::where('teacher_id', $teacher->id)
+        $schedules = Schedule::forTeachingUser($teacher)
             ->with(['subject', 'group', 'test.questions'])
             ->orderBy('created_at', 'desc')
             ->get()
@@ -63,7 +63,7 @@ class TestController extends Controller
     public function show(Schedule $schedule)
     {
         // Проверяем доступ
-        if ($schedule->teacher_id !== Auth::id()) {
+        if (! Auth::user()->seesAllTeachingRecords() && ($schedule->teacher_id !== Auth::id())) {
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 

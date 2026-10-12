@@ -21,7 +21,7 @@ class CourseworkController extends Controller
         $teacher = Auth::user();
 
         // Получаем расписания с курсовыми работами
-        $schedules = Schedule::where('teacher_id', $teacher->id)
+        $schedules = Schedule::forTeachingUser($teacher)
             ->where('has_coursework', true)
             ->with(['subject', 'group', 'courseworkTask.topics', 'courseworkTask.submissions'])
             ->orderBy('created_at', 'desc')
@@ -60,7 +60,7 @@ class CourseworkController extends Controller
     {
         $teacher = Auth::user();
 
-        if ($schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 
@@ -141,7 +141,7 @@ class CourseworkController extends Controller
     {
         $teacher = Auth::user();
 
-        if ($schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
             abort(403);
         }
 
@@ -189,7 +189,7 @@ class CourseworkController extends Controller
     {
         $teacher = Auth::user();
 
-        if ($schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
             abort(403);
         }
 
@@ -260,7 +260,7 @@ class CourseworkController extends Controller
     {
         $teacher = Auth::user();
 
-        if ($submission->courseworkTask->schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($submission->courseworkTask->schedule->teacher_id !== $teacher->id)) {
             abort(403);
         }
 
@@ -306,7 +306,7 @@ class CourseworkController extends Controller
     {
         $teacher = Auth::user();
 
-        if ($submission->courseworkTask->schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($submission->courseworkTask->schedule->teacher_id !== $teacher->id)) {
             abort(403);
         }
 
@@ -331,7 +331,7 @@ class CourseworkController extends Controller
     {
         $teacher = Auth::user();
 
-        if ($schedule->teacher_id !== $teacher->id && ! $teacher->isEducationDepartment() && ! $teacher->isRegistrationCenter() && ! $teacher->isAdmin()) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id && ! $teacher->isEducationDepartment()) && ! $teacher->isRegistrationCenter() && ! $teacher->isAdmin()) {
             abort(403);
         }
 

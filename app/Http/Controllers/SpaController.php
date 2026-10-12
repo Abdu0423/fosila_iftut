@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\PageAccess;
 use Illuminate\Http\Request;
 
 class SpaController extends Controller
@@ -45,6 +46,7 @@ class SpaController extends Controller
             'user' => $userData,
             'locale' => app()->getLocale(),
             'unreadChatsCount' => $unreadChatsCount,
+            'pages' => PageAccess::grantedKeys($user),
         ]);
     }
 }

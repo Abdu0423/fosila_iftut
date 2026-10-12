@@ -51,8 +51,8 @@
                   <div class="text-body-1 font-weight-medium">{{ schedule?.group?.name }}</div>
                 </v-col>
                 <v-col cols="12" md="3">
-                  <div class="text-body-2 text-medium-emphasis mb-1">Преподаватель</div>
-                  <div class="text-body-1 font-weight-medium">{{ schedule?.teacher?.name }}</div>
+                  <div class="text-body-2 text-medium-emphasis mb-1">Кафедра</div>
+                  <div class="text-body-1 font-weight-medium">{{ schedule?.department?.name || [schedule?.teacher?.name, schedule?.teacher?.last_name].filter(Boolean).join(' ') }}</div>
                 </v-col>
                 <v-col cols="12" md="3">
                   <div class="text-body-2 text-medium-emphasis mb-1">Семестр</div>

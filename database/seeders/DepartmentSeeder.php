@@ -2,46 +2,45 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Department;
+use Illuminate\Database\Seeder;
 
 class DepartmentSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         $departments = [
             [
-                'name' => 'Кафедра информационных технологий',
-                'code' => 'IT',
-                'description' => 'Кафедра занимается подготовкой специалистов в области информационных технологий',
+                'name' => 'Кафедраи технологияҳои иттилоотӣ ва фанҳои дақиқ',
+                'code' => 'KIT',
+                'description' => 'Технологияҳои иттилоотӣ ва фанҳои дақиқ',
                 'is_active' => true,
             ],
             [
-                'name' => 'Кафедра экономики и менеджмента',
-                'code' => 'EM',
-                'description' => 'Кафедра готовит специалистов в области экономики и управления',
+                'name' => 'Кафедраи технологиҳои саноатӣ ва фанҳои табиӣ',
+                'code' => 'KSN',
+                'description' => 'Технологиҳои саноатӣ ва фанҳои табиӣ',
                 'is_active' => true,
             ],
             [
-                'name' => 'Кафедра иностранных языков',
-                'code' => 'FL',
-                'description' => 'Кафедра преподавания иностранных языков',
+                'name' => 'Кафедраи забонҳо, педагогикаи касбӣ ва фанҳои ҷамъиятӣ',
+                'code' => 'KZP',
+                'description' => 'Забонҳо, педагогикаи касбӣ ва фанҳои ҷамъиятӣ',
                 'is_active' => true,
             ],
             [
-                'name' => 'Кафедра математики',
-                'code' => 'MATH',
-                'description' => 'Кафедра высшей математики и прикладной математики',
+                'name' => 'Кафедраи иқтисодиёт ва менеҷмент',
+                'code' => 'KEM',
+                'description' => 'Иқтисодиёт ва менеҷмент',
                 'is_active' => true,
             ],
         ];
 
         foreach ($departments as $department) {
-            Department::create($department);
+            Department::firstOrCreate(
+                ['code' => $department['code']],
+                $department
+            );
         }
     }
 }

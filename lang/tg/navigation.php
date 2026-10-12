@@ -16,6 +16,8 @@ return [
     'students' => 'Донишҷӯён',
     'teachers' => 'Муаллимон',
     'subjects' => 'Фанҳо',
+    'faculties' => 'Факултетҳо',
+    'departments' => 'Кафедраҳо',
     'lessons' => 'Дарсҳо',
     'syllabuses' => 'Силлабусҳо',
     'library' => 'Китобхона',

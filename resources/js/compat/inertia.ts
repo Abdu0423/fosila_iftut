@@ -1,6 +1,6 @@
 import { reactive } from 'vue';
 import vueRouter from '../router';
-import { api, toSpaPath, validationErrors } from '../api/client';
+import { api, rewritePanelPath, toSpaPath, validationErrors } from '../api/client';
 import { usePageStore, waitForReload } from '../stores/page';
 import { useAuthStore } from '../stores/auth';
 
@@ -123,6 +123,7 @@ async function followResponse(data: { redirect?: string; flash?: Record<string, 
 }
 
 async function send(method: string, url: string, data: Record<string, unknown>, options: FormOptions = {}) {
+    url = rewritePanelPath(url);
     const pageStore = usePageStore();
     let verb = method.toLowerCase();
     let body: Record<string, unknown> | FormData = data;
@@ -263,6 +264,7 @@ export function useForm<T extends Record<string, unknown>>(defaults: T) {
 export const router = {
     visit(url: string, options: VisitOptions = {}) {
         const method = (options.method || 'get').toLowerCase();
+        url = rewritePanelPath(url);
 
         if (method === 'get') {
             const { path, query } = splitUrl(url);
@@ -275,7 +277,7 @@ export const router = {
         return send(method, url, options.data || {}, options);
     },
     get(url: string, data: Record<string, unknown> = {}, options: VisitOptions = {}) {
-        const { path, query } = splitUrl(url);
+        const { path, query } = splitUrl(rewritePanelPath(url));
         return vueRouter.push({
             path,
             query: { ...query, ...cleanQuery(data) },

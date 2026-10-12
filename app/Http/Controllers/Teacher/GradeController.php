@@ -22,7 +22,7 @@ class GradeController extends Controller
         $teacher = Auth::user();
         
         // Получаем расписания учителя с предметами и группами
-        $schedules = Schedule::where('teacher_id', $teacher->id)
+        $schedules = Schedule::forTeachingUser($teacher)
             ->with(['subject', 'group'])
             ->orderBy('created_at', 'desc')
             ->get()
@@ -49,7 +49,7 @@ class GradeController extends Controller
         $teacher = Auth::user();
         
         // Проверяем доступ
-        if ($schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 
@@ -186,7 +186,7 @@ class GradeController extends Controller
         $teacher = Auth::user();
         
         // Проверяем доступ
-        if ($grade->schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($grade->schedule->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этой оценке');
         }
 
@@ -228,7 +228,7 @@ class GradeController extends Controller
         $schedule = Schedule::findOrFail($request->schedule_id);
         
         // Проверяем доступ
-        if ($schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
             return response()->json([
                 'success' => false,
                 'message' => 'У вас нет доступа к этому расписанию'

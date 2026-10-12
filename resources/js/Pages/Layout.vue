@@ -287,9 +287,16 @@ const currentRole = computed(() => {
   if (path.startsWith('/education')) {
     return 'education_department'
   }
+  if (path.startsWith('/department')) {
+    return 'department'
+  }
+  if (path.startsWith('/faculty')) {
+    return 'faculty'
+  }
 
-  if (user.value?.role === 'education_department' && path.startsWith('/admin/users')) {
-    return 'education_department'
+  const roleName = user.value?.role
+  if (path.startsWith('/admin/users') && (roleName === 'education_department' || roleName === 'department' || roleName === 'faculty')) {
+    return roleName
   }
   
   // Если роль передана через props, используем её
@@ -322,6 +329,8 @@ const userRole = computed(() => {
     case 'teacher': return t('roles.teacher')
     case 'education_department': return t('roles.education_department')
     case 'registration_center': return t('roles.registration_center') || 'Регистрационный центр'
+    case 'department': return 'Кафедра'
+    case 'faculty': return 'Факультет'
     default: return t('roles.student')
   }
 })
@@ -355,6 +364,8 @@ const headerIcon = computed(() => {
     case 'teacher': return 'mdi-teach'
     case 'education_department': return 'mdi-domain'
     case 'registration_center': return 'mdi-clipboard-account'
+    case 'department': return 'mdi-office-building'
+    case 'faculty': return 'mdi-domain'
     default: return 'mdi-school'
   }
 })
@@ -365,6 +376,8 @@ const headerTitle = computed(() => {
     case 'teacher': return t('panels.teacher_title')
     case 'education_department': return t('panels.education_title')
     case 'registration_center': return t('panels.registration_title') || 'Регистрационный центр'
+    case 'department': return 'Кафедра'
+    case 'faculty': return 'Факультет'
     default: return t('panels.student_title')
   }
 })
@@ -375,6 +388,8 @@ const headerSubtitle = computed(() => {
     case 'teacher': return t('panels.teacher_subtitle')
     case 'education_department': return t('panels.education_subtitle')
     case 'registration_center': return t('panels.registration_subtitle') || 'Управление регистрацией'
+    case 'department': return 'Учебная работа кафедры'
+    case 'faculty': return 'Учебная работа факультета'
     default: return t('panels.student_subtitle')
   }
 })
@@ -385,6 +400,8 @@ const appBarTitle = computed(() => {
     case 'teacher': return t('panels.teacher_title')
     case 'education_department': return t('panels.education_title')
     case 'registration_center': return t('panels.registration_title') || 'Регистрационный центр'
+    case 'department': return 'Кафедра'
+    case 'faculty': return 'Факультет'
     default: return t('panels.student_title')
   }
 })
@@ -395,99 +412,148 @@ const appBarTitleShort = computed(() => {
     case 'teacher': return t('roles.teacher')
     case 'education_department': return t('roles.education_department_short')
     case 'registration_center': return t('roles.registration_center_short') || 'РЦ'
+    case 'department': return 'Кафедра'
+    case 'faculty': return 'Факультет'
     default: return t('panels.student_title')
   }
 })
 
-// Пункты меню в зависимости от роли
+const allowedPages = computed(() => {
+  const pages = page.props.auth?.pages
+  return Array.isArray(pages) ? pages : null
+})
+
+const filterMenu = (items) => {
+  const allowed = allowedPages.value
+  if (!allowed) {
+    return items
+  }
+  return items.flatMap((item) => {
+    if (item.children) {
+      const children = item.children.filter((child) => !child.page || allowed.includes(child.page))
+      return children.length ? [{ ...item, children }] : []
+    }
+    if (item.page && !allowed.includes(item.page)) {
+      return []
+    }
+    return [item]
+  })
+}
+
+const orgMenu = (prefix) => [
+  { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: `/${prefix}`, page: 'dashboard' },
+  { title: t('navigation.users'), icon: 'mdi-account-cog', route: '/admin/users', page: 'users' },
+  { title: t('education_department.schedules_menu'), icon: 'mdi-calendar-clock', route: `/${prefix}/schedules`, page: 'schedules' },
+  { title: t('navigation.my_lessons'), icon: 'mdi-teach', route: `/${prefix}/lessons`, page: 'lessons' },
+  { title: t('navigation.my_tests'), icon: 'mdi-help-circle', route: `/${prefix}/tests`, page: 'tests' },
+  { title: t('navigation.ssr'), icon: 'mdi-file-document-edit-outline', route: `/${prefix}/ssr`, page: 'ssr' },
+  { title: t('navigation.coursework'), icon: 'mdi-book-open-variant', route: `/${prefix}/coursework`, page: 'coursework' },
+  { title: t('navigation.grades'), icon: 'mdi-star', route: `/${prefix}/grades`, page: 'grades' },
+  { title: t('navigation.my_students'), icon: 'mdi-account-group', route: `/${prefix}/students`, page: 'students' },
+  { title: t('navigation.my_schedules'), icon: 'mdi-calendar-clock', route: `/${prefix}/schedule`, page: 'my_schedule' },
+  { title: t('navigation.syllabuses'), icon: 'mdi-file-document-multiple', route: `/${prefix}/syllabuses`, page: 'syllabuses' },
+  { title: t('navigation.chat'), icon: 'mdi-chat', route: `/${prefix}/chat`, page: 'chat' },
+]
+
 const menuItems = computed(() => {
+  let items
   switch (currentRole.value) {
     case 'admin':
-      return [
-        { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: '/admin' },
-        { title: t('navigation.users'), icon: 'mdi-account-group', route: '/admin/users' },
-        { 
-          title: t('navigation.students'), 
-          icon: 'mdi-school', 
+      items = [
+        { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: '/admin', page: 'dashboard' },
+        { title: t('navigation.users'), icon: 'mdi-account-group', route: '/admin/users', page: 'users' },
+        {
+          title: t('navigation.students'),
+          icon: 'mdi-school',
           expanded: false,
           children: [
-            { title: t('navigation.students_management'), icon: 'mdi-account-multiple', route: '/admin/students' },
-            { title: t('navigation.transfers'), icon: 'mdi-swap-horizontal', route: '/admin/students/transfers' }
+            { title: t('navigation.students_management'), icon: 'mdi-account-multiple', route: '/admin/students', page: 'students_management' },
+            { title: t('navigation.transfers'), icon: 'mdi-swap-horizontal', route: '/admin/students/transfers', page: 'transfers' }
           ]
         },
-        { title: t('navigation.subjects'), icon: 'mdi-book-education', route: '/admin/subjects' },
-        { title: t('navigation.syllabuses'), icon: 'mdi-file-document-multiple', route: '/admin/syllabuses' },
-        { title: t('navigation.lessons'), icon: 'mdi-teach', route: '/admin/lessons' },
-        { title: t('navigation.tests'), icon: 'mdi-help-circle', route: '/admin/tests' },
-        { title: t('navigation.grades'), icon: 'mdi-star', route: '/admin/grades' },
-        { title: t('navigation.schedule'), icon: 'mdi-calendar-clock', route: '/admin/schedules' },
-        { title: t('navigation.assignments'), icon: 'mdi-clipboard-text', route: '/admin/assignments' },
-        { title: t('navigation.library'), icon: 'mdi-library', route: '/admin/library' },
-        { title: t('navigation.reports'), icon: 'mdi-chart-bar', route: '/admin/reports' },
-        { title: t('navigation.chat'), icon: 'mdi-chat', route: '/admin/chat' },
-        { title: t('navigation.sms'), icon: 'mdi-message-text', route: '/admin/sms' },
-        { title: t('navigation.settings'), icon: 'mdi-cog', route: '/admin/settings' }
+        { title: t('navigation.faculties'), icon: 'mdi-domain', route: '/admin/faculties', page: 'faculties' },
+        { title: t('navigation.departments'), icon: 'mdi-office-building', route: '/admin/departments', page: 'catalog_departments' },
+        { title: t('navigation.subjects'), icon: 'mdi-book-education', route: '/admin/subjects', page: 'subjects' },
+        { title: t('navigation.syllabuses'), icon: 'mdi-file-document-multiple', route: '/admin/syllabuses', page: 'syllabuses' },
+        { title: t('navigation.lessons'), icon: 'mdi-teach', route: '/admin/lessons', page: 'lessons' },
+        { title: t('navigation.tests'), icon: 'mdi-help-circle', route: '/admin/tests', page: 'tests' },
+        { title: t('navigation.grades'), icon: 'mdi-star', route: '/admin/grades', page: 'grades' },
+        { title: t('navigation.schedule'), icon: 'mdi-calendar-clock', route: '/admin/schedules', page: 'schedules' },
+        { title: t('navigation.assignments'), icon: 'mdi-clipboard-text', route: '/admin/assignments', page: 'assignments' },
+        { title: t('navigation.library'), icon: 'mdi-library', route: '/admin/library', page: 'library' },
+        { title: t('navigation.reports'), icon: 'mdi-chart-bar', route: '/admin/reports', page: 'reports' },
+        { title: t('navigation.chat'), icon: 'mdi-chat', route: '/admin/chat', page: 'chat' },
+        { title: t('navigation.sms'), icon: 'mdi-message-text', route: '/admin/sms', page: 'sms' },
+        { title: 'Доступ к страницам', icon: 'mdi-shield-key', route: '/admin/access' },
+        { title: t('navigation.settings'), icon: 'mdi-cog', route: '/admin/settings', page: 'settings' }
       ]
-    
+      break
     case 'teacher':
-      return [
-        { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: '/teacher' },
-        { title: t('navigation.my_lessons'), icon: 'mdi-teach', route: '/teacher/lessons' },
-        { title: t('navigation.my_tests'), icon: 'mdi-help-circle', route: '/teacher/tests' },
-        { title: t('navigation.ssr'), icon: 'mdi-file-document-edit-outline', route: '/teacher/ssr' },
-        { title: t('navigation.coursework'), icon: 'mdi-book-open-variant', route: '/teacher/coursework' },
-        { title: t('navigation.grades'), icon: 'mdi-star', route: '/teacher/grades' },
-        { title: t('navigation.my_students'), icon: 'mdi-account-group', route: '/teacher/students' },
-        { title: t('navigation.my_schedules'), icon: 'mdi-calendar-clock', route: '/teacher/schedule' },
-        { title: t('navigation.syllabuses'), icon: 'mdi-file-document-multiple', route: '/teacher/syllabuses' },
-        { title: t('navigation.chat'), icon: 'mdi-chat', route: '/teacher/chat' },
+      items = [
+        { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: '/teacher', page: 'dashboard' },
+        { title: t('navigation.my_lessons'), icon: 'mdi-teach', route: '/teacher/lessons', page: 'lessons' },
+        { title: t('navigation.my_tests'), icon: 'mdi-help-circle', route: '/teacher/tests', page: 'tests' },
+        { title: t('navigation.ssr'), icon: 'mdi-file-document-edit-outline', route: '/teacher/ssr', page: 'ssr' },
+        { title: t('navigation.coursework'), icon: 'mdi-book-open-variant', route: '/teacher/coursework', page: 'coursework' },
+        { title: t('navigation.grades'), icon: 'mdi-star', route: '/teacher/grades', page: 'grades' },
+        { title: t('navigation.my_students'), icon: 'mdi-account-group', route: '/teacher/students', page: 'students' },
+        { title: t('navigation.my_schedules'), icon: 'mdi-calendar-clock', route: '/teacher/schedule', page: 'my_schedule' },
+        { title: t('navigation.syllabuses'), icon: 'mdi-file-document-multiple', route: '/teacher/syllabuses', page: 'syllabuses' },
+        { title: t('navigation.chat'), icon: 'mdi-chat', route: '/teacher/chat', page: 'chat' },
       ]
-    
+      break
     case 'education_department':
-      return [
-        { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: '/education' },
-        { title: t('education_department.users_work_menu'), icon: 'mdi-account-cog', route: '/admin/users' },
-        { title: t('education_department.schedules_menu'), icon: 'mdi-calendar-clock', route: '/education/schedules' },
-        { title: t('navigation.my_lessons'), icon: 'mdi-teach', route: '/education/lessons' },
-        { title: t('navigation.my_tests'), icon: 'mdi-help-circle', route: '/education/tests' },
-        { title: t('navigation.grades'), icon: 'mdi-star', route: '/education/grades' },
-        { title: t('navigation.my_students'), icon: 'mdi-account-group', route: '/education/students' },
-        { title: t('navigation.my_schedules'), icon: 'mdi-calendar-clock', route: '/education/schedule' },
-        { title: t('navigation.syllabuses'), icon: 'mdi-file-document-multiple', route: '/education/syllabuses' },
-        { title: t('navigation.chat'), icon: 'mdi-chat', route: '/education/chat' },
+      items = [
+        { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: '/education', page: 'dashboard' },
+        { title: t('education_department.users_work_menu'), icon: 'mdi-account-cog', route: '/admin/users', page: 'users' },
+        { title: t('education_department.schedules_menu'), icon: 'mdi-calendar-clock', route: '/education/schedules', page: 'schedules' },
+        { title: t('navigation.my_lessons'), icon: 'mdi-teach', route: '/education/lessons', page: 'lessons' },
+        { title: t('navigation.my_tests'), icon: 'mdi-help-circle', route: '/education/tests', page: 'tests' },
+        { title: t('navigation.grades'), icon: 'mdi-star', route: '/education/grades', page: 'grades' },
+        { title: t('navigation.my_students'), icon: 'mdi-account-group', route: '/education/students', page: 'students' },
+        { title: t('navigation.my_schedules'), icon: 'mdi-calendar-clock', route: '/education/schedule', page: 'my_schedule' },
+        { title: t('navigation.syllabuses'), icon: 'mdi-file-document-multiple', route: '/education/syllabuses', page: 'syllabuses' },
+        { title: t('navigation.chat'), icon: 'mdi-chat', route: '/education/chat', page: 'chat' },
       ]
-    
+      break
     case 'registration_center':
-      return [
-        { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: '/registration' },
-        { title: t('education_department.users_menu'), icon: 'mdi-account-group', route: '/registration/users' },
-        { title: t('education_department.groups_menu'), icon: 'mdi-account-multiple', route: '/registration/groups' },
-        { title: t('education_department.subjects_menu'), icon: 'mdi-book-open-page-variant', route: '/registration/subjects' },
-        { title: t('education_department.departments_menu'), icon: 'mdi-office-building', route: '/registration/departments' },
-        { title: t('education_department.specialties_menu'), icon: 'mdi-school', route: '/registration/specialties' },
-        { title: t('education_department.schedules_menu'), icon: 'mdi-calendar-clock', route: '/registration/schedules' },
-        { title: t('navigation.my_lessons'), icon: 'mdi-teach', route: '/registration/lessons' },
-        { title: t('navigation.my_tests'), icon: 'mdi-help-circle', route: '/registration/tests' },
-        { title: t('navigation.grades'), icon: 'mdi-star', route: '/registration/grades' },
-        { title: t('navigation.my_students'), icon: 'mdi-account-group', route: '/registration/students' },
-        { title: t('navigation.my_schedules'), icon: 'mdi-calendar-clock', route: '/registration/schedule' },
-        { title: t('navigation.syllabuses'), icon: 'mdi-file-document-multiple', route: '/registration/syllabuses' },
-        { title: t('navigation.chat'), icon: 'mdi-chat', route: '/registration/chat' },
+      items = [
+        { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: '/registration', page: 'dashboard' },
+        { title: t('education_department.users_menu'), icon: 'mdi-account-group', route: '/registration/users', page: 'users' },
+        { title: t('education_department.groups_menu'), icon: 'mdi-account-multiple', route: '/registration/groups', page: 'groups' },
+        { title: t('education_department.subjects_menu'), icon: 'mdi-book-open-page-variant', route: '/registration/subjects', page: 'subjects' },
+        { title: t('education_department.departments_menu'), icon: 'mdi-office-building', route: '/registration/departments', page: 'catalog_departments' },
+        { title: t('education_department.specialties_menu'), icon: 'mdi-school', route: '/registration/specialties', page: 'specialties' },
+        { title: t('education_department.schedules_menu'), icon: 'mdi-calendar-clock', route: '/registration/schedules', page: 'schedules' },
+        { title: t('navigation.my_lessons'), icon: 'mdi-teach', route: '/registration/lessons', page: 'lessons' },
+        { title: t('navigation.my_tests'), icon: 'mdi-help-circle', route: '/registration/tests', page: 'tests' },
+        { title: t('navigation.grades'), icon: 'mdi-star', route: '/registration/grades', page: 'grades' },
+        { title: t('navigation.my_students'), icon: 'mdi-account-group', route: '/registration/students', page: 'students' },
+        { title: t('navigation.my_schedules'), icon: 'mdi-calendar-clock', route: '/registration/schedule', page: 'my_schedule' },
+        { title: t('navigation.syllabuses'), icon: 'mdi-file-document-multiple', route: '/registration/syllabuses', page: 'syllabuses' },
+        { title: t('navigation.chat'), icon: 'mdi-chat', route: '/registration/chat', page: 'chat' },
       ]
-    
-    default: // student
-      return [
-        { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: '/student/' },
-        { title: t('navigation.schedule'), icon: 'mdi-calendar-clock', route: '/student/schedule' },
-        { title: t('navigation.tests'), icon: 'mdi-file-document-edit', route: '/student/tests' },
-        { title: t('navigation.ssr'), icon: 'mdi-file-document-edit-outline', route: '/student/ssr' },
-        { title: t('navigation.coursework'), icon: 'mdi-book-open-variant', route: '/student/coursework' },
-        { title: t('navigation.assignments'), icon: 'mdi-clipboard-text', route: '/student/assignments' },
-        { title: t('navigation.chat'), icon: 'mdi-chat', route: '/student/chat' },
-        { title: t('navigation.library'), icon: 'mdi-library', route: '/student/library' },
-        { title: t('navigation.grades'), icon: 'mdi-star', route: '/student/grades' }
+      break
+    case 'department':
+      items = orgMenu('department')
+      break
+    case 'faculty':
+      items = orgMenu('faculty')
+      break
+    default:
+      items = [
+        { title: t('navigation.dashboard'), icon: 'mdi-view-dashboard', route: '/student/', page: 'dashboard' },
+        { title: t('navigation.schedule'), icon: 'mdi-calendar-clock', route: '/student/schedule', page: 'student_schedule' },
+        { title: t('navigation.tests'), icon: 'mdi-file-document-edit', route: '/student/tests', page: 'tests' },
+        { title: t('navigation.ssr'), icon: 'mdi-file-document-edit-outline', route: '/student/ssr', page: 'ssr' },
+        { title: t('navigation.coursework'), icon: 'mdi-book-open-variant', route: '/student/coursework', page: 'coursework' },
+        { title: t('navigation.assignments'), icon: 'mdi-clipboard-text', route: '/student/assignments', page: 'assignments' },
+        { title: t('navigation.chat'), icon: 'mdi-chat', route: '/student/chat', page: 'chat' },
+        { title: t('navigation.library'), icon: 'mdi-library', route: '/student/library', page: 'library' },
+        { title: t('navigation.grades'), icon: 'mdi-star', route: '/student/grades', page: 'grades' }
       ]
   }
+  return filterMenu(items)
 })
 
 // Методы
@@ -528,6 +594,12 @@ const goToProfile = () => {
     case 'registration_center':
       router.visit('/registration/profile')
       break
+    case 'department':
+      router.visit('/department/profile')
+      break
+    case 'faculty':
+      router.visit('/faculty/profile')
+      break
     default:
       router.visit('/student/profile')
   }
@@ -539,11 +611,15 @@ const goToSettings = () => {
 
 // Определяем маршрут logout в зависимости от роли
 const logoutRoute = computed(() => {
-  switch (props.role) {
+  switch (currentRole.value) {
     case 'admin':
       return '/admin/logout'
     case 'teacher':
       return '/teacher/logout'
+    case 'department':
+      return '/department/logout'
+    case 'faculty':
+      return '/faculty/logout'
     case 'student':
       return '/student/logout'
     default:

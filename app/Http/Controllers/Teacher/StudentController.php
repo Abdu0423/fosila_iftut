@@ -17,7 +17,7 @@ class StudentController extends Controller
         
         // Получаем все группы, где преподает учитель
         $groups = Group::whereHas('schedules', function($query) use ($teacher) {
-            $query->where('teacher_id', $teacher->id);
+            $query->when(! $teacher->seesAllTeachingRecords(), fn ($q) => $q->where('teacher_id', $teacher->id));
         })->orderBy('name')->get();
 
         return spa('Teacher/Students/Index', [
@@ -56,7 +56,7 @@ class StudentController extends Controller
         $teacher = Auth::user();
         
         // Проверяем, что учитель преподает в этой группе
-        $hasAccess = Schedule::where('teacher_id', $teacher->id)
+        $hasAccess = Schedule::forTeachingUser($teacher)
             ->where('group_id', $group->id)
             ->exists();
             
@@ -73,7 +73,7 @@ class StudentController extends Controller
             ->get(['id', 'name', 'last_name', 'middle_name', 'email', 'phone', 'address']);
 
         // Получаем расписание уроков для этой группы
-        $schedules = Schedule::where('teacher_id', $teacher->id)
+        $schedules = Schedule::forTeachingUser($teacher)
             ->where('group_id', $group->id)
             ->with(['lesson', 'subject'])
             ->orderBy('created_at', 'desc')
@@ -131,7 +131,7 @@ class StudentController extends Controller
         // Проверяем, что студент учится в группе, где преподает учитель
         $hasAccess = $student->group && 
             Schedule::where('group_id', $student->group->id)
-                ->where('teacher_id', $teacher->id)
+                ->when(! $teacher->seesAllTeachingRecords(), fn ($q) => $q->where('teacher_id', $teacher->id))
                 ->exists();
             
         if (!$hasAccess) {
@@ -141,7 +141,7 @@ class StudentController extends Controller
         // Получаем группу студента, где преподает учитель
         $group = $student->group;
         $schedules = Schedule::where('group_id', $group->id)
-            ->where('teacher_id', $teacher->id)
+            ->when(! $teacher->seesAllTeachingRecords(), fn ($q) => $q->where('teacher_id', $teacher->id))
             ->with(['lesson', 'subject'])
             ->get();
 

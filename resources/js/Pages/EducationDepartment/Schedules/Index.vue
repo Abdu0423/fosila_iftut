@@ -87,7 +87,7 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  teachers: {
+  departments: {
     type: Array,
     default: () => []
   }
@@ -103,10 +103,12 @@ const groupOptions = computed(() => (props.groups || []).map((group) => ({
   value: group.id
 })))
 
-const teacherOptions = computed(() => (props.teachers || []).map((teacher) => ({
-  title: `${teacher.name || ''} ${teacher.last_name || ''}`.trim(),
-  value: teacher.id
+const departmentOptions = computed(() => (props.departments || []).map((department) => ({
+  title: department.name,
+  value: department.id
 })))
+
+const personName = (person) => person ? `${person.name || ''} ${person.last_name || ''}`.trim() : ''
 
 const columns = computed(() => [
   {
@@ -132,15 +134,15 @@ const columns = computed(() => [
     text: (row) => row.group?.name || ''
   },
   {
-    key: 'teacher_id',
-    title: translations.value.education_department?.schedule_teacher || 'Преподаватель',
+    key: 'department_id',
+    title: 'Кафедра',
     editable: true,
     editor: 'select',
     inherit: true,
     required: true,
-    options: teacherOptions.value,
-    get: (row) => row.teacher_id,
-    text: (row) => row.teacher ? `${row.teacher.name || ''} ${row.teacher.last_name || ''}`.trim() : ''
+    options: departmentOptions.value,
+    get: (row) => row.department_id,
+    text: (row) => row.department?.name || personName(row.teacher)
   },
   {
     key: 'semester',
@@ -180,14 +182,17 @@ const columns = computed(() => [
 
 const getRoutePrefix = () => {
   const path = window.location.pathname
-  if (path.startsWith('/registration')) {
-    return 'registration'
-  }
+  if (path.startsWith('/registration')) return 'registration'
+  if (path.startsWith('/department')) return 'department'
+  if (path.startsWith('/faculty')) return 'faculty'
   return 'education'
 }
 
 const getRole = computed(() => {
-  return getRoutePrefix() === 'registration' ? 'registration_center' : 'education_department'
+  const prefix = getRoutePrefix()
+  if (prefix === 'registration') return 'registration_center'
+  if (prefix === 'department' || prefix === 'faculty') return prefix
+  return 'education_department'
 })
 
 const creditsFor = (groupId, fallback) => {
@@ -197,7 +202,7 @@ const creditsFor = (groupId, fallback) => {
 
 const schedulePayload = (source) => ({
   subject_id: source.subject_id,
-  teacher_id: source.teacher_id,
+  department_id: source.department_id,
   group_id: source.group_id,
   semester: Number(source.semester),
   study_year: Number(source.study_year),

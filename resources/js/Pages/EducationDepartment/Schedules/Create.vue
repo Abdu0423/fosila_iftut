@@ -46,28 +46,21 @@
                     />
                   </v-col>
 
-                  <!-- Преподаватель -->
+                  <!-- Кафедра -->
                   <v-col cols="12" md="6">
                     <v-autocomplete
-                      v-model="form.teacher_id"
-                      :items="teacherItems"
-                      item-title="displayName"
+                      v-model="form.department_id"
+                      :items="departmentItems"
+                      item-title="name"
                       item-value="id"
-                      :label="getTranslation('education_department.schedule_teacher', 'Преподаватель') + ' *'"
+                      label="Кафедра *"
                       variant="outlined"
-                      :error-messages="errors.teacher_id"
+                      :error-messages="errors.department_id"
                       prepend-inner-icon="mdi-magnify"
                       clearable
                       auto-select-first
                       required
-                    >
-                      <template v-slot:item="{ props, item }">
-                        <v-list-item v-bind="props">
-                          <v-list-item-title>{{ item.raw.name }} {{ item.raw.last_name }}</v-list-item-title>
-                          <v-list-item-subtitle v-if="item.raw.email">{{ item.raw.email }}</v-list-item-subtitle>
-                        </v-list-item>
-                      </template>
-                    </v-autocomplete>
+                    />
                   </v-col>
 
                   <!-- Группа -->
@@ -258,7 +251,7 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  teachers: {
+  departments: {
     type: Array,
     default: () => []
   }
@@ -266,7 +259,7 @@ const props = defineProps({
 
 const form = useForm({
   subject_id: null,
-  teacher_id: null,
+  department_id: null,
   group_id: null,
   semester: 1,
   credits: null,
@@ -286,13 +279,7 @@ const semesterItems = Array.from({ length: 10 }, (_, i) => ({
   value: i + 1
 }))
 
-// Преобразуем преподавателей для автокомплита
-const teacherItems = computed(() => {
-  return (props.teachers || []).map(teacher => ({
-    ...teacher,
-    displayName: `${teacher.name} ${teacher.last_name}${teacher.middle_name ? ' ' + teacher.middle_name : ''}`
-  }))
-})
+const departmentItems = computed(() => props.departments || [])
 
 // Преобразуем группы для автокомплита
 const groupItems = computed(() => {
@@ -305,15 +292,17 @@ const groupItems = computed(() => {
 // Определяем префикс маршрута на основе текущего URL
 const getRoutePrefix = () => {
   const path = window.location.pathname
-  if (path.startsWith('/registration')) {
-    return 'registration'
-  }
+  if (path.startsWith('/registration')) return 'registration'
+  if (path.startsWith('/department')) return 'department'
+  if (path.startsWith('/faculty')) return 'faculty'
   return 'education'
 }
 
-// Определяем роль для Layout
 const getRole = computed(() => {
-  return getRoutePrefix() === 'registration' ? 'registration_center' : 'education_department'
+  const prefix = getRoutePrefix()
+  if (prefix === 'registration') return 'registration_center'
+  if (prefix === 'department' || prefix === 'faculty') return prefix
+  return 'education_department'
 })
 
 const submit = () => {

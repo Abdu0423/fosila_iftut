@@ -119,6 +119,10 @@ class AuthController extends Controller
                 $redirectUrl = '/education';
             } elseif ($user->isRegistrationCenter()) {
                 $redirectUrl = '/registration';
+            } elseif ($user->isDepartment()) {
+                $redirectUrl = '/department';
+            } elseif ($user->isFaculty()) {
+                $redirectUrl = '/faculty';
             } elseif ($user->isStudent()) {
                 $redirectUrl = '/student/';
             }

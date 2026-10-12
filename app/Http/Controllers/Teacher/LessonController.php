@@ -18,7 +18,7 @@ class LessonController extends Controller
         $teacher = Auth::user();
         
         // Получаем расписания с подсчетом уроков для текущего учителя
-        $schedules = Schedule::where('teacher_id', $teacher->id)
+        $schedules = Schedule::forTeachingUser($teacher)
             ->with(['subject', 'group'])
             ->withCount('lessons')
             ->orderBy('created_at', 'desc')
@@ -57,7 +57,7 @@ class LessonController extends Controller
         $teacher = Auth::user();
         
         // Проверяем, что расписание принадлежит текущему учителю
-        if ($schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 
@@ -152,7 +152,7 @@ class LessonController extends Controller
         $teacher = Auth::user();
         
         // Получаем расписания учителя для выбора
-        $schedules = Schedule::where('teacher_id', $teacher->id)
+        $schedules = Schedule::forTeachingUser($teacher)
             ->with(['subject', 'group'])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -198,7 +198,7 @@ class LessonController extends Controller
             
             // Проверяем, что расписание принадлежит учителю
             $schedule = Schedule::where('id', $request->schedule_id)
-                ->where('teacher_id', $teacher->id)
+                ->when(! $teacher->seesAllTeachingRecords(), fn ($q) => $q->where('teacher_id', $teacher->id))
                 ->firstOrFail();
             
             \Log::info('Расписание найдено', ['schedule_id' => $schedule->id, 'subject_id' => $schedule->subject_id]);
@@ -275,7 +275,7 @@ class LessonController extends Controller
         
         // Проверяем, что урок принадлежит расписанию учителя
         $schedule = $lesson->schedules()
-            ->where('teacher_id', $teacher->id)
+            ->when(! $teacher->seesAllTeachingRecords(), fn ($q) => $q->where('teacher_id', $teacher->id))
             ->first();
 
         if (!$schedule) {
@@ -299,7 +299,7 @@ class LessonController extends Controller
         
         // Проверяем, что урок принадлежит расписанию учителя
         $schedule = $lesson->schedules()
-            ->where('teacher_id', $teacher->id)
+            ->when(! $teacher->seesAllTeachingRecords(), fn ($q) => $q->where('teacher_id', $teacher->id))
             ->first();
 
         if (!$schedule) {
@@ -307,7 +307,7 @@ class LessonController extends Controller
         }
 
         // Получаем расписания учителя для выбора
-        $schedules = Schedule::where('teacher_id', $teacher->id)
+        $schedules = Schedule::forTeachingUser($teacher)
             ->with(['subject', 'group'])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -327,7 +327,7 @@ class LessonController extends Controller
         
         // Проверяем, что урок принадлежит расписанию учителя
         $schedule = $lesson->schedules()
-            ->where('teacher_id', $teacher->id)
+            ->when(! $teacher->seesAllTeachingRecords(), fn ($q) => $q->where('teacher_id', $teacher->id))
             ->first();
 
         if (!$schedule) {
@@ -343,7 +343,7 @@ class LessonController extends Controller
 
         // Получаем новое расписание для обновления subject_id
         $newSchedule = Schedule::where('id', $request->schedule_id)
-            ->where('teacher_id', $teacher->id)
+            ->when(! $teacher->seesAllTeachingRecords(), fn ($q) => $q->where('teacher_id', $teacher->id))
             ->firstOrFail();
 
         $updateData = [
@@ -389,7 +389,7 @@ class LessonController extends Controller
         
         // Проверяем, что урок принадлежит расписанию учителя
         $schedule = $lesson->schedules()
-            ->where('teacher_id', $teacher->id)
+            ->when(! $teacher->seesAllTeachingRecords(), fn ($q) => $q->where('teacher_id', $teacher->id))
             ->first();
 
         if (!$schedule) {

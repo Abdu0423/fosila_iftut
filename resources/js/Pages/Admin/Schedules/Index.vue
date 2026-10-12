@@ -131,7 +131,7 @@ const props = defineProps({
   schedules: Object,
   subjects: Array,
   groups: Array,
-  teachers: Array,
+  departments: Array,
   filters: Object
 })
 
@@ -162,10 +162,12 @@ const groupOptions = computed(() => (props.groups || []).map((group) => ({
   value: group.id
 })))
 
-const teacherOptions = computed(() => (props.teachers || []).map((teacher) => ({
-  title: `${teacher.name || ''} ${teacher.last_name || ''}`.trim(),
-  value: teacher.id
+const departmentOptions = computed(() => (props.departments || []).map((department) => ({
+  title: department.name,
+  value: department.id
 })))
+
+const personName = (person) => person ? `${person.name || ''} ${person.last_name || ''}`.trim() : ''
 
 const sheetColumns = computed(() => [
   {
@@ -191,15 +193,15 @@ const sheetColumns = computed(() => [
     text: (row) => row.group?.name || ''
   },
   {
-    key: 'teacher_id',
-    title: 'Преподаватель',
+    key: 'department_id',
+    title: 'Кафедра',
     editable: true,
     editor: 'select',
     inherit: true,
     required: true,
-    options: teacherOptions.value,
-    get: (row) => row.teacher_id,
-    text: (row) => row.teacher ? `${row.teacher.name || ''} ${row.teacher.last_name || ''}`.trim() : ''
+    options: departmentOptions.value,
+    get: (row) => row.department_id,
+    text: (row) => row.department?.name || personName(row.teacher)
   },
   {
     key: 'semester',
@@ -240,7 +242,7 @@ const creditsFor = (groupId, fallback) => {
 
 const schedulePayload = (source) => ({
   subject_id: source.subject_id,
-  teacher_id: source.teacher_id,
+  department_id: source.department_id,
   group_id: source.group_id,
   semester: Number(source.semester),
   study_year: Number(source.study_year),
@@ -270,7 +272,7 @@ const updateSchedule = ({ row, column, value }) => {
 const headers = [
   { title: 'Предмет', key: 'subject', sortable: true },
   { title: 'Группа', key: 'group', sortable: true },
-  { title: 'Преподаватель', key: 'teacher', sortable: true },
+  { title: 'Кафедра', key: 'department', sortable: true },
   { title: 'Семестр', key: 'semester', sortable: true },
   { title: 'Год обучения', key: 'study_year', sortable: true },
   { title: 'Статус', key: 'status', sortable: true },
@@ -342,9 +344,9 @@ const sortedSchedules = computed(() => {
           aValue = a.group?.name || ''
           bValue = b.group?.name || ''
           break
-        case 'teacher':
-          aValue = a.teacher ? `${a.teacher.name} ${a.teacher.last_name}` : ''
-          bValue = b.teacher ? `${b.teacher.name} ${b.teacher.last_name}` : ''
+        case 'department':
+          aValue = a.department?.name || personName(a.teacher)
+          bValue = b.department?.name || personName(b.teacher)
           break
         case 'semester':
           aValue = a.semester || 0

@@ -37,5 +37,15 @@ class RoleSeeder extends Seeder
             'name' => 'registration_center',
             'description' => 'Регистрационный центр'
         ]);
+
+        Role::create([
+            'name' => 'department',
+            'description' => 'Кафедра'
+        ]);
+
+        Role::create([
+            'name' => 'faculty',
+            'description' => 'Факультет'
+        ]);
     }
 }

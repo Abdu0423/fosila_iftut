@@ -440,7 +440,9 @@ class UserController extends Controller
             'teacher' => 'Учитель',
             'student' => 'Студент',
             'education_department' => 'Отдел образования',
-            'registration_center' => 'Регистрационный центр'
+            'registration_center' => 'Регистрационный центр',
+            'department' => 'Кафедра',
+            'faculty' => 'Факультет',
         ];
 
         return $displayNames[$roleName] ?? $roleName;

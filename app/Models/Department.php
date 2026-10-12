@@ -13,6 +13,7 @@ class Department extends Model
         'name',
         'code',
         'description',
+        'faculty_id',
         'is_active'
     ];
 
@@ -45,5 +46,10 @@ class Department extends Model
     public function lessons()
     {
         return $this->hasMany(Lesson::class);
+    }
+
+    public function subjects()
+    {
+        return $this->hasMany(Subject::class);
     }
 }

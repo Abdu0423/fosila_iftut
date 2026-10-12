@@ -16,7 +16,7 @@ class ManageUsersMiddleware
 
         $user = auth()->user();
 
-        if (!$user->isAdmin() && !$user->isEducationDepartment()) {
+        if (!$user->isAdmin() && !$user->isEducationDepartment() && !$user->isDepartment() && !$user->isFaculty()) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Доступ запрещен.'], 403);
             }

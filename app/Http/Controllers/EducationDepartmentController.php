@@ -18,9 +18,25 @@ class EducationDepartmentController extends Controller
      */
     protected function checkRole($user)
     {
-        if (!$user->isEducationDepartment() && !$user->isRegistrationCenter()) {
+        if (!$user->isEducationDepartment() && !$user->isRegistrationCenter() && !$user->isDepartment() && !$user->isFaculty()) {
             abort(403, 'Доступ запрещен');
         }
+    }
+
+    protected function scheduleIndexRoute(): string
+    {
+        $path = trim(request()->path(), '/');
+        if (str_starts_with($path, 'api/')) {
+            $path = substr($path, 4);
+        }
+
+        foreach (['registration', 'department', 'faculty', 'education'] as $prefix) {
+            if ($path === $prefix || str_starts_with($path, $prefix.'/')) {
+                return $prefix.'.schedules.index';
+            }
+        }
+
+        return 'education.schedules.index';
     }
 
     /**
@@ -632,21 +648,19 @@ class EducationDepartmentController extends Controller
         $this->checkRole($user);
         
         // Загружаем все расписания без фильтрации (фильтрация на клиенте)
-        $schedules = Schedule::with(['group', 'subject', 'teacher'])
+        $schedules = Schedule::with(['group', 'subject', 'teacher', 'department'])
             ->orderBy('scheduled_at', 'desc')
             ->get();
 
         $subjects = Subject::orderBy('name')->get(['id', 'name']);
         $groups = Group::orderBy('name')->get(['id', 'name']);
-        $teachers = User::whereHas('role', function ($q) {
-            $q->where('name', '!=', 'student');
-        })->orderBy('name')->get(['id', 'name', 'last_name']);
+        $departments = Department::orderBy('name')->get(['id', 'name']);
 
         return spa('EducationDepartment/Schedules/Index', [
             'schedules' => $schedules,
             'subjects' => $subjects,
             'groups' => $groups,
-            'teachers' => $teachers,
+            'departments' => $departments,
         ]);
     }
     
@@ -771,22 +785,12 @@ class EducationDepartmentController extends Controller
                 'full_name' => $group->full_name
             ];
         });
-        $teachers = User::whereHas('role', function($q) {
-            $q->where('name', '!=', 'student');
-        })->get()->map(function ($teacher) {
-            return [
-                'id' => $teacher->id,
-                'name' => $teacher->name,
-                'last_name' => $teacher->last_name,
-                'middle_name' => $teacher->middle_name,
-                'email' => $teacher->email
-            ];
-        });
+        $departments = Department::orderBy('name')->get(['id', 'name']);
         
         return spa('EducationDepartment/Schedules/Create', [
             'subjects' => $subjects,
             'groups' => $groups,
-            'teachers' => $teachers,
+            'departments' => $departments,
         ]);
     }
     
@@ -801,7 +805,7 @@ class EducationDepartmentController extends Controller
         
         $validated = $request->validate([
             'subject_id' => 'required|exists:subjects,id',
-            'teacher_id' => 'required|exists:users,id',
+            'department_id' => 'required|exists:departments,id',
             'group_id' => 'required|exists:groups,id',
             'semester' => 'required|integer|min:1|max:10',
             'credits' => 'required|integer|min:1|max:10',
@@ -813,9 +817,10 @@ class EducationDepartmentController extends Controller
             'has_coursework' => 'boolean',
         ]);
         
+        $validated['teacher_id'] = null;
         Schedule::create($validated);
         
-        return redirect()->route('education.schedules.index')
+        return redirect()->route($this->scheduleIndexRoute())
             ->with('success', __('messages.created_successfully', ['resource' => __('education_department.schedules_title')]));
     }
     
@@ -828,7 +833,7 @@ class EducationDepartmentController extends Controller
         
         $this->checkRole($user);
         
-        $schedule->load(['subject', 'teacher', 'group']);
+        $schedule->load(['subject', 'teacher', 'group', 'department']);
         $subjects = Subject::where('is_active', true)->get();
         $groups = Group::all()->map(function ($group) {
             return [
@@ -837,23 +842,13 @@ class EducationDepartmentController extends Controller
                 'full_name' => $group->full_name
             ];
         });
-        $teachers = User::whereHas('role', function($q) {
-            $q->where('name', '!=', 'student');
-        })->get()->map(function ($teacher) {
-            return [
-                'id' => $teacher->id,
-                'name' => $teacher->name,
-                'last_name' => $teacher->last_name,
-                'middle_name' => $teacher->middle_name,
-                'email' => $teacher->email
-            ];
-        });
+        $departments = Department::orderBy('name')->get(['id', 'name']);
         
         return spa('EducationDepartment/Schedules/Edit', [
             'schedule' => $schedule,
             'subjects' => $subjects,
             'groups' => $groups,
-            'teachers' => $teachers,
+            'departments' => $departments,
         ]);
     }
     
@@ -868,7 +863,7 @@ class EducationDepartmentController extends Controller
         
         $validated = $request->validate([
             'subject_id' => 'required|exists:subjects,id',
-            'teacher_id' => 'required|exists:users,id',
+            'department_id' => 'required|exists:departments,id',
             'group_id' => 'required|exists:groups,id',
             'semester' => 'required|integer|min:1|max:10',
             'credits' => 'required|integer|min:1|max:10',
@@ -880,9 +875,10 @@ class EducationDepartmentController extends Controller
             'has_coursework' => 'boolean',
         ]);
         
+        $validated['teacher_id'] = null;
         $schedule->update($validated);
         
-        return redirect()->route('education.schedules.index')
+        return redirect()->route($this->scheduleIndexRoute())
             ->with('success', __('messages.updated_successfully', ['resource' => __('education_department.schedules_title')]));
     }
     

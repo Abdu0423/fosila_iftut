@@ -16,6 +16,8 @@ return [
     'students' => 'Студенты',
     'teachers' => 'Преподаватели',
     'subjects' => 'Предметы',
+    'faculties' => 'Факультеты',
+    'departments' => 'Кафедры',
     'lessons' => 'Уроки',
     'syllabuses' => 'Силлабусы',
     'library' => 'Библиотека',

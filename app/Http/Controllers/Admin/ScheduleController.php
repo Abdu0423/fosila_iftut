@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Schedule;
 use App\Models\Subject;
 use App\Models\Group;
-use App\Models\User;
+use App\Models\Department;
 use App\Models\Syllabus;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
@@ -18,7 +18,7 @@ class ScheduleController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Schedule::with(['subject', 'teacher', 'group', 'syllabuses', 'lessons']);
+        $query = Schedule::with(['subject', 'teacher', 'department', 'group', 'syllabuses', 'lessons']);
         
         // Поиск по предмету, учителю или группе
         if ($request->filled('search')) {
@@ -73,9 +73,7 @@ class ScheduleController extends Controller
         // Данные для фильтров
         $subjects = Subject::all();
         $groups = Group::all();
-        $teachers = User::whereHas('role', function($q) {
-            $q->where('name', '!=', 'student');
-        })->get();
+        $departments = Department::orderBy('name')->get(['id', 'name']);
 
         // Форматируем расписания для отображения дат экзаменов
         $schedules->transform(function($schedule) {
@@ -93,7 +91,7 @@ class ScheduleController extends Controller
             'schedules' => $schedules,
             'subjects' => $subjects,
             'groups' => $groups,
-            'teachers' => $teachers,
+            'departments' => $departments,
             'filters' => [
                 'search' => $request->search ?? '',
                 'subject_id' => $request->subject_id ?? '',
@@ -114,9 +112,7 @@ class ScheduleController extends Controller
     {
         $subjects = Subject::all();
         $groups = Group::all();
-        $teachers = User::whereHas('role', function($q) {
-            $q->where('name', '!=', 'student');
-        })->get();
+        $departments = Department::orderBy('name')->get(['id', 'name']);
         $syllabuses = Syllabus::with(['creator'])->get();
         $lessons = Lesson::with(['subject'])->get();
 
@@ -129,7 +125,7 @@ class ScheduleController extends Controller
         return spa('Admin/Schedules/Create', [
             'subjects' => $subjects,
             'groups' => $groups,
-            'teachers' => $teachers,
+            'departments' => $departments,
             'syllabuses' => $syllabuses,
             'lessons' => $lessons,
         ]);
@@ -142,7 +138,7 @@ class ScheduleController extends Controller
     {
         $validated = $request->validate([
             'subject_id' => 'required|exists:subjects,id',
-            'teacher_id' => 'required|exists:users,id',
+            'department_id' => 'required|exists:departments,id',
             'group_id' => 'required|exists:groups,id',
             'semester' => 'required|integer|min:1|max:10',
             'credits' => 'required|integer|min:1|max:10',
@@ -157,6 +153,7 @@ class ScheduleController extends Controller
             'lesson_ids.*' => 'exists:lessons,id',
         ]);
 
+        $validated['teacher_id'] = null;
         $schedule = Schedule::create($validated);
 
         // Привязываем силлабусы к расписанию
@@ -182,7 +179,7 @@ class ScheduleController extends Controller
      */
     public function show(Schedule $schedule)
     {
-        $schedule->load(['subject', 'teacher', 'group', 'syllabuses.creator', 'lessons.subject']);
+        $schedule->load(['subject', 'teacher', 'department', 'group', 'syllabuses.creator', 'lessons.subject']);
 
         return spa('Admin/Schedules/Show', [
             'schedule' => $schedule
@@ -194,15 +191,13 @@ class ScheduleController extends Controller
      */
     public function edit(Schedule $schedule)
     {
-        $schedule->load(['subject', 'teacher', 'group', 'syllabuses', 'lessons', 'tests' => function($query) {
+        $schedule->load(['subject', 'teacher', 'department', 'group', 'syllabuses', 'lessons', 'tests' => function($query) {
             $query->whereIn('exam_type', ['periodic', 'final'])->orderBy('exam_type')->orderBy('id');
         }]);
         
         $subjects = Subject::all();
         $groups = Group::all();
-        $teachers = User::whereHas('role', function($q) {
-            $q->where('name', '!=', 'student');
-        })->get();
+        $departments = Department::orderBy('name')->get(['id', 'name']);
         $syllabuses = Syllabus::with(['creator'])->get();
         $lessons = Lesson::with(['subject'])->get();
 
@@ -217,7 +212,7 @@ class ScheduleController extends Controller
             'schedule' => $schedule,
             'subjects' => $subjects,
             'groups' => $groups,
-            'teachers' => $teachers,
+            'departments' => $departments,
             'syllabuses' => $syllabuses,
             'lessons' => $lessons,
             'exams' => $exams,
@@ -231,7 +226,7 @@ class ScheduleController extends Controller
     {
         $validated = $request->validate([
             'subject_id' => 'required|exists:subjects,id',
-            'teacher_id' => 'required|exists:users,id',
+            'department_id' => 'required|exists:departments,id',
             'group_id' => 'required|exists:groups,id',
             'semester' => 'required|integer|min:1|max:10',
             'credits' => 'required|integer|min:1|max:10',
@@ -250,6 +245,7 @@ class ScheduleController extends Controller
             'final_exam_date' => 'nullable|date',
         ]);
 
+        $validated['teacher_id'] = null;
         $schedule->update($validated);
 
         // Обновляем связи с силлабусами
@@ -388,14 +384,12 @@ class ScheduleController extends Controller
     {
         $lessons = Lesson::with(['subject'])->get();
         $groups = Group::all();
-        $teachers = User::whereHas('role', function($q) {
-            $q->where('name', '!=', 'student');
-        })->get();
+        $departments = Department::orderBy('name')->get(['id', 'name']);
 
         return spa('Admin/Schedules/BulkCreate', [
             'lessons' => $lessons,
             'groups' => $groups,
-            'teachers' => $teachers,
+            'departments' => $departments,
         ]);
     }
 
@@ -423,7 +417,7 @@ class ScheduleController extends Controller
      */
     public function lessons(Schedule $schedule)
     {
-        $schedule->load(['subject', 'teacher', 'group', 'lessons.subject']);
+        $schedule->load(['subject', 'teacher', 'department', 'group', 'lessons.subject']);
         $lessons = Lesson::with(['subject'])->get();
 
         return spa('Admin/Schedules/Lessons', [

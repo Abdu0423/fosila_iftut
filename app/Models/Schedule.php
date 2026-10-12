@@ -13,6 +13,7 @@ class Schedule extends Model
         'old_id',
         'subject_id',
         'teacher_id',
+        'department_id',
         'group_id',
         'semester',
         'credits',
@@ -49,6 +50,20 @@ class Schedule extends Model
     public function teacher()
     {
         return $this->belongsTo(User::class, 'teacher_id');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function scopeForTeachingUser($query, $user)
+    {
+        if ($user && $user->seesAllTeachingRecords()) {
+            return $query;
+        }
+
+        return $query->where('teacher_id', $user?->id);
     }
 
     public function group()

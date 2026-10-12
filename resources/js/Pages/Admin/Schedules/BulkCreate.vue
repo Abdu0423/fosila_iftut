@@ -87,28 +87,21 @@
                           </v-autocomplete>
                         </v-col>
 
-                        <!-- Преподаватель -->
+                        <!-- Кафедра -->
                         <v-col cols="12" md="6">
                           <v-autocomplete
-                            v-model="schedule.teacher_id"
-                            :items="teacherItems"
-                            item-title="displayName"
+                            v-model="schedule.department_id"
+                            :items="departments"
+                            item-title="name"
                             item-value="id"
-                            label="Преподаватель *"
+                            label="Кафедра *"
                             variant="outlined"
                             density="compact"
                             prepend-inner-icon="mdi-magnify"
                             clearable
                             auto-select-first
                             required
-                          >
-                            <template v-slot:item="{ props, item }">
-                              <v-list-item v-bind="props">
-                                <v-list-item-title>{{ item.raw.name }} {{ item.raw.last_name }}{{ item.raw.middle_name ? ' ' + item.raw.middle_name : '' }}</v-list-item-title>
-                                <v-list-item-subtitle v-if="item.raw.email">{{ item.raw.email }}</v-list-item-subtitle>
-                              </v-list-item>
-                            </template>
-                          </v-autocomplete>
+                          />
                         </v-col>
 
                         <!-- Группа -->
@@ -272,7 +265,7 @@
               </div>
               
               <div class="text-body-2 mb-4">
-                <strong>Преподаватели:</strong> {{ teachers.length }} доступно
+                <strong>Кафедры:</strong> {{ departments.length }} доступно
               </div>
               
               <div class="text-body-2">
@@ -313,7 +306,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useForm, router } from '@/compat/inertia'
 import AdminApp from '../AdminApp.vue'
 
@@ -327,7 +320,7 @@ const props = defineProps({
     type: Array,
     default: () => []
   },
-  teachers: {
+  departments: {
     type: Array,
     default: () => []
   }
@@ -336,15 +329,7 @@ const props = defineProps({
 // Данные
 const lessons = ref(props.lessons)
 const groups = ref(props.groups)
-const teachers = ref(props.teachers)
-
-// Преобразуем преподавателей для автокомплита
-const teacherItems = computed(() => {
-  return (teachers.value || []).map(teacher => ({
-    ...teacher,
-    displayName: `${teacher.name || ''} ${teacher.last_name || ''}${teacher.middle_name ? ' ' + teacher.middle_name : ''}`.trim()
-  }))
-})
+const departments = ref(props.departments)
 
 // Варианты семестров (1-10)
 const semesterOptions = ref(
@@ -366,7 +351,7 @@ const navigateTo = (path) => {
 
 const createEmptySchedule = () => ({
   lesson_id: '',
-  teacher_id: '',
+  department_id: '',
   group_id: '',
   semester: 1,
   credits: 3,

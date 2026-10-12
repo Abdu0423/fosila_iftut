@@ -22,7 +22,7 @@ class ScheduleController extends Controller
         $teacher = Auth::user();
         
         // Получаем расписания текущего учителя с подсчетом тестов
-        $schedules = Schedule::where('teacher_id', $teacher->id)
+        $schedules = Schedule::forTeachingUser($teacher)
             ->with(['subject', 'group', 'syllabuses.creator', 'lessons.subject'])
             ->withCount('tests')
             ->orderBy('created_at', 'desc')
@@ -138,7 +138,7 @@ class ScheduleController extends Controller
         $teacher = Auth::user();
         
         // Проверяем, что расписание принадлежит текущему учителю
-        if ($schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 
@@ -184,7 +184,7 @@ class ScheduleController extends Controller
         $teacher = Auth::user();
         
         // Проверяем, что расписание принадлежит текущему учителю
-        if ($schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 
@@ -211,7 +211,7 @@ class ScheduleController extends Controller
         $teacher = Auth::user();
         
         // Проверяем, что расписание принадлежит текущему учителю
-        if ($schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 
@@ -229,7 +229,7 @@ class ScheduleController extends Controller
         $teacher = Auth::user();
         
         // Проверяем, что расписание принадлежит текущему учителю
-        if ($schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 
@@ -255,7 +255,7 @@ class ScheduleController extends Controller
         $teacher = Auth::user();
         
         // Проверяем, что расписание принадлежит текущему учителю
-        if ($schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 
@@ -306,7 +306,7 @@ class ScheduleController extends Controller
         $teacher = Auth::user();
         
         // Проверяем, что расписание принадлежит текущему учителю
-        if ($schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 
@@ -344,7 +344,7 @@ class ScheduleController extends Controller
         $teacher = Auth::user();
         
         // Проверяем, что расписание принадлежит текущему учителю
-        if ($schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 
@@ -371,7 +371,7 @@ class ScheduleController extends Controller
         $teacher = Auth::user();
         
         // Проверяем, что расписание принадлежит текущему учителю
-        if ($schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 
@@ -391,7 +391,7 @@ class ScheduleController extends Controller
         $teacher = Auth::user();
         
         // Проверяем, что расписание принадлежит текущему учителю
-        if ($schedule->teacher_id !== $teacher->id) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 
@@ -417,7 +417,7 @@ class ScheduleController extends Controller
     {
         $teacher = Auth::user();
 
-        if ($schedule->teacher_id !== $teacher->id && ! $teacher->isEducationDepartment() && ! $teacher->isRegistrationCenter() && ! $teacher->isAdmin()) {
+        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id && ! $teacher->isEducationDepartment()) && ! $teacher->isRegistrationCenter() && ! $teacher->isAdmin()) {
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 
