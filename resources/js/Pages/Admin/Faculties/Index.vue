@@ -22,7 +22,7 @@
         :columns="columns"
         :rows="rows"
         can-add
-        search-placeholder="Поиск по факультету, кафедре, пользователю"
+        search-placeholder="Поиск по факультету и пользователю"
         empty-text="Факультеты не найдены"
         add-label="Добавить"
         @create="createFaculty"
@@ -61,7 +61,6 @@ import ExcelSheet from '@/Components/ExcelSheet.vue'
 const page = usePage()
 const props = defineProps({
   faculties: { type: Array, default: () => [] },
-  departments: { type: Array, default: () => [] },
   users: { type: Array, default: () => [] },
 })
 
@@ -72,11 +71,6 @@ function personName(user) {
   return [user.last_name, user.name, user.middle_name].filter(Boolean).join(' ')
 }
 
-const departmentOptions = computed(() => (props.departments || []).map((item) => ({
-  title: item.name,
-  value: item.id,
-})))
-
 const userOptions = computed(() => (props.users || []).map((user) => ({
   title: personName(user),
   value: user.id,
@@ -85,15 +79,6 @@ const userOptions = computed(() => (props.users || []).map((user) => ({
 const columns = computed(() => [
   { key: 'name', title: 'Название', editable: true, editor: 'text', inherit: true, required: true, width: '280px' },
   { key: 'code', title: 'Код', editable: true, editor: 'text', inherit: true },
-  {
-    key: 'department_id',
-    title: 'Кафедра',
-    editable: true,
-    editor: 'select',
-    options: departmentOptions.value,
-    get: (row) => row.departments?.[0]?.id ?? null,
-    text: (row) => (row.departments || []).map((item) => item.name).filter(Boolean).join(', '),
-  },
   {
     key: 'user_id',
     title: 'Пользователь',
@@ -116,7 +101,6 @@ const payload = (source) => ({
   name: source.name,
   code: source.code || null,
   user_id: source.user_id || null,
-  department_id: source.department_id ?? source.departments?.[0]?.id ?? null,
   address: source.address || null,
   description: source.description || null,
   is_active: source.is_active ?? true,

@@ -4,7 +4,7 @@
       <div class="d-flex justify-space-between align-center mb-6">
         <div>
           <h1 class="text-h4 font-weight-bold mb-2">Новый факультет</h1>
-          <p class="text-body-1 text-medium-emphasis">Название, кафедра и пользователь</p>
+          <p class="text-body-1 text-medium-emphasis">Название и пользователь</p>
         </div>
         <v-btn variant="outlined" prepend-icon="mdi-arrow-left" @click="router.visit('/admin/faculties')">
           Назад
@@ -16,7 +16,7 @@
           <v-card>
             <v-card-text class="pa-6">
               <v-form @submit.prevent="submit">
-                <FacultyFields :form="form" :departments="departments" :users="users" />
+                <FacultyFields :form="form" :users="users" />
                 <div class="d-flex justify-end ga-3">
                   <v-btn variant="outlined" @click="router.visit('/admin/faculties')">Отмена</v-btn>
                   <v-btn type="submit" color="primary" :loading="form.processing">Сохранить</v-btn>
@@ -36,14 +36,12 @@ import Layout from '../../Layout.vue'
 import FacultyFields from './FacultyFields.vue'
 
 defineProps({
-  departments: { type: Array, default: () => [] },
   users: { type: Array, default: () => [] },
 })
 
 const form = useForm({
   name: '',
   code: '',
-  department_id: null,
   user_id: null,
   address: '',
   description: '',

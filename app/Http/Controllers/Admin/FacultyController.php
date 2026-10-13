@@ -16,7 +16,6 @@ class FacultyController extends Controller
     public function index()
     {
         $faculties = Faculty::with([
-                'departments:id,faculty_id,name',
                 'user:id,name,last_name,middle_name',
             ])
             ->orderBy('name')
@@ -24,7 +23,6 @@ class FacultyController extends Controller
 
         return spa('Admin/Faculties/Index', [
             'faculties' => $faculties,
-            'departments' => Department::orderBy('name')->get(['id', 'name']),
             'users' => $this->staffUsers(),
         ]);
     }
@@ -32,7 +30,6 @@ class FacultyController extends Controller
     public function create()
     {
         return spa('Admin/Faculties/Create', [
-            'departments' => Department::orderBy('name')->get(['id', 'name']),
             'users' => $this->staffUsers(),
         ]);
     }
@@ -75,7 +72,6 @@ class FacultyController extends Controller
 
         return spa('Admin/Faculties/Edit', [
             'faculty' => $faculty,
-            'departments' => Department::orderBy('name')->get(['id', 'name']),
             'users' => $this->staffUsers(),
         ]);
     }

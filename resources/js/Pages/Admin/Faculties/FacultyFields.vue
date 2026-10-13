@@ -15,18 +15,6 @@
     </v-col>
     <v-col cols="12" md="6">
       <v-select
-        v-model="form.department_id"
-        label="Кафедра"
-        :items="departments"
-        item-title="name"
-        item-value="id"
-        variant="outlined"
-        clearable
-        :error-messages="form.errors.department_id"
-      />
-    </v-col>
-    <v-col cols="12" md="6">
-      <v-select
         v-model="form.user_id"
         label="Пользователь"
         :items="userItems"
@@ -54,7 +42,6 @@ import { computed } from 'vue'
 
 const props = defineProps({
   form: { type: Object, required: true },
-  departments: { type: Array, default: () => [] },
   users: { type: Array, default: () => [] },
 })
 
