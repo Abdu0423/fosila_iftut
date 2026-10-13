@@ -11,11 +11,13 @@
         <v-text-field
           v-model="query"
           prepend-inner-icon="mdi-magnify"
-          label="Найти страницу"
-          variant="outlined"
+          placeholder="Найти страницу"
+          variant="solo"
           density="comfortable"
           hide-details
           clearable
+          flat
+          rounded="lg"
           class="access-search"
         />
       </div>
@@ -45,19 +47,14 @@
                     <th class="sticky-col">Страница</th>
                     <th v-for="role in staffRoles" :key="role.id" class="role-col">
                       <div class="role-head">
-                        <v-icon :icon="roleIcon(role.name)" size="18" />
-                        <span class="role-title">{{ role.description || role.name }}</span>
-                        <v-chip size="x-small" variant="tonal" color="primary">
-                          {{ enabledCount(role.id) }}/{{ pagesOf(role.id).length }}
-                        </v-chip>
-                        <v-checkbox-btn
-                          :model-value="columnState(role.id) === true"
-                          :indeterminate="columnState(role.id) === null"
-                          color="primary"
-                          density="compact"
-                          aria-label="Все страницы роли"
-                          @update:model-value="setColumn(role.id, $event)"
-                        />
+                        <v-avatar size="32" color="primary" variant="tonal">
+                          <v-icon :icon="roleIcon(role.name)" size="18" />
+                        </v-avatar>
+                        <span class="role-title">{{ roleLabel(role) }}</span>
+                        <span class="role-count">{{ enabledCount(role.id) }} из {{ pagesOf(role.id).length }}</span>
+                        <button type="button" class="text-action" @click="setColumn(role.id, columnState(role.id) !== true)">
+                          {{ columnState(role.id) === true ? 'Снять' : 'Все' }}
+                        </button>
                       </div>
                     </th>
                   </tr>
@@ -65,32 +62,30 @@
                 <tbody>
                   <template v-for="group in visibleGroups" :key="group.title">
                     <tr class="group-row">
-                      <th class="sticky-col" scope="row">
-                        <v-icon :icon="group.icon" size="16" class="mr-1" />
-                        {{ group.title }}
+                      <th class="group-cell" :colspan="staffRoles.length + 1" scope="colgroup">
+                        <div class="group-label">
+                          <v-icon :icon="group.icon" size="16" />
+                          <span>{{ group.title }}</span>
+                          <button type="button" class="text-action" @click="toggleGroupAll(group)">
+                            {{ groupAllOn(group) ? 'Снять у всех' : 'Включить всем' }}
+                          </button>
+                        </div>
                       </th>
-                      <td v-for="role in staffRoles" :key="`${group.title}-${role.id}`">
-                        <v-checkbox-btn
-                          :model-value="groupState(role.id, pageKeys(group)) === true"
-                          :indeterminate="groupState(role.id, pageKeys(group)) === null"
-                          color="primary"
-                          density="compact"
-                          :aria-label="`${group.title}, ${role.description || role.name}`"
-                          @update:model-value="setGroup(role.id, pageKeys(group), $event)"
-                        />
-                      </td>
                     </tr>
                     <tr v-for="item in group.pages" :key="item.key">
-                      <th class="sticky-col page-cell" scope="row">
-                        <div class="page-title">{{ item.title }}</div>
-                        <div class="page-route">{{ item.route }}</div>
+                      <th class="sticky-col page-cell" scope="row" :title="item.route">
+                        {{ item.title }}
                       </th>
-                      <td v-for="role in staffRoles" :key="`${item.key}-${role.id}`">
+                      <td
+                        v-for="role in staffRoles"
+                        :key="`${item.key}-${role.id}`"
+                        :class="{ 'cell-on': isOn(role.id, item.key) }"
+                      >
                         <v-checkbox-btn
                           :model-value="isOn(role.id, item.key)"
                           color="primary"
-                          density="compact"
-                          :aria-label="`${item.title}, ${role.description || role.name}`"
+                          density="comfortable"
+                          :aria-label="`${item.title}, ${roleLabel(role)}`"
                           @update:model-value="setOne(role.id, item.key, $event)"
                         />
                       </td>
@@ -244,8 +239,6 @@ const groupState = (roleId: number, keys: string[]): boolean | null => {
   return null
 }
 
-const pageKeys = (group: { pages: PageItem[] }) => group.pages.map((item) => item.key)
-
 const setGroup = (roleId: number, keys: string[], value: boolean | null) => {
   setKeys(roleId, keys.filter((key) => key in (draft.value[roleId] || {})), !!value)
 }
@@ -301,6 +294,29 @@ const save = () => {
   })
 }
 
+const roleLabel = (role: RoleItem) => {
+  const labels: Record<string, string> = {
+    teacher: 'Учитель',
+    education_department: 'Образование',
+    registration_center: 'Регистрация',
+    department: 'Кафедра',
+    faculty: 'Факультет',
+    student: 'Студент',
+  }
+  return labels[role.name] || role.description || role.name
+}
+
+const groupAllOn = (group: { pages: PageItem[] }) => {
+  const keys = group.pages.map((item) => item.key)
+  return staffRoles.value.every((role) => groupState(role.id, keys) === true)
+}
+
+const toggleGroupAll = (group: { pages: PageItem[] }) => {
+  const keys = group.pages.map((item) => item.key)
+  const enable = !groupAllOn(group)
+  staffRoles.value.forEach((role) => setGroup(role.id, keys, enable))
+}
+
 const roleIcon = (name: string) => {
   const icons: Record<string, string> = {
     teacher: 'mdi-human-male-board',
@@ -337,18 +353,26 @@ const roleIcon = (name: string) => {
 
 .access-matrix th,
 .access-matrix td {
-  padding: 8px 10px;
-  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  padding: 6px 12px;
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.06);
   text-align: center;
   vertical-align: middle;
   background: rgb(var(--v-theme-surface));
+}
+
+.access-matrix tbody tr:hover td,
+.access-matrix tbody tr:hover .sticky-col {
+  background: rgba(var(--v-theme-on-surface), 0.03);
 }
 
 .access-matrix thead th {
   position: sticky;
   top: 0;
   z-index: 2;
+  padding-top: 16px;
+  padding-bottom: 12px;
   font-weight: 600;
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.12);
 }
 
 .sticky-col {
@@ -356,8 +380,8 @@ const roleIcon = (name: string) => {
   left: 0;
   z-index: 1;
   text-align: left !important;
-  min-width: 220px;
-  box-shadow: 8px 0 12px -12px rgba(0, 0, 0, 0.45);
+  min-width: 200px;
+  font-weight: 500;
 }
 
 .access-matrix thead .sticky-col {
@@ -365,37 +389,61 @@ const roleIcon = (name: string) => {
 }
 
 .role-col {
-  min-width: 132px;
+  min-width: 148px;
 }
 
 .role-head {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
 }
 
 .role-title {
-  font-size: 0.82rem;
+  font-size: 0.95rem;
   line-height: 1.2;
 }
 
-.group-row th,
-.group-row td {
-  background: rgba(var(--v-theme-primary), 0.08);
-  font-size: 0.78rem;
+.role-count {
+  color: rgba(var(--v-theme-on-surface), 0.55);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.text-action {
+  border: 0;
+  background: transparent;
+  color: rgb(var(--v-theme-primary));
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.group-row .group-cell {
+  text-align: left !important;
+  background: rgba(var(--v-theme-primary), 0.06);
+  padding: 10px 16px;
+}
+
+.group-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(var(--v-theme-on-surface), 0.7);
+  font-size: 0.8rem;
+  font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
-.page-title {
-  font-weight: 500;
+.cell-on {
+  background: rgba(var(--v-theme-primary), 0.07) !important;
 }
 
 .page-route {
   color: rgba(var(--v-theme-on-surface), 0.55);
   font-size: 0.75rem;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 .student-grid {
