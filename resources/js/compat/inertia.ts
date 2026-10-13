@@ -105,6 +105,20 @@ function payloadOf(form: Record<string, unknown>, transformer: ((data: Record<st
     return transformer ? transformer(data) : data;
 }
 
+function samePlace(target: string, current: string): boolean {
+    const left = new URL(target, window.location.origin);
+    const right = new URL(current, window.location.origin);
+    const trim = (path: string) => (path.length > 1 ? path.replace(/\/+$/, '') : path);
+
+    return trim(left.pathname) === trim(right.pathname) && left.search === right.search;
+}
+
+async function reloadCurrentPage() {
+    const pending = waitForReload();
+    usePageStore().reloadToken += 1;
+    await pending;
+}
+
 async function followResponse(data: { redirect?: string; flash?: Record<string, string | null>; component?: string; props?: Record<string, unknown> }) {
     const pageStore = usePageStore();
 
@@ -118,7 +132,16 @@ async function followResponse(data: { redirect?: string; flash?: Record<string, 
 
     if (data?.redirect) {
         await useAuthStore().fetch();
-        await vueRouter.push(toSpaPath(data.redirect));
+        const target = toSpaPath(data.redirect);
+        if (samePlace(target, vueRouter.currentRoute.value.fullPath)) {
+            await reloadCurrentPage();
+            return;
+        }
+
+        const failure = await vueRouter.push(target);
+        if (failure) {
+            await reloadCurrentPage();
+        }
     }
 }
 
@@ -296,9 +319,7 @@ export const router = {
         return send('delete', url, {}, options);
     },
     reload(_options: VisitOptions = {}) {
-        const pending = waitForReload();
-        usePageStore().reloadToken += 1;
-        return pending;
+        return reloadCurrentPage();
     },
 };
 
