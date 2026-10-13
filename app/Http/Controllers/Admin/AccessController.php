@@ -40,8 +40,9 @@ class AccessController extends Controller
             ->where('name', '!=', 'admin')
             ->findOrFail($validated['role_id']);
 
+        $audience = $role->name === 'student' ? 'student' : 'staff';
         $allowedKeys = collect(PageAccess::definitions())
-            ->filter(fn ($page) => ! empty($page['routes'][$role->name]))
+            ->filter(fn ($page) => ($page['audience'] ?? 'staff') === $audience)
             ->pluck('key');
 
         $keys = collect($validated['keys'] ?? [])->intersect($allowedKeys);

@@ -19,6 +19,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // API для получения предметов (используется в формах создания уроков/расписания)
-Route::middleware(['auth', 'admin'])->group(function () {
+Route::middleware(['auth', 'staff'])->group(function () {
     Route::get('/subjects', [App\Http\Controllers\Admin\SubjectController::class, 'apiIndex'])->name('api.subjects.index');
 });

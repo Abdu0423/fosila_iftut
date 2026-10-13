@@ -3,7 +3,7 @@
     <v-container fluid class="pa-6">
       <div class="mb-6">
         <h1 class="text-h4 font-weight-bold mb-2">Доступ к страницам</h1>
-        <p class="text-body-1 text-medium-emphasis">Для каждой роли можно включить свои страницы</p>
+        <p class="text-body-1 text-medium-emphasis">Студенту — только его страницы. Остальным ролям можно включить любую страницу сотрудников.</p>
       </div>
 
       <v-alert v-if="page.props.flash?.success" type="success" variant="tonal" class="mb-4">

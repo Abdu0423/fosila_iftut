@@ -154,7 +154,11 @@ class User extends Authenticatable
 
     public function seesAllTeachingRecords(): bool
     {
-        return $this->isDepartment() || $this->isFaculty();
+        return $this->isAdmin()
+            || $this->isDepartment()
+            || $this->isFaculty()
+            || $this->isEducationDepartment()
+            || $this->isRegistrationCenter();
     }
 
     /**

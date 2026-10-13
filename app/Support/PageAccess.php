@@ -12,163 +12,135 @@ class PageAccess
     public static function definitions(): array
     {
         return [
-            ['key' => 'dashboard', 'title' => 'Панель', 'exact' => true, 'routes' => [
-                'admin' => '/admin',
-                'teacher' => '/teacher',
-                'education_department' => '/education',
-                'registration_center' => '/registration',
-                'student' => '/student',
-                'department' => '/department',
-                'faculty' => '/faculty',
+            ['key' => 'dashboard', 'title' => 'Панель', 'audience' => 'staff', 'exact' => true, 'route' => '/admin', 'aliases' => [
+                '/teacher', '/education', '/education/dashboard', '/registration', '/registration/dashboard', '/department', '/faculty',
             ]],
-            ['key' => 'users', 'title' => 'Пользователи', 'routes' => [
-                'admin' => '/admin/users',
-                'education_department' => '/admin/users',
-                'registration_center' => '/registration/users',
-                'department' => '/admin/users',
-                'faculty' => '/admin/users',
+            ['key' => 'users', 'title' => 'Пользователи', 'audience' => 'staff', 'route' => '/admin/users', 'aliases' => [
+                '/education/users', '/registration/users',
             ]],
-            ['key' => 'schedules', 'title' => 'Расписание', 'routes' => [
-                'admin' => '/admin/schedules',
-                'education_department' => '/education/schedules',
-                'registration_center' => '/registration/schedules',
-                'department' => '/department/schedules',
-                'faculty' => '/faculty/schedules',
+            ['key' => 'schedules', 'title' => 'Расписание', 'audience' => 'staff', 'route' => '/admin/schedules', 'aliases' => [
+                '/education/schedules', '/registration/schedules', '/department/schedules', '/faculty/schedules',
             ]],
-            ['key' => 'my_schedule', 'title' => 'Моё расписание', 'routes' => [
-                'teacher' => '/teacher/schedule',
-                'education_department' => '/education/schedule',
-                'registration_center' => '/registration/schedule',
-                'department' => '/department/schedule',
-                'faculty' => '/faculty/schedule',
+            ['key' => 'my_schedule', 'title' => 'Моё расписание', 'audience' => 'staff', 'route' => '/teacher/schedule', 'aliases' => [
+                '/education/schedule', '/registration/schedule', '/department/schedule', '/faculty/schedule',
             ]],
-            ['key' => 'student_schedule', 'title' => 'Расписание студента', 'routes' => [
-                'student' => '/student/schedule',
+            ['key' => 'lessons', 'title' => 'Уроки', 'audience' => 'staff', 'route' => '/teacher/lessons', 'aliases' => [
+                '/admin/lessons', '/education/lessons', '/registration/lessons', '/department/lessons', '/faculty/lessons',
             ]],
-            ['key' => 'lessons', 'title' => 'Уроки', 'routes' => [
-                'admin' => '/admin/lessons',
-                'teacher' => '/teacher/lessons',
-                'education_department' => '/education/lessons',
-                'registration_center' => '/registration/lessons',
-                'department' => '/department/lessons',
-                'faculty' => '/faculty/lessons',
+            ['key' => 'tests', 'title' => 'Тесты', 'audience' => 'staff', 'route' => '/teacher/tests', 'aliases' => [
+                '/admin/tests', '/education/tests', '/registration/tests', '/department/tests', '/faculty/tests',
             ]],
-            ['key' => 'tests', 'title' => 'Тесты', 'routes' => [
-                'admin' => '/admin/tests',
-                'teacher' => '/teacher/tests',
-                'education_department' => '/education/tests',
-                'registration_center' => '/registration/tests',
-                'student' => '/student/tests',
-                'department' => '/department/tests',
-                'faculty' => '/faculty/tests',
+            ['key' => 'ssr', 'title' => 'ССР', 'audience' => 'staff', 'route' => '/teacher/ssr', 'aliases' => [
+                '/education/ssr', '/registration/ssr', '/department/ssr', '/faculty/ssr',
             ]],
-            ['key' => 'ssr', 'title' => 'ССР', 'routes' => [
-                'teacher' => '/teacher/ssr',
-                'student' => '/student/ssr',
-                'department' => '/department/ssr',
-                'faculty' => '/faculty/ssr',
+            ['key' => 'coursework', 'title' => 'Курсовые', 'audience' => 'staff', 'route' => '/teacher/coursework', 'aliases' => [
+                '/education/coursework', '/registration/coursework', '/department/coursework', '/faculty/coursework',
             ]],
-            ['key' => 'coursework', 'title' => 'Курсовые', 'routes' => [
-                'teacher' => '/teacher/coursework',
-                'student' => '/student/coursework',
-                'department' => '/department/coursework',
-                'faculty' => '/faculty/coursework',
+            ['key' => 'grades', 'title' => 'Оценки', 'audience' => 'staff', 'route' => '/teacher/grades', 'aliases' => [
+                '/admin/grades', '/education/grades', '/registration/grades', '/department/grades', '/faculty/grades',
             ]],
-            ['key' => 'grades', 'title' => 'Оценки', 'routes' => [
-                'admin' => '/admin/grades',
-                'teacher' => '/teacher/grades',
-                'education_department' => '/education/grades',
-                'registration_center' => '/registration/grades',
-                'student' => '/student/grades',
-                'department' => '/department/grades',
-                'faculty' => '/faculty/grades',
+            ['key' => 'students', 'title' => 'Студенты', 'audience' => 'staff', 'route' => '/teacher/students', 'aliases' => [
+                '/education/students', '/registration/students', '/department/students', '/faculty/students',
             ]],
-            ['key' => 'students', 'title' => 'Студенты', 'routes' => [
-                'teacher' => '/teacher/students',
-                'education_department' => '/education/students',
-                'registration_center' => '/registration/students',
-                'department' => '/department/students',
-                'faculty' => '/faculty/students',
+            ['key' => 'students_management', 'title' => 'Управление студентами', 'audience' => 'staff', 'route' => '/admin/students'],
+            ['key' => 'transfers', 'title' => 'Переводы', 'audience' => 'staff', 'route' => '/admin/students/transfers'],
+            ['key' => 'syllabuses', 'title' => 'Силлабусы', 'audience' => 'staff', 'route' => '/teacher/syllabuses', 'aliases' => [
+                '/admin/syllabuses', '/education/syllabuses', '/registration/syllabuses', '/department/syllabuses', '/faculty/syllabuses',
             ]],
-            ['key' => 'students_management', 'title' => 'Управление студентами', 'routes' => [
-                'admin' => '/admin/students',
+            ['key' => 'chat', 'title' => 'Чат', 'audience' => 'staff', 'route' => '/teacher/chat', 'aliases' => [
+                '/admin/chat', '/education/chat', '/registration/chat', '/department/chat', '/faculty/chat',
             ]],
-            ['key' => 'transfers', 'title' => 'Переводы', 'routes' => [
-                'admin' => '/admin/students/transfers',
+            ['key' => 'groups', 'title' => 'Группы', 'audience' => 'staff', 'route' => '/education/groups', 'aliases' => [
+                '/registration/groups',
             ]],
-            ['key' => 'syllabuses', 'title' => 'Силлабусы', 'routes' => [
-                'admin' => '/admin/syllabuses',
-                'teacher' => '/teacher/syllabuses',
-                'education_department' => '/education/syllabuses',
-                'registration_center' => '/registration/syllabuses',
-                'department' => '/department/syllabuses',
-                'faculty' => '/faculty/syllabuses',
+            ['key' => 'subjects', 'title' => 'Предметы', 'audience' => 'staff', 'route' => '/admin/subjects', 'aliases' => [
+                '/education/subjects', '/registration/subjects',
             ]],
-            ['key' => 'chat', 'title' => 'Чат', 'routes' => [
-                'admin' => '/admin/chat',
-                'teacher' => '/teacher/chat',
-                'education_department' => '/education/chat',
-                'registration_center' => '/registration/chat',
-                'student' => '/student/chat',
-                'department' => '/department/chat',
-                'faculty' => '/faculty/chat',
+            ['key' => 'catalog_departments', 'title' => 'Кафедры', 'audience' => 'staff', 'route' => '/admin/departments', 'aliases' => [
+                '/education/departments', '/registration/departments',
             ]],
-            ['key' => 'groups', 'title' => 'Группы', 'routes' => [
-                'registration_center' => '/registration/groups',
-                'education_department' => '/education/groups',
+            ['key' => 'faculties', 'title' => 'Факультеты', 'audience' => 'staff', 'route' => '/admin/faculties'],
+            ['key' => 'specialties', 'title' => 'Специальности', 'audience' => 'staff', 'route' => '/education/specialties', 'aliases' => [
+                '/registration/specialties',
             ]],
-            ['key' => 'subjects', 'title' => 'Предметы', 'routes' => [
-                'admin' => '/admin/subjects',
-                'registration_center' => '/registration/subjects',
-                'education_department' => '/education/subjects',
+            ['key' => 'assignments', 'title' => 'Задания', 'audience' => 'staff', 'route' => '/admin/assignments'],
+            ['key' => 'library', 'title' => 'Библиотека', 'audience' => 'staff', 'route' => '/admin/library'],
+            ['key' => 'reports', 'title' => 'Отчёты', 'audience' => 'staff', 'route' => '/admin/reports', 'aliases' => [
+                '/teacher/reports', '/education/reports', '/registration/reports',
             ]],
-            ['key' => 'catalog_departments', 'title' => 'Кафедры', 'routes' => [
-                'admin' => '/admin/departments',
-                'registration_center' => '/registration/departments',
-                'education_department' => '/education/departments',
+            ['key' => 'sms', 'title' => 'SMS', 'audience' => 'staff', 'route' => '/admin/sms'],
+            ['key' => 'settings', 'title' => 'Настройки', 'audience' => 'staff', 'route' => '/admin/settings'],
+
+            ['key' => 'student_dashboard', 'title' => 'Панель', 'audience' => 'student', 'exact' => true, 'route' => '/student', 'aliases' => [
+                '/student/dashboard',
             ]],
-            ['key' => 'faculties', 'title' => 'Факультеты', 'routes' => [
-                'admin' => '/admin/faculties',
-            ]],
-            ['key' => 'specialties', 'title' => 'Специальности', 'routes' => [
-                'registration_center' => '/registration/specialties',
-                'education_department' => '/education/specialties',
-            ]],
-            ['key' => 'assignments', 'title' => 'Задания', 'routes' => [
-                'admin' => '/admin/assignments',
-                'student' => '/student/assignments',
-            ]],
-            ['key' => 'library', 'title' => 'Библиотека', 'routes' => [
-                'admin' => '/admin/library',
-                'student' => '/student/library',
-            ]],
-            ['key' => 'reports', 'title' => 'Отчёты', 'routes' => [
-                'admin' => '/admin/reports',
-            ]],
-            ['key' => 'sms', 'title' => 'SMS', 'routes' => [
-                'admin' => '/admin/sms',
-            ]],
-            ['key' => 'settings', 'title' => 'Настройки', 'routes' => [
-                'admin' => '/admin/settings',
-            ]],
+            ['key' => 'student_schedule', 'title' => 'Расписание', 'audience' => 'student', 'route' => '/student/schedule'],
+            ['key' => 'student_tests', 'title' => 'Тесты', 'audience' => 'student', 'route' => '/student/tests'],
+            ['key' => 'student_ssr', 'title' => 'ССР', 'audience' => 'student', 'route' => '/student/ssr'],
+            ['key' => 'student_coursework', 'title' => 'Курсовые', 'audience' => 'student', 'route' => '/student/coursework'],
+            ['key' => 'student_grades', 'title' => 'Оценки', 'audience' => 'student', 'route' => '/student/grades'],
+            ['key' => 'student_assignments', 'title' => 'Задания', 'audience' => 'student', 'route' => '/student/assignments'],
+            ['key' => 'student_chat', 'title' => 'Чат', 'audience' => 'student', 'route' => '/student/chat'],
+            ['key' => 'student_library', 'title' => 'Библиотека', 'audience' => 'student', 'route' => '/student/library'],
         ];
     }
 
     public static function defaultGrants(): array
     {
+        $teacherPages = ['dashboard', 'lessons', 'tests', 'ssr', 'coursework', 'grades', 'students', 'my_schedule', 'syllabuses', 'chat'];
+
         return [
-            'teacher' => ['dashboard', 'lessons', 'tests', 'ssr', 'coursework', 'grades', 'students', 'my_schedule', 'syllabuses', 'chat'],
-            'education_department' => ['dashboard', 'users', 'schedules', 'lessons', 'tests', 'grades', 'students', 'my_schedule', 'syllabuses', 'chat'],
-            'registration_center' => ['dashboard', 'users', 'groups', 'subjects', 'catalog_departments', 'specialties', 'schedules', 'lessons', 'tests', 'grades', 'students', 'my_schedule', 'syllabuses', 'chat'],
-            'student' => ['dashboard', 'student_schedule', 'tests', 'ssr', 'coursework', 'assignments', 'chat', 'library', 'grades'],
-            'department' => ['dashboard', 'users', 'schedules', 'lessons', 'tests', 'ssr', 'coursework', 'grades', 'students', 'my_schedule', 'syllabuses', 'chat'],
-            'faculty' => ['dashboard', 'users', 'schedules', 'lessons', 'tests', 'ssr', 'coursework', 'grades', 'students', 'my_schedule', 'syllabuses', 'chat'],
+            'teacher' => $teacherPages,
+            'education_department' => array_values(array_unique(array_merge(
+                $teacherPages,
+                ['users', 'schedules']
+            ))),
+            'registration_center' => array_values(array_unique(array_merge(
+                $teacherPages,
+                ['users', 'groups', 'subjects', 'catalog_departments', 'specialties', 'schedules']
+            ))),
+            'department' => array_values(array_unique(array_merge(
+                $teacherPages,
+                ['users', 'schedules']
+            ))),
+            'faculty' => array_values(array_unique(array_merge(
+                $teacherPages,
+                ['users', 'schedules']
+            ))),
+            'student' => [
+                'student_dashboard',
+                'student_schedule',
+                'student_tests',
+                'student_ssr',
+                'student_coursework',
+                'student_assignments',
+                'student_chat',
+                'student_library',
+                'student_grades',
+            ],
         ];
     }
 
     public static function tablesReady(): bool
     {
         return Schema::hasTable('access_pages') && Schema::hasTable('role_page');
+    }
+
+    public static function audienceFor(?User $user): ?string
+    {
+        if (! $user) {
+            return null;
+        }
+
+        return $user->isStudent() ? 'student' : 'staff';
+    }
+
+    public static function keysForAudience(string $audience): array
+    {
+        return collect(self::definitions())
+            ->filter(fn ($page) => ($page['audience'] ?? 'staff') === $audience)
+            ->pluck('key')
+            ->all();
     }
 
     public static function grantedKeys(?User $user): ?array
@@ -182,60 +154,61 @@ class PageAccess
             return [];
         }
 
-        return AccessPage::query()
+        $audience = self::audienceFor($user);
+
+        $keys = AccessPage::query()
             ->whereHas('roles', fn ($query) => $query->where('roles.id', $user->role_id))
             ->pluck('key')
             ->all();
+
+        return self::expandKeys($keys, $audience);
     }
 
     public static function allows(?User $user, string $path): bool
     {
-        if (! $user || $user->isAdmin() || ! self::tablesReady()) {
+        if (! $user || ! self::tablesReady()) {
             return true;
         }
 
         $path = self::normalizePath($path);
-        $roleName = $user->role?->name;
-        if (! $roleName) {
-            return false;
+        $matched = self::matchPage($path);
+
+        if ($user->isAdmin()) {
+            return ! $matched || ($matched['audience'] ?? 'staff') !== 'student';
         }
 
-        $matchedKey = null;
-        $matchedLength = -1;
-
-        foreach (self::definitions() as $page) {
-            $route = $page['routes'][$roleName] ?? null;
-            if (! $route || ! self::pathMatches($path, $route, (bool) ($page['exact'] ?? false))) {
-                continue;
-            }
-
-            $length = strlen(rtrim($route, '/'));
-            if ($length > $matchedLength) {
-                $matchedKey = $page['key'];
-                $matchedLength = $length;
-            }
-        }
-
-        if ($matchedKey === null) {
+        if (! $matched) {
             return true;
         }
 
-        return in_array($matchedKey, self::grantedKeys($user), true);
+        if (($matched['audience'] ?? 'staff') !== self::audienceFor($user)) {
+            return false;
+        }
+
+        if (in_array($matched['key'], ['dashboard', 'student_dashboard'], true) && ! self::isOwnHome($user, $path)) {
+            return false;
+        }
+
+        return in_array($matched['key'], self::grantedKeys($user) ?? [], true);
     }
 
     public static function pagesForRole(Role $role): array
     {
+        $audience = $role->name === 'student' ? 'student' : 'staff';
         $granted = [];
         if (self::tablesReady()) {
-            $granted = AccessPage::query()
-                ->whereHas('roles', fn ($query) => $query->where('roles.id', $role->id))
-                ->pluck('key')
-                ->all();
+            $granted = self::expandKeys(
+                AccessPage::query()
+                    ->whereHas('roles', fn ($query) => $query->where('roles.id', $role->id))
+                    ->pluck('key')
+                    ->all(),
+                $audience
+            );
         }
 
         $pages = [];
         foreach (self::definitions() as $page) {
-            if (empty($page['routes'][$role->name])) {
+            if (($page['audience'] ?? 'staff') !== $audience) {
                 continue;
             }
             $pages[] = [
@@ -248,6 +221,48 @@ class PageAccess
         return $pages;
     }
 
+    private static function isOwnHome(?User $user, string $path): bool
+    {
+        $homes = [
+            'admin' => '/admin',
+            'teacher' => '/teacher',
+            'education_department' => '/education',
+            'registration_center' => '/registration',
+            'department' => '/department',
+            'faculty' => '/faculty',
+            'student' => '/student',
+        ];
+        $home = $homes[$user?->role?->name ?? ''] ?? null;
+        if (! $home) {
+            return false;
+        }
+
+        return $path === $home || $path === $home.'/dashboard';
+    }
+
+    private static function expandKeys(array $keys, string $audience): array
+    {
+        $legacyStudent = [
+            'dashboard' => 'student_dashboard',
+            'tests' => 'student_tests',
+            'ssr' => 'student_ssr',
+            'coursework' => 'student_coursework',
+            'grades' => 'student_grades',
+            'chat' => 'student_chat',
+            'assignments' => 'student_assignments',
+            'library' => 'student_library',
+        ];
+
+        $allowed = self::keysForAudience($audience);
+
+        return collect($keys)
+            ->map(fn ($key) => $audience === 'student' ? ($legacyStudent[$key] ?? $key) : $key)
+            ->filter(fn ($key) => in_array($key, $allowed, true))
+            ->unique()
+            ->values()
+            ->all();
+    }
+
     public static function normalizePath(string $path): string
     {
         $path = '/'.trim($path, '/');
@@ -258,6 +273,29 @@ class PageAccess
         }
 
         return $path === '/' ? '/' : rtrim($path, '/');
+    }
+
+    private static function matchPage(string $path): ?array
+    {
+        $matched = null;
+        $matchedLength = -1;
+
+        foreach (self::definitions() as $page) {
+            $paths = array_merge([$page['route']], $page['aliases'] ?? []);
+            foreach ($paths as $route) {
+                if (! self::pathMatches($path, $route, (bool) ($page['exact'] ?? false))) {
+                    continue;
+                }
+
+                $length = strlen(rtrim($route, '/'));
+                if ($length > $matchedLength) {
+                    $matched = $page;
+                    $matchedLength = $length;
+                }
+            }
+        }
+
+        return $matched;
     }
 
     private static function pathMatches(string $path, string $route, bool $exact): bool

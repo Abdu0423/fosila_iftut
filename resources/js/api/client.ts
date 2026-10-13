@@ -3,17 +3,7 @@ import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 type RetryConfig = InternalAxiosRequestConfig & { _retried?: boolean };
 
 export function rewritePanelPath(url: string): string {
-    if (!url.startsWith('/teacher')) {
-        return url;
-    }
-
-    const current = window.location.pathname;
-    const panel = ['department', 'faculty', 'education', 'registration'].find((name) => current === `/${name}` || current.startsWith(`/${name}/`));
-    if (!panel) {
-        return url;
-    }
-
-    return url.replace(/^\/teacher(?=\/|$)/, `/${panel}`);
+    return url;
 }
 
 function toApiUrl(url: string): string {

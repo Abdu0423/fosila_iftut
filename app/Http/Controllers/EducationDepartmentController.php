@@ -18,25 +18,14 @@ class EducationDepartmentController extends Controller
      */
     protected function checkRole($user)
     {
-        if (!$user->isEducationDepartment() && !$user->isRegistrationCenter() && !$user->isDepartment() && !$user->isFaculty()) {
+        if ($user->isStudent()) {
             abort(403, 'Доступ запрещен');
         }
     }
 
     protected function scheduleIndexRoute(): string
     {
-        $path = trim(request()->path(), '/');
-        if (str_starts_with($path, 'api/')) {
-            $path = substr($path, 4);
-        }
-
-        foreach (['registration', 'department', 'faculty', 'education'] as $prefix) {
-            if ($path === $prefix || str_starts_with($path, $prefix.'/')) {
-                return $prefix.'.schedules.index';
-            }
-        }
-
-        return 'education.schedules.index';
+        return 'admin.schedules.index';
     }
 
     /**
@@ -219,7 +208,7 @@ class EducationDepartmentController extends Controller
                 'must_change_password' => true
             ]);
 
-            return redirect()->route('education.users.index')
+            return redirect()->route('admin.users.index')
                 ->with('success', __('controllers.user_created'));
         } catch (\Illuminate\Validation\ValidationException $e) {
             if (isset($e->errors()['email']) && str_contains($e->errors()['email'][0], 'already been taken')) {
@@ -724,7 +713,7 @@ class EducationDepartmentController extends Controller
         
         Subject::create($validated);
         
-        return redirect()->route('education.subjects.index')
+        return redirect()->route('admin.subjects.index')
             ->with('success', __('messages.created_successfully', ['resource' => __('education_department.subjects_title')]));
     }
     
@@ -764,7 +753,7 @@ class EducationDepartmentController extends Controller
         
         $subject->update($validated);
         
-        return redirect()->route('education.subjects.index')
+        return redirect()->route('admin.subjects.index')
             ->with('success', __('messages.updated_successfully', ['resource' => __('education_department.subjects_title')]));
     }
     
@@ -946,7 +935,7 @@ class EducationDepartmentController extends Controller
         
         Department::create($validated);
         
-        return redirect()->route('education.departments.index')
+        return redirect()->route('admin.departments.index')
             ->with('success', __('messages.created_successfully', ['resource' => __('education_department.departments_title')]));
     }
     
@@ -988,7 +977,7 @@ class EducationDepartmentController extends Controller
         
         $department->update($validated);
         
-        return redirect()->route('education.departments.index')
+        return redirect()->route('admin.departments.index')
             ->with('success', __('messages.updated_successfully', ['resource' => __('education_department.departments_title')]));
     }
     
