@@ -152,6 +152,28 @@ class User extends Authenticatable
         return $this->role && $this->role->name === 'faculty';
     }
 
+    public function departmentAccount()
+    {
+        return $this->hasOne(Department::class, 'user_id');
+    }
+
+    public function ownedDepartment(): ?Department
+    {
+        return $this->departmentAccount;
+    }
+
+    public function canAssignScheduleTeacher(): bool
+    {
+        return $this->isAdmin() || $this->isFaculty() || $this->isDepartment();
+    }
+
+    public function ownsScheduleDepartment(Schedule $schedule): bool
+    {
+        $department = $this->ownedDepartment();
+
+        return $department && (int) $schedule->department_id === (int) $department->id;
+    }
+
     public function seesAllTeachingRecords(): bool
     {
         return $this->isAdmin()

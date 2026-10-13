@@ -40,6 +40,15 @@
         </v-col>
       </v-row>
 
+      <v-alert
+        v-if="missingDepartment"
+        type="warning"
+        variant="tonal"
+        class="mb-4"
+      >
+        Кафедра для вашей учётной записи не назначена. Расписания появятся после выбора пользователя на странице кафедр.
+      </v-alert>
+
       <ExcelSheet
         :columns="sheetColumns"
         :rows="scheduleRows"
@@ -49,6 +58,23 @@
         @create="createSchedule"
         @commit="updateSchedule"
       >
+        <template #cell-teacher_id="{ row }">
+          <v-autocomplete
+            v-if="canAssignTeacher"
+            :model-value="row.teacher_id"
+            :items="teacherOptions"
+            item-title="title"
+            item-value="value"
+            density="compact"
+            variant="plain"
+            hide-details
+            clearable
+            placeholder="Учитель"
+            @click.stop
+            @update:model-value="assignTeacher(row, $event)"
+          />
+          <span v-else>{{ personName(row.teacher) || '—' }}</span>
+        </template>
         <template #cell-status="{ row }">
           <v-chip
             :color="row.is_active ? 'success' : 'error'"
@@ -132,6 +158,18 @@ const props = defineProps({
   subjects: Array,
   groups: Array,
   departments: Array,
+  teachers: {
+    type: Array,
+    default: () => []
+  },
+  canAssignTeacher: {
+    type: Boolean,
+    default: false
+  },
+  missingDepartment: {
+    type: Boolean,
+    default: false
+  },
   filters: Object
 })
 
@@ -165,6 +203,11 @@ const groupOptions = computed(() => (props.groups || []).map((group) => ({
 const departmentOptions = computed(() => (props.departments || []).map((department) => ({
   title: department.name,
   value: department.id
+})))
+
+const teacherOptions = computed(() => (props.teachers || []).map((teacher) => ({
+  title: teacher.name,
+  value: teacher.id
 })))
 
 const personName = (person) => person ? `${person.name || ''} ${person.last_name || ''}`.trim() : ''
@@ -204,6 +247,12 @@ const sheetColumns = computed(() => [
     text: (row) => row.department?.name || personName(row.teacher)
   },
   {
+    key: 'teacher_id',
+    title: 'Учитель',
+    editor: 'slot',
+    text: (row) => personName(row.teacher)
+  },
+  {
     key: 'semester',
     title: 'Семестр',
     editable: true,
@@ -225,6 +274,8 @@ const sheetColumns = computed(() => [
     key: 'status',
     title: 'Статус',
     editor: 'slot',
+    filterDefault: 'Активен',
+    filterChoices: ['Активен', 'Неактивен'],
     text: (row) => row.is_active ? 'Активен' : 'Неактивен'
   },
   {
@@ -266,6 +317,17 @@ const updateSchedule = ({ row, column, value }) => {
     ...row,
     [column.key]: value
   }))
+}
+
+const assignTeacher = (row, teacherId) => {
+  const next = teacherId || null
+  const current = row.teacher_id || null
+  if (next == current) {
+    return
+  }
+  router.put(`/admin/schedules/${row.id}/teacher`, {
+    teacher_id: next
+  })
 }
 
 // Заголовки таблицы

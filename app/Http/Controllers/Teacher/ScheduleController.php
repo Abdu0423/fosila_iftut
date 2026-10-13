@@ -11,6 +11,7 @@ use App\Models\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ScheduleController extends Controller
 {
@@ -226,12 +227,7 @@ class ScheduleController extends Controller
      */
     public function addSyllabus(Request $request, Schedule $schedule)
     {
-        $teacher = Auth::user();
-        
-        // Проверяем, что расписание принадлежит текущему учителю
-        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
-            abort(403, 'У вас нет доступа к этому расписанию');
-        }
+        $this->assertCanEditScheduleMaterials($schedule);
 
         $request->validate([
             'syllabus_ids' => 'required|array',
@@ -253,11 +249,7 @@ class ScheduleController extends Controller
     public function uploadSyllabus(Request $request, Schedule $schedule)
     {
         $teacher = Auth::user();
-        
-        // Проверяем, что расписание принадлежит текущему учителю
-        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
-            abort(403, 'У вас нет доступа к этому расписанию');
-        }
+        $this->assertCanEditScheduleMaterials($schedule);
 
         $request->validate([
             'name' => 'required|string|max:255',
@@ -341,12 +333,7 @@ class ScheduleController extends Controller
      */
     public function removeSyllabus(Request $request, Schedule $schedule, Syllabus $syllabus)
     {
-        $teacher = Auth::user();
-        
-        // Проверяем, что расписание принадлежит текущему учителю
-        if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
-            abort(403, 'У вас нет доступа к этому расписанию');
-        }
+        $this->assertCanEditScheduleMaterials($schedule);
 
         $syllabusName = $syllabus->name;
         $schedule->syllabuses()->detach($syllabus->id);
@@ -424,5 +411,81 @@ class ScheduleController extends Controller
         $schedule->update(['is_active' => ! $schedule->is_active]);
 
         return back()->with('success', 'Статус расписания изменен');
+    }
+
+    public function uploadMethodical(Request $request, Schedule $schedule)
+    {
+        $this->assertCanEditScheduleMaterials($schedule);
+
+        $request->validate([
+            'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,txt,jpg,jpeg,png,gif,bmp,webp,md,html,css,js,json,xml,csv,log|max:10240',
+        ]);
+
+        $file = $request->file('file');
+        $fileName = time().'_'.$file->getClientOriginalName();
+        $filePath = $file->storeAs('methodicals', $fileName, 'public');
+
+        if ($schedule->methodical_path && Storage::disk('public')->exists($schedule->methodical_path)) {
+            Storage::disk('public')->delete($schedule->methodical_path);
+        }
+
+        $schedule->update([
+            'methodical_path' => $filePath,
+            'methodical_name' => $file->getClientOriginalName(),
+            'methodical_mime' => $file->getMimeType(),
+            'methodical_size' => $file->getSize(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Методичка загружена',
+        ]);
+    }
+
+    public function deleteMethodical(Schedule $schedule)
+    {
+        $this->assertCanEditScheduleMaterials($schedule);
+
+        if ($schedule->methodical_path && Storage::disk('public')->exists($schedule->methodical_path)) {
+            Storage::disk('public')->delete($schedule->methodical_path);
+        }
+
+        $schedule->update([
+            'methodical_path' => null,
+            'methodical_name' => null,
+            'methodical_mime' => null,
+            'methodical_size' => null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Методичка удалена',
+        ]);
+    }
+
+    public function downloadMethodical(Schedule $schedule)
+    {
+        $this->assertCanEditScheduleMaterials($schedule);
+
+        if (! $schedule->methodical_path || ! Storage::disk('public')->exists($schedule->methodical_path)) {
+            abort(404, 'Файл не найден');
+        }
+
+        return Storage::disk('public')->download($schedule->methodical_path, $schedule->methodical_name);
+    }
+
+    private function assertCanEditScheduleMaterials(Schedule $schedule): void
+    {
+        $user = Auth::user();
+
+        if ($user->isDepartment()) {
+            abort_unless($user->ownsScheduleDepartment($schedule), 403, 'Можно изменять только расписание своей кафедры');
+
+            return;
+        }
+
+        if (! $user->seesAllTeachingRecords() && $schedule->teacher_id !== $user->id) {
+            abort(403, 'У вас нет доступа к этому расписанию');
+        }
     }
 }

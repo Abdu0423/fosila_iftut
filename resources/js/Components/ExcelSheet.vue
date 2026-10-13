@@ -61,6 +61,7 @@
                   placeholder="Фильтр"
                   :list="filterListId(column.key)"
                   @input="onColumnFilter(column.key, $event)"
+                  @blur="restoreFilterDefault(column)"
                 />
                 <datalist :id="filterListId(column.key)">
                   <option
@@ -204,6 +205,8 @@ type SheetColumn = {
   options?: SheetOption[]
   inherit?: boolean
   filter?: boolean
+  filterDefault?: string
+  filterChoices?: string[]
   required?: boolean
   text?: (row: Record<string, any>) => string
   get?: (row: Record<string, any>) => unknown
@@ -288,6 +291,14 @@ watch(() => props.modelValue, (value) => {
   }
 })
 
+watch(sheetColumns, (columns) => {
+  columns.forEach((column) => {
+    if (column.filterDefault && columnFilters[column.key] == null) {
+      columnFilters[column.key] = column.filterDefault
+    }
+  })
+}, { immediate: true })
+
 function cellValue(row: Record<string, any>, column: SheetColumn) {
   if (column.get) {
     return column.get(row)
@@ -324,6 +335,10 @@ const choiceMap = computed(() => {
   const map: Record<string, string[]> = {}
   sheetColumns.value.forEach((column) => {
     if (!isFilterable(column)) {
+      return
+    }
+    if (column.filterChoices?.length) {
+      map[column.key] = column.filterChoices
       return
     }
     const values = new Set<string>()
@@ -588,9 +603,16 @@ function onColumnFilter(key: string, event: Event) {
   }
 }
 
+function restoreFilterDefault(column: SheetColumn) {
+  if (column.filterDefault && !(columnFilters[column.key] || '').trim()) {
+    columnFilters[column.key] = column.filterDefault
+  }
+}
+
 function clearContext(key: string) {
+  const column = sheetColumns.value.find((item) => item.key === key)
   dismissed.value = { ...dismissed.value, [key]: true }
-  columnFilters[key] = ''
+  columnFilters[key] = column?.filterDefault || ''
   draft[key] = null
   dirty.value = { ...dirty.value, [key]: false }
 }

@@ -7,9 +7,14 @@
           <div class="d-flex justify-space-between align-center mb-6">
             <div>
               <h1 class="text-h4 font-weight-bold mb-2">{{ t('navigation.my_syllabuses') }}</h1>
-              <p class="text-body-1 text-medium-emphasis">{{ t('teacher.syllabuses.subtitle', {}, { default: 'Управление учебными программами по моим предметам' }) }}</p>
+              <p class="text-body-1 text-medium-emphasis">
+                {{ departmentMode
+                  ? 'Активные расписания кафедры: силлабус, методичка и тест'
+                  : t('teacher.syllabuses.subtitle', {}, { default: 'Управление учебными программами по моим предметам' }) }}
+              </p>
             </div>
             <v-btn
+              v-if="!departmentMode"
               color="primary"
               @click="navigateTo('/teacher/syllabuses/create')"
               prepend-icon="mdi-plus"
@@ -20,8 +25,125 @@
         </v-col>
       </v-row>
 
+      <v-alert v-if="notice.message" :type="notice.type" variant="tonal" closable class="mb-4" @click:close="notice.message = ''">
+        {{ notice.message }}
+      </v-alert>
+
+      <template v-if="departmentMode">
+        <v-alert v-if="missingDepartment" type="warning" variant="tonal" class="mb-4">
+          Кафедра для вашей учётной записи не назначена. Расписания появятся после выбора пользователя на странице кафедр.
+        </v-alert>
+        <v-alert v-else-if="!departmentSchedules.length" type="info" variant="tonal">
+          У кафедры{{ departmentName ? ` «${departmentName}»` : '' }} нет активных расписаний.
+        </v-alert>
+
+        <v-row v-else>
+          <v-col v-for="schedule in departmentSchedules" :key="schedule.id" cols="12">
+            <v-card class="mb-2">
+              <v-card-title class="d-flex flex-wrap align-center ga-2">
+                <span>{{ schedule.subject_name }}</span>
+                <v-chip size="small" variant="tonal">{{ schedule.group_name }}</v-chip>
+                <v-chip size="small" variant="tonal">{{ schedule.semester }} семестр</v-chip>
+                <v-chip size="small" variant="tonal">{{ schedule.study_year }}</v-chip>
+              </v-card-title>
+              <v-card-text>
+                <div class="text-subtitle-2 mb-2">Силлабус</div>
+                <div class="d-flex flex-wrap ga-2 mb-3">
+                  <v-select
+                    v-model="selectedSyllabus[schedule.id]"
+                    :items="availableFor(schedule)"
+                    item-title="name"
+                    item-value="id"
+                    label="Выбрать силлабус"
+                    density="compact"
+                    variant="outlined"
+                    hide-details
+                    clearable
+                    style="max-width: 420px"
+                  />
+                  <v-btn color="primary" :disabled="!selectedSyllabus[schedule.id]" @click="addSyllabus(schedule)">
+                    Добавить
+                  </v-btn>
+                </div>
+                <div class="d-flex flex-wrap ga-2 mb-3">
+                  <v-text-field
+                    v-model="formFor(schedule.id).name"
+                    label="Название нового силлабуса"
+                    density="compact"
+                    variant="outlined"
+                    hide-details
+                    style="max-width: 280px"
+                  />
+                  <v-file-input
+                    v-model="formFor(schedule.id).file"
+                    label="Файл силлабуса"
+                    density="compact"
+                    variant="outlined"
+                    hide-details
+                    prepend-icon=""
+                    prepend-inner-icon="mdi-file-upload"
+                    style="max-width: 320px"
+                  />
+                  <v-btn color="primary" variant="tonal" :loading="formFor(schedule.id).processing" @click="uploadSyllabus(schedule)">
+                    Загрузить
+                  </v-btn>
+                </div>
+                <v-list v-if="schedule.syllabuses.length" density="compact" class="mb-4">
+                  <v-list-item v-for="syllabus in schedule.syllabuses" :key="syllabus.id">
+                    <v-list-item-title>{{ syllabus.name }}</v-list-item-title>
+                    <v-list-item-subtitle v-if="syllabus.file_name">{{ syllabus.file_name }}</v-list-item-subtitle>
+                    <template #append>
+                      <v-btn icon="mdi-delete" size="small" variant="text" color="error" @click="removeSyllabus(schedule, syllabus)" />
+                    </template>
+                  </v-list-item>
+                </v-list>
+                <p v-else class="text-body-2 text-medium-emphasis mb-4">Силлабус ещё не добавлен</p>
+
+                <div class="text-subtitle-2 mb-2">Методичка</div>
+                <div class="d-flex flex-wrap align-center ga-2 mb-4">
+                  <span v-if="schedule.methodical" class="text-body-2">{{ schedule.methodical.file_name }}</span>
+                  <v-btn
+                    v-if="schedule.methodical"
+                    size="small"
+                    variant="text"
+                    color="primary"
+                    @click="downloadFile(schedule.methodical.download_url)"
+                  >
+                    Скачать
+                  </v-btn>
+                  <v-btn
+                    v-if="schedule.methodical"
+                    size="small"
+                    variant="text"
+                    color="error"
+                    @click="deleteMethodical(schedule)"
+                  >
+                    Удалить
+                  </v-btn>
+                  <v-file-input
+                    v-model="methodicalFiles[schedule.id]"
+                    label="Файл методички"
+                    density="compact"
+                    variant="outlined"
+                    hide-details
+                    prepend-icon=""
+                    prepend-inner-icon="mdi-file-upload"
+                    style="max-width: 320px"
+                  />
+                  <v-btn color="primary" variant="tonal" @click="uploadMethodical(schedule)">Загрузить методичку</v-btn>
+                </div>
+
+                <v-btn color="primary" @click="navigateTo(schedule.test_url)">
+                  {{ schedule.has_test ? 'Открыть тест' : 'Добавить тест' }}
+                </v-btn>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </template>
+
       <!-- Статистика -->
-      <v-row class="mb-6">
+      <v-row v-if="!departmentMode" class="mb-6">
         <v-col cols="12" sm="6" md="3">
           <v-card>
             <v-card-text>
@@ -57,7 +179,7 @@
       </v-row>
 
       <!-- Таблица силлабусов -->
-      <v-card>
+      <v-card v-if="!departmentMode">
         <v-card-title>
           <v-text-field
             v-model="search"
@@ -216,8 +338,133 @@ const props = defineProps({
   schedules: {
     type: Array,
     default: () => []
+  },
+  department_mode: {
+    type: Boolean,
+    default: false
+  },
+  missing_department: {
+    type: Boolean,
+    default: false
+  },
+  department_name: {
+    type: String,
+    default: ''
+  },
+  available_syllabuses: {
+    type: Array,
+    default: () => []
   }
 })
+
+const departmentMode = computed(() => props.department_mode)
+const missingDepartment = computed(() => props.missing_department)
+const departmentName = computed(() => props.department_name)
+const departmentSchedules = computed(() => props.schedules || [])
+const selectedSyllabus = ref({})
+const methodicalFiles = ref({})
+const uploadForms = ref({})
+const notice = ref({ type: 'success', message: '' })
+
+const ensureUploadForm = (scheduleId) => {
+  if (!uploadForms.value[scheduleId]) {
+    uploadForms.value[scheduleId] = { name: '', file: null, processing: false }
+  }
+  return uploadForms.value[scheduleId]
+}
+
+const formFor = (scheduleId) => ensureUploadForm(scheduleId)
+
+const takenFile = (file) => {
+  if (!file) return null
+  if (Array.isArray(file)) return file[0] || null
+  if (file instanceof FileList) return file[0] || null
+  return file instanceof File ? file : null
+}
+
+const availableFor = (schedule) => {
+  const used = new Set((schedule.syllabuses || []).map((item) => item.id))
+  return (props.available_syllabuses || []).filter((item) => {
+    if (used.has(item.id)) return false
+    if (!schedule.subject_id || !item.subject_id) return true
+    return item.subject_id === schedule.subject_id
+  })
+}
+
+const showNotice = (type, message) => {
+  notice.value = { type, message }
+}
+
+const addSyllabus = async (schedule) => {
+  const syllabusId = selectedSyllabus.value[schedule.id]
+  if (!syllabusId) return
+  const syllabusIds = [...(schedule.syllabuses || []).map((item) => item.id), syllabusId]
+  try {
+    await window.axios.post(`/teacher/schedule/${schedule.id}/syllabuses`, { syllabus_ids: syllabusIds })
+    selectedSyllabus.value[schedule.id] = null
+    router.reload()
+  } catch (error) {
+    showNotice('error', error.response?.data?.message || 'Не удалось добавить силлабус')
+  }
+}
+
+const uploadSyllabus = async (schedule) => {
+  const form = ensureUploadForm(schedule.id)
+  const file = takenFile(form.file)
+  if (!form.name || !file) {
+    showNotice('warning', 'Укажите название и файл силлабуса')
+    return
+  }
+  form.processing = true
+  const body = new FormData()
+  body.append('name', form.name)
+  body.append('file', file)
+  try {
+    await window.axios.post(`/teacher/schedule/${schedule.id}/syllabuses/upload`, body)
+    form.name = ''
+    form.file = null
+    router.reload()
+  } catch (error) {
+    showNotice('error', error.response?.data?.message || 'Не удалось загрузить силлабус')
+  } finally {
+    form.processing = false
+  }
+}
+
+const removeSyllabus = async (schedule, syllabus) => {
+  try {
+    await window.axios.delete(`/teacher/schedule/${schedule.id}/syllabuses/${syllabus.id}`)
+    router.reload()
+  } catch (error) {
+    showNotice('error', error.response?.data?.message || 'Не удалось убрать силлабус')
+  }
+}
+
+const uploadMethodical = async (schedule) => {
+  const file = takenFile(methodicalFiles.value[schedule.id])
+  if (!file) {
+    showNotice('warning', 'Выберите файл методички')
+    return
+  }
+  const body = new FormData()
+  body.append('file', file)
+  try {
+    await window.axios.post(`/teacher/schedule/${schedule.id}/methodical`, body)
+    methodicalFiles.value[schedule.id] = null
+    router.reload()
+  } catch (error) {
+    showNotice('error', error.response?.data?.message || 'Не удалось загрузить методичку')
+  }
+}
+
+const deleteMethodical = async (schedule) => {
+  try {
+    await window.axios.delete(`/teacher/schedule/${schedule.id}/methodical`)
+    router.reload()
+  } catch (error) {
+    showNotice('error', error.response?.data?.message || 'Не удалось удалить методичку')
+  }
+}
 
 // Состояние
 const search = ref('')

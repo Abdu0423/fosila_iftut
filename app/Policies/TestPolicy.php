@@ -25,6 +25,10 @@ class TestPolicy
             return true;
         }
 
+        if ($user->isDepartment()) {
+            return $test->schedule && $user->ownsScheduleDepartment($test->schedule);
+        }
+
         return $test->schedule && $test->schedule->teacher_id === $user->id;
     }
 

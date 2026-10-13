@@ -343,6 +343,7 @@ Route::prefix('admin')->middleware(['auth', 'staff', 'check.password.change'])->
     Route::post('/schedules/bulk-action', [App\Http\Controllers\Admin\ScheduleController::class, 'bulkAction'])->name('admin.schedules.bulk-action');
     Route::post('/schedules/{schedule}/toggle-status', [App\Http\Controllers\Admin\ScheduleController::class, 'toggleStatus'])->name('admin.schedules.toggle-status');
     Route::post('/schedules/{schedule}/duplicate', [App\Http\Controllers\Admin\ScheduleController::class, 'duplicate'])->name('admin.schedules.duplicate');
+    Route::put('/schedules/{schedule}/teacher', [App\Http\Controllers\Admin\ScheduleController::class, 'assignTeacher'])->name('admin.schedules.assign-teacher');
     
     // Управление уроками в расписании
     Route::get('/schedules/{schedule}/lessons', [App\Http\Controllers\Admin\ScheduleController::class, 'lessons'])->name('admin.schedules.lessons');
@@ -516,6 +517,9 @@ Route::prefix('teacher')->middleware(['auth', 'staff', 'check.password.change'])
     Route::post('/schedule/{schedule}/syllabuses', [App\Http\Controllers\Teacher\ScheduleController::class, 'addSyllabus'])->name('teacher.schedule.add-syllabus');
     Route::post('/schedule/{schedule}/syllabuses/upload', [App\Http\Controllers\Teacher\ScheduleController::class, 'uploadSyllabus'])->name('teacher.schedule.upload-syllabus');
     Route::delete('/schedule/{schedule}/syllabuses/{syllabus}', [App\Http\Controllers\Teacher\ScheduleController::class, 'removeSyllabus'])->name('teacher.schedule.remove-syllabus');
+    Route::post('/schedule/{schedule}/methodical', [App\Http\Controllers\Teacher\ScheduleController::class, 'uploadMethodical'])->name('teacher.schedule.methodical.upload');
+    Route::delete('/schedule/{schedule}/methodical', [App\Http\Controllers\Teacher\ScheduleController::class, 'deleteMethodical'])->name('teacher.schedule.methodical.delete');
+    Route::get('/schedule/{schedule}/methodical', [App\Http\Controllers\Teacher\ScheduleController::class, 'downloadMethodical'])->name('teacher.schedule.methodical.download');
     
     // Управление уроками в расписании
     Route::post('/schedule/{schedule}/lessons', [App\Http\Controllers\Teacher\ScheduleController::class, 'addLesson'])->name('teacher.schedule.add-lesson');

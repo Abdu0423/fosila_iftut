@@ -23,7 +23,11 @@ class Schedule extends Model
         'distance_control_1_date',
         'distance_control_2_date',
         'is_active',
-        'has_coursework'
+        'has_coursework',
+        'methodical_path',
+        'methodical_name',
+        'methodical_mime',
+        'methodical_size',
     ];
 
     protected $casts = [

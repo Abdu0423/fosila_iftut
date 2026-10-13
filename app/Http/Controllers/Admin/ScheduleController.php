@@ -9,6 +9,7 @@ use App\Models\Group;
 use App\Models\Department;
 use App\Models\Syllabus;
 use App\Models\Lesson;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
@@ -18,7 +19,19 @@ class ScheduleController extends Controller
      */
     public function index(Request $request)
     {
+        $user = $request->user();
         $query = Schedule::with(['subject', 'teacher', 'department', 'group', 'syllabuses', 'lessons']);
+        $missingDepartment = false;
+
+        if ($user->isDepartment()) {
+            $department = $user->ownedDepartment();
+            if ($department) {
+                $query->where('department_id', $department->id);
+            } else {
+                $missingDepartment = true;
+                $query->whereRaw('0 = 1');
+            }
+        }
         
         // Поиск по предмету, учителю или группе
         if ($request->filled('search')) {
@@ -87,11 +100,34 @@ class ScheduleController extends Controller
             return $schedule;
         });
 
+        $teachers = collect();
+        if ($user->canAssignScheduleTeacher()) {
+            $teachers = User::query()
+                ->whereHas('role', function ($query) {
+                    $query->where('name', '!=', 'student');
+                })
+                ->orderBy('last_name')
+                ->orderBy('name')
+                ->get(['id', 'name', 'last_name', 'middle_name'])
+                ->map(function (User $person) {
+                    $title = trim(($person->name ?? '').' '.($person->last_name ?? ''));
+
+                    return [
+                        'id' => $person->id,
+                        'name' => $title !== '' ? $title : $person->name,
+                    ];
+                })
+                ->values();
+        }
+
         return spa('Admin/Schedules/Index', [
             'schedules' => $schedules,
             'subjects' => $subjects,
             'groups' => $groups,
             'departments' => $departments,
+            'teachers' => $teachers,
+            'canAssignTeacher' => $user->canAssignScheduleTeacher(),
+            'missingDepartment' => $missingDepartment,
             'filters' => [
                 'search' => $request->search ?? '',
                 'subject_id' => $request->subject_id ?? '',
@@ -103,6 +139,37 @@ class ScheduleController extends Controller
                 'sort_order' => $sortOrder,
             ]
         ]);
+    }
+
+    public function assignTeacher(Request $request, Schedule $schedule)
+    {
+        $user = $request->user();
+        if (! $user->canAssignScheduleTeacher()) {
+            abort(403, 'Нельзя назначить учителя');
+        }
+
+        if ($user->isDepartment() && ! $user->ownsScheduleDepartment($schedule)) {
+            abort(403, 'Можно назначить учителя только на расписание своей кафедры');
+        }
+
+        $validated = $request->validate([
+            'teacher_id' => 'nullable|exists:users,id',
+        ]);
+
+        $teacherId = $validated['teacher_id'] ?? null;
+        if ($teacherId) {
+            $teacher = User::with('role')->find($teacherId);
+            if (! $teacher || $teacher->isStudent()) {
+                return back()->withErrors([
+                    'teacher_id' => 'Нельзя назначить студента',
+                ]);
+            }
+        }
+
+        $schedule->update(['teacher_id' => $teacherId]);
+
+        return redirect()->route('admin.schedules.index')
+            ->with('success', 'Учитель назначен');
     }
 
     /**
@@ -153,7 +220,6 @@ class ScheduleController extends Controller
             'lesson_ids.*' => 'exists:lessons,id',
         ]);
 
-        $validated['teacher_id'] = null;
         $schedule = Schedule::create($validated);
 
         // Привязываем силлабусы к расписанию
@@ -179,6 +245,7 @@ class ScheduleController extends Controller
      */
     public function show(Schedule $schedule)
     {
+        $this->assertDepartmentSchedule($schedule);
         $schedule->load(['subject', 'teacher', 'department', 'group', 'syllabuses.creator', 'lessons.subject']);
 
         return spa('Admin/Schedules/Show', [
@@ -191,6 +258,7 @@ class ScheduleController extends Controller
      */
     public function edit(Schedule $schedule)
     {
+        $this->assertDepartmentSchedule($schedule);
         $schedule->load(['subject', 'teacher', 'department', 'group', 'syllabuses', 'lessons', 'tests' => function($query) {
             $query->whereIn('exam_type', ['periodic', 'final'])->orderBy('exam_type')->orderBy('id');
         }]);
@@ -224,6 +292,7 @@ class ScheduleController extends Controller
      */
     public function update(Request $request, Schedule $schedule)
     {
+        $this->assertDepartmentSchedule($schedule);
         $validated = $request->validate([
             'subject_id' => 'required|exists:subjects,id',
             'department_id' => 'required|exists:departments,id',
@@ -245,7 +314,6 @@ class ScheduleController extends Controller
             'final_exam_date' => 'nullable|date',
         ]);
 
-        $validated['teacher_id'] = null;
         $schedule->update($validated);
 
         // Обновляем связи с силлабусами
@@ -285,6 +353,7 @@ class ScheduleController extends Controller
      */
     public function destroy(Schedule $schedule)
     {
+        $this->assertDepartmentSchedule($schedule);
         try {
             $schedule->delete();
 
@@ -307,6 +376,7 @@ class ScheduleController extends Controller
      */
     public function toggleStatus(Schedule $schedule)
     {
+        $this->assertDepartmentSchedule($schedule);
         $schedule->update(['is_active' => !$schedule->is_active]);
 
         return back()->with('success', 'Статус расписания изменен!');
@@ -348,6 +418,7 @@ class ScheduleController extends Controller
      */
     public function duplicate(Schedule $schedule)
     {
+        $this->assertDepartmentSchedule($schedule);
         $newSchedule = $schedule->replicate();
         $newSchedule->scheduled_at = null; // Сбрасываем дату
         $newSchedule->save();
@@ -417,6 +488,7 @@ class ScheduleController extends Controller
      */
     public function lessons(Schedule $schedule)
     {
+        $this->assertDepartmentSchedule($schedule);
         $schedule->load(['subject', 'teacher', 'department', 'group', 'lessons.subject']);
         $lessons = Lesson::with(['subject'])->get();
 
@@ -431,6 +503,7 @@ class ScheduleController extends Controller
      */
     public function addLesson(Request $request, Schedule $schedule)
     {
+        $this->assertDepartmentSchedule($schedule);
         $request->validate([
             'lesson_id' => 'required|exists:lessons,id',
             'duration' => 'nullable|integer|min:15|max:240',
@@ -463,6 +536,7 @@ class ScheduleController extends Controller
      */
     public function removeLesson(Schedule $schedule, Lesson $lesson)
     {
+        $this->assertDepartmentSchedule($schedule);
         $schedule->lessons()->detach($lesson->id);
         return response()->json(['success' => true]);
     }
@@ -472,6 +546,7 @@ class ScheduleController extends Controller
      */
     public function reorderLessons(Request $request, Schedule $schedule)
     {
+        $this->assertDepartmentSchedule($schedule);
         $request->validate([
             'lessons' => 'required|array',
             'lessons.*.lesson_id' => 'required|exists:lessons,id',
@@ -485,5 +560,13 @@ class ScheduleController extends Controller
         }
 
         return response()->json(['success' => true]);
+    }
+
+    private function assertDepartmentSchedule(Schedule $schedule): void
+    {
+        $user = request()->user();
+        if ($user && $user->isDepartment() && ! $user->ownsScheduleDepartment($schedule)) {
+            abort(403, 'Доступно только расписание своей кафедры');
+        }
     }
 }

@@ -20,7 +20,12 @@ class TestController extends Controller
         $teacher = Auth::user();
         
         // Получаем расписания учителя с тестами
-        $schedules = Schedule::forTeachingUser($teacher)
+        $schedules = Schedule::forTeachingUser($teacher);
+        if ($teacher->isDepartment()) {
+            $departmentId = $teacher->ownedDepartment()?->id;
+            $schedules->where('department_id', $departmentId ?? 0);
+        }
+        $schedules = $schedules
             ->with(['subject', 'group', 'test.questions'])
             ->orderBy('created_at', 'desc')
             ->get()
@@ -62,8 +67,12 @@ class TestController extends Controller
      */
     public function show(Schedule $schedule)
     {
-        // Проверяем доступ
-        if (! Auth::user()->seesAllTeachingRecords() && ($schedule->teacher_id !== Auth::id())) {
+        $user = Auth::user();
+        if ($user->isDepartment() && ! $user->ownsScheduleDepartment($schedule)) {
+            abort(403, 'Можно изменять только расписание своей кафедры');
+        }
+
+        if (! $user->seesAllTeachingRecords() && ($schedule->teacher_id !== $user->id)) {
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 

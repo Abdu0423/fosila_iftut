@@ -16,6 +16,10 @@ class SyllabusController extends Controller
      */
     public function index()
     {
+        if (auth()->user()->isDepartment()) {
+            return $this->departmentSchedules();
+        }
+
         $teacherId = auth()->id();
         
         // Получаем все силлабусы, к которым у учителя есть доступ:
@@ -428,5 +432,76 @@ class SyllabusController extends Controller
 
         // Для других файлов предлагаем скачать
         return redirect()->route('teacher.syllabuses.download', $syllabus->id);
+    }
+
+    private function departmentSchedules()
+    {
+        $user = auth()->user();
+        $department = $user->ownedDepartment();
+
+        if (! $department) {
+            return spa('Teacher/Syllabuses/Index', [
+                'department_mode' => true,
+                'missing_department' => true,
+                'department_name' => null,
+                'schedules' => [],
+                'available_syllabuses' => [],
+            ]);
+        }
+
+        $schedules = Schedule::query()
+            ->where('department_id', $department->id)
+            ->where('is_active', true)
+            ->with(['subject', 'group', 'syllabuses', 'test'])
+            ->orderBy('study_year', 'desc')
+            ->orderBy('semester')
+            ->get();
+
+        $subjectIds = $schedules->pluck('subject_id')->filter()->unique()->values();
+        $availableSyllabuses = Syllabus::with('subject')
+            ->where(function ($query) use ($subjectIds) {
+                $query->whereIn('subject_id', $subjectIds)->orWhereNull('subject_id');
+            })
+            ->orderBy('name')
+            ->get()
+            ->map(function (Syllabus $syllabus) {
+                return [
+                    'id' => $syllabus->id,
+                    'name' => $syllabus->name,
+                    'subject_id' => $syllabus->subject_id,
+                    'subject_name' => $syllabus->subject?->name,
+                ];
+            })
+            ->values();
+
+        return spa('Teacher/Syllabuses/Index', [
+            'department_mode' => true,
+            'missing_department' => false,
+            'department_name' => $department->name,
+            'available_syllabuses' => $availableSyllabuses,
+            'schedules' => $schedules->map(function (Schedule $schedule) {
+                return [
+                    'id' => $schedule->id,
+                    'subject_id' => $schedule->subject_id,
+                    'subject_name' => $schedule->subject?->name ?? 'Без предмета',
+                    'group_name' => $schedule->group?->name ?? 'Без группы',
+                    'semester' => $schedule->semester,
+                    'study_year' => $schedule->study_year,
+                    'has_test' => $schedule->test !== null,
+                    'test_url' => route('teacher.tests.show', $schedule->id, false),
+                    'methodical' => $schedule->methodical_path ? [
+                        'file_name' => $schedule->methodical_name,
+                        'download_url' => route('teacher.schedule.methodical.download', $schedule->id, false),
+                    ] : null,
+                    'syllabuses' => $schedule->syllabuses->map(function (Syllabus $syllabus) {
+                        return [
+                            'id' => $syllabus->id,
+                            'name' => $syllabus->name,
+                            'file_name' => $syllabus->file_name,
+                        ];
+                    })->values(),
+                ];
+            })->values(),
+        ]);
     }
 }
