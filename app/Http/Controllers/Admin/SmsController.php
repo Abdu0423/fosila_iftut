@@ -28,6 +28,7 @@ class SmsController extends Controller
                     'id' => $user->id,
                     'name' => $user->name ?? 'Не указано',
                     'last_name' => $user->last_name ?? 'Не указано',
+                    'middle_name' => $user->middle_name,
                     'phone' => $user->phone,
                     'email' => $user->email,
                     'role' => $user->role ? $user->role->name : null,

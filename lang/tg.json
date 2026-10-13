@@ -34,7 +34,9 @@
     "orders": "Фармонҳо",
     "transfers": "Интиқолҳо",
     "ssr": "КМД",
-    "coursework": "Корҳои курсӣ"
+    "coursework": "Корҳои курсӣ",
+    "faculties": "Факултетҳо",
+    "departments": "Кафедраҳо"
   },
   "auth": {
     "login_title": "ФДТТИ",

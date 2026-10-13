@@ -31,6 +31,18 @@
       />
     </v-col>
     <v-col cols="12">
+      <v-select
+        v-model="form.user_id"
+        label="Пользователь"
+        :items="userItems"
+        item-title="label"
+        item-value="id"
+        variant="outlined"
+        clearable
+        :error-messages="form.errors.user_id"
+      />
+    </v-col>
+    <v-col cols="12">
       <v-textarea
         v-model="form.description"
         label="Описание"
@@ -46,8 +58,16 @@
 </template>
 
 <script setup lang="ts">
-defineProps({
+import { computed } from 'vue'
+
+const props = defineProps({
   form: { type: Object, required: true },
   faculties: { type: Array, default: () => [] },
+  users: { type: Array, default: () => [] },
 })
+
+const userItems = computed(() => (props.users || []).map((user) => ({
+  id: user.id,
+  label: [user.last_name, user.name, user.middle_name].filter(Boolean).join(' '),
+})))
 </script>

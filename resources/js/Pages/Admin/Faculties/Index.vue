@@ -22,7 +22,7 @@
         :columns="columns"
         :rows="rows"
         can-add
-        search-placeholder="Поиск по факультету, коду, декану"
+        search-placeholder="Поиск по факультету, кафедре, пользователю"
         empty-text="Факультеты не найдены"
         add-label="Добавить"
         @create="createFaculty"
@@ -43,6 +43,9 @@
           <v-btn icon variant="text" color="primary" size="small" @click.stop="router.visit(`/admin/faculties/${row.id}/edit`)">
             <v-icon>mdi-pencil</v-icon>
           </v-btn>
+          <v-btn icon variant="text" color="error" size="small" @click.stop="removeFaculty(row)">
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
         </template>
       </ExcelSheet>
     </v-container>
@@ -58,16 +61,48 @@ import ExcelSheet from '@/Components/ExcelSheet.vue'
 const page = usePage()
 const props = defineProps({
   faculties: { type: Array, default: () => [] },
+  departments: { type: Array, default: () => [] },
+  users: { type: Array, default: () => [] },
 })
 
 const rows = computed(() => props.faculties || [])
 
+function personName(user) {
+  if (!user) return ''
+  return [user.last_name, user.name, user.middle_name].filter(Boolean).join(' ')
+}
+
+const departmentOptions = computed(() => (props.departments || []).map((item) => ({
+  title: item.name,
+  value: item.id,
+})))
+
+const userOptions = computed(() => (props.users || []).map((user) => ({
+  title: personName(user),
+  value: user.id,
+})))
+
 const columns = computed(() => [
-  { key: 'name', title: 'Название', editable: true, editor: 'text', inherit: true, required: true, width: '320px' },
+  { key: 'name', title: 'Название', editable: true, editor: 'text', inherit: true, required: true, width: '280px' },
   { key: 'code', title: 'Код', editable: true, editor: 'text', inherit: true },
-  { key: 'dean_name', title: 'Декан', editable: true, editor: 'text', inherit: true },
-  { key: 'phone', title: 'Телефон', editable: true, editor: 'text' },
-  { key: 'departments_count', title: 'Кафедры', text: (row) => String(row.departments_count || 0) },
+  {
+    key: 'department_id',
+    title: 'Кафедра',
+    editable: true,
+    editor: 'select',
+    options: departmentOptions.value,
+    get: (row) => row.departments?.[0]?.id ?? null,
+    text: (row) => (row.departments || []).map((item) => item.name).filter(Boolean).join(', '),
+  },
+  {
+    key: 'user_id',
+    title: 'Пользователь',
+    editable: true,
+    editor: 'select',
+    options: userOptions.value,
+    get: (row) => row.user_id,
+    text: (row) => personName(row.user),
+  },
   {
     key: 'is_active',
     title: 'Статус',
@@ -80,9 +115,8 @@ const columns = computed(() => [
 const payload = (source) => ({
   name: source.name,
   code: source.code || null,
-  dean_name: source.dean_name || null,
-  dean_email: source.dean_email || null,
-  phone: source.phone || null,
+  user_id: source.user_id || null,
+  department_id: source.department_id ?? source.departments?.[0]?.id ?? null,
   address: source.address || null,
   description: source.description || null,
   is_active: source.is_active ?? true,
@@ -104,5 +138,12 @@ const toggleStatus = (item) => {
       item.is_active = previous
     },
   })
+}
+
+const removeFaculty = (row) => {
+  if (!confirm(`Удалить факультет «${row.name}»?`)) {
+    return
+  }
+  router.delete(`/admin/faculties/${row.id}`)
 }
 </script>

@@ -5,15 +5,20 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Models\Faculty;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class DepartmentController extends Controller
 {
     public function index()
     {
-        $departments = Department::with('faculty:id,name')
+        $departments = Department::with([
+                'faculty:id,name',
+                'user:id,name,last_name,middle_name',
+            ])
             ->withCount(['groups', 'specialties', 'subjects'])
             ->orderBy('name')
             ->get();
@@ -21,6 +26,7 @@ class DepartmentController extends Controller
         return spa('Admin/Departments/Index', [
             'departments' => $departments,
             'faculties' => Faculty::orderBy('name')->get(['id', 'name']),
+            'users' => $this->staffUsers(),
         ]);
     }
 
@@ -28,6 +34,7 @@ class DepartmentController extends Controller
     {
         return spa('Admin/Departments/Create', [
             'faculties' => Faculty::orderBy('name')->get(['id', 'name']),
+            'users' => $this->staffUsers(),
         ]);
     }
 
@@ -47,6 +54,7 @@ class DepartmentController extends Controller
     {
         $department->load([
             'faculty:id,name',
+            'user:id,name,last_name,middle_name',
             'specialties:id,department_id,name,code',
             'groups:id,department_id,name,status',
             'subjects:id,department_id,name,is_active',
@@ -63,6 +71,7 @@ class DepartmentController extends Controller
         return spa('Admin/Departments/Edit', [
             'department' => $department,
             'faculties' => Faculty::orderBy('name')->get(['id', 'name']),
+            'users' => $this->staffUsers(),
         ]);
     }
 
@@ -103,10 +112,11 @@ class DepartmentController extends Controller
     {
         $request->merge([
             'faculty_id' => $request->input('faculty_id') ?: null,
+            'user_id' => $request->input('user_id') ?: null,
             'code' => $request->filled('code') ? trim((string) $request->input('code')) : null,
         ]);
 
-        return $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => [
                 'nullable',
@@ -116,8 +126,35 @@ class DepartmentController extends Controller
             ],
             'description' => 'nullable|string|max:2000',
             'faculty_id' => 'nullable|exists:faculties,id',
+            'user_id' => 'nullable|exists:users,id',
             'is_active' => 'sometimes|boolean',
         ]);
+
+        if (! empty($validated['user_id'])) {
+            $isStudent = User::where('id', $validated['user_id'])
+                ->whereHas('role', function ($query) {
+                    $query->where('name', 'student');
+                })
+                ->exists();
+            if ($isStudent) {
+                throw ValidationException::withMessages([
+                    'user_id' => 'Нельзя выбрать студента',
+                ]);
+            }
+        }
+
+        return $validated;
+    }
+
+    private function staffUsers()
+    {
+        return User::query()
+            ->whereDoesntHave('role', function ($query) {
+                $query->where('name', 'student');
+            })
+            ->orderBy('last_name')
+            ->orderBy('name')
+            ->get(['id', 'name', 'last_name', 'middle_name']);
     }
 
     private function uniqueCode(?string $code, ?int $ignoreId = null): string

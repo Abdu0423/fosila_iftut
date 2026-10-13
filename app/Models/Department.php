@@ -14,6 +14,7 @@ class Department extends Model
         'code',
         'description',
         'faculty_id',
+        'user_id',
         'is_active'
     ];
 
@@ -24,6 +25,11 @@ class Department extends Model
     public function faculty()
     {
         return $this->belongsTo(Faculty::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function specialties()

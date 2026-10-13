@@ -34,7 +34,9 @@
     "orders": "Приказы",
     "transfers": "Переводы",
     "ssr": "ССР",
-    "coursework": "Курсовые работы"
+    "coursework": "Курсовые работы",
+    "faculties": "Факультеты",
+    "departments": "Кафедры"
   },
   "auth": {
     "login_title": "ИФТУТ",

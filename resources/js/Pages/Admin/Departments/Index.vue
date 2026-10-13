@@ -22,7 +22,7 @@
         :columns="columns"
         :rows="rows"
         can-add
-        search-placeholder="Поиск по кафедре, коду, факультету"
+        search-placeholder="Поиск по кафедре, факультету, пользователю"
         empty-text="Кафедры не найдены"
         add-label="Добавить"
         @create="createDepartment"
@@ -43,6 +43,9 @@
           <v-btn icon variant="text" color="primary" size="small" @click.stop="router.visit(`/admin/departments/${row.id}/edit`)">
             <v-icon>mdi-pencil</v-icon>
           </v-btn>
+          <v-btn icon variant="text" color="error" size="small" @click.stop="removeDepartment(row)">
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
         </template>
       </ExcelSheet>
     </v-container>
@@ -59,12 +62,23 @@ const page = usePage()
 const props = defineProps({
   departments: { type: Array, default: () => [] },
   faculties: { type: Array, default: () => [] },
+  users: { type: Array, default: () => [] },
 })
 
 const rows = computed(() => props.departments || [])
 const facultyOptions = computed(() => (props.faculties || []).map((item) => ({
   title: item.name,
   value: item.id,
+})))
+
+function personName(user) {
+  if (!user) return ''
+  return [user.last_name, user.name, user.middle_name].filter(Boolean).join(' ')
+}
+
+const userOptions = computed(() => (props.users || []).map((user) => ({
+  title: personName(user),
+  value: user.id,
 })))
 
 const columns = computed(() => [
@@ -79,6 +93,15 @@ const columns = computed(() => [
     options: facultyOptions.value,
     get: (row) => row.faculty_id,
     text: (row) => row.faculty?.name || '',
+  },
+  {
+    key: 'user_id',
+    title: 'Пользователь',
+    editable: true,
+    editor: 'select',
+    options: userOptions.value,
+    get: (row) => row.user_id,
+    text: (row) => personName(row.user),
   },
   { key: 'groups_count', title: 'Группы', text: (row) => String(row.groups_count || 0) },
   { key: 'specialties_count', title: 'Специальности', text: (row) => String(row.specialties_count || 0) },
@@ -96,6 +119,7 @@ const payload = (source) => ({
   code: source.code || null,
   description: source.description || null,
   faculty_id: source.faculty_id || null,
+  user_id: source.user_id || null,
   is_active: source.is_active ?? true,
 })
 
@@ -105,6 +129,13 @@ const createDepartment = (draft) => {
 
 const updateDepartment = ({ row, column, value }) => {
   router.put(`/admin/departments/${row.id}`, payload({ ...row, [column.key]: value }))
+}
+
+const removeDepartment = (row) => {
+  if (!confirm(`Удалить кафедру «${row.name}»?`)) {
+    return
+  }
+  router.delete(`/admin/departments/${row.id}`)
 }
 
 const toggleStatus = (item) => {

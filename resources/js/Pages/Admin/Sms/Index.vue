@@ -134,10 +134,16 @@
                   </div>
                 </v-card-title>
                 <v-card-text>
-                  <ExcelSheet :headers="headers" :rows="filteredUsers">
+                  <ExcelSheet
+                    :columns="userColumns"
+                    :rows="filteredUsers"
+                    selectable
+                    v-model:selected="selectedUsers"
+                    :can-select="canSelectUser"
+                  >
                     <template #cell-name="{ row }">
                       <div>
-                        <div class="font-weight-medium">{{ row.name }} {{ row.last_name }}</div>
+                        <div class="font-weight-medium">{{ personName(row) }}</div>
                         <div class="text-caption text-medium-emphasis">{{ row.email || '—' }}</div>
                       </div>
                     </template>
@@ -279,10 +285,16 @@
                   </div>
                 </v-card-title>
                 <v-card-text>
-                  <ExcelSheet :headers="headers" :rows="filteredUsers">
+                  <ExcelSheet
+                    :columns="userColumns"
+                    :rows="filteredUsers"
+                    selectable
+                    v-model:selected="selectedUsers"
+                    :can-select="canSelectUser"
+                  >
                     <template #cell-name="{ row }">
                       <div>
-                        <div class="font-weight-medium">{{ row.name }} {{ row.last_name }}</div>
+                        <div class="font-weight-medium">{{ personName(row) }}</div>
                         <div class="text-caption text-medium-emphasis">{{ row.email || '—' }}</div>
                       </div>
                     </template>
@@ -498,13 +510,57 @@ const sending = ref(false)
 const phoneSearch = ref(props.filters?.phone_search || '')
 const loadingHistory = ref(false)
 
-// Заголовки таблицы
-const headers = [
-  { title: 'Пользователь', key: 'name', sortable: true },
-  { title: 'Роль', key: 'role', sortable: true },
-  { title: 'Группа', key: 'group', sortable: true },
-  { title: 'Телефон', key: 'phone', sortable: true },
-  { title: 'Статус', key: 'credentials_sent', sortable: true },
+function personName(row) {
+  return [row?.name, row?.last_name, row?.middle_name].filter(Boolean).join(' ')
+}
+
+function phoneDigits(phone) {
+  return phone ? String(phone).replace(/\D/g, '') : ''
+}
+
+function userSearchText(user) {
+  const phone = user?.phone ? String(user.phone) : ''
+  return [
+    personName(user),
+    user?.email,
+    user?.role_display,
+    user?.role,
+    user?.group,
+    phone,
+    phoneDigits(phone),
+    user?.credentials_sent ? 'Отправлено' : 'Не отправлено',
+  ].filter(Boolean).join(' ').toLowerCase()
+}
+
+const userColumns = [
+  {
+    key: 'name',
+    title: 'Пользователь',
+    text: (row) => [personName(row), row.email].filter(Boolean).join(' '),
+  },
+  {
+    key: 'role',
+    title: 'Роль',
+    text: (row) => row.role_display || '',
+  },
+  {
+    key: 'group',
+    title: 'Группа',
+    text: (row) => row.group || '',
+  },
+  {
+    key: 'phone',
+    title: 'Телефон',
+    text: (row) => {
+      if (!row.phone) return ''
+      return `${row.phone} ${phoneDigits(row.phone)}`
+    },
+  },
+  {
+    key: 'credentials_sent',
+    title: 'Статус',
+    text: (row) => (row.credentials_sent ? 'Отправлено' : 'Не отправлено'),
+  },
 ]
 
 // Заголовки таблицы истории SMS
@@ -546,12 +602,11 @@ const filteredUsers = computed(() => {
   }
 
   if (search.value) {
-    const searchLower = search.value.toLowerCase()
-    filtered = filtered.filter(user => 
-      (user.name && user.name.toLowerCase().includes(searchLower)) ||
-      (user.last_name && user.last_name.toLowerCase().includes(searchLower)) ||
-      (user.phone && user.phone.includes(search.value))
-    )
+    const tokens = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean)
+    filtered = filtered.filter(user => {
+      const haystack = userSearchText(user)
+      return tokens.every(token => haystack.includes(token))
+    })
   }
 
   return filtered
@@ -570,8 +625,10 @@ const clearFilters = () => {
   groupFilter.value = null
 }
 
+const canSelectUser = (user) => !!user?.phone
+
 const selectAll = () => {
-  selectedUsers.value = filteredUsers.value.map(user => user.id)
+  selectedUsers.value = filteredUsers.value.filter(user => user.phone).map(user => user.id)
 }
 
 const deselectAll = () => {

@@ -31,6 +31,9 @@
           <v-card><v-card-text><div class="text-caption text-medium-emphasis">Факультет</div><div class="text-h6">{{ department.faculty?.name || '—' }}</div></v-card-text></v-card>
         </v-col>
         <v-col cols="12" md="3">
+          <v-card><v-card-text><div class="text-caption text-medium-emphasis">Пользователь</div><div class="text-h6">{{ personName(department.user) || '—' }}</div></v-card-text></v-card>
+        </v-col>
+        <v-col cols="12" md="3">
           <v-card><v-card-text><div class="text-caption text-medium-emphasis">Группы</div><div class="text-h6">{{ department.groups_count || 0 }}</div></v-card-text></v-card>
         </v-col>
         <v-col cols="12" md="3">
@@ -66,6 +69,11 @@ const page = usePage()
 const props = defineProps({
   department: { type: Object, required: true },
 })
+
+function personName(user) {
+  if (!user) return ''
+  return [user.last_name, user.name, user.middle_name].filter(Boolean).join(' ')
+}
 
 const specialtyHeaders = [
   { title: 'Название', key: 'name' },

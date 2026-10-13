@@ -27,23 +27,19 @@
       </v-alert>
 
       <v-row class="mb-6">
-        <v-col cols="12" md="3">
-          <v-card><v-card-text><div class="text-caption text-medium-emphasis">Декан</div><div class="text-h6">{{ faculty.dean_name || '—' }}</div></v-card-text></v-card>
+        <v-col cols="12" md="4">
+          <v-card><v-card-text><div class="text-caption text-medium-emphasis">Пользователь</div><div class="text-h6">{{ personName(faculty.user) || '—' }}</div></v-card-text></v-card>
         </v-col>
-        <v-col cols="12" md="3">
-          <v-card><v-card-text><div class="text-caption text-medium-emphasis">Телефон</div><div class="text-h6">{{ faculty.phone || '—' }}</div></v-card-text></v-card>
-        </v-col>
-        <v-col cols="12" md="3">
+        <v-col cols="12" md="4">
           <v-card><v-card-text><div class="text-caption text-medium-emphasis">Кафедры</div><div class="text-h6">{{ faculty.departments?.length || 0 }}</div></v-card-text></v-card>
         </v-col>
-        <v-col cols="12" md="3">
+        <v-col cols="12" md="4">
           <v-card><v-card-text><div class="text-caption text-medium-emphasis">Статус</div><v-chip :color="faculty.is_active ? 'success' : 'error'" size="small">{{ faculty.is_active ? 'Активен' : 'Неактивен' }}</v-chip></v-card-text></v-card>
         </v-col>
       </v-row>
 
-      <v-card v-if="faculty.description || faculty.address || faculty.dean_email" class="mb-6">
+      <v-card v-if="faculty.description || faculty.address" class="mb-6">
         <v-card-text>
-          <div v-if="faculty.dean_email">Почта: {{ faculty.dean_email }}</div>
           <div v-if="faculty.address">Адрес: {{ faculty.address }}</div>
           <div v-if="faculty.description" class="mt-2">{{ faculty.description }}</div>
         </v-card-text>
@@ -72,6 +68,11 @@ const page = usePage()
 const props = defineProps({
   faculty: { type: Object, required: true },
 })
+
+function personName(user) {
+  if (!user) return ''
+  return [user.last_name, user.name, user.middle_name].filter(Boolean).join(' ')
+}
 
 const departmentHeaders = [
   { title: 'Кафедра', key: 'name' },

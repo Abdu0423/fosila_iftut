@@ -17,6 +17,7 @@ class Faculty extends Model
         'dean_email',
         'phone',
         'address',
+        'user_id',
         'is_active'
     ];
 
@@ -27,6 +28,11 @@ class Faculty extends Model
     public function departments()
     {
         return $this->hasMany(Department::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function teachers()

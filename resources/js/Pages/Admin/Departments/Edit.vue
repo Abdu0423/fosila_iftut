@@ -16,7 +16,7 @@
           <v-card>
             <v-card-text class="pa-6">
               <v-form @submit.prevent="submit">
-                <DepartmentFields :form="form" :faculties="faculties" />
+                <DepartmentFields :form="form" :faculties="faculties" :users="users" />
                 <div class="d-flex justify-end ga-3">
                   <v-btn variant="outlined" @click="router.visit(`/admin/departments/${department.id}`)">Отмена</v-btn>
                   <v-btn type="submit" color="primary" :loading="form.processing">Сохранить</v-btn>
@@ -38,12 +38,14 @@ import DepartmentFields from './DepartmentFields.vue'
 const props = defineProps({
   department: { type: Object, required: true },
   faculties: { type: Array, default: () => [] },
+  users: { type: Array, default: () => [] },
 })
 
 const form = useForm({
   name: props.department.name || '',
   code: props.department.code || '',
   faculty_id: props.department.faculty_id || null,
+  user_id: props.department.user_id || null,
   description: props.department.description || '',
   is_active: props.department.is_active !== false,
 })

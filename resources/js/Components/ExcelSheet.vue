@@ -29,6 +29,17 @@
       <table class="excel-grid">
         <thead>
           <tr>
+            <th v-if="selectable" class="excel-check">
+              <v-checkbox-btn
+                :model-value="allFilteredSelected"
+                :indeterminate="someFilteredSelected && !allFilteredSelected"
+                :disabled="!selectableFiltered.length"
+                density="compact"
+                hide-details
+                @click.stop
+                @update:model-value="toggleAllFiltered"
+              />
+            </th>
             <th class="excel-index">#</th>
             <th
               v-for="column in sheetColumns"
@@ -39,6 +50,7 @@
             </th>
           </tr>
           <tr class="excel-filter-row">
+            <th v-if="selectable" class="excel-check"></th>
             <th class="excel-index"></th>
             <th v-for="column in sheetColumns" :key="`filter-${column.key}`">
               <template v-if="isFilterable(column)">
@@ -62,7 +74,25 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(row, index) in pageRows" :key="rowKey(row, index)">
+          <tr
+            v-for="(row, index) in pageRows"
+            :key="rowKey(row, index)"
+            :class="{
+              'excel-selected': isRowSelected(row),
+              'excel-row-selectable': selectable && rowCanSelect(row),
+            }"
+            @click="onRowClick(row, $event)"
+          >
+            <td v-if="selectable" class="excel-check" @click.stop>
+              <v-checkbox-btn
+                :model-value="isRowSelected(row)"
+                :disabled="!rowCanSelect(row)"
+                :title="rowCanSelect(row) ? '' : 'Нет телефона'"
+                density="compact"
+                hide-details
+                @update:model-value="setRowSelected(row, $event)"
+              />
+            </td>
             <td class="excel-index">{{ rowNumber(index) }}</td>
             <td
               v-for="column in sheetColumns"
@@ -108,6 +138,7 @@
           </tr>
 
           <tr v-if="canAdd" class="excel-add-row">
+            <td v-if="selectable" class="excel-check"></td>
             <td class="excel-index">+</td>
             <td v-for="column in sheetColumns" :key="column.key">
               <template v-if="column.editor === 'select'">
@@ -148,7 +179,7 @@
           </tr>
 
           <tr v-if="!pageRows.length && !canAdd">
-            <td :colspan="sheetColumns.length + 1" class="excel-empty">{{ emptyText }}</td>
+            <td :colspan="sheetColumns.length + (selectable ? 2 : 1)" class="excel-empty">{{ emptyText }}</td>
           </tr>
         </tbody>
       </table>
@@ -188,6 +219,10 @@ const props = withDefaults(defineProps<{
   addLabel?: string
   pageSize?: number
   modelValue?: string
+  selectable?: boolean
+  selected?: Array<string | number>
+  rowId?: string
+  canSelect?: (row: Record<string, any>) => boolean
 }>(), {
   columns: () => [],
   headers: () => [],
@@ -198,10 +233,15 @@ const props = withDefaults(defineProps<{
   addLabel: 'Добавить',
   pageSize: 25,
   modelValue: '',
+  selectable: false,
+  selected: () => [],
+  rowId: 'id',
+  canSelect: undefined,
 })
 
 const emit = defineEmits<{
   (event: 'update:modelValue', value: string): void
+  (event: 'update:selected', value: Array<string | number>): void
   (event: 'create', draft: Record<string, unknown>): void
   (event: 'commit', payload: { row: Record<string, any>; column: SheetColumn; value: unknown }): void
 }>()
@@ -305,21 +345,107 @@ function rowMatchesColumnFilter(row: Record<string, any>, column: SheetColumn, r
   }
   const text = cellText(row, column).trim().toLowerCase()
   const known = (choiceMap.value[column.key] || []).some((choice) => choice.toLowerCase() === query)
-  return known ? text === query : text.includes(query)
+  if (known) {
+    return text === query
+  }
+  return searchTokens(query).every((token) => text.includes(token))
+}
+
+function searchTokens(raw: string) {
+  return raw.trim().toLowerCase().split(/\s+/).filter(Boolean)
+}
+
+function rowHaystack(row: Record<string, any>) {
+  return sheetColumns.value.map((column) => cellText(row, column)).join(' ').toLowerCase()
 }
 
 const filteredRows = computed(() => {
-  const query = search.value.trim().toLowerCase()
+  const tokens = searchTokens(search.value || '')
   const active = sheetColumns.value
     .map((column) => ({ column, value: (columnFilters[column.key] || '').trim() }))
     .filter((item) => item.value)
   return (props.rows || []).filter((row) => {
-    if (query && !sheetColumns.value.some((column) => cellText(row, column).toLowerCase().includes(query))) {
-      return false
+    if (tokens.length) {
+      const haystack = rowHaystack(row)
+      if (!tokens.every((token) => haystack.includes(token))) {
+        return false
+      }
     }
     return active.every((item) => rowMatchesColumnFilter(row, item.column, item.value))
   })
 })
+
+function rowCanSelect(row: Record<string, any>) {
+  return !props.canSelect || props.canSelect(row)
+}
+
+function rowSelectId(row: Record<string, any>) {
+  return row?.[props.rowId]
+}
+
+const selectedSet = computed(() => new Set(props.selected || []))
+
+function isRowSelected(row: Record<string, any>) {
+  const id = rowSelectId(row)
+  return id != null && selectedSet.value.has(id)
+}
+
+const selectableFiltered = computed(() => filteredRows.value.filter((row) => rowCanSelect(row)))
+
+const allFilteredSelected = computed(() => {
+  const rows = selectableFiltered.value
+  return rows.length > 0 && rows.every((row) => isRowSelected(row))
+})
+
+const someFilteredSelected = computed(() => selectableFiltered.value.some((row) => isRowSelected(row)))
+
+function emitSelected(next: Set<string | number>) {
+  emit('update:selected', [...next])
+}
+
+function setRowSelected(row: Record<string, any>, checked: boolean | null) {
+  if (!rowCanSelect(row)) {
+    return
+  }
+  const id = rowSelectId(row)
+  if (id == null) {
+    return
+  }
+  const next = new Set(props.selected || [])
+  if (checked) {
+    next.add(id)
+  } else {
+    next.delete(id)
+  }
+  emitSelected(next)
+}
+
+function toggleAllFiltered(checked: boolean | null) {
+  const next = new Set(props.selected || [])
+  selectableFiltered.value.forEach((row) => {
+    const id = rowSelectId(row)
+    if (id == null) {
+      return
+    }
+    if (checked) {
+      next.add(id)
+    } else {
+      next.delete(id)
+    }
+  })
+  emitSelected(next)
+}
+
+function onRowClick(row: Record<string, any>, event: MouseEvent) {
+  if (!props.selectable || !rowCanSelect(row)) {
+    return
+  }
+  const target = event.target as HTMLElement | null
+  if (target?.closest('input, button, a, .v-selection-control, .v-checkbox')) {
+    return
+  }
+  setRowSelected(row, !isRowSelected(row))
+}
 
 const totalPages = computed(() => Math.max(1, Math.ceil(filteredRows.value.length / props.pageSize)))
 
@@ -604,6 +730,25 @@ function submitAdd() {
   text-align: center !important;
   color: #8a8175;
   background: #f7f4ef !important;
+}
+
+.excel-check {
+  width: 42px;
+  text-align: center !important;
+  padding: 0 4px !important;
+}
+
+.excel-row-selectable {
+  cursor: pointer;
+}
+
+.excel-check .v-selection-control {
+  min-height: 0;
+  justify-content: center;
+}
+
+.excel-grid tr.excel-selected td {
+  background: #e7ecff !important;
 }
 
 .excel-editable {
