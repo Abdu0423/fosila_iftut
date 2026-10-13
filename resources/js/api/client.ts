@@ -8,7 +8,7 @@ export function rewritePanelPath(url: string): string {
     }
 
     const current = window.location.pathname;
-    const panel = ['department', 'faculty'].find((name) => current === `/${name}` || current.startsWith(`/${name}/`));
+    const panel = ['department', 'faculty', 'education', 'registration'].find((name) => current === `/${name}` || current.startsWith(`/${name}/`));
     if (!panel) {
         return url;
     }

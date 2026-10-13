@@ -24,15 +24,16 @@ onMounted(() => {
   // Перенаправляем на Dashboard
   const user = page.props.auth?.user
   if (user) {
-    if (user.role?.name === 'admin') {
-      router.visit('/admin')
-    } else if (user.role?.name === 'teacher') {
-      router.visit('/teacher')
-    } else if (user.role?.name === 'education_department') {
-      router.visit('/education')
-    } else {
-      router.visit('/student')
+    const homes: Record<string, string> = {
+      admin: '/admin',
+      teacher: '/teacher',
+      education_department: '/education',
+      registration_center: '/registration',
+      department: '/department',
+      faculty: '/faculty',
+      student: '/student',
     }
+    router.visit(homes[user.role?.name] || '/student')
   } else {
     router.visit('/login')
   }
