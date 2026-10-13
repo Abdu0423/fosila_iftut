@@ -214,6 +214,7 @@ class PageAccess
             $pages[] = [
                 'key' => $page['key'],
                 'title' => $page['title'],
+                'route' => $page['route'],
                 'enabled' => in_array($page['key'], $granted, true),
             ];
         }

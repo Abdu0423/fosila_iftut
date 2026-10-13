@@ -30,22 +30,20 @@ class AccessController extends Controller
 
     public function update(Request $request)
     {
-        $validated = $request->validate([
-            'role_id' => 'required|exists:roles,id',
-            'keys' => 'array',
-            'keys.*' => 'string',
-        ]);
+        $grants = $request->input('grants');
+        if (! is_array($grants)) {
+            $grants = [[
+                'role_id' => $request->input('role_id'),
+                'keys' => $request->input('keys', []),
+            ]];
+        }
 
-        $role = Role::query()
-            ->where('name', '!=', 'admin')
-            ->findOrFail($validated['role_id']);
-
-        $audience = $role->name === 'student' ? 'student' : 'staff';
-        $allowedKeys = collect(PageAccess::definitions())
-            ->filter(fn ($page) => ($page['audience'] ?? 'staff') === $audience)
-            ->pluck('key');
-
-        $keys = collect($validated['keys'] ?? [])->intersect($allowedKeys);
+        $validated = validator(['grants' => $grants], [
+            'grants' => 'required|array|min:1',
+            'grants.*.role_id' => 'required|integer|exists:roles,id',
+            'grants.*.keys' => 'array',
+            'grants.*.keys.*' => 'string',
+        ])->validate();
 
         foreach (PageAccess::definitions() as $index => $page) {
             AccessPage::updateOrCreate(
@@ -54,9 +52,28 @@ class AccessController extends Controller
             );
         }
 
-        $ids = AccessPage::query()->whereIn('key', $keys)->pluck('id');
-        $role->accessPages()->sync($ids);
+        foreach ($validated['grants'] as $grant) {
+            $this->syncRole((int) $grant['role_id'], $grant['keys'] ?? []);
+        }
 
         return back()->with('success', 'Доступ сохранён');
+    }
+
+    private function syncRole(int $roleId, array $keys): void
+    {
+        $role = Role::query()
+            ->where('name', '!=', 'admin')
+            ->findOrFail($roleId);
+
+        $audience = $role->name === 'student' ? 'student' : 'staff';
+        $allowedKeys = collect(PageAccess::definitions())
+            ->filter(fn ($page) => ($page['audience'] ?? 'staff') === $audience)
+            ->pluck('key');
+
+        $ids = AccessPage::query()
+            ->whereIn('key', collect($keys)->intersect($allowedKeys))
+            ->pluck('id');
+
+        $role->accessPages()->sync($ids);
     }
 }
