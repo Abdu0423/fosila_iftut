@@ -71,12 +71,13 @@
                       </th>
                       <td v-for="role in staffRoles" :key="`${group.title}-${role.id}`">
                         <v-checkbox-btn
-                          :model-value="groupState(role.id, group.pages.map((item) => item.key)) === true"
-                          :indeterminate="groupState(role.id, group.pages.map((item) => item.key)) === null"
+                          :model-value="groupState(role.id, pageKeys(group)) === true"
+                          :indeterminate="groupState(role.id, pageKeys(group)) === null"
                           color="primary"
                           density="compact"
                           :aria-label="`${group.title}, ${role.description || role.name}`"
-                          @update:model-value="setGroup(role.id, group.pages.map((item) => item.key), $event)"
+                          @update:model-value="setGroup(role.id, pageKeys(group), $event)"
+                        />
                       </td>
                     </tr>
                     <tr v-for="item in group.pages" :key="item.key">
@@ -242,6 +243,8 @@ const groupState = (roleId: number, keys: string[]): boolean | null => {
   if (on === known.length) return true
   return null
 }
+
+const pageKeys = (group: { pages: PageItem[] }) => group.pages.map((item) => item.key)
 
 const setGroup = (roleId: number, keys: string[], value: boolean | null) => {
   setKeys(roleId, keys.filter((key) => key in (draft.value[roleId] || {})), !!value)
