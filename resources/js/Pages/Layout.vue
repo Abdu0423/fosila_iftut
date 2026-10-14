@@ -462,6 +462,7 @@ const menuItems = computed(() => {
 
   if (currentRole.value === 'admin') {
     items.push({ title: 'Доступ к страницам', icon: 'mdi-shield-key', route: '/admin/access' })
+    items.push({ title: 'Журнал изменений', icon: 'mdi-history', route: '/admin/change-log' })
   }
 
   return filterMenu(items)

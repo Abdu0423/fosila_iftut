@@ -211,6 +211,7 @@ Route::prefix('admin')->middleware(['auth', 'staff', 'check.password.change'])->
     Route::middleware('admin')->group(function () {
         Route::get('/access', [App\Http\Controllers\Admin\AccessController::class, 'index'])->name('admin.access.index');
         Route::post('/access', [App\Http\Controllers\Admin\AccessController::class, 'update'])->name('admin.access.update');
+        Route::get('/change-log', [App\Http\Controllers\Admin\ChangeLogController::class, 'index'])->name('admin.change-log.index');
     });
     
     // Факультеты и кафедры
