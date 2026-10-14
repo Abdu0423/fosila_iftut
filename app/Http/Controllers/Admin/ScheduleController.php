@@ -20,7 +20,12 @@ class ScheduleController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = Schedule::with(['subject', 'teacher', 'department', 'group', 'syllabuses', 'lessons']);
+        $query = Schedule::with([
+            'subject:id,name',
+            'teacher:id,name,last_name',
+            'department:id,name',
+            'group:id,name',
+        ]);
         $missingDepartment = false;
 
         if ($user->isDepartment()) {
@@ -79,26 +84,11 @@ class ScheduleController extends Controller
         $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
-        $schedules = $query->with(['tests' => function($q) {
-            $q->whereIn('exam_type', ['periodic', 'final'])->orderBy('exam_type')->orderBy('id');
-        }])->get();
+        $schedules = $query->get();
 
-        // Данные для фильтров
-        $subjects = Subject::all();
-        $groups = Group::all();
+        $subjects = Subject::query()->orderBy('name')->get(['id', 'name']);
+        $groups = Group::query()->orderBy('name')->get(['id', 'name']);
         $departments = Department::orderBy('name')->get(['id', 'name']);
-
-        // Форматируем расписания для отображения дат экзаменов
-        $schedules->transform(function($schedule) {
-            $periodicExams = $schedule->tests->where('exam_type', 'periodic');
-            $finalExam = $schedule->tests->where('exam_type', 'final')->first();
-            
-            $schedule->periodic_exam_1_date = $periodicExams->first()?->exam_date;
-            $schedule->periodic_exam_2_date = $periodicExams->skip(1)->first()?->exam_date;
-            $schedule->final_exam_date = $finalExam?->exam_date;
-            
-            return $schedule;
-        });
 
         $teachers = collect();
         if ($user->canAssignScheduleTeacher()) {

@@ -20,17 +20,18 @@
 <script setup lang="ts">
 import { computed, ref, shallowRef, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { api, toSpaPath } from '../api/client';
+import { toSpaPath } from '../api/client';
 import { signalPageLoaded, usePageStore } from '../stores/page';
 import Layout from '../Pages/Layout.vue';
+import { fetchPage, forgetPage, isRedirect, readPage, resolvePageComponent, type CachedPage } from './pageCache';
 
 const currentRoute = useRoute();
 const vueRouter = useRouter();
 const pageStore = usePageStore();
-const pages = import.meta.glob('../Pages/**/*.vue');
 
 const pageComponent = shallowRef<unknown>(null);
 const loadedPath = ref('');
+let generation = 0;
 
 const barePaths = ['/login', '/password', '/change-password', '/privacy', '/terms'];
 
@@ -57,39 +58,52 @@ const pageData = computed(() => {
     return data;
 });
 
-async function resolveComponent(name: string) {
-    const loader = pages[`../Pages/${name}.vue`] as (() => Promise<{ default: unknown }>) | undefined;
-
-    if (!loader) {
-        const fallback = pages['../Pages/Errors/404.vue'] as () => Promise<{ default: unknown }>;
-        return (await fallback()).default;
-    }
-
-    return (await loader()).default;
+async function showPage(page: CachedPage, path: string) {
+    const component = await resolvePageComponent(page.component);
+    pageStore.setPage(page.component, page.props);
+    pageComponent.value = component;
+    loadedPath.value = path;
 }
 
-async function loadPage() {
+async function loadPage(fresh: boolean) {
     const path = currentRoute.path || '/';
+    const key = currentRoute.fullPath;
+    const requestId = ++generation;
+    let showedCache = false;
+
+    if (fresh) {
+        forgetPage(key);
+    } else {
+        const cached = readPage(key);
+        if (cached) {
+            await showPage(cached, path);
+            if (requestId !== generation) {
+                return;
+            }
+            showedCache = true;
+        }
+    }
 
     try {
-        const response = await api.get(path, { params: currentRoute.query });
-        const data = response.data ?? {};
+        const result = await fetchPage(path, currentRoute.query as Record<string, unknown>, key, fresh);
+        if (requestId !== generation) {
+            return;
+        }
 
-        if (data.redirect && !data.component) {
-            const target = toSpaPath(data.redirect);
+        if (isRedirect(result)) {
+            const target = toSpaPath(result.redirect);
             if (target !== currentRoute.fullPath && target !== path) {
                 await vueRouter.replace(target);
             }
             return;
         }
 
-        const componentName = data.component || 'Errors/404';
-        const props = data.props && !Array.isArray(data.props) ? data.props : {};
-        const component = await resolveComponent(componentName);
-        pageStore.setPage(componentName, props);
-        pageComponent.value = component;
-        loadedPath.value = path;
+        await showPage(result, path);
     } catch (error: unknown) {
+        if (requestId !== generation || showedCache) {
+            return;
+        }
+
         const response = (error as { response?: { status?: number; data?: { component?: string; props?: Record<string, unknown>; message?: string } } }).response;
         const status = response?.status;
         const body = response?.data;
@@ -99,19 +113,22 @@ async function loadPage() {
         }
 
         const componentName = body?.component || (status === 403 ? 'Errors/403' : status === 419 ? 'Errors/419' : 'Errors/500');
-        const component = await resolveComponent(componentName);
-        pageStore.setPage(componentName, body?.props || { message: body?.message || '' });
-        pageComponent.value = component;
-        loadedPath.value = path;
+        await showPage({
+            component: componentName,
+            props: body?.props || { message: body?.message || '' },
+        }, path);
     } finally {
-        signalPageLoaded();
+        if (requestId === generation) {
+            signalPageLoaded();
+        }
     }
 }
 
 watch(
     () => [currentRoute.fullPath, pageStore.reloadToken] as const,
-    () => {
-        loadPage();
+    (value, previous) => {
+        const fresh = Boolean(previous && value[0] === previous[0] && value[1] !== previous[1]);
+        loadPage(fresh);
     },
     { immediate: true },
 );

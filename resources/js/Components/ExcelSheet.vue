@@ -281,7 +281,11 @@ const sheetColumns = computed<SheetColumn[]>(() => {
 })
 
 const addActionKey = computed(() => {
-  const slotColumn = sheetColumns.value.find((column) => column.editor === 'slot' || column.key === 'actions')
+  const actions = sheetColumns.value.find((column) => column.key === 'actions')
+  if (actions) {
+    return actions.key
+  }
+  const slotColumn = sheetColumns.value.find((column) => column.editor === 'slot')
   return slotColumn?.key || sheetColumns.value[sheetColumns.value.length - 1]?.key
 })
 

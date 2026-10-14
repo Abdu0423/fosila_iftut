@@ -243,8 +243,9 @@ const sheetColumns = computed(() => [
     inherit: true,
     required: true,
     options: departmentOptions.value,
+    filterChoices: departmentOptions.value.map((department) => department.title).filter(Boolean),
     get: (row) => row.department_id,
-    text: (row) => row.department?.name || personName(row.teacher)
+    text: (row) => row.department?.name || ''
   },
   {
     key: 'teacher_id',
@@ -407,8 +408,8 @@ const sortedSchedules = computed(() => {
           bValue = b.group?.name || ''
           break
         case 'department':
-          aValue = a.department?.name || personName(a.teacher)
-          bValue = b.department?.name || personName(b.teacher)
+          aValue = a.department?.name || ''
+          bValue = b.department?.name || ''
           break
         case 'semester':
           aValue = a.semester || 0

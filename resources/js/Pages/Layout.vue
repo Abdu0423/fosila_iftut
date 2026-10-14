@@ -76,6 +76,8 @@
                   { 'menu-item-active': isActiveRoute(child.route) },
                   { 'menu-item-dark': isDarkTheme }
                 ]"
+                @mouseenter="prefetchPage(child.route)"
+                @focus="prefetchPage(child.route)"
                 @click="navigateTo(child.route)"
                 rounded="lg"
               >
@@ -96,6 +98,8 @@
                 { 'menu-item-active': isActiveRoute(item.route) },
                 { 'menu-item-dark': isDarkTheme }
               ]"
+              @mouseenter="prefetchPage(item.route)"
+              @focus="prefetchPage(item.route)"
               @click="navigateTo(item.route)"
               rounded="lg"
             >
@@ -221,13 +225,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, inject, provide } from 'vue'
+import { ref, computed, onMounted, onUnmounted, inject, provide, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { usePage, router } from '@/compat/inertia'
 import { useDisplay } from 'vuetify'
 import { useI18n } from 'vue-i18n'
 import NotificationSnackbar from '../Components/NotificationSnackbar.vue'
 import LanguageSwitcher from '../Components/LanguageSwitcher.vue'
+import { prefetchPage } from '../spa/pageCache'
 
 const insideShell = inject('appShell', false)
 provide('appShell', true)
@@ -269,6 +274,17 @@ const handleResize = () => {
 onMounted(() => {
   window.addEventListener('resize', handleResize)
   handleResize()
+  if (insideShell) {
+    return
+  }
+  let stop = () => {}
+  stop = watch(() => page.component, (name) => {
+    if (!name) {
+      return
+    }
+    stop()
+    warmMenu()
+  }, { immediate: true })
 })
 
 onUnmounted(() => {
@@ -467,6 +483,35 @@ const menuItems = computed(() => {
 
   return filterMenu(items)
 })
+
+const warmMenu = () => {
+  if (insideShell) {
+    return
+  }
+
+  const routes = []
+  menuItems.value.forEach((item) => {
+    if (item.route) {
+      routes.push(item.route)
+    }
+    item.children?.forEach((child) => {
+      if (child.route) {
+        routes.push(child.route)
+      }
+    })
+  })
+
+  const queue = routes.filter((route) => route && route !== currentRoute.path)
+  const pump = () => {
+    const next = queue.shift()
+    if (!next) {
+      return
+    }
+    prefetchPage(next).finally(() => pump())
+  }
+  pump()
+  pump()
+}
 
 // Методы
 const navigateTo = (path) => {
