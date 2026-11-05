@@ -1,209 +1,179 @@
 ﻿<template>
   <Layout :role="userRole">
-    <v-container fluid>
-      <!-- Заголовок -->
-      <v-row>
-        <v-col cols="12">
-          <div class="d-flex justify-space-between align-center mb-6">
-            <div>
-              <h1 class="text-h4 font-weight-bold mb-2">Чаты</h1>
-              <p class="text-body-1 text-medium-emphasis">Общайтесь с пользователями системы</p>
+    <v-container fluid class="messenger-page">
+      <v-card class="messenger-shell" rounded="lg" elevation="1">
+        <aside class="chat-list">
+          <div class="chat-list-scroll">
+            <v-list class="py-0" bg-color="transparent">
+              <v-list-item
+                v-for="chat in chats"
+                :key="chat.id"
+                :active="selectedChatId === chat.id"
+                @click="selectChat(chat.id)"
+                class="chat-item"
+                lines="two"
+              >
+                <template v-slot:prepend>
+                  <v-avatar
+                    :color="chat.display_avatar ? 'transparent' : 'primary'"
+                    size="48"
+                  >
+                    <v-img
+                      v-if="chat.display_avatar"
+                      :src="chat.display_avatar"
+                      :alt="getChatPartnerName(chat)"
+                    ></v-img>
+                    <span v-else class="text-white font-weight-bold">
+                      {{ getInitials(getChatPartnerName(chat)) }}
+                    </span>
+                  </v-avatar>
+                </template>
+
+                <v-list-item-title class="font-weight-medium">
+                  {{ getChatPartnerName(chat) }}
+                </v-list-item-title>
+                <v-list-item-subtitle class="text-truncate">
+                  <template v-if="chat.last_message">
+                    {{ chat.last_message.user_id === currentUserId ? 'Вы: ' : '' }}{{ chat.last_message.message }}
+                  </template>
+                  <span v-else>Нет сообщений</span>
+                </v-list-item-subtitle>
+
+                <template v-slot:append>
+                  <div class="chat-item-meta">
+                    <span v-if="chat.last_message" class="text-caption text-medium-emphasis">
+                      {{ formatTime(chat.last_message.created_at) }}
+                    </span>
+                    <v-badge
+                      v-if="chat.unread_count > 0"
+                      :content="chat.unread_count"
+                      color="primary"
+                      inline
+                    />
+                  </div>
+                </template>
+              </v-list-item>
+
+              <div v-if="chats.length === 0" class="chat-list-empty text-medium-emphasis">
+                У вас пока нет чатов
+              </div>
+            </v-list>
+          </div>
+
+          <v-btn
+            class="new-chat-fab"
+            color="primary"
+            icon
+            size="large"
+            elevation="8"
+            @click="showNewChatDialog = true"
+          >
+            <v-icon>mdi-plus</v-icon>
+          </v-btn>
+        </aside>
+
+        <section v-if="selectedChat" class="chat-thread">
+          <div class="thread-header">
+            <v-avatar
+              :color="selectedChat.display_avatar ? 'transparent' : 'primary'"
+              size="40"
+              class="mr-3"
+            >
+              <v-img
+                v-if="selectedChat.display_avatar"
+                :src="selectedChat.display_avatar"
+                :alt="selectedChat.display_name"
+              ></v-img>
+              <span v-else class="text-white font-weight-bold">
+                {{ getInitials(chatPartnerName) }}
+              </span>
+            </v-avatar>
+            <div class="flex-grow-1">
+              <div class="text-subtitle-1 font-weight-medium">{{ chatPartnerName }}</div>
+              <div v-if="selectedChat.type !== 'private'" class="text-caption text-medium-emphasis">
+                Групповой чат
+              </div>
             </div>
             <v-btn
-              color="primary"
-              variant="elevated"
-              @click="showNewChatDialog = true"
-              prepend-icon="mdi-plus"
+              icon="mdi-exit-to-app"
+              variant="text"
+              @click="leaveChat"
+              color="error"
             >
-              Новый чат
+              <v-icon>mdi-exit-to-app</v-icon>
+              <v-tooltip activator="parent" location="bottom">
+                Покинуть чат
+              </v-tooltip>
             </v-btn>
           </div>
-        </v-col>
-      </v-row>
 
-      <!-- Список чатов -->
-      <v-row>
-        <v-col cols="12" md="4">
-          <v-card>
-            <v-card-title class="text-h6">
-              <v-icon start>mdi-chat</v-icon>
-              Мои чаты
-            </v-card-title>
-            <v-card-text class="pa-0">
-              <v-list>
-                <v-list-item
-                  v-for="chat in chats"
-                  :key="chat.id"
-                  :active="selectedChatId === chat.id"
-                  @click="selectChat(chat.id)"
-                  class="chat-item"
-                  :class="{ 'v-list-item--active': selectedChatId === chat.id }"
-                >
-                  <template v-slot:prepend>
-                    <v-avatar
-                      :color="chat.display_avatar ? 'transparent' : 'primary'"
-                      size="48"
-                    >
-                      <v-img
-                        v-if="chat.display_avatar"
-                        :src="chat.display_avatar"
-                        :alt="getChatPartnerName(chat)"
-                      ></v-img>
-                      <span v-else class="text-white font-weight-bold">
-                        {{ getInitials(getChatPartnerName(chat)) }}
-                      </span>
-                    </v-avatar>
-                  </template>
+          <div class="chat-messages" ref="messagesContainer">
+            <div v-if="messages.length === 0" class="thread-empty">
+              <v-icon size="56" color="grey-lighten-1">mdi-chat-outline</v-icon>
+              <div class="text-subtitle-1 text-medium-emphasis mt-3">Начните общение</div>
+            </div>
 
-                  <v-list-item-title class="text-subtitle-1">
-                    {{ getChatPartnerName(chat) }}
-                  </v-list-item-title>
-                  
-                  <v-list-item-subtitle class="text-body-2">
-                    <div v-if="chat.last_message" class="d-flex align-center">
-                      <span class="text-truncate mr-2">
-                        {{ chat.last_message.user_id === currentUserId ? 'Вы' : chat.last_message.user.name }}: {{ chat.last_message.message }}
-                      </span>
-                      <span class="text-caption text-medium-emphasis">
-                        {{ formatTime(chat.last_message.created_at) }}
-                      </span>
-                    </div>
-                    <span v-else class="text-medium-emphasis">Нет сообщений</span>
-                  </v-list-item-subtitle>
-
-                  <template v-slot:append>
-                    <v-chip
-                      v-if="chat.unread_count > 0"
-                      color="primary"
-                      size="small"
-                      class="ml-2"
-                    >
-                      {{ chat.unread_count }}
-                    </v-chip>
-                  </template>
-                </v-list-item>
-
-                <v-list-item v-if="chats.length === 0" class="text-center">
-                  <v-list-item-title class="text-medium-emphasis">
-                    У вас пока нет чатов
-                  </v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-card-text>
-          </v-card>
-        </v-col>
-
-        <!-- Область чата -->
-        <v-col cols="12" md="8">
-          <v-card v-if="selectedChat" class="chat-container">
-            <v-card-title class="d-flex align-center">
-              <v-avatar
-                :color="selectedChat.display_avatar ? 'transparent' : 'primary'"
-                size="40"
-                class="mr-3"
+            <div v-else class="messages-list">
+              <div
+                v-for="message in messages"
+                :key="message.id"
+                class="message-item"
+                :class="{ 'message-own': isOwnMessage(message) }"
               >
-                <v-img
-                  v-if="selectedChat.display_avatar"
-                  :src="selectedChat.display_avatar"
-                  :alt="selectedChat.display_name"
-                ></v-img>
-                <span v-else class="text-white font-weight-bold">
-                  {{ getInitials(selectedChat.display_name) }}
-                </span>
-              </v-avatar>
-              <div>
-                <div class="text-h6">{{ chatPartnerName }}</div>
-                <div v-if="selectedChat.type !== 'private'" class="text-caption text-medium-emphasis">
-                  Групповой чат
-                </div>
-              </div>
-              <v-spacer></v-spacer>
-              <v-btn
-                icon="mdi-account-minus"
-                variant="text"
-                @click="leaveChat"
-                color="error"
-              >
-                <v-icon>mdi-exit-to-app</v-icon>
-                <v-tooltip activator="parent" location="bottom">
-                  Покинуть чат
-                </v-tooltip>
-              </v-btn>
-            </v-card-title>
-
-            <!-- Сообщения -->
-            <v-card-text class="chat-messages pa-0" ref="messagesContainer">
-              <div v-if="messages.length === 0" class="text-center pa-8">
-                <v-icon size="64" color="grey-lighten-1">mdi-chat-outline</v-icon>
-                <div class="text-h6 text-medium-emphasis mt-4">Начните общение</div>
-                <div class="text-body-2 text-medium-emphasis">
-                  Отправьте первое сообщение в этом чате
-                </div>
-              </div>
-
-              <div v-else class="messages-list">
-                <div
-                  v-for="message in messages"
-                  :key="message.id"
-                  class="message-item"
-                  :class="{ 'message-own': isOwnMessage(message) }"
-                >
-                  <div class="message-content" :class="{ 'message-own': isOwnMessage(message) }">
-                    <div class="message-header" v-if="!isOwnMessage(message)">
-                      <span class="message-author">{{ message.user.name }}</span>
-                      <span class="message-time">{{ formatTime(message.created_at) }}</span>
-                    </div>
-                    <div class="message-text">{{ message.message }}</div>
-                    <div class="message-status" v-if="isOwnMessage(message)">
-                      <v-icon
-                        size="16"
-                        :color="message.status === 'read' ? 'primary' : 'grey'"
-                      >
-                        {{ message.status === 'read' ? 'mdi-check-all' : 'mdi-check' }}
-                      </v-icon>
-                    </div>
+                <div class="message-content">
+                  <div v-if="!isOwnMessage(message)" class="message-author">
+                    {{ message.user.name }}
+                  </div>
+                  <div class="message-text">{{ message.message }}</div>
+                  <div class="message-meta">
+                    <span class="message-time">{{ formatTime(message.created_at) }}</span>
+                    <v-icon
+                      v-if="isOwnMessage(message)"
+                      size="14"
+                      :color="message.status === 'read' ? 'primary' : 'grey'"
+                    >
+                      {{ message.status === 'read' ? 'mdi-check-all' : 'mdi-check' }}
+                    </v-icon>
                   </div>
                 </div>
               </div>
-            </v-card-text>
+            </div>
+          </div>
 
-            <!-- Поле ввода сообщения -->
-            <v-card-actions class="pa-4">
-              <v-textarea
-                v-model="newMessage"
-                placeholder="Введите сообщение..."
-                variant="outlined"
-                density="compact"
-                rows="1"
-                auto-grow
-                hide-details
-                @keydown.enter.prevent="sendMessage"
-                class="flex-grow-1 mr-3"
-              ></v-textarea>
-              <v-btn
-                color="primary"
-                variant="elevated"
-                @click="sendMessage"
-                :disabled="!newMessage.trim()"
-                icon="mdi-send"
-              >
-                <v-icon>mdi-send</v-icon>
-              </v-btn>
-            </v-card-actions>
-          </v-card>
+          <div class="composer">
+            <v-text-field
+              v-model="newMessage"
+              placeholder="Сообщение"
+              variant="outlined"
+              density="comfortable"
+              hide-details
+              rounded="pill"
+              class="flex-grow-1"
+              @keydown.enter.prevent="sendMessage"
+            />
+            <v-btn
+              class="ml-2"
+              color="primary"
+              icon
+              size="large"
+              :disabled="!newMessage.trim()"
+              @click="sendMessage"
+            >
+              <v-icon>mdi-send</v-icon>
+            </v-btn>
+          </div>
+        </section>
 
-          <!-- Заглушка когда чат не выбран -->
-          <v-card v-else class="chat-container">
-            <v-card-text class="text-center pa-8">
-              <v-icon size="64" color="grey-lighten-1">mdi-chat-outline</v-icon>
-              <div class="text-h6 text-medium-emphasis mt-4">Выберите чат</div>
-              <div class="text-body-2 text-medium-emphasis">
-                Выберите чат из списка слева или создайте новый
-              </div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
+        <section v-else class="chat-thread">
+          <div class="thread-empty">
+            <v-icon size="64" color="grey-lighten-1">mdi-chat-outline</v-icon>
+            <div class="text-h6 text-medium-emphasis mt-4">Выберите чат</div>
+            <div class="text-body-2 text-medium-emphasis">
+              Выберите диалог слева или нажмите +
+            </div>
+          </div>
+        </section>
+      </v-card>
 
       <!-- Диалог создания нового чата -->
       <v-dialog v-model="showNewChatDialog" max-width="500">
@@ -645,113 +615,173 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.chat-container {
-  height: 600px;
+.messenger-page {
+  height: calc(100dvh - 96px);
+  padding: 12px !important;
+  box-sizing: border-box;
+}
+
+.messenger-shell {
+  height: 100%;
+  display: flex;
+  overflow: hidden;
+}
+
+.chat-list {
+  position: relative;
   display: flex;
   flex-direction: column;
+  width: 340px;
+  min-width: 260px;
+  max-width: 40%;
+  border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+}
+
+.chat-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 84px;
+}
+
+.chat-list-empty {
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.chat-item-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  margin-left: 8px;
+}
+
+.new-chat-fab {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2;
+}
+
+.chat-thread {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: rgb(var(--v-theme-surface));
+}
+
+.thread-header {
+  display: flex;
+  align-items: center;
+  min-height: 64px;
+  padding: 8px 12px 8px 16px;
+  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
 }
 
 .chat-messages {
   flex: 1;
   overflow-y: auto;
-  max-height: 400px;
+  background: rgba(var(--v-theme-on-surface), 0.03);
+}
+
+.thread-empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
 }
 
 .messages-list {
-  padding: 16px;
-  width: 100%;
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
+  padding: 16px;
 }
 
 .message-item {
-  margin-bottom: 0;
-  width: 100%;
   display: flex;
-  box-sizing: border-box;
+  width: 100%;
 }
 
-/* Сообщения собеседника - слева */
 .message-item:not(.message-own) {
   justify-content: flex-start;
 }
 
-.message-item:not(.message-own) .message-content {
-  background-color: #F5F5F5;
-  color: #212121;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  text-align: left;
-}
-
-/* Свои сообщения - справа */
 .message-item.message-own {
   justify-content: flex-end;
 }
 
-.message-item.message-own .message-content {
-  background-color: #E3F2FD;
-  color: #1565C0;
-  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.2);
-  text-align: left;
-}
-
 .message-content {
-  max-width: 70%;
-  min-width: 120px;
-  padding: 12px 16px;
-  border-radius: 18px;
-  display: inline-block;
-  box-sizing: border-box;
+  max-width: min(72%, 520px);
+  padding: 8px 12px 6px;
+  border-radius: 16px;
   word-wrap: break-word;
 }
 
-.message-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 4px;
+.message-item:not(.message-own) .message-content {
+  background: rgb(var(--v-theme-surface));
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+}
+
+.message-item.message-own .message-content {
+  background: #d7f0ff;
+  color: #0d3550;
+  border-bottom-right-radius: 4px;
 }
 
 .message-author {
-  font-weight: 600;
-  font-size: 0.875rem;
-  color: #424242;
-}
-
-.message-time {
+  margin-bottom: 2px;
   font-size: 0.75rem;
-  color: #757575;
-  opacity: 0.8;
-}
-
-.message-item.message-own .message-time {
-  color: #64B5F6;
+  font-weight: 600;
+  color: rgb(var(--v-theme-primary));
 }
 
 .message-text {
-  line-height: 1.5;
-  font-size: 0.9375rem;
-  word-wrap: break-word;
+  line-height: 1.4;
+  font-size: 0.95rem;
+  white-space: pre-wrap;
 }
 
-.message-item.message-own .message-text {
-  color: #0D47A1;
-  font-weight: 500;
-}
-
-.message-status {
+.message-meta {
   display: flex;
   justify-content: flex-end;
-  margin-top: 4px;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
 }
 
-.chat-item {
-  border-bottom: 1px solid rgb(var(--v-theme-outline-variant));
+.message-time {
+  font-size: 0.7rem;
+  color: #78909c;
 }
 
-.chat-item:last-child {
-  border-bottom: none;
+.composer {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-top: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+}
+
+@media (max-width: 959px) {
+  .messenger-shell {
+    flex-direction: column;
+  }
+
+  .chat-list {
+    width: 100%;
+    max-width: none;
+    height: 42%;
+    border-right: none;
+    border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  }
+
+  .chat-thread {
+    height: 58%;
+  }
 }
 </style>

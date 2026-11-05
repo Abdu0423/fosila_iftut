@@ -369,29 +369,47 @@ const headerSubtitle = computed(() => {
   }
 })
 
+const homeRoutes = new Set(['/admin', '/teacher', '/faculty', '/department', '/education', '/registration', '/student'])
+
 const appBarTitle = computed(() => {
-  switch (currentRole.value) {
-    case 'admin': return t('panels.admin_title')
-    case 'teacher': return t('panels.teacher_title')
-    case 'education_department': return t('panels.education_title')
-    case 'registration_center': return t('panels.registration_title') || 'Регистрационный центр'
-    case 'department': return 'Кафедра'
-    case 'faculty': return 'Факультет'
-    default: return t('panels.student_title')
+  const path = (currentRoute.path || '/').replace(/\/$/, '') || '/'
+
+  if (/(^|\/)chat(\/|$)/.test(path)) {
+    return 'Чаты'
   }
+
+  if (path.endsWith('/profile')) {
+    return t('navigation.profile')
+  }
+
+  const entries = []
+  menuItems.value.forEach((item) => {
+    if (item.route) {
+      entries.push({ route: item.route.replace(/\/$/, '') || '/', title: item.title })
+    }
+    item.children?.forEach((child) => {
+      if (child.route) {
+        entries.push({ route: child.route.replace(/\/$/, '') || '/', title: child.title })
+      }
+    })
+  })
+
+  const match = entries
+    .filter((item) => {
+      if (path === item.route) {
+        return true
+      }
+      if (homeRoutes.has(item.route)) {
+        return false
+      }
+      return path.startsWith(`${item.route}/`)
+    })
+    .sort((a, b) => b.route.length - a.route.length)[0]
+
+  return match?.title || headerTitle.value
 })
 
-const appBarTitleShort = computed(() => {
-  switch (currentRole.value) {
-    case 'admin': return t('roles.admin_short')
-    case 'teacher': return t('roles.teacher')
-    case 'education_department': return t('roles.education_department_short')
-    case 'registration_center': return t('roles.registration_center_short') || 'РЦ'
-    case 'department': return 'Кафедра'
-    case 'faculty': return 'Факультет'
-    default: return t('panels.student_title')
-  }
-})
+const appBarTitleShort = computed(() => appBarTitle.value)
 
 const allowedPages = computed(() => {
   const pages = page.props.auth?.pages
