@@ -207,6 +207,10 @@ class DashboardController extends Controller
             'admin' => 'Администраторы',
             'teacher' => 'Преподаватели',
             'student' => 'Студенты',
+            'education_department' => 'Отдел образования',
+            'registration_center' => 'Регистрационный центр',
+            'department' => 'Кафедры',
+            'faculty' => 'Факультеты',
         ];
 
         return $names[$roleName] ?? $roleName;

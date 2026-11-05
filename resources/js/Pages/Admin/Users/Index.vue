@@ -377,7 +377,11 @@ const getRoleDisplayName = (role) => {
   const displayNames = {
     'admin': 'Администратор',
     'teacher': 'Учитель',
-    'student': 'Студент'
+    'student': 'Студент',
+    'education_department': 'Отдел образования',
+    'registration_center': 'Регистрационный центр',
+    'department': 'Кафедра',
+    'faculty': 'Факультет'
   }
   return displayNames[role] || role
 }

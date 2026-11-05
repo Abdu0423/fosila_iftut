@@ -205,6 +205,8 @@
     "student": "Донишҷӯ",
     "education_department": "Шӯъбаи таълим",
     "registration_center": "Маркази бақайдгирӣ",
+    "department": "Кафедра",
+    "faculty": "Факултет",
     "admin_short": "Маъмур",
     "education_department_short": "ШТ",
     "registration_center_short": "МБ"

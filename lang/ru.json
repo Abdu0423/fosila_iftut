@@ -205,6 +205,8 @@
     "student": "Студент",
     "education_department": "Отдел образования",
     "registration_center": "Регистрационный центр",
+    "department": "Кафедра",
+    "faculty": "Факультет",
     "admin_short": "Админ",
     "education_department_short": "Отдел",
     "registration_center_short": "РЦ"
