@@ -183,45 +183,26 @@
             Новый чат
           </v-card-title>
           <v-card-text>
-            <v-form @submit.prevent="createChat">
-              <!-- Поле поиска с выпадающим списком -->
-              <v-autocomplete
-                v-model="newChatForm.user_id"
-                :items="chatUsers"
-                item-title="displayName"
-                item-value="id"
-                :custom-filter="filterChatUser"
-                label="Поиск собеседника"
-                placeholder="Введите имя или email..."
-                variant="outlined"
-                density="compact"
-                prepend-inner-icon="mdi-magnify"
-                clearable
-                required
-                no-data-text="Пользователи не найдены"
-              >
-                <template v-slot:item="{ props, item }">
-                  <v-list-item v-bind="props" :subtitle="item.raw?.email || ''" />
-                </template>
-              </v-autocomplete>
-            </v-form>
+            <v-autocomplete
+              :model-value="newChatForm.user_id"
+              :items="chatUsers"
+              item-title="displayName"
+              item-value="id"
+              :custom-filter="filterChatUser"
+              label="Поиск собеседника"
+              placeholder="Введите имя или email..."
+              variant="outlined"
+              density="compact"
+              prepend-inner-icon="mdi-magnify"
+              autofocus
+              no-data-text="Пользователи не найдены"
+              @update:model-value="openChatWith"
+            >
+              <template v-slot:item="{ props, item }">
+                <v-list-item v-bind="props" :subtitle="item.raw?.email || ''" />
+              </template>
+            </v-autocomplete>
           </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn
-              color="secondary"
-              @click="closeNewChat"
-            >
-              Отмена
-            </v-btn>
-            <v-btn
-              color="primary"
-              @click="createChat"
-              :disabled="!newChatForm.user_id"
-            >
-              Создать чат
-            </v-btn>
-          </v-card-actions>
         </v-card>
       </v-dialog>
     </v-container>
@@ -502,39 +483,43 @@ const sendMessage = async () => {
   }
 }
 
-const createChat = () => {
-  if (!newChatForm.user_id) return
+const openChatWith = async (userId) => {
+  if (!userId) return
 
-  // Проверяем, существует ли уже чат с этим пользователем
-  const existingChat = props.chats.find(chat => {
+  const existingChat = chats.value.find((chat) => {
     if (chat.type === 'private' && chat.users && chat.users.length > 0) {
-      return chat.users.some(user => user.id === newChatForm.user_id)
+      return chat.users.some((user) => user.id === userId)
     }
     return false
   })
 
-  // Если чат уже существует, выбираем его вместо создания нового
   if (existingChat) {
     closeNewChat()
     selectChat(existingChat.id)
     return
   }
 
-  // Определяем правильный роут в зависимости от роли
-  const chatRoute = chatUrl()
+  try {
+    const response = await fetch(chatUrl(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-Spa': '1',
+      },
+      body: JSON.stringify({ user_id: userId, type: 'private' }),
+    })
+    const data = await response.json()
+    if (!response.ok || !data.chat) return
 
-  newChatForm.post(chatRoute, {
-    preserveScroll: true,
-    onSuccess: () => {
-      closeNewChat()
-      
-      // Перезагружаем страницу полностью для обновления списка чатов
-      router.reload()
-    },
-    onError: (errors) => {
-      console.error('Ошибка при создании чата:', errors)
-    }
-  })
+    chats.value = [data.chat, ...chats.value.filter((chat) => chat.id !== data.chat.id)]
+    closeNewChat()
+    selectChat(data.chat.id)
+  } catch (error) {
+    console.error('Ошибка при создании чата:', error)
+  }
 }
 
 const leaveChat = () => {

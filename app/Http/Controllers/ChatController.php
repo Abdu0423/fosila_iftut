@@ -121,6 +121,30 @@ class ChatController extends Controller
             ->orderBy('middle_name');
     }
 
+    protected function chatListItem(Chat $chat, User $user): array
+    {
+        $chat->load(['lastMessage.user']);
+        $partners = $chat->users()->where('user_id', '!=', $user->id)->get();
+        $partner = $partners->first();
+
+        return [
+            'id' => $chat->id,
+            'type' => $chat->type,
+            'name' => $chat->name,
+            'display_name' => $partner?->full_name ?: ($chat->name ?: 'Чат'),
+            'display_avatar' => null,
+            'unread_count' => 0,
+            'last_message' => $chat->lastMessage,
+            'users' => $partners->map(fn (User $chatUser) => [
+                'id' => $chatUser->id,
+                'name' => $chatUser->name,
+                'last_name' => $chatUser->last_name,
+                'middle_name' => $chatUser->middle_name,
+                'email' => $chatUser->email,
+            ])->values(),
+        ];
+    }
+
     /**
      * Показать список чатов
      */
@@ -217,13 +241,14 @@ class ChatController extends Controller
         // Загружаем роль пользователя
         $user->load('role');
         $otherUserId = $request->user_id;
+        $type = $request->input('type', 'private');
 
         if (! $this->messageableUsers($user)->where('id', $otherUserId)->exists()) {
             abort(403, 'Нельзя написать этому пользователю');
         }
 
         // Проверяем, не существует ли уже приватный чат между этими пользователями
-        if ($request->type === 'private') {
+        if ($type === 'private') {
             $existingChat = Chat::where('type', 'private')
                 ->whereHas('users', function($query) use ($user) {
                     $query->where('user_id', $user->id);
@@ -234,6 +259,10 @@ class ChatController extends Controller
                 ->first();
 
             if ($existingChat) {
+                if ($request->expectsJson()) {
+                    return response()->json(['chat' => $this->chatListItem($existingChat, $user)]);
+                }
+
                 return redirect()->route($this->chatRoute('show'), $existingChat);
             }
         }
@@ -242,7 +271,7 @@ class ChatController extends Controller
         try {
             // Создаем чат
             $chat = Chat::create([
-                'type' => $request->type ?? 'private',
+                'type' => $type,
                 'name' => $request->name,
             ]);
 
@@ -253,6 +282,10 @@ class ChatController extends Controller
             ]);
 
             DB::commit();
+
+            if ($request->expectsJson()) {
+                return response()->json(['chat' => $this->chatListItem($chat, $user)]);
+            }
 
             return redirect()->route($this->chatRoute('index'))->with('success', 'Чат успешно создан');
         } catch (\Exception $e) {
