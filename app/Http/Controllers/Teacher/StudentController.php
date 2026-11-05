@@ -18,7 +18,10 @@ class StudentController extends Controller
         // Получаем все группы, где преподает учитель
         $groups = Group::whereHas('schedules', function($query) use ($teacher) {
             $query->when(! $teacher->seesAllTeachingRecords(), fn ($q) => $q->where('teacher_id', $teacher->id));
-        })->orderBy('name')->get();
+        })
+            ->when(! $teacher->isAdmin(), fn ($query) => $query->where('status', 'active'))
+            ->orderBy('name')
+            ->get();
 
         return spa('Teacher/Students/Index', [
             'groups' => $groups->map(function($group) {
@@ -60,7 +63,7 @@ class StudentController extends Controller
             ->where('group_id', $group->id)
             ->exists();
             
-        if (!$hasAccess) {
+        if (!$hasAccess || (! $teacher->isAdmin() && $group->status !== 'active')) {
             abort(403, 'У вас нет доступа к этой группе');
         }
 
@@ -134,7 +137,7 @@ class StudentController extends Controller
                 ->when(! $teacher->seesAllTeachingRecords(), fn ($q) => $q->where('teacher_id', $teacher->id))
                 ->exists();
             
-        if (!$hasAccess) {
+        if (!$hasAccess || (! $teacher->isAdmin() && $student->group->status !== 'active')) {
             abort(403, 'У вас нет доступа к этому студенту');
         }
 

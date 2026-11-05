@@ -24,6 +24,7 @@ class ScheduleController extends Controller
         
         // Получаем расписания текущего учителя с подсчетом тестов
         $schedules = Schedule::forTeachingUser($teacher)
+            ->when(! $teacher->isAdmin(), fn ($query) => $query->where('is_active', true))
             ->with(['subject', 'group', 'syllabuses.creator', 'lessons.subject'])
             ->withCount('tests')
             ->orderBy('created_at', 'desc')
@@ -140,6 +141,10 @@ class ScheduleController extends Controller
         
         // Проверяем, что расписание принадлежит текущему учителю
         if (! $teacher->seesAllTeachingRecords() && ($schedule->teacher_id !== $teacher->id)) {
+            abort(403, 'У вас нет доступа к этому расписанию');
+        }
+
+        if (! $teacher->isAdmin() && ! $schedule->is_active) {
             abort(403, 'У вас нет доступа к этому расписанию');
         }
 
