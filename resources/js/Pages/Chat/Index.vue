@@ -187,10 +187,10 @@
               <!-- Поле поиска с выпадающим списком -->
               <v-autocomplete
                 v-model="newChatForm.user_id"
-                :items="filteredUsers"
-                v-model:search="searchUser"
+                :items="chatUsers"
                 item-title="displayName"
                 item-value="id"
+                :custom-filter="filterChatUser"
                 label="Поиск собеседника"
                 placeholder="Введите имя или email..."
                 variant="outlined"
@@ -198,11 +198,10 @@
                 prepend-inner-icon="mdi-magnify"
                 clearable
                 required
-                auto-select-first
-                :no-data-text="searchUser && filteredUsers.length === 0 ? 'Пользователи не найдены' : 'Начните вводить для поиска'"
+                no-data-text="Пользователи не найдены"
               >
                 <template v-slot:item="{ props, item }">
-                  <v-list-item v-bind="props" :subtitle="item.raw.email" />
+                  <v-list-item v-bind="props" :subtitle="item.raw?.email || ''" />
                 </template>
               </v-autocomplete>
             </v-form>
@@ -211,7 +210,7 @@
             <v-spacer></v-spacer>
             <v-btn
               color="secondary"
-              @click="showNewChatDialog = false; searchUser = ''"
+              @click="closeNewChat"
             >
               Отмена
             </v-btn>
@@ -271,39 +270,39 @@ const showNewChatDialog = ref(false)
 const messagesContainer = ref(null)
 const echoChannel = ref(null)
 const chats = ref([...props.chats])
-const searchUser = ref('')
-
 // Форма для нового чата
 const newChatForm = useForm({
   user_id: null
 })
+
+const chatUsers = computed(() =>
+  (props.users || []).map((user) => ({
+    ...user,
+    displayName: `${user.name || ''} ${user.last_name || ''}`.trim(),
+  }))
+)
+
+const filterChatUser = (title, query, item) => {
+  const needle = `${query || ''}`.toLowerCase().trim()
+  if (!needle) {
+    return true
+  }
+  const raw = item?.raw || {}
+  const name = `${raw.name || ''} ${raw.last_name || ''} ${title || ''}`.toLowerCase()
+  const email = `${raw.email || ''}`.toLowerCase()
+  return name.includes(needle) || email.includes(needle)
+}
+
+const closeNewChat = () => {
+  showNewChatDialog.value = false
+  newChatForm.reset()
+}
 
 // Получаем ID текущего пользователя
 const currentUserId = computed(() => {
   return page.props.auth?.user?.id || null
 })
 
-// Фильтруем пользователей по поисковому запросу
-const filteredUsers = computed(() => {
-  if (!searchUser.value || searchUser.value.trim() === '') {
-    return props.users.map(user => ({
-      ...user,
-      displayName: `${user.name} ${user.last_name}`.trim()
-    }))
-  }
-  
-  const search = searchUser.value.toLowerCase().trim()
-  return props.users
-    .filter(user => {
-      const fullName = `${user.name} ${user.last_name}`.toLowerCase()
-      const email = (user.email).toLowerCase()
-      return fullName.includes(search) || email.includes(search)
-    })
-    .map(user => ({
-      ...user,
-      displayName: `${user.name} ${user.last_name}`.trim()
-    }))
-})
 
 
 // Проверяем, является ли сообщение своим
@@ -512,9 +511,7 @@ const createChat = () => {
 
   // Если чат уже существует, выбираем его вместо создания нового
   if (existingChat) {
-    showNewChatDialog.value = false
-    searchUser.value = ''
-    newChatForm.reset()
+    closeNewChat()
     selectChat(existingChat.id)
     return
   }
@@ -524,10 +521,8 @@ const createChat = () => {
 
   newChatForm.post(chatRoute, {
     preserveScroll: true,
-    onSuccess: (page) => {
-      showNewChatDialog.value = false
-      searchUser.value = ''
-      newChatForm.reset()
+    onSuccess: () => {
+      closeNewChat()
       
       // Перезагружаем страницу полностью для обновления списка чатов
       router.reload()
