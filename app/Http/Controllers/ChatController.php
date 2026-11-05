@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Chat;
 use App\Models\ChatMessage;
+use App\Models\Department;
+use App\Models\Faculty;
+use App\Models\Group;
+use App\Models\Schedule;
 use App\Models\User;
 use App\Events\MessageSent;
 use App\Events\MessageRead;
@@ -26,6 +30,94 @@ class ChatController extends Controller
         }
 
         return 'student.chat.'.$action;
+    }
+
+    protected function messageableUsers(User $user)
+    {
+        $user->loadMissing('role');
+
+        $query = User::query()
+            ->where('id', '!=', $user->id)
+            ->whereNotNull('role_id');
+
+        if ($user->isAdmin()) {
+            return $query->orderBy('last_name')->orderBy('name');
+        }
+
+        $ids = collect();
+
+        if ($user->isStudent()) {
+            if ($user->group_id) {
+                $ids = $ids->merge(
+                    Schedule::where('group_id', $user->group_id)->pluck('teacher_id')
+                );
+
+                $departmentId = Group::where('id', $user->group_id)->value('department_id');
+                if ($departmentId) {
+                    $department = Department::with('faculty')->find($departmentId);
+                    if ($department?->user_id) {
+                        $ids->push($department->user_id);
+                    }
+                    if ($department?->faculty?->user_id) {
+                        $ids->push($department->faculty->user_id);
+                    }
+                }
+            }
+        } else {
+            $ids = $ids->merge(
+                User::query()
+                    ->where('id', '!=', $user->id)
+                    ->whereNotNull('role_id')
+                    ->whereHas('role', fn ($role) => $role->where('name', '!=', 'student'))
+                    ->pluck('id')
+            );
+
+            $groupIds = collect();
+            if ($user->isTeacher()) {
+                $groupIds = $groupIds->merge(
+                    Schedule::where('teacher_id', $user->id)->pluck('group_id')
+                );
+            }
+            if ($user->isDepartment()) {
+                $department = $user->ownedDepartment();
+                if ($department) {
+                    $groupIds = $groupIds->merge(
+                        Group::where('department_id', $department->id)->pluck('id')
+                    );
+                }
+            }
+            if ($user->isFaculty()) {
+                $faculty = Faculty::where('user_id', $user->id)->first();
+                if ($faculty) {
+                    $departmentIds = $faculty->departments()->pluck('id');
+                    $groupIds = $groupIds->merge(
+                        Group::whereIn('department_id', $departmentIds)->pluck('id')
+                    );
+                }
+            }
+
+            $groupIds = $groupIds->filter()->unique()->values();
+            if ($groupIds->isNotEmpty()) {
+                $ids = $ids->merge(
+                    User::query()
+                        ->whereIn('group_id', $groupIds)
+                        ->whereHas('role', fn ($role) => $role->where('name', 'student'))
+                        ->pluck('id')
+                );
+            }
+        }
+
+        $ids = $ids
+            ->filter()
+            ->unique()
+            ->reject(fn ($id) => (int) $id === (int) $user->id)
+            ->values();
+
+        return User::query()
+            ->whereIn('id', $ids)
+            ->whereNotNull('role_id')
+            ->orderBy('last_name')
+            ->orderBy('name');
     }
 
     /**
@@ -59,11 +151,7 @@ class ChatController extends Controller
                 return $chat;
             });
 
-        // Получаем всех пользователей для создания новых чатов
-        $users = User::where('id', '!=', $user->id)
-            ->where('role_id', '!=', null) // Только пользователи с ролями
-            ->orderBy('name')
-            ->get(['id', 'name', 'last_name', 'email']);
+        $users = $this->messageableUsers($user)->get(['id', 'name', 'last_name', 'email']);
 
         // Подсчитываем общее количество непрочитанных сообщений
         $totalUnreadCount = 0;
@@ -127,6 +215,10 @@ class ChatController extends Controller
         // Загружаем роль пользователя
         $user->load('role');
         $otherUserId = $request->user_id;
+
+        if (! $this->messageableUsers($user)->where('id', $otherUserId)->exists()) {
+            abort(403, 'Нельзя написать этому пользователю');
+        }
 
         // Проверяем, не существует ли уже приватный чат между этими пользователями
         if ($request->type === 'private') {

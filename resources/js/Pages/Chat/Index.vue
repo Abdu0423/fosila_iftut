@@ -232,10 +232,7 @@
                 :no-data-text="searchUser && filteredUsers.length === 0 ? 'Пользователи не найдены' : 'Начните вводить для поиска'"
               >
                 <template v-slot:item="{ props, item }">
-                  <v-list-item v-bind="props">
-                    <v-list-item-title>{{ item.raw.name }} {{ item.raw.last_name }}</v-list-item-title>
-                    <v-list-item-subtitle>{{ item.raw.email }}</v-list-item-subtitle>
-                  </v-list-item>
+                  <v-list-item v-bind="props" :subtitle="item.raw.email" />
                 </template>
               </v-autocomplete>
             </v-form>
