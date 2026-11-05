@@ -107,8 +107,9 @@ export function fetchPage(
                 component: data.component || 'Errors/404',
                 props: data.props && !Array.isArray(data.props) ? data.props : {},
             };
+            const landedOnLogin = page.component === 'Auth/Login' && key.split('?')[0] !== '/login';
 
-            if (latest.get(key) === requestId) {
+            if (latest.get(key) === requestId && !landedOnLogin) {
                 remember(key, page);
             }
             await resolvePageComponent(page.component);

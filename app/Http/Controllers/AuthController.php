@@ -106,26 +106,9 @@ class AuthController extends Controller
                 'must_change_password' => $user->must_change_password
             ]);
             
-            // Определяем URL для редиректа
-            $redirectUrl = '/';
-            
-            if ($user->must_change_password) {
-                $redirectUrl = route('change-password');
-            } elseif ($user->isAdmin()) {
-                $redirectUrl = '/admin';
-            } elseif ($user->isTeacher()) {
-                $redirectUrl = '/teacher/';
-            } elseif ($user->isEducationDepartment()) {
-                $redirectUrl = '/education';
-            } elseif ($user->isRegistrationCenter()) {
-                $redirectUrl = '/registration';
-            } elseif ($user->isDepartment()) {
-                $redirectUrl = '/department';
-            } elseif ($user->isFaculty()) {
-                $redirectUrl = '/faculty';
-            } elseif ($user->isStudent()) {
-                $redirectUrl = '/student/';
-            }
+            $redirectUrl = $user->must_change_password
+                ? route('change-password')
+                : $user->homePath();
             
             Log::info('Перенаправление на ' . $redirectUrl);
             

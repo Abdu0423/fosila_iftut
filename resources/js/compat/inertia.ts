@@ -119,7 +119,14 @@ async function reloadCurrentPage() {
     await pending;
 }
 
-async function followResponse(data: { redirect?: string; flash?: Record<string, string | null>; component?: string; props?: Record<string, unknown> }) {
+function needsDocumentNavigation(url: string): boolean {
+    return url.split('?')[0] === '/login';
+}
+
+async function followResponse(
+    data: { redirect?: string; flash?: Record<string, string | null>; component?: string; props?: Record<string, unknown> },
+    documentNavigation = false,
+) {
     const pageStore = usePageStore();
 
     if (data?.flash) {
@@ -131,8 +138,13 @@ async function followResponse(data: { redirect?: string; flash?: Record<string, 
     }
 
     if (data?.redirect) {
-        await useAuthStore().fetch();
         const target = toSpaPath(data.redirect);
+        if (documentNavigation) {
+            window.location.assign(target);
+            return;
+        }
+
+        await useAuthStore().fetch();
         if (samePlace(target, vueRouter.currentRoute.value.fullPath)) {
             await reloadCurrentPage();
             return;
@@ -179,7 +191,7 @@ async function send(method: string, url: string, data: Record<string, unknown>, 
         };
 
         options.onSuccess?.(page);
-        await followResponse(responseData);
+        await followResponse(responseData, needsDocumentNavigation(url));
         return responseData;
     } catch (error) {
         const raw = validationErrors(error);

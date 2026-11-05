@@ -27,14 +27,12 @@ class StudentMiddleware
         
         // Проверяем, что пользователь является студентом
         if (!$user->isStudent()) {
-            // Если не студент, перенаправляем в зависимости от роли
-            if ($user->isAdmin()) {
-                return redirect()->route('admin.dashboard');
-            } elseif ($user->isTeacher()) {
-                return redirect()->route('teacher.dashboard');
-            } else {
-                abort(403, 'Доступ запрещен. Роль: ' . ($user->role ? $user->role->name : 'не определена'));
+            $home = $user->homePath();
+            if (!str_starts_with($home, '/student')) {
+                return redirect($home);
             }
+
+            abort(403, 'Доступ запрещен. Роль: ' . ($user->role ? $user->role->name : 'не определена'));
         }
 
         return $next($request);

@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,20 +22,7 @@ class RedirectIfAuthenticated
             if (Auth::guard($guard)->check()) {
                 $user = Auth::guard($guard)->user();
                 
-                // Перенаправляем в зависимости от роли
-                if ($user->isAdmin()) {
-                    return redirect('/admin');
-                } elseif ($user->isTeacher()) {
-                    return redirect('/teacher/');
-                } elseif ($user->isEducationDepartment()) {
-                    return redirect('/education');
-                } elseif ($user->isRegistrationCenter()) {
-                    return redirect('/registration');
-                } elseif ($user->isStudent()) {
-                    return redirect('/student/');
-                }
-                
-                return redirect(RouteServiceProvider::HOME);
+                return redirect($user->homePath());
             }
         }
 

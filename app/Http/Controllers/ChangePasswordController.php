@@ -65,29 +65,12 @@ class ChangePasswordController extends Controller
         $user = User::with('role')->find($userId);
 
         // Определяем куда перенаправить в зависимости от роли
-        $redirectUrl = $this->getRedirectUrl($user);
+        $redirectUrl = $user->homePath();
 
         // Используем обычный redirect() для гарантированного редиректа
         return redirect($redirectUrl)
             ->with('success', __('auth.password_changed'));
     }
 
-    /**
-     * Определить URL для перенаправления в зависимости от роли
-     */
-    protected function getRedirectUrl($user)
-    {
-        if ($user->isAdmin()) {
-            return '/admin';
-        } elseif ($user->isTeacher()) {
-            return '/teacher/';
-        } elseif ($user->isEducationDepartment()) {
-            return '/education';
-        } elseif ($user->isRegistrationCenter()) {
-            return '/registration';
-        } else {
-            return '/student/';
-        }
-    }
 }
 

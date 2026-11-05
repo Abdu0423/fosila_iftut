@@ -140,46 +140,12 @@ Route::prefix('student')->middleware(['auth', 'student', 'check.password.change'
 Route::middleware('auth')->group(function () {
     // Главная страница (перенаправляет в зависимости от роли)
     Route::get('/', function () {
-        $user = auth()->user();
-        if ($user->isAdmin()) {
-            return redirect()->route('admin.dashboard');
-        } elseif ($user->isTeacher()) {
-            return redirect()->route('teacher.dashboard');
-        } elseif ($user->isEducationDepartment()) {
-            return redirect()->route('education.dashboard');
-        } elseif ($user->isRegistrationCenter()) {
-            return redirect()->route('registration.dashboard');
-        } elseif ($user->isDepartment()) {
-            return redirect()->route('department.dashboard');
-        } elseif ($user->isFaculty()) {
-            return redirect()->route('faculty.dashboard');
-        } elseif ($user->isStudent()) {
-            return redirect()->route('student.dashboard');
-        } else {
-            return redirect()->route('student.dashboard');
-        }
+        return redirect(auth()->user()->homePath());
     })->name('dashboard');
 
     // Dashboard (альтернативный маршрут)
     Route::get('/dashboard', function () {
-        $user = auth()->user();
-        if ($user->isAdmin()) {
-            return redirect()->route('admin.dashboard');
-        } elseif ($user->isTeacher()) {
-            return redirect()->route('teacher.dashboard');
-        } elseif ($user->isEducationDepartment()) {
-            return redirect()->route('education.dashboard');
-        } elseif ($user->isRegistrationCenter()) {
-            return redirect()->route('registration.dashboard');
-        } elseif ($user->isDepartment()) {
-            return redirect()->route('department.dashboard');
-        } elseif ($user->isFaculty()) {
-            return redirect()->route('faculty.dashboard');
-        } elseif ($user->isStudent()) {
-            return redirect()->route('student.dashboard');
-        } else {
-            return redirect()->route('student.dashboard');
-        }
+        return redirect(auth()->user()->homePath());
     })->name('dashboard.alternative');
 
     // Тестовый маршрут для проверки уведомлений (удалить после тестирования)

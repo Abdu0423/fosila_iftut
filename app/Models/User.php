@@ -152,6 +152,23 @@ class User extends Authenticatable
         return $this->role && $this->role->name === 'faculty';
     }
 
+    public function homePath(): string
+    {
+        if (!$this->relationLoaded('role')) {
+            $this->load('role');
+        }
+
+        return match ($this->role?->name) {
+            'admin' => '/admin',
+            'teacher' => '/teacher/',
+            'education_department' => '/education',
+            'registration_center' => '/registration',
+            'department' => '/department',
+            'faculty' => '/faculty',
+            default => '/student/',
+        };
+    }
+
     public function departmentAccount()
     {
         return $this->hasOne(Department::class, 'user_id');

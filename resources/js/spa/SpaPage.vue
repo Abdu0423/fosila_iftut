@@ -58,7 +58,27 @@ const pageData = computed(() => {
     return data;
 });
 
+function openAsDocument(path: string) {
+    const stamp = 'spa-document-load';
+    if (sessionStorage.getItem(stamp) === path) {
+        sessionStorage.removeItem(stamp);
+        return false;
+    }
+
+    sessionStorage.setItem(stamp, path);
+    window.location.assign(path);
+    return true;
+}
+
 async function showPage(page: CachedPage, path: string) {
+    if (page.component === 'Auth/Login' && path !== '/login') {
+        if (openAsDocument(path)) {
+            return;
+        }
+    } else {
+        sessionStorage.removeItem('spa-document-load');
+    }
+
     const component = await resolvePageComponent(page.component);
     pageStore.setPage(page.component, page.props);
     pageComponent.value = component;
@@ -94,6 +114,11 @@ async function loadPage(fresh: boolean) {
             const target = toSpaPath(result.redirect);
             if (target !== currentRoute.fullPath && target !== path) {
                 await vueRouter.replace(target);
+                return;
+            }
+
+            if (loadedPath.value !== path) {
+                openAsDocument(path);
             }
             return;
         }
@@ -109,6 +134,9 @@ async function loadPage(fresh: boolean) {
         const body = response?.data;
 
         if (status === 401) {
+            if (path !== '/login' && loadedPath.value !== path) {
+                openAsDocument(path);
+            }
             return;
         }
 
