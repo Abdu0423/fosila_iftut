@@ -53,24 +53,35 @@
             <th v-if="selectable" class="excel-check"></th>
             <th class="excel-index"></th>
             <th v-for="column in sheetColumns" :key="`filter-${column.key}`">
-              <template v-if="isFilterable(column)">
-                <input
-                  class="excel-filter-input"
-                  :class="{ 'has-value': columnFilters[column.key] }"
-                  :value="columnFilters[column.key] || ''"
-                  placeholder="Фильтр"
-                  :list="filterListId(column.key)"
-                  @input="onColumnFilter(column.key, $event)"
-                  @blur="restoreFilterDefault(column)"
-                />
-                <datalist :id="filterListId(column.key)">
-                  <option
+              <v-menu
+                v-if="isFilterable(column)"
+                :model-value="filterMenuKey === column.key"
+                :disabled="!(choiceMap[column.key] || []).length"
+                location="bottom start"
+                :close-on-content-click="true"
+                @update:model-value="(open) => setFilterMenu(column.key, open)"
+              >
+                <template #activator="{ props: menuProps }">
+                  <input
+                    v-bind="menuProps"
+                    class="excel-filter-input"
+                    :class="{ 'has-value': columnFilters[column.key] }"
+                    :value="columnFilters[column.key] || ''"
+                    placeholder="Фильтр"
+                    @input="onColumnFilter(column.key, $event)"
+                    @blur="restoreFilterDefault(column)"
+                  />
+                </template>
+                <v-list density="compact" max-height="280" min-width="160">
+                  <v-list-item
                     v-for="choice in choiceMap[column.key] || []"
                     :key="choice"
-                    :value="choice"
+                    :title="choice"
+                    :active="columnFilters[column.key] === choice"
+                    @mousedown.prevent="pickColumnFilter(column.key, choice)"
                   />
-                </datalist>
-              </template>
+                </v-list>
+              </v-menu>
             </th>
           </tr>
         </thead>
@@ -112,7 +123,7 @@
                   variant="plain"
                   hide-details
                   autofocus
-                  auto-select-first
+                  :custom-filter="showEveryItem"
                   @update:model-value="finishEdit(row, column, index, $event)"
                 />
                 <input
@@ -152,6 +163,7 @@
                   variant="plain"
                   hide-details
                   :placeholder="column.title"
+                  :custom-filter="showEveryItem"
                   @update:model-value="markDirty(column.key)"
                 />
               </template>
@@ -255,10 +267,9 @@ const draft = reactive<Record<string, any>>({})
 const dirty = ref<Record<string, boolean>>({})
 const dismissed = ref<Record<string, boolean>>({})
 const columnFilters = reactive<Record<string, string>>({})
+const filterMenuKey = ref('')
 const editing = ref<{ id: string | number; key: string } | null>(null)
 const editValue = ref<unknown>(null)
-const sheetId = `excel-${Math.random().toString(36).slice(2, 8)}`
-
 const sheetColumns = computed<SheetColumn[]>(() => {
   if (props.columns?.length) {
     return props.columns
@@ -331,8 +342,25 @@ function isFilterable(column: SheetColumn) {
   return column.filter !== false && column.key !== 'actions'
 }
 
-function filterListId(key: string) {
-  return `${sheetId}-${key.replace(/[^a-zA-Z0-9_-]/g, '_')}`
+function showEveryItem() {
+  return true
+}
+
+function setFilterMenu(key: string, open: boolean) {
+  if (open) {
+    if ((choiceMap.value[key] || []).length) {
+      filterMenuKey.value = key
+    }
+    return
+  }
+  if (filterMenuKey.value === key) {
+    filterMenuKey.value = ''
+  }
+}
+
+function pickColumnFilter(key: string, choice: string) {
+  columnFilters[key] = choice
+  filterMenuKey.value = ''
 }
 
 const choiceMap = computed(() => {

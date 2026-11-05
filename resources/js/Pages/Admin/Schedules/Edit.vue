@@ -44,6 +44,7 @@
                       prepend-inner-icon="mdi-magnify"
                       clearable
                       auto-select-first
+                      :custom-filter="() => true"
                       required
                     />
                   </v-col>
@@ -61,6 +62,7 @@
                       prepend-inner-icon="mdi-magnify"
                       clearable
                       auto-select-first
+                      :custom-filter="() => true"
                       required
                     />
                     <div v-if="schedule?.teacher && !schedule?.department_id" class="text-caption text-medium-emphasis mt-1">
@@ -81,6 +83,7 @@
                       prepend-inner-icon="mdi-magnify"
                       clearable
                       auto-select-first
+                      :custom-filter="() => true"
                       required
                     />
                   </v-col>

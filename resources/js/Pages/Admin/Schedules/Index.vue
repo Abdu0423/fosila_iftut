@@ -70,6 +70,7 @@
             hide-details
             clearable
             placeholder="Учитель"
+            :custom-filter="() => true"
             @click.stop
             @update:model-value="assignTeacher(row, $event)"
           />

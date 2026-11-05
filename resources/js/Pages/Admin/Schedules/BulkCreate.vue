@@ -74,6 +74,7 @@
                             prepend-inner-icon="mdi-magnify"
                             clearable
                             auto-select-first
+                            :custom-filter="() => true"
                             required
                           >
                             <template v-slot:item="{ props, item }">
@@ -100,6 +101,7 @@
                             prepend-inner-icon="mdi-magnify"
                             clearable
                             auto-select-first
+                            :custom-filter="() => true"
                             required
                           />
                         </v-col>
@@ -117,6 +119,7 @@
                             prepend-inner-icon="mdi-magnify"
                             clearable
                             auto-select-first
+                            :custom-filter="() => true"
                             required
                           ></v-autocomplete>
                         </v-col>

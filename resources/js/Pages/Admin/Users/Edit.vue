@@ -142,6 +142,7 @@
                       density="compact"
                       :error-messages="form.errors.group_id"
                       clearable
+                      :custom-filter="() => true"
                       :placeholder="t('admin.users.select_group')"
                     ></v-autocomplete>
                   </v-col>
