@@ -122,7 +122,7 @@
               >
                 <div class="message-content">
                   <div v-if="!isOwnMessage(message)" class="message-author">
-                    {{ message.user.name }}
+                    {{ personName(message.user) }}
                   </div>
                   <div class="message-text">{{ message.message }}</div>
                   <div class="message-meta">
@@ -275,11 +275,18 @@ const newChatForm = useForm({
   user_id: null
 })
 
+const personName = (person) => {
+  if (!person) return ''
+  return [person.last_name, person.name, person.middle_name].filter(Boolean).join(' ')
+}
+
 const chatUsers = computed(() =>
-  (props.users || []).map((user) => ({
-    ...user,
-    displayName: `${user.name || ''} ${user.last_name || ''}`.trim(),
-  }))
+  (props.users || [])
+    .map((user) => ({
+      ...user,
+      displayName: personName(user),
+    }))
+    .sort((a, b) => a.displayName.localeCompare(b.displayName, 'ru'))
 )
 
 const filterChatUser = (title, query, item) => {
@@ -288,7 +295,7 @@ const filterChatUser = (title, query, item) => {
     return true
   }
   const raw = item?.raw || {}
-  const name = `${raw.name || ''} ${raw.last_name || ''} ${title || ''}`.toLowerCase()
+  const name = `${raw.last_name || ''} ${raw.name || ''} ${raw.middle_name || ''} ${title || ''}`.toLowerCase()
   const email = `${raw.email || ''}`.toLowerCase()
   return name.includes(needle) || email.includes(needle)
 }
@@ -332,10 +339,7 @@ const chatPartnerName = computed(() => {
   if (selectedChat.value.type === 'private' && selectedChat.value.users && selectedChat.value.users.length > 0) {
     const partner = selectedChat.value.users[0]
     if (partner) {
-      const parts = []
-      if (partner.last_name) parts.push(partner.last_name)
-      if (partner.name) parts.push(partner.name)
-      return parts.join(' ') || selectedChat.value.display_name
+      return personName(partner) || selectedChat.value.display_name
     }
   }
   
@@ -579,10 +583,7 @@ const getChatPartnerName = (chat) => {
   if (chat.type === 'private' && chat.users && chat.users.length > 0) {
     const partner = chat.users[0]
     if (partner) {
-      const parts = []
-      if (partner.last_name) parts.push(partner.last_name)
-      if (partner.name) parts.push(partner.name)
-      return parts.join(' ') || chat.display_name
+      return personName(partner) || chat.display_name
     }
   }
   

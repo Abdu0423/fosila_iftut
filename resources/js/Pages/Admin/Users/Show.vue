@@ -62,7 +62,7 @@
               <v-avatar size="120" class="mb-4">
                 <v-img :src="user.avatar" :alt="user.name"></v-img>
               </v-avatar>
-              <h2 class="text-h5 font-weight-bold mb-2">{{ user.name }} {{ user.last_name }}</h2>
+              <h2 class="text-h5 font-weight-bold mb-2">{{ [user.last_name, user.name, user.middle_name].filter(Boolean).join(' ') }}</h2>
               <v-chip
                 :color="getRoleColor(user.role)"
                 size="large"
@@ -255,7 +255,7 @@
             Подтверждение удаления
           </v-card-title>
           <v-card-text>
-            Вы действительно хотите удалить пользователя <strong>{{ user.name }} {{ user.last_name }}</strong>?
+            Вы действительно хотите удалить пользователя <strong>{{ [user.last_name, user.name, user.middle_name].filter(Boolean).join(' ') }}</strong>?
             Это действие нельзя отменить.
           </v-card-text>
           <v-card-actions>

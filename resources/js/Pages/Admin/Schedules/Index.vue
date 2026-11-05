@@ -211,7 +211,7 @@ const teacherOptions = computed(() => (props.teachers || []).map((teacher) => ({
   value: teacher.id
 })))
 
-const personName = (person) => person ? `${person.name || ''} ${person.last_name || ''}`.trim() : ''
+const personName = (person) => person ? [person.last_name, person.name, person.middle_name].filter(Boolean).join(' ') : ''
 
 const sheetColumns = computed(() => [
   {

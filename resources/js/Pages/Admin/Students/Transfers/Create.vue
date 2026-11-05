@@ -171,10 +171,12 @@ const errors = computed(() => page.props.errors || {})
 
 // Преобразуем студентов для автокомплита
 const studentItems = computed(() => {
-  return (props.students || []).map(student => ({
-    ...student,
-    displayName: `${student.last_name || ''} ${student.name || ''} ${student.middle_name || ''}`.trim()
-  }))
+  return (props.students || [])
+    .map(student => ({
+      ...student,
+      displayName: [student.last_name, student.name, student.middle_name].filter(Boolean).join(' ')
+    }))
+    .sort((a, b) => a.displayName.localeCompare(b.displayName, 'ru'))
 })
 
 // Автозаполнение группы при выборе студента

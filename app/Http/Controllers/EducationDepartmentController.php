@@ -111,7 +111,7 @@ class EducationDepartmentController extends Controller
             $query->where('group_id', $request->group);
         }
         
-        $users = $query->paginate(20);
+        $users = $query->orderBy('last_name')->orderBy('name')->orderBy('middle_name')->paginate(20);
         
         // Получаем список групп для фильтра
         $groups = Group::where('status', 'active')

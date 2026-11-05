@@ -22,6 +22,7 @@ class SmsController extends Controller
         $users = User::with(['role', 'group'])
             ->orderBy('last_name')
             ->orderBy('name')
+            ->orderBy('middle_name')
             ->get()
             ->map(function ($user) {
                 return [
@@ -122,7 +123,7 @@ class SmsController extends Controller
                 
                 if (!$login) {
                     $errorCount++;
-                    $errors[] = "Пользователь {$user->name} {$user->last_name}: нет номера телефона";
+                    $errors[] = "Пользователь {$user->full_name}: нет номера телефона";
                     continue;
                 }
                 
@@ -148,11 +149,11 @@ class SmsController extends Controller
                     ]);
                 } else {
                     $errorCount++;
-                    $errors[] = "Пользователь {$user->name} {$user->last_name}: {$result['message']}";
+                    $errors[] = "Пользователь {$user->full_name}: {$result['message']}";
                 }
             } catch (\Exception $e) {
                 $errorCount++;
-                $errors[] = "Пользователь {$user->name} {$user->last_name}: {$e->getMessage()}";
+                $errors[] = "Пользователь {$user->full_name}: {$e->getMessage()}";
                 Log::error('Ошибка отправки SMS с данными для входа', [
                     'user_id' => $user->id,
                     'error' => $e->getMessage()
@@ -210,11 +211,11 @@ class SmsController extends Controller
                     ]);
                 } else {
                     $errorCount++;
-                    $errors[] = "Пользователь {$user->name} {$user->last_name}: {$result['message']}";
+                    $errors[] = "Пользователь {$user->full_name}: {$result['message']}";
                 }
             } catch (\Exception $e) {
                 $errorCount++;
-                $errors[] = "Пользователь {$user->name} {$user->last_name}: {$e->getMessage()}";
+                $errors[] = "Пользователь {$user->full_name}: {$e->getMessage()}";
                 Log::error('Ошибка отправки произвольного SMS', [
                     'user_id' => $user->id,
                     'error' => $e->getMessage()

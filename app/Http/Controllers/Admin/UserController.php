@@ -69,6 +69,7 @@ class UserController extends Controller
 
         $users = $query->orderBy('last_name', 'asc')
             ->orderBy('name', 'asc')
+            ->orderBy('middle_name', 'asc')
             ->get()
             ->map(function ($user) {
                 // Формируем полное ФИО для аватара

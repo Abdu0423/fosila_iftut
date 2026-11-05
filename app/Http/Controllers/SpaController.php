@@ -36,6 +36,8 @@ class SpaController extends Controller
             $userData = [
                 'id' => $user->id,
                 'name' => $user->name,
+                'last_name' => $user->last_name,
+                'middle_name' => $user->middle_name,
                 'email' => $user->email,
                 'role' => $user->role ? $user->role->name : null,
                 'locale' => $user->locale ?? 'ru',

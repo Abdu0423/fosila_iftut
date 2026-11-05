@@ -99,7 +99,7 @@ class GradeController extends Controller
         
         // Сортируем студентов по алфавиту
         $groupStudents = $groupStudents->sortBy(function ($student) {
-            return ($student->last_name ?? '') . ' ' . ($student->name ?? '');
+            return trim(($student->last_name ?? '').' '.($student->name ?? '').' '.($student->middle_name ?? ''));
         });
         
         $students = $groupStudents->map(function ($student) use ($schedule) {
@@ -146,6 +146,7 @@ class GradeController extends Controller
                 'id' => $student->id,
                 'name' => $student->name,
                 'last_name' => $student->last_name,
+                'middle_name' => $student->middle_name,
                 'email' => $student->email,
                 'grade_id' => $grade->id,
                 'rating_teacher_1' => $grade->rating_teacher_1 ? (float)$grade->rating_teacher_1 : null,

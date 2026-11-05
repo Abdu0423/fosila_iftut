@@ -41,7 +41,7 @@ class ChatController extends Controller
             ->whereNotNull('role_id');
 
         if ($user->isAdmin()) {
-            return $query->orderBy('last_name')->orderBy('name');
+            return $query->orderBy('last_name')->orderBy('name')->orderBy('middle_name');
         }
 
         $ids = collect();
@@ -117,7 +117,8 @@ class ChatController extends Controller
             ->whereIn('id', $ids)
             ->whereNotNull('role_id')
             ->orderBy('last_name')
-            ->orderBy('name');
+            ->orderBy('name')
+            ->orderBy('middle_name');
     }
 
     /**
@@ -145,13 +146,14 @@ class ChatController extends Controller
                         'id' => $chatUser->id,
                         'name' => $chatUser->name,
                         'last_name' => $chatUser->last_name,
+                        'middle_name' => $chatUser->middle_name,
                         'email' => $chatUser->email,
                     ];
                 });
                 return $chat;
             });
 
-        $users = $this->messageableUsers($user)->get(['id', 'name', 'last_name', 'email']);
+        $users = $this->messageableUsers($user)->get(['id', 'name', 'last_name', 'middle_name', 'email']);
 
         // Подсчитываем общее количество непрочитанных сообщений
         $totalUnreadCount = 0;

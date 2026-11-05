@@ -66,7 +66,7 @@
                       required
                     />
                     <div v-if="schedule?.teacher && !schedule?.department_id" class="text-caption text-medium-emphasis mt-1">
-                      Ранее: {{ schedule.teacher.name }} {{ schedule.teacher.last_name }}
+                      Ранее: {{ [schedule.teacher.last_name, schedule.teacher.name, schedule.teacher.middle_name].filter(Boolean).join(' ') }}
                     </div>
                   </v-col>
 

@@ -63,7 +63,7 @@
                 <v-icon color="white">mdi-account</v-icon>
               </v-avatar>
               <div>
-                <div class="font-weight-medium">{{ row.name }} {{ row.last_name }}</div>
+                <div class="font-weight-medium">{{ [row.last_name, row.name, row.middle_name].filter(Boolean).join(' ') }}</div>
                 <div class="text-caption text-medium-emphasis">{{ row.email || row.phone || '—' }}</div>
               </div>
             </div>

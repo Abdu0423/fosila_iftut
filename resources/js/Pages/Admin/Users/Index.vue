@@ -162,7 +162,7 @@
           <!-- Имя пользователя -->
           <template #cell-name="{ row }">
             <div>
-              <div class="font-weight-medium">{{ row.name }} {{ row.last_name }}</div>
+              <div class="font-weight-medium">{{ [row.last_name, row.name, row.middle_name].filter(Boolean).join(' ') }}</div>
               <div class="text-caption text-medium-emphasis">{{ row.email }}</div>
             </div>
           </template>
@@ -233,7 +233,7 @@
             {{ t('admin.users.delete_confirmation', {}, { default: 'Подтверждение удаления' }) }}
           </v-card-title>
           <v-card-text>
-            {{ t('admin.users.delete_confirmation_text', {}, { default: 'Вы действительно хотите удалить пользователя' }) }} <strong>{{ userToDelete?.name }} {{ userToDelete?.last_name }}</strong>?
+            {{ t('admin.users.delete_confirmation_text', {}, { default: 'Вы действительно хотите удалить пользователя' }) }} <strong>{{ [userToDelete?.last_name, userToDelete?.name, userToDelete?.middle_name].filter(Boolean).join(' ') }}</strong>?
             {{ t('admin.users.delete_warning', {}, { default: 'Это действие нельзя отменить.' }) }}
           </v-card-text>
           <v-card-actions>

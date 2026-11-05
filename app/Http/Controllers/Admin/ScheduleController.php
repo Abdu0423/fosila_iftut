@@ -22,7 +22,7 @@ class ScheduleController extends Controller
         $user = $request->user();
         $query = Schedule::with([
             'subject:id,name',
-            'teacher:id,name,last_name',
+            'teacher:id,name,last_name,middle_name',
             'department:id,name',
             'group:id,name',
         ]);
@@ -98,9 +98,14 @@ class ScheduleController extends Controller
                 })
                 ->orderBy('last_name')
                 ->orderBy('name')
+                ->orderBy('middle_name')
                 ->get(['id', 'name', 'last_name', 'middle_name'])
                 ->map(function (User $person) {
-                    $title = trim(($person->name ?? '').' '.($person->last_name ?? ''));
+                    $title = trim(implode(' ', array_filter([
+                        $person->last_name,
+                        $person->name,
+                        $person->middle_name,
+                    ])));
 
                     return [
                         'id' => $person->id,

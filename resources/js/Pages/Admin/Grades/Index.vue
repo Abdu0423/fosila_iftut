@@ -161,7 +161,7 @@
                     </v-img>
                   </v-avatar>
                   <div>
-                    <div class="font-weight-medium">{{ row.student.name }}</div>
+                    <div class="font-weight-medium">{{ [row.student.last_name, row.student.name, row.student.middle_name].filter(Boolean).join(' ') || row.student.name }}</div>
                     <div class="text-caption text-medium-emphasis">{{ row.student.email }}</div>
                   </div>
                 </div>

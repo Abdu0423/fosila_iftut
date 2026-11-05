@@ -511,7 +511,7 @@ const phoneSearch = ref(props.filters?.phone_search || '')
 const loadingHistory = ref(false)
 
 function personName(row) {
-  return [row?.name, row?.last_name, row?.middle_name].filter(Boolean).join(' ')
+  return [row?.last_name, row?.name, row?.middle_name].filter(Boolean).join(' ')
 }
 
 function phoneDigits(phone) {
@@ -656,7 +656,7 @@ const sendCredentials = () => {
   )
   
   if (usersWithoutPhone.length > 0) {
-    alert(`Невозможно отправить SMS пользователям без телефона:\n${usersWithoutPhone.map(u => `${u.name} ${u.last_name}`).join('\n')}`)
+    alert(`Невозможно отправить SMS пользователям без телефона:\n${usersWithoutPhone.map(u => personName(u)).join('\n')}`)
     return
   }
 
@@ -693,7 +693,7 @@ const sendCustom = () => {
   )
   
   if (usersWithoutPhone.length > 0) {
-    alert(`Невозможно отправить SMS пользователям без телефона:\n${usersWithoutPhone.map(u => `${u.name} ${u.last_name}`).join('\n')}`)
+    alert(`Невозможно отправить SMS пользователям без телефона:\n${usersWithoutPhone.map(u => personName(u)).join('\n')}`)
     return
   }
 

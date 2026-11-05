@@ -282,8 +282,8 @@ const sortStudentsAlphabetically = (students) => {
   if (!students || students.length === 0) return []
   return [...students].sort((a, b) => {
     // Сортируем по фамилии, затем по имени
-    const nameA = (a.last_name || '') + ' ' + (a.name || '')
-    const nameB = (b.last_name || '') + ' ' + (b.name || '')
+    const nameA = [a.last_name, a.name, a.middle_name].filter(Boolean).join(' ')
+    const nameB = [b.last_name, b.name, b.middle_name].filter(Boolean).join(' ')
     return nameA.localeCompare(nameB, 'ru')
   })
 }

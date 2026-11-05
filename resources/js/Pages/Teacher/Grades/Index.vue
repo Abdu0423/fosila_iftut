@@ -177,7 +177,7 @@
                     <td class="text-grey">{{ index + 1 }}</td>
                     <td>
                       <div class="font-weight-medium">
-                        {{ student.last_name }} {{ student.name }}
+                        {{ [student.last_name, student.name, student.middle_name].filter(Boolean).join(' ') }}
                       </div>
                     </td>
                     <!-- Рейтинг 1 -->

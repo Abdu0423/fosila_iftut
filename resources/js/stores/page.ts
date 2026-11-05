@@ -19,6 +19,8 @@ export interface FlashMessages {
 export interface AuthUser {
     id: number;
     name: string;
+    last_name?: string | null;
+    middle_name?: string | null;
     email: string;
     role: string | null;
     locale?: string;

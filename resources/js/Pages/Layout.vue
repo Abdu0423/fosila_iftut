@@ -293,7 +293,10 @@ onUnmounted(() => {
 
 // Данные пользователя
 const user = computed(() => page.props.auth?.user || {})
-const userName = computed(() => user.value.name || t('messages.user'))
+const userName = computed(() => {
+  const person = user.value
+  return [person.last_name, person.name, person.middle_name].filter(Boolean).join(' ') || t('messages.user')
+})
 const userAvatar = computed(() => user.value.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName.value)}`)
 
 const currentRole = computed(() => user.value?.role || props.role || 'student')

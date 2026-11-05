@@ -83,7 +83,7 @@
                 >
                   <div class="message-content">
                     <div class="message-header" v-if="!message.is_from_current_user">
-                      <span class="message-author">{{ message.user.name }}</span>
+                      <span class="message-author">{{ [message.user.last_name, message.user.name, message.user.middle_name].filter(Boolean).join(' ') }}</span>
                       <span class="message-time">{{ formatTime(message.created_at) }}</span>
                     </div>
                     <div class="message-text">{{ message.message }}</div>
