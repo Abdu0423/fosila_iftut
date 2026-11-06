@@ -1,3 +1,4 @@
+import './utils/datetime';
 import './bootstrap';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';

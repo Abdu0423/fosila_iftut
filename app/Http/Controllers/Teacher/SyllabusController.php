@@ -44,7 +44,7 @@ class SyllabusController extends Controller
                 'file_size_formatted' => $syllabus->file_size_formatted,
                 'subject_name' => $syllabus->subject ? $syllabus->subject->name : 'Не указан',
                 'creation_year' => $syllabus->creation_year,
-                'created_at' => $syllabus->created_at ? $syllabus->created_at->format('d.m.Y H:i') : 'Не указано',
+                'created_at' => $syllabus->created_at ? $syllabus->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
                 'download_url' => $syllabus->download_url,
                 'preview_url' => $syllabus->preview_url,
             ];
@@ -208,8 +208,8 @@ class SyllabusController extends Controller
             'subject_name' => $syllabus->subject ? $syllabus->subject->name : 'Не указан',
             'subject_id' => $syllabus->subject_id,
             'creation_year' => $syllabus->creation_year,
-            'created_at' => $syllabus->created_at ? $syllabus->created_at->format('d.m.Y H:i') : 'Не указано',
-            'updated_at' => $syllabus->updated_at ? $syllabus->updated_at->format('d.m.Y H:i') : 'Не указано',
+            'created_at' => $syllabus->created_at ? $syllabus->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
+            'updated_at' => $syllabus->updated_at ? $syllabus->updated_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
             'download_url' => $syllabus->download_url,
             'preview_url' => $syllabus->preview_url,
         ];

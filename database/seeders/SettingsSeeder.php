@@ -64,7 +64,7 @@ class SettingsSeeder extends Seeder
             ],
             [
                 'key' => 'default_timezone',
-                'value' => 'Asia/Almaty',
+                'value' => 'Asia/Dushanbe',
                 'type' => 'string',
                 'description' => 'Часовой пояс по умолчанию'
             ],

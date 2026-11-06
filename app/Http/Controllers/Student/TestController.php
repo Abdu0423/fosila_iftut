@@ -121,7 +121,7 @@ class TestController extends Controller
                     'correct_answers' => $attempt->correct_answers,
                     'total_questions' => $attempt->total_questions,
                     'is_passed' => $attempt->is_passed,
-                    'completed_at' => $attempt->completed_at->format('d.m.Y H:i'),
+                    'completed_at' => $attempt->completed_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i'),
                 ];
             });
 
@@ -325,7 +325,7 @@ class TestController extends Controller
             'remaining_attempts' => max(0, ($test->max_attempts ?? 3) - $attempts->count()),
             'best_score' => $bestAttempt ? $bestAttempt->score : null,
             'is_passed' => $bestAttempt ? $bestAttempt->is_passed : false,
-            'last_attempt_at' => $attempts->first() ? $attempts->first()->completed_at->format('d.m.Y H:i') : null,
+            'last_attempt_at' => $attempts->first() ? $attempts->first()->completed_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
         ];
     }
 }

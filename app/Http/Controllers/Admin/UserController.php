@@ -87,8 +87,8 @@ class UserController extends Controller
                     'phone' => $user->phone ?? '',
                     'role' => $user->role ? $user->role->name : 'Не назначена',
                     'role_id' => $user->role_id,
-                    'created_at' => $user->created_at ? $user->created_at->format('d.m.Y H:i') : 'Не указано',
-                    'updated_at' => $user->updated_at ? $user->updated_at->format('d.m.Y H:i') : 'Не указано',
+                    'created_at' => $user->created_at ? $user->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
+                    'updated_at' => $user->updated_at ? $user->updated_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
                     'status' => $user->email_verified_at ? 'Подтвержден' : 'Не подтвержден',
                     'avatar' => $user->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($fullName)
                 ];
@@ -150,9 +150,9 @@ class UserController extends Controller
             'role_display' => $user->role ? $this->getRoleDisplayName($user->role->name) : 'Не назначена',
             'role_id' => $user->role_id,
             'group_id' => $user->group_id,
-            'created_at' => $user->created_at ? $user->created_at->format('d.m.Y H:i') : 'Не указано',
-            'updated_at' => $user->updated_at ? $user->updated_at->format('d.m.Y H:i') : 'Не указано',
-            'email_verified_at' => $user->email_verified_at ? $user->email_verified_at->format('d.m.Y H:i') : null,
+            'created_at' => $user->created_at ? $user->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
+            'updated_at' => $user->updated_at ? $user->updated_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
+            'email_verified_at' => $user->email_verified_at ? $user->email_verified_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
             'status' => $user->email_verified_at ? 'Подтвержден' : 'Не подтвержден',
             'avatar' => $user->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($fullName)
         ];
@@ -314,8 +314,8 @@ class UserController extends Controller
                 'mom_phone' => $user->mom_phone ?? '',
                 'role_id' => $user->role_id,
                 'group_id' => $user->group_id ? (int)$user->group_id : null,
-                'created_at' => $user->created_at ? $user->created_at->format('d.m.Y H:i') : 'Не указано',
-                'updated_at' => $user->updated_at ? $user->updated_at->format('d.m.Y H:i') : 'Не указано',
+                'created_at' => $user->created_at ? $user->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
+                'updated_at' => $user->updated_at ? $user->updated_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
                 'email_verified_at' => $user->email_verified_at
             ],
             'roles' => $roles,

@@ -58,12 +58,14 @@ class ChatMessage extends Model
      */
     public function getFormattedDateAttribute()
     {
-        if ($this->created_at->isToday()) {
+        $local = $this->created_at->copy()->timezone('Asia/Dushanbe');
+
+        if ($local->isToday()) {
             return 'Сегодня';
-        } elseif ($this->created_at->isYesterday()) {
+        } elseif ($local->isYesterday()) {
             return 'Вчера';
         } else {
-            return $this->created_at->format('d.m.Y');
+            return $local->format('d.m.Y');
         }
     }
 

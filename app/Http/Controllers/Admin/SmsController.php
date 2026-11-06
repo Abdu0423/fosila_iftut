@@ -76,8 +76,8 @@ class SmsController extends Controller
                 'error' => $sms->error,
                 'user_id' => $sms->user_id,
                 'user_name' => $sms->user ? ($sms->user->last_name . ' ' . $sms->user->name . ' ' . ($sms->user->middle_name ?? '')) : null,
-                'sent_at' => $sms->sent_at ? $sms->sent_at->format('d.m.Y H:i:s') : null,
-                'created_at' => $sms->created_at ? $sms->created_at->format('d.m.Y H:i:s') : null,
+                'sent_at' => $sms->sent_at ? $sms->sent_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i:s') : null,
+                'created_at' => $sms->created_at ? $sms->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i:s') : null,
             ];
         });
 

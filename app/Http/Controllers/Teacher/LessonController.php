@@ -35,12 +35,12 @@ class LessonController extends Controller
                         'name' => $schedule->group->name,
                     ] : null,
                     'lessons_count' => $schedule->lessons_count ?? 0,
-                    'scheduled_at' => $schedule->scheduled_at ? $schedule->scheduled_at->format('d.m.Y H:i') : null,
+                    'scheduled_at' => $schedule->scheduled_at ? $schedule->scheduled_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
                     'semester' => $schedule->semester,
                     'study_year' => $schedule->study_year,
                     'credits' => $schedule->credits,
                     'is_active' => $schedule->is_active,
-                    'created_at' => $schedule->created_at ? $schedule->created_at->format('d.m.Y H:i') : null,
+                    'created_at' => $schedule->created_at ? $schedule->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
                 ];
             });
 
@@ -87,8 +87,8 @@ class LessonController extends Controller
                     'file_size' => $lesson->file_size,
                     'file_size_formatted' => $lesson->file_size_formatted ?? 'Не указано',
                     'file_path' => $lesson->file_path,
-                    'created_at' => $lesson->created_at ? $lesson->created_at->format('d.m.Y H:i') : null,
-                    'updated_at' => $lesson->updated_at ? $lesson->updated_at->format('d.m.Y H:i') : null,
+                    'created_at' => $lesson->created_at ? $lesson->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
+                    'updated_at' => $lesson->updated_at ? $lesson->updated_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
                 ];
             });
 
@@ -115,8 +115,8 @@ class LessonController extends Controller
                 'file_name' => $lesson->file_name,
                 'file_size' => $lesson->file_size,
                 'file_path' => $lesson->file_path,
-                'created_at' => $lesson->created_at->format('d.m.Y H:i'),
-                'updated_at' => $lesson->updated_at->format('d.m.Y H:i'),
+                'created_at' => $lesson->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i'),
+                'updated_at' => $lesson->updated_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i'),
             ];
         })->values();
 
@@ -131,7 +131,7 @@ class LessonController extends Controller
                     'id' => $schedule->group->id,
                     'name' => $schedule->group->name,
                 ] : null,
-                'scheduled_at' => $schedule->scheduled_at ? $schedule->scheduled_at->format('d.m.Y H:i') : null,
+                'scheduled_at' => $schedule->scheduled_at ? $schedule->scheduled_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
                 'semester' => $schedule->semester,
                 'study_year' => $schedule->study_year,
                 'credits' => $schedule->credits,

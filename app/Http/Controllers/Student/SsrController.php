@@ -141,8 +141,8 @@ class SsrController extends Controller
                 'teacher_comment' => $submission->teacher_comment,
                 'grade' => $submission->grade,
                 'status' => $submission->status,
-                'submitted_at' => $submission->submitted_at ? $submission->submitted_at->format('d.m.Y H:i') : null,
-                'checked_at' => $submission->checked_at ? $submission->checked_at->format('d.m.Y H:i') : null,
+                'submitted_at' => $submission->submitted_at ? $submission->submitted_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
+                'checked_at' => $submission->checked_at ? $submission->checked_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
             ] : null,
         ]);
     }

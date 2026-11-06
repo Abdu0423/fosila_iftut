@@ -17,27 +17,27 @@ class SettingsController extends Controller
         
         return spa('Admin/Settings/Index', [
             'settings' => [
-                'site_name' => $settings['site_name'] ?? 'Fosila',
+                'site_name' => $settings['site_name'] ?? config('app.name', 'Fosila'),
                 'site_description' => $settings['site_description'] ?? 'Система дистанционного обучения',
-                'admin_email' => $settings['admin_email'] ?? 'admin@fosila.com',
-                'max_file_size' => $settings['max_file_size'] ?? 10,
+                'admin_email' => $settings['admin_email'] ?? config('mail.from.address'),
+                'max_file_size' => (int) ($settings['max_file_size'] ?? 10),
                 'allowed_file_types' => $settings['allowed_file_types'] ?? 'pdf,doc,docx,jpg,jpeg,png',
-                'maintenance_mode' => $settings['maintenance_mode'] ?? false,
-                'registration_enabled' => $settings['registration_enabled'] ?? true,
-                'email_notifications' => $settings['email_notifications'] ?? true,
-                'default_timezone' => $settings['default_timezone'] ?? 'Asia/Almaty',
-                'session_timeout' => $settings['session_timeout'] ?? 120,
-                'backup_enabled' => $settings['backup_enabled'] ?? false,
+                'maintenance_mode' => $this->flag($settings['maintenance_mode'] ?? false),
+                'registration_enabled' => $this->flag($settings['registration_enabled'] ?? true, true),
+                'email_notifications' => $this->flag($settings['email_notifications'] ?? true, true),
+                'default_timezone' => $this->timezoneSetting($settings['default_timezone'] ?? null),
+                'session_timeout' => (int) ($settings['session_timeout'] ?? 120),
+                'backup_enabled' => $this->flag($settings['backup_enabled'] ?? false),
                 'backup_frequency' => $settings['backup_frequency'] ?? 'daily',
-                'smtp_host' => $settings['smtp_host'] ?? '',
-                'smtp_port' => $settings['smtp_port'] ?? 587,
-                'smtp_username' => $settings['smtp_username'] ?? '',
+                'smtp_host' => $settings['smtp_host'] ?? config('mail.mailers.smtp.host', ''),
+                'smtp_port' => (int) ($settings['smtp_port'] ?? config('mail.mailers.smtp.port', 587)),
+                'smtp_username' => $settings['smtp_username'] ?? config('mail.mailers.smtp.username', ''),
                 'smtp_password' => $settings['smtp_password'] ?? '',
-                'smtp_encryption' => $settings['smtp_encryption'] ?? 'tls',
+                'smtp_encryption' => $settings['smtp_encryption'] ?? (config('mail.mailers.smtp.encryption') ?: 'tls'),
             ],
             'timezones' => [
+                ['value' => 'Asia/Dushanbe', 'text' => 'Таджикистан (UTC+5)'],
                 ['value' => 'Asia/Almaty', 'text' => 'Алматы (UTC+6)'],
-                ['value' => 'Asia/Astana', 'text' => 'Астана (UTC+6)'],
                 ['value' => 'Europe/Moscow', 'text' => 'Москва (UTC+3)'],
                 ['value' => 'UTC', 'text' => 'UTC (UTC+0)'],
             ],
@@ -55,6 +55,33 @@ class SettingsController extends Controller
                 'zip', 'rar', '7z', 'tar', 'gz'
             ]
         ]);
+    }
+
+    private function flag($value, bool $default = false): bool
+    {
+        if ($value === null || $value === '') {
+            return $default;
+        }
+
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    private function timezoneSetting(?string $value): string
+    {
+        if (! $value || in_array($value, ['Asia/Almaty', 'Asia/Astana'], true)) {
+            Setting::updateOrCreate(
+                ['key' => 'default_timezone'],
+                [
+                    'value' => 'Asia/Dushanbe',
+                    'type' => 'string',
+                    'description' => 'Часовой пояс по умолчанию',
+                ]
+            );
+
+            return 'Asia/Dushanbe';
+        }
+
+        return $value;
     }
 
     public function updateGeneral(Request $request)

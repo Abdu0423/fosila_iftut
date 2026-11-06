@@ -146,8 +146,8 @@ class CourseworkController extends Controller
                 'grade_10' => $submission->grade_10,
                 'grade_letter' => $submission->grade_letter,
                 'status' => $submission->status,
-                'submitted_at' => $submission->submitted_at ? $submission->submitted_at->format('d.m.Y H:i') : null,
-                'checked_at' => $submission->checked_at ? $submission->checked_at->format('d.m.Y H:i') : null,
+                'submitted_at' => $submission->submitted_at ? $submission->submitted_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
+                'checked_at' => $submission->checked_at ? $submission->checked_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
             ] : null,
         ]);
     }

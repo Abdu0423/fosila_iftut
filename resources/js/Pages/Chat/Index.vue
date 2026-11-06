@@ -1,7 +1,7 @@
 ﻿<template>
   <Layout :role="userRole">
-    <v-container fluid class="messenger-page">
-      <v-card class="messenger-shell" rounded="lg" elevation="1">
+    <v-container fluid class="messenger-page pa-0">
+      <v-card class="messenger-shell" rounded="0" elevation="0">
         <aside class="chat-list">
           <div class="chat-list-scroll">
             <v-list class="py-0" bg-color="transparent">
@@ -629,8 +629,11 @@ onUnmounted(() => {
 
 <style scoped>
 .messenger-page {
-  height: calc(100dvh - 96px);
-  padding: 12px !important;
+  height: calc(100dvh - 64px);
+  width: calc(100% + 32px);
+  max-width: none;
+  margin: -16px !important;
+  padding: 0 !important;
   box-sizing: border-box;
 }
 
@@ -638,6 +641,7 @@ onUnmounted(() => {
   height: 100%;
   display: flex;
   overflow: hidden;
+  border-radius: 0 !important;
 }
 
 .chat-list {

@@ -94,7 +94,7 @@ class CourseworkController extends Controller
                 'id' => $topic->id,
                 'topic_text' => $topic->topic_text,
                 'is_taken' => $topic->isTaken(),
-                'taken_at' => $topic->taken_at ? $topic->taken_at->format('d.m.Y H:i') : null,
+                'taken_at' => $topic->taken_at ? $topic->taken_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
                 'student' => $topic->student ? [
                     'id' => $topic->student->id,
                     'name' => $topic->student->name,
@@ -107,8 +107,8 @@ class CourseworkController extends Controller
                     'grade_100' => $topic->submission->grade_100,
                     'grade_10' => $topic->submission->grade_10,
                     'grade_letter' => $topic->submission->grade_letter,
-                    'submitted_at' => $topic->submission->submitted_at ? $topic->submission->submitted_at->format('d.m.Y H:i') : null,
-                    'checked_at' => $topic->submission->checked_at ? $topic->submission->checked_at->format('d.m.Y H:i') : null,
+                    'submitted_at' => $topic->submission->submitted_at ? $topic->submission->submitted_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
+                    'checked_at' => $topic->submission->checked_at ? $topic->submission->checked_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
                 ] : null,
             ];
         });
@@ -278,8 +278,8 @@ class CourseworkController extends Controller
                 'grade_10' => $submission->grade_10,
                 'grade_letter' => $submission->grade_letter,
                 'status' => $submission->status,
-                'submitted_at' => $submission->submitted_at ? $submission->submitted_at->format('d.m.Y H:i') : null,
-                'checked_at' => $submission->checked_at ? $submission->checked_at->format('d.m.Y H:i') : null,
+                'submitted_at' => $submission->submitted_at ? $submission->submitted_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
+                'checked_at' => $submission->checked_at ? $submission->checked_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
             ],
             'topic' => [
                 'id' => $submission->topic->id,

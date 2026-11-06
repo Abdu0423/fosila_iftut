@@ -41,7 +41,7 @@ class ScheduleController extends Controller
                         'name' => $schedule->group->name,
                     ] : null,
                     'scheduled_at' => $schedule->scheduled_at ? $schedule->scheduled_at->format('Y-m-d H:i:s') : null,
-                    'scheduled_at_formatted' => $schedule->scheduled_at ? $schedule->scheduled_at->format('d.m.Y H:i') : 'Не указано',
+                    'scheduled_at_formatted' => $schedule->scheduled_at ? $schedule->scheduled_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
                     'semester' => $schedule->semester,
                     'study_year' => $schedule->study_year,
                     'credits' => $schedule->credits,
@@ -77,7 +77,7 @@ class ScheduleController extends Controller
                         ];
                     }),
                     'tests_count' => $schedule->tests_count ?? 0,
-                    'created_at' => $schedule->created_at ? $schedule->created_at->format('d.m.Y H:i') : null,
+                    'created_at' => $schedule->created_at ? $schedule->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
                 ];
             });
 

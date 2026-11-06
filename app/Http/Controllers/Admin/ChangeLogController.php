@@ -61,7 +61,7 @@ class ChangeLogController extends Controller
             'ready' => true,
             'logs' => $page->getCollection()->map(fn (ChangeLog $row) => [
                 'id' => $row->id,
-                'created_at' => $row->created_at ? $row->created_at->format('d.m.Y H:i:s') : '',
+                'created_at' => $row->created_at ? $row->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i:s') : '',
                 'user_name' => $row->user_name ?: 'Система',
                 'role_name' => ChangeLogger::roleLabel($row->role_name),
                 'action' => ChangeLogger::actionLabel($row->action),

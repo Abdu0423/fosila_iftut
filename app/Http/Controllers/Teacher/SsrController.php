@@ -41,7 +41,7 @@ class SsrController extends Controller
                     'available_topics_count' => $task->available_topics_count,
                     'taken_topics_count' => $task->taken_topics_count,
                     'submissions_count' => $task->submissions_count,
-                    'created_at' => $task->created_at->format('d.m.Y H:i'),
+                    'created_at' => $task->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i'),
                 ];
             });
 
@@ -160,7 +160,7 @@ class SsrController extends Controller
                 'id' => $topic->id,
                 'topic_text' => $topic->topic_text,
                 'is_taken' => $topic->isTaken(),
-                'taken_at' => $topic->taken_at ? $topic->taken_at->format('d.m.Y H:i') : null,
+                'taken_at' => $topic->taken_at ? $topic->taken_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
                 'student' => $topic->student ? [
                     'id' => $topic->student->id,
                     'name' => $topic->student->name,
@@ -171,8 +171,8 @@ class SsrController extends Controller
                     'id' => $topic->submission->id,
                     'status' => $topic->submission->status,
                     'grade' => $topic->submission->grade,
-                    'submitted_at' => $topic->submission->submitted_at ? $topic->submission->submitted_at->format('d.m.Y H:i') : null,
-                    'checked_at' => $topic->submission->checked_at ? $topic->submission->checked_at->format('d.m.Y H:i') : null,
+                    'submitted_at' => $topic->submission->submitted_at ? $topic->submission->submitted_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
+                    'checked_at' => $topic->submission->checked_at ? $topic->submission->checked_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
                 ] : null,
             ];
         });
@@ -190,7 +190,7 @@ class SsrController extends Controller
                     'subject' => $task->schedule->subject ? $task->schedule->subject->name : null,
                     'group' => $task->schedule->group ? $task->schedule->group->name : null,
                 ] : null,
-                'created_at' => $task->created_at->format('d.m.Y H:i'),
+                'created_at' => $task->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i'),
             ],
             'topics' => $topics,
         ]);
@@ -362,8 +362,8 @@ class SsrController extends Controller
                 'teacher_comment' => $submission->teacher_comment,
                 'grade' => $submission->grade,
                 'status' => $submission->status,
-                'submitted_at' => $submission->submitted_at ? $submission->submitted_at->format('d.m.Y H:i') : null,
-                'checked_at' => $submission->checked_at ? $submission->checked_at->format('d.m.Y H:i') : null,
+                'submitted_at' => $submission->submitted_at ? $submission->submitted_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
+                'checked_at' => $submission->checked_at ? $submission->checked_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
             ],
             'topic' => [
                 'id' => $submission->topic->id,
