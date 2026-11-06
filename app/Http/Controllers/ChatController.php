@@ -121,6 +121,18 @@ class ChatController extends Controller
             ->orderBy('middle_name');
     }
 
+    protected function chatMessages(Chat $chat)
+    {
+        $messages = $chat->messages()
+            ->with('user')
+            ->orderByDesc('created_at')
+            ->paginate(50);
+
+        $messages->setCollection($messages->getCollection()->reverse()->values());
+
+        return $messages;
+    }
+
     protected function chatListItem(Chat $chat, User $user): array
     {
         $chat->load(['lastMessage.user']);
@@ -204,11 +216,7 @@ class ChatController extends Controller
             abort(403, 'У вас нет доступа к этому чату');
         }
 
-        // Загружаем сообщения чата
-        $messages = $chat->messages()
-            ->with('user')
-            ->orderBy('created_at', 'asc')
-            ->paginate(50);
+        $messages = $this->chatMessages($chat);
 
         // Отмечаем сообщения как прочитанные
         $chat->users()->updateExistingPivot($user->id, [
@@ -345,12 +353,7 @@ class ChatController extends Controller
             abort(403, 'У вас нет доступа к этому чату');
         }
 
-        $messages = $chat->messages()
-            ->with('user')
-            ->orderBy('created_at', 'asc')
-            ->paginate(50);
-
-        return response()->json($messages);
+        return response()->json($this->chatMessages($chat));
     }
 
     /**
