@@ -164,6 +164,7 @@
             <div>
               <div class="font-weight-medium">{{ [row.last_name, row.name, row.middle_name].filter(Boolean).join(' ') }}</div>
               <div class="text-caption text-medium-emphasis">{{ row.email }}</div>
+              <div v-if="row.phone" class="text-caption text-medium-emphasis">{{ row.phone }}</div>
             </div>
           </template>
 

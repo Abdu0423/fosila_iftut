@@ -329,8 +329,11 @@ class ChatController extends Controller
         // Загружаем пользователя для сообщения
         $message->load('user');
 
-        // Отправляем событие о новом сообщении
-        broadcast(new MessageSent($message));
+        try {
+            broadcast(new MessageSent($message));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         // Обновляем время последнего сообщения в чате
         $chat->touch();

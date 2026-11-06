@@ -347,11 +347,32 @@ const selectChat = (chatId) => {
   markMessagesAsRead(chatId)
 }
 
+let messagesRequest = 0
+
+const mapMessage = (message) => ({
+  ...message,
+  is_from_current_user: Number(message.user_id) === Number(currentUserId.value),
+})
+
+const mergeMessages = (incoming) => {
+  const saved = incoming.map(mapMessage)
+  const savedIds = new Set(saved.map((message) => message.id))
+  const pending = messages.value.filter((message) => {
+    if (!String(message.id).startsWith('tmp-')) return false
+    return !saved.some((item) => Number(item.user_id) === Number(message.user_id) && item.message === message.message)
+  })
+  const known = new Set(messages.value.map((message) => message.id))
+  const hasNew = saved.some((message) => !known.has(message.id))
+  messages.value = [...saved, ...pending.filter((message) => !savedIds.has(message.id))]
+  return hasNew
+}
+
 const loadMessages = async () => {
   if (!selectedChatId.value) return
 
-  // Определяем правильный роут в зависимости от роли
-  const messagesRoute = chatUrl(`/${selectedChatId.value}/messages`)
+  const chatId = selectedChatId.value
+  const requestId = ++messagesRequest
+  const messagesRoute = chatUrl(`/${chatId}/messages`)
 
   try {
     const response = await fetch(messagesRoute, {
@@ -362,16 +383,14 @@ const loadMessages = async () => {
       }
     })
     const data = await response.json()
-    // Добавляем флаг is_from_current_user для каждого сообщения
-    const userId = currentUserId.value
-    messages.value = (data.data || []).map(msg => ({
-      ...msg,
-      is_from_current_user: msg.user_id === userId
-    }))
-    
-    // Прокручиваем к последнему сообщению
-    await nextTick()
-    scrollToBottom()
+    if (requestId !== messagesRequest || chatId !== selectedChatId.value) return
+
+    const hadMessages = messages.value.length > 0
+    const hasNew = mergeMessages(data.data || [])
+    if (!hadMessages || hasNew) {
+      await nextTick()
+      scrollToBottom()
+    }
   } catch (error) {
     console.error('Ошибка при загрузке сообщений:', error)
   }
@@ -387,17 +406,11 @@ const subscribeToChatChannel = (chatId) => {
     // Слушаем новые сообщения
     echoChannel.value.listen('.message.sent', (data) => {
       const newMsg = data.message
-      const userId = currentUserId.value
-      
+
       // Добавляем сообщение только если его еще нет в списке
       if (!messages.value.find(m => m.id === newMsg.id)) {
-        messages.value.push({
-          ...newMsg,
-          is_from_current_user: newMsg.user_id === userId
-        })
-        
-        // Обновляем список чатов
-        updateChatsList(newMsg.chat_id || chatId)
+        messages.value.push(mapMessage(newMsg))
+        rememberLastMessage(newMsg.chat_id || chatId, newMsg)
         
         // Прокручиваем к новому сообщению
         nextTick(() => {
@@ -411,18 +424,11 @@ const subscribeToChatChannel = (chatId) => {
 }
 
 // Обновление списка чатов при новом сообщении
-const updateChatsList = (chatId) => {
-  const chatIndex = chats.value.findIndex(c => c.id === chatId)
-  if (chatIndex !== -1) {
-    // Обновляем чат в списке
-    router.reload({
-      only: ['chats'],
-      preserveState: true,
-      onSuccess: (page) => {
-        chats.value = page.props.chats || []
-      }
-    })
-  }
+const rememberLastMessage = (chatId, message) => {
+  const chat = chats.value.find((item) => item.id === chatId)
+  if (!chat || !message) return
+  chat.last_message = message
+  chats.value = [chat, ...chats.value.filter((item) => item.id !== chatId)]
 }
 
 // Отметить сообщения как прочитанные
@@ -446,39 +452,55 @@ const markMessagesAsRead = async (chatId) => {
 }
 
 const sendMessage = async () => {
-  if (!newMessage.value.trim() || !selectedChatId.value) return
+  const text = newMessage.value.trim()
+  const chatId = selectedChatId.value
+  if (!text || !chatId) return
 
-  // Определяем правильный роут в зависимости от роли
-  const sendRoute = chatUrl(`/${selectedChatId.value}/messages`)
+  const tempId = `tmp-${Date.now()}`
+  messages.value.push({
+    id: tempId,
+    chat_id: chatId,
+    message: text,
+    user_id: currentUserId.value,
+    created_at: new Date().toISOString(),
+    is_from_current_user: true,
+    status: 'sent',
+    user: {},
+  })
+  newMessage.value = ''
+  await nextTick()
+  scrollToBottom()
 
   try {
-    const response = await fetch(sendRoute, {
+    const response = await fetch(chatUrl(`/${chatId}/messages`), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-        'X-Requested-With': 'XMLHttpRequest'
+        Accept: 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-Spa': '1',
       },
-      body: JSON.stringify({
-        message: newMessage.value.trim()
-      })
+      body: JSON.stringify({ message: text }),
     })
-
     const data = await response.json()
-    
-    if (data.success) {
-      // Добавляем флаг is_from_current_user для нового сообщения
-      const userId = currentUserId.value
-      const newMsg = {
-        ...data.message,
-        is_from_current_user: data.message.user_id === userId
-      }
-      messages.value.push(newMsg)
-      newMessage.value = ''
-      await nextTick()
-      scrollToBottom()
+    if (!response.ok || !data.message) {
+      messages.value = messages.value.filter((message) => message.id !== tempId)
+      newMessage.value = text
+      return
     }
+
+    const saved = mapMessage(data.message)
+    const index = messages.value.findIndex((message) => message.id === tempId)
+    if (index === -1) {
+      if (!messages.value.some((message) => message.id === saved.id)) messages.value.push(saved)
+    } else {
+      messages.value.splice(index, 1, saved)
+    }
+    rememberLastMessage(chatId, saved)
   } catch (error) {
+    messages.value = messages.value.filter((message) => message.id !== tempId)
+    newMessage.value = text
     console.error('Ошибка при отправке сообщения:', error)
   }
 }
@@ -576,6 +598,13 @@ const getChatPartnerName = (chat) => {
   return chat.display_name
 }
 
+let pollTimer = null
+
+const pollMessages = () => {
+  if (!selectedChatId.value || document.hidden) return
+  loadMessages()
+}
+
 // Жизненный цикл
 onMounted(() => {
   // Инициализируем список чатов
@@ -585,10 +614,13 @@ onMounted(() => {
   if (chats.value.length > 0) {
     selectChat(chats.value[0].id)
   }
+
+  pollTimer = window.setInterval(pollMessages, 3000)
 })
 
 // Отписываемся при размонтировании
 onUnmounted(() => {
+  if (pollTimer) window.clearInterval(pollTimer)
   if (echoChannel.value && selectedChatId.value) {
     window.Echo?.leave(`chat.${selectedChatId.value}`)
   }
