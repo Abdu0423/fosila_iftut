@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Chat extends Model
 {
@@ -19,6 +20,10 @@ class Chat extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+    ];
+
+    protected $appends = [
+        'display_avatar',
     ];
 
     /**
@@ -70,17 +75,39 @@ class Chat extends Model
      */
     public function getDisplayAvatarAttribute()
     {
-        if ($this->avatar) {
-            return $this->avatar;
+        $own = $this->attributes['avatar'] ?? null;
+        if ($own) {
+            return $this->fileUrl($own);
         }
 
-        // Для приватных чатов возвращаем аватар собеседника
-        if ($this->type === 'private') {
-            $otherUser = $this->users()->where('user_id', '!=', auth()->id())->first();
-            return $otherUser ? $otherUser->avatar : null;
+        $others = $this->relationLoaded('users')
+            ? $this->users
+            : $this->users()->where('user_id', '!=', auth()->id())->get();
+
+        $other = collect($others)->first(function ($person) {
+            $id = is_array($person) ? ($person['id'] ?? null) : $person->id;
+
+            return (int) $id !== (int) auth()->id();
+        });
+
+        if (! $other) {
+            return null;
         }
 
-        return null;
+        if (is_array($other)) {
+            return $other['avatar'] ?? null;
+        }
+
+        return $other->avatarUrl();
+    }
+
+    protected function fileUrl(string $path): string
+    {
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://') || str_starts_with($path, '/')) {
+            return $path;
+        }
+
+        return Storage::disk('public')->url($path);
     }
 
     /**

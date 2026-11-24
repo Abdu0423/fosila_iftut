@@ -25,6 +25,8 @@ return [
     'reports' => 'Ҳисоботҳо',
     'settings' => 'Танзимот',
     'profile' => 'Профил',
+    'upload_photo' => 'Бор кардани акс',
+    'remove_photo' => 'Нест кардани акс',
     'users' => 'Корбарон',
     'logout' => 'Баромад',
     

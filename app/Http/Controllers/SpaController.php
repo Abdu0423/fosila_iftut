@@ -39,6 +39,7 @@ class SpaController extends Controller
                 'last_name' => $user->last_name,
                 'middle_name' => $user->middle_name,
                 'email' => $user->email,
+                'avatar' => $user->avatarUrl(),
                 'role' => $user->role ? $user->role->name : null,
                 'locale' => $user->locale ?? 'ru',
             ];

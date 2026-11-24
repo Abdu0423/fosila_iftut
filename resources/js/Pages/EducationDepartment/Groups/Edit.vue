@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <Layout :role="getRole">
     <v-container fluid class="pa-6">
       <!-- Заголовок -->
@@ -69,8 +69,8 @@
                       density="comfortable"
                       :error-messages="form.errors.enrollment_year"
                       required
-                      min="2020"
-                      max="2030"
+                      min="2000"
+                      max="2050"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="6">
@@ -82,8 +82,8 @@
                       density="comfortable"
                       :error-messages="form.errors.graduation_year"
                       required
-                      min="2020"
-                      max="2030"
+                      min="2000"
+                      max="2050"
                     ></v-text-field>
                   </v-col>
                 </v-row>

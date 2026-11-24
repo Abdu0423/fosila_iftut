@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class ProfileController extends Controller
@@ -58,6 +59,44 @@ class ProfileController extends Controller
             ->with('success', __('auth.password_changed'));
     }
 
+    public function updateAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:2048'],
+        ], [
+            'avatar.required' => 'Выберите фото',
+            'avatar.image' => 'Файл должен быть изображением',
+            'avatar.mimes' => 'Допустимы JPG, PNG, WEBP и GIF',
+            'avatar.max' => 'Фото не должно быть больше 2 МБ',
+        ]);
+
+        $user = User::findOrFail(auth()->id());
+        $this->deleteAvatarFile($user);
+
+        $file = $request->file('avatar');
+        $extension = strtolower($file->getClientOriginalExtension() ?: 'jpg');
+        if (! in_array($extension, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) {
+            $extension = 'jpg';
+        }
+
+        $user->avatar = $file->storeAs('avatars', $user->id.'_'.time().'.'.$extension, 'public');
+        $user->save();
+
+        return redirect($this->profilePath($request))
+            ->with('success', 'Фото обновлено');
+    }
+
+    public function deleteAvatar(Request $request)
+    {
+        $user = User::findOrFail(auth()->id());
+        $this->deleteAvatarFile($user);
+        $user->avatar = null;
+        $user->save();
+
+        return redirect($this->profilePath($request))
+            ->with('success', 'Фото удалено');
+    }
+
     protected function profileData(User $user): array
     {
         return [
@@ -69,7 +108,17 @@ class ProfileController extends Controller
             'phone' => $user->phone,
             'role' => $user->role?->name,
             'group' => $user->group?->name,
+            'avatar' => $user->avatarUrl(),
         ];
+    }
+
+    protected function deleteAvatarFile(User $user): void
+    {
+        if (! $user->avatar || str_contains($user->avatar, '..') || ! str_starts_with($user->avatar, 'avatars/')) {
+            return;
+        }
+
+        Storage::disk('public')->delete($user->avatar);
     }
 
     /**
@@ -85,8 +134,10 @@ class ProfileController extends Controller
             $path = '/';
         }
 
-        if (str_ends_with($path, '/password')) {
-            $path = substr($path, 0, -strlen('/password'));
+        foreach (['/password', '/avatar'] as $suffix) {
+            if (str_ends_with($path, $suffix)) {
+                $path = substr($path, 0, -strlen($suffix));
+            }
         }
 
         return $path !== '' ? $path : '/student/profile';

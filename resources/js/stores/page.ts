@@ -22,6 +22,7 @@ export interface AuthUser {
     last_name?: string | null;
     middle_name?: string | null;
     email: string;
+    avatar?: string | null;
     role: string | null;
     locale?: string;
 }

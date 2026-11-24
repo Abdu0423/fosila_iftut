@@ -25,6 +25,8 @@ return [
     'reports' => 'Отчеты',
     'settings' => 'Настройки',
     'profile' => 'Профиль',
+    'upload_photo' => 'Загрузить фото',
+    'remove_photo' => 'Удалить фото',
     'users' => 'Пользователи',
     'logout' => 'Выход',
     

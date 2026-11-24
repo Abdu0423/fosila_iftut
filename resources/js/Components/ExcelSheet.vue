@@ -56,7 +56,7 @@
               <v-menu
                 v-if="isFilterable(column)"
                 :model-value="filterMenuKey === column.key"
-                :disabled="!(choiceMap[column.key] || []).length"
+                :disabled="!(filteredChoiceMap[column.key] || []).length"
                 location="bottom start"
                 :close-on-content-click="true"
                 @update:model-value="(open) => setFilterMenu(column.key, open)"
@@ -74,7 +74,7 @@
                 </template>
                 <v-list density="compact" max-height="280" min-width="160">
                   <v-list-item
-                    v-for="choice in choiceMap[column.key] || []"
+                    v-for="choice in filteredChoiceMap[column.key] || []"
                     :key="choice"
                     :title="choice"
                     :active="columnFilters[column.key] === choice"
@@ -123,7 +123,7 @@
                   variant="plain"
                   hide-details
                   autofocus
-                  :custom-filter="showEveryItem"
+                  :custom-filter="filterOption"
                   @update:model-value="finishEdit(row, column, index, $event)"
                 />
                 <input
@@ -163,7 +163,7 @@
                   variant="plain"
                   hide-details
                   :placeholder="column.title"
-                  :custom-filter="showEveryItem"
+                  :custom-filter="filterOption"
                   @update:model-value="markDirty(column.key)"
                 />
               </template>
@@ -270,6 +270,7 @@ const columnFilters = reactive<Record<string, string>>({})
 const filterMenuKey = ref('')
 const editing = ref<{ id: string | number; key: string } | null>(null)
 const editValue = ref<unknown>(null)
+let lastDraftSnapshot: Record<string, any> | null = null
 const sheetColumns = computed<SheetColumn[]>(() => {
   if (props.columns?.length) {
     return props.columns
@@ -342,13 +343,18 @@ function isFilterable(column: SheetColumn) {
   return column.filter !== false && column.key !== 'actions'
 }
 
-function showEveryItem() {
-  return true
+function filterOption(value: unknown, query: string) {
+  const tokens = searchTokens(String(query || ''))
+  if (!tokens.length) {
+    return true
+  }
+  const haystack = String(value ?? '').toLowerCase()
+  return tokens.every((token) => haystack.includes(token))
 }
 
 function setFilterMenu(key: string, open: boolean) {
   if (open) {
-    if ((choiceMap.value[key] || []).length) {
+    if ((filteredChoiceMap.value[key] || []).length) {
       filterMenuKey.value = key
     }
     return
@@ -381,6 +387,28 @@ const choiceMap = computed(() => {
       }
     })
     map[column.key] = [...values].sort((left, right) => left.localeCompare(right, 'ru', { numeric: true }))
+  })
+  return map
+})
+
+const filteredChoiceMap = computed(() => {
+  const map: Record<string, string[]> = {}
+  Object.entries(choiceMap.value).forEach(([key, choices]) => {
+    const raw = (columnFilters[key] || '').trim()
+    if (!raw) {
+      map[key] = choices
+      return
+    }
+    const lowered = raw.toLowerCase()
+    if (choices.some((choice) => choice.toLowerCase() === lowered)) {
+      map[key] = choices
+      return
+    }
+    const tokens = searchTokens(raw)
+    map[key] = choices.filter((choice) => {
+      const text = choice.toLowerCase()
+      return tokens.every((token) => text.includes(token))
+    })
   })
   return map
 })
@@ -629,6 +657,7 @@ function onColumnFilter(key: string, event: Event) {
   const value = (event.target as HTMLInputElement).value
   columnFilters[key] = value
   page.value = 1
+  filterMenuKey.value = (filteredChoiceMap.value[key] || []).length ? key : ''
   if (value.trim()) {
     dismissed.value = { ...dismissed.value, [key]: false }
     dirty.value = { ...dirty.value, [key]: false }
@@ -698,6 +727,7 @@ function submitAdd() {
   if (!canSubmit.value) {
     return
   }
+  lastDraftSnapshot = { ...draft }
   emit('create', { ...draft })
   sheetColumns.value.forEach((column) => {
     const kept = draftContext.value[column.key]
@@ -711,6 +741,32 @@ function submitAdd() {
     }
   })
 }
+
+function showCreated(query: string) {
+  Object.keys(columnFilters).forEach((key) => {
+    columnFilters[key] = ''
+  })
+  dismissed.value = {}
+  page.value = 1
+  search.value = query
+  emit('update:modelValue', query)
+}
+
+function restoreDraft() {
+  if (!lastDraftSnapshot) {
+    return
+  }
+  sheetColumns.value.forEach((column) => {
+    const value = lastDraftSnapshot?.[column.key] ?? null
+    draft[column.key] = value
+    dirty.value[column.key] = value !== null && value !== ''
+  })
+}
+
+defineExpose({
+  showCreated,
+  restoreDraft,
+})
 </script>
 
 <style scoped>

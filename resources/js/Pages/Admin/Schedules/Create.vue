@@ -44,7 +44,6 @@
                       prepend-inner-icon="mdi-magnify"
                       clearable
                       auto-select-first
-                      :custom-filter="() => true"
                       required
                     />
                   </v-col>
@@ -62,7 +61,6 @@
                       prepend-inner-icon="mdi-magnify"
                       clearable
                       auto-select-first
-                      :custom-filter="() => true"
                       required
                     />
                   </v-col>
@@ -80,7 +78,6 @@
                       prepend-inner-icon="mdi-magnify"
                       clearable
                       auto-select-first
-                      :custom-filter="() => true"
                       required
                     />
                   </v-col>

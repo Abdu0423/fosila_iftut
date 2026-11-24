@@ -11,9 +11,39 @@
         <v-col cols="12" md="4">
           <v-card>
             <v-card-text class="text-center">
-              <v-avatar size="96" color="primary" class="mb-4">
-                <span class="text-h4 text-white">{{ initials }}</span>
+              <v-avatar size="120" color="primary" class="mb-4">
+                <v-img v-if="avatarSrc" :src="avatarSrc" cover :alt="profile.full_name" />
+                <span v-else class="text-h4 text-white">{{ initials }}</span>
               </v-avatar>
+              <input
+                ref="fileInput"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                class="d-none"
+                @change="onPhoto"
+              />
+              <div class="d-flex justify-center ga-2 flex-wrap">
+                <v-btn
+                  variant="tonal"
+                  color="primary"
+                  :loading="avatarForm.processing"
+                  @click="fileInput?.click()"
+                >
+                  {{ t('navigation.upload_photo') }}
+                </v-btn>
+                <v-btn
+                  v-if="avatarSrc"
+                  variant="text"
+                  color="error"
+                  :disabled="avatarForm.processing"
+                  @click="removePhoto"
+                >
+                  {{ t('navigation.remove_photo') }}
+                </v-btn>
+              </div>
+              <div v-if="avatarForm.errors.avatar" class="text-error text-caption mt-2">
+                {{ avatarForm.errors.avatar }}
+              </div>
               <h2 class="text-h5 mb-2">{{ profile.full_name }}</h2>
               <v-chip v-if="roleLabel" color="primary" variant="tonal">
                 {{ roleLabel }}
@@ -158,9 +188,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useForm } from '@/compat/inertia'
+import { useForm, router } from '@/compat/inertia'
 import { useI18n } from 'vue-i18n'
 import Layout from '../Layout.vue'
 
@@ -176,6 +206,12 @@ const route = useRoute()
 const showCurrent = ref(false)
 const showPassword = ref(false)
 const showConfirmation = ref(false)
+const fileInput = ref<HTMLInputElement | null>(null)
+const avatarSrc = ref(props.profile?.avatar || '')
+
+const avatarForm = useForm({
+  avatar: null as File | null,
+})
 
 const form = useForm({
   current_password: '',
@@ -184,6 +220,7 @@ const form = useForm({
 })
 
 const passwordUrl = computed(() => `${route.path.replace(/\/$/, '')}/password`)
+const avatarUrl = computed(() => `${route.path.replace(/\/$/, '')}/avatar`)
 
 const roleLabel = computed(() => {
   const role = props.profile?.role
@@ -202,6 +239,31 @@ const initials = computed(() => {
 
 function display(value: string | null | undefined) {
   return value || '—'
+}
+
+watch(() => props.profile?.avatar, (value) => {
+  avatarSrc.value = value || ''
+})
+
+function onPhoto(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  const previous = avatarSrc.value
+  avatarSrc.value = URL.createObjectURL(file)
+  avatarForm.avatar = file
+  avatarForm.post(avatarUrl.value, {
+    preserveScroll: true,
+    forceFormData: true,
+    onError: () => {
+      avatarSrc.value = previous
+    },
+  })
+  if (fileInput.value) fileInput.value.value = ''
+}
+
+function removePhoto() {
+  avatarSrc.value = ''
+  router.delete(avatarUrl.value, { preserveScroll: true })
 }
 
 function submit() {

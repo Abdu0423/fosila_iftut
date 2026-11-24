@@ -144,7 +144,7 @@ class ChatController extends Controller
             'type' => $chat->type,
             'name' => $chat->name,
             'display_name' => $partner?->full_name ?: ($chat->name ?: 'Чат'),
-            'display_avatar' => null,
+            'display_avatar' => $partner?->avatarUrl(),
             'unread_count' => 0,
             'last_message' => $chat->lastMessage,
             'users' => $partners->map(fn (User $chatUser) => [
@@ -153,6 +153,7 @@ class ChatController extends Controller
                 'last_name' => $chatUser->last_name,
                 'middle_name' => $chatUser->middle_name,
                 'email' => $chatUser->email,
+                'avatar' => $chatUser->avatarUrl(),
             ])->values(),
         ];
     }
@@ -184,12 +185,23 @@ class ChatController extends Controller
                         'last_name' => $chatUser->last_name,
                         'middle_name' => $chatUser->middle_name,
                         'email' => $chatUser->email,
+                        'avatar' => $chatUser->avatarUrl(),
                     ];
                 });
                 return $chat;
             });
 
-        $users = $this->messageableUsers($user)->get(['id', 'name', 'last_name', 'middle_name', 'email']);
+        $users = $this->messageableUsers($user)
+            ->get(['id', 'name', 'last_name', 'middle_name', 'email', 'avatar'])
+            ->map(fn (User $person) => [
+                'id' => $person->id,
+                'name' => $person->name,
+                'last_name' => $person->last_name,
+                'middle_name' => $person->middle_name,
+                'email' => $person->email,
+                'avatar' => $person->avatarUrl(),
+            ])
+            ->values();
 
         // Подсчитываем общее количество непрочитанных сообщений
         $totalUnreadCount = 0;

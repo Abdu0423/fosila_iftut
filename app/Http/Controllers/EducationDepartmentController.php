@@ -538,6 +538,33 @@ class EducationDepartmentController extends Controller
     }
     
     /**
+     * Валидация и нормализация данных группы.
+     */
+    protected function validateGroupPayload(Request $request, ?Group $group = null): array
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'enrollment_year' => 'required|integer|min:2000|max:2050',
+            'graduation_year' => 'required|integer|min:2000|max:2050|gte:enrollment_year',
+            'status' => 'required|in:active,graduated,suspended',
+            'department_id' => 'nullable|exists:departments,id',
+            'course' => 'nullable|integer|min:1|max:6',
+            'specialty_id' => 'nullable|exists:specialties,id',
+        ]);
+
+        if (empty($validated['department_id']) && ! empty($validated['specialty_id'])) {
+            $validated['department_id'] = Specialty::whereKey($validated['specialty_id'])->value('department_id');
+        }
+
+        if (($validated['course'] ?? null) === null) {
+            $calculatedCourse = (int) now()->year - (int) $validated['enrollment_year'] + 1;
+            $validated['course'] = $group?->course ?? max(1, min(6, $calculatedCourse));
+        }
+
+        return $validated;
+    }
+
+    /**
      * Сохранить новую группу
      */
     public function storeGroup(Request $request)
@@ -546,17 +573,7 @@ class EducationDepartmentController extends Controller
         
         $this->checkRole($user);
         
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'enrollment_year' => 'required|integer|min:2020|max:2030',
-            'graduation_year' => 'required|integer|min:2020|max:2030|gte:enrollment_year',
-            'status' => 'required|in:active,graduated,suspended',
-            'department_id' => 'nullable|exists:departments,id',
-            'course' => 'nullable|integer|min:1|max:6',
-            'specialty_id' => 'nullable|exists:specialties,id'
-        ]);
-        
-        Group::create($validated);
+        Group::create($this->validateGroupPayload($request));
         
         return redirect()->route('education.groups.index')
             ->with('success', __('controllers.group_created'));
@@ -613,17 +630,7 @@ class EducationDepartmentController extends Controller
         
         $this->checkRole($user);
         
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'enrollment_year' => 'required|integer|min:2020|max:2030',
-            'graduation_year' => 'required|integer|min:2020|max:2030|gte:enrollment_year',
-            'status' => 'required|in:active,graduated,suspended',
-            'department_id' => 'nullable|exists:departments,id',
-            'course' => 'nullable|integer|min:1|max:6',
-            'specialty_id' => 'nullable|exists:specialties,id'
-        ]);
-        
-        $group->update($validated);
+        $group->update($this->validateGroupPayload($request, $group));
         
         return redirect()->route('education.groups.index')
             ->with('success', __('controllers.group_updated'));

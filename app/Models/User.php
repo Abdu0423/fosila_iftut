@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -29,6 +30,7 @@ class User extends Authenticatable
         'group_id',
         'address',
         'phone',
+        'avatar',
         'dad_phone',
         'mom_phone',
         'email_verified_at',
@@ -79,6 +81,19 @@ class User extends Authenticatable
     public function group()
     {
         return $this->belongsTo(Group::class);
+    }
+
+    public function avatarUrl(): ?string
+    {
+        if (! $this->avatar) {
+            return null;
+        }
+
+        if (str_starts_with($this->avatar, 'http://') || str_starts_with($this->avatar, 'https://') || str_starts_with($this->avatar, '/')) {
+            return $this->avatar;
+        }
+
+        return Storage::disk('public')->url($this->avatar);
     }
 
     public function lessons()

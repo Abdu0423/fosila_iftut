@@ -199,7 +199,16 @@
               @update:model-value="openChatWith"
             >
               <template v-slot:item="{ props, item }">
-                <v-list-item v-bind="props" :subtitle="item.raw?.email || ''" />
+                <v-list-item v-bind="props" :subtitle="item.raw?.email || ''">
+                  <template v-slot:prepend>
+                    <v-avatar size="36" color="primary">
+                      <v-img v-if="item.raw?.avatar" :src="item.raw.avatar" cover />
+                      <span v-else class="text-caption text-white">
+                        {{ getInitials(item.raw?.displayName || '') }}
+                      </span>
+                    </v-avatar>
+                  </template>
+                </v-list-item>
               </template>
             </v-autocomplete>
           </v-card-text>

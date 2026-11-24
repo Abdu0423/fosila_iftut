@@ -129,6 +129,8 @@ Route::prefix('student')->middleware(['auth', 'student', 'check.password.change'
     // Профиль
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('student.profile.index');
     Route::post('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('student.profile.password');
+    Route::post('/profile/avatar', [App\Http\Controllers\ProfileController::class, 'updateAvatar'])->name('student.profile.avatar');
+    Route::delete('/profile/avatar', [App\Http\Controllers\ProfileController::class, 'deleteAvatar'])->name('student.profile.avatar.delete');
 
     // Настройки
     Route::get('/settings', function () {
@@ -234,6 +236,8 @@ Route::prefix('admin')->middleware(['auth', 'staff', 'check.password.change'])->
     // Профиль
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('admin.profile.index');
     Route::post('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('admin.profile.password');
+    Route::post('/profile/avatar', [App\Http\Controllers\ProfileController::class, 'updateAvatar'])->name('admin.profile.avatar');
+    Route::delete('/profile/avatar', [App\Http\Controllers\ProfileController::class, 'deleteAvatar'])->name('admin.profile.avatar.delete');
 
     // Настройки системы
     Route::get('/settings', [App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('admin.settings.index');
@@ -521,6 +525,8 @@ Route::prefix('teacher')->middleware(['auth', 'staff', 'check.password.change'])
     // Профиль
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('teacher.profile.index');
     Route::post('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('teacher.profile.password');
+    Route::post('/profile/avatar', [App\Http\Controllers\ProfileController::class, 'updateAvatar'])->name('teacher.profile.avatar');
+    Route::delete('/profile/avatar', [App\Http\Controllers\ProfileController::class, 'deleteAvatar'])->name('teacher.profile.avatar.delete');
     
     // Настройки
     Route::get('/settings', function () {

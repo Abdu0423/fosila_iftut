@@ -50,6 +50,8 @@ Route::prefix('education')->middleware(['auth', 'staff', 'check.password.change'
 
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('education.profile.index');
     Route::post('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('education.profile.password');
+    Route::post('/profile/avatar', [App\Http\Controllers\ProfileController::class, 'updateAvatar'])->name('education.profile.avatar');
+    Route::delete('/profile/avatar', [App\Http\Controllers\ProfileController::class, 'deleteAvatar'])->name('education.profile.avatar.delete');
 
     $redirectCopy('users', '/admin/users');
     $redirectCopy('subjects', '/admin/subjects');
@@ -63,6 +65,8 @@ Route::prefix('registration')->middleware(['auth', 'staff', 'check.password.chan
 
     Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('registration.profile.index');
     Route::post('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('registration.profile.password');
+    Route::post('/profile/avatar', [App\Http\Controllers\ProfileController::class, 'updateAvatar'])->name('registration.profile.avatar');
+    Route::delete('/profile/avatar', [App\Http\Controllers\ProfileController::class, 'deleteAvatar'])->name('registration.profile.avatar.delete');
 
     $redirectCopy('users', '/admin/users');
     $redirectCopy('groups', '/education/groups');
@@ -81,6 +85,8 @@ $registerOrgHome = function (string $prefix) use ($redirectCopy, $teachingRedire
 
         Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name($prefix.'.profile.index');
         Route::post('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name($prefix.'.profile.password');
+        Route::post('/profile/avatar', [App\Http\Controllers\ProfileController::class, 'updateAvatar'])->name($prefix.'.profile.avatar');
+        Route::delete('/profile/avatar', [App\Http\Controllers\ProfileController::class, 'deleteAvatar'])->name($prefix.'.profile.avatar.delete');
 
         $redirectCopy('users', '/admin/users');
         $teachingRedirects();

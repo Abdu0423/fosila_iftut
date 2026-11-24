@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <Layout :role="getRole">
     <v-container fluid class="pa-6">
       <div class="d-flex justify-space-between align-center mb-6">
@@ -12,7 +12,16 @@
         </div>
       </div>
 
+      <v-alert v-if="page.props.flash?.success" type="success" variant="tonal" class="mb-4">
+        {{ page.props.flash.success }}
+      </v-alert>
+      <v-alert v-if="page.props.flash?.error || errorMessage" type="error" variant="tonal" class="mb-4" closable @click:close="errorMessage = ''">
+        {{ errorMessage || page.props.flash?.error }}
+      </v-alert>
+
       <ExcelSheet
+        ref="sheetRef"
+        v-model="search"
         :columns="columns"
         :rows="groupRows"
         can-add
@@ -45,13 +54,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { usePage, router } from '@/compat/inertia'
 import Layout from '../../Layout.vue'
 import ExcelSheet from '@/Components/ExcelSheet.vue'
 
 const page = usePage()
 const translations = computed(() => page.props.translations || {})
+const search = ref('')
+const errorMessage = ref('')
+const sheetRef = ref<InstanceType<typeof ExcelSheet> | null>(null)
 
 const props = defineProps({
   groups: { type: [Array, Object], default: () => [] },
@@ -114,12 +126,37 @@ const payload = (source) => ({
   course: source.course || null
 })
 
+const extractError = (errors: Record<string, string | string[]>) => {
+  const first = Object.values(errors || {})[0]
+  if (Array.isArray(first)) {
+    return first[0] || 'Ошибка сохранения группы'
+  }
+  return first || 'Ошибка сохранения группы'
+}
+
 const createGroup = (draft) => {
-  router.post(`/${prefix()}/groups`, payload({ ...draft, status: draft.status || 'active' }))
+  errorMessage.value = ''
+  const createdName = String(draft.name || '').trim()
+  router.post(`/${prefix()}/groups`, payload({ ...draft, status: draft.status || 'active' }), {
+    onSuccess: () => {
+      if (createdName) {
+        sheetRef.value?.showCreated(createdName)
+      }
+    },
+    onError: (errors) => {
+      errorMessage.value = extractError(errors)
+      sheetRef.value?.restoreDraft()
+    }
+  })
 }
 
 const updateGroup = ({ row, column, value }) => {
-  router.put(`/${prefix()}/groups/${row.id}`, payload({ ...row, [column.key]: value }))
+  errorMessage.value = ''
+  router.put(`/${prefix()}/groups/${row.id}`, payload({ ...row, [column.key]: value }), {
+    onError: (errors) => {
+      errorMessage.value = extractError(errors)
+    }
+  })
 }
 
 const toggleStatus = (item) => {
