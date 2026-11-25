@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -38,7 +38,7 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" md="3">
-                  <v-select
+                  <v-autocomplete
                     v-model="selectedLesson"
                     :items="lessons"
                     item-title="title"
@@ -47,7 +47,7 @@
                     variant="outlined"
                     density="compact"
                     clearable
-                  ></v-select>
+                  ></v-autocomplete>
                 </v-col>
                 <v-col cols="12" md="2">
                   <v-select

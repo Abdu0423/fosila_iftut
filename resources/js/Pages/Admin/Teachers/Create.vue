@@ -62,7 +62,7 @@
                 </v-col>
 
                 <v-col cols="12" md="6">
-                  <v-select
+                  <v-autocomplete
                     v-model="form.department_id"
                     label="Кафедра"
                     :items="departments"
@@ -70,7 +70,7 @@
                     item-value="id"
                     :error-messages="form.errors.department_id"
                     required
-                  ></v-select>
+                  ></v-autocomplete>
                 </v-col>
 
                 <v-col cols="12" md="6">

@@ -29,7 +29,7 @@
               ></v-text-field>
             </v-col>
             <v-col cols="12" md="4">
-              <v-select
+              <v-autocomplete
                 v-model="groupFilter"
                 :label="translations.education_department?.groups_menu || 'Группа'"
                 :items="groups || []"
@@ -39,7 +39,7 @@
                 variant="outlined"
                 density="comfortable"
                 @update:model-value="handleSearch"
-              ></v-select>
+              ></v-autocomplete>
             </v-col>
           </v-row>
         </v-card-text>

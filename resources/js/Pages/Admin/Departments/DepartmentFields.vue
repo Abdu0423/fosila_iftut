@@ -19,7 +19,7 @@
       />
     </v-col>
     <v-col cols="12">
-      <v-select
+      <v-autocomplete
         v-model="form.faculty_id"
         label="Факультет"
         :items="faculties"
@@ -31,7 +31,7 @@
       />
     </v-col>
     <v-col cols="12">
-      <v-select
+      <v-autocomplete
         v-model="form.user_id"
         label="Пользователь"
         :items="userItems"

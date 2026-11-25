@@ -210,6 +210,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
+import { filterOption, searchTokens } from '@/utils/filterOption'
 
 type SheetOption = { title: string; value: string | number | boolean | null }
 type SheetColumn = {
@@ -347,15 +348,6 @@ function isFilterable(column: SheetColumn) {
   return column.filter !== false && column.key !== 'actions'
 }
 
-function filterOption(value: unknown, query: string) {
-  const tokens = searchTokens(String(query || ''))
-  if (!tokens.length) {
-    return true
-  }
-  const haystack = String(value ?? '').toLowerCase()
-  return tokens.every((token) => haystack.includes(token))
-}
-
 function setFilterMenu(key: string, open: boolean) {
   if (open) {
     if ((filteredChoiceMap.value[key] || []).length) {
@@ -428,10 +420,6 @@ function rowMatchesColumnFilter(row: Record<string, any>, column: SheetColumn, r
     return text === query
   }
   return searchTokens(query).every((token) => text.includes(token))
-}
-
-function searchTokens(raw: string) {
-  return raw.trim().toLowerCase().split(/\s+/).filter(Boolean)
 }
 
 function rowHaystack(row: Record<string, any>) {

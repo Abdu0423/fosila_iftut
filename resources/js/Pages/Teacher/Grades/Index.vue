@@ -35,7 +35,7 @@
               {{ t('teacher.select_schedule', {}, { default: 'Выберите расписание' }) }}
             </v-card-title>
             <v-card-text>
-              <v-select
+              <v-autocomplete
                 v-model="selectedScheduleId"
                 :items="schedules"
                 item-title="label"
@@ -57,7 +57,7 @@
                     </v-list-item-subtitle>
                   </v-list-item>
                 </template>
-              </v-select>
+              </v-autocomplete>
             </v-card-text>
           </v-card>
         </v-col>

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -55,7 +55,7 @@
 
                   <!-- Отделение -->
                   <v-col cols="12" md="4">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.department_id"
                       label="Отделение"
                       :items="departments || []"

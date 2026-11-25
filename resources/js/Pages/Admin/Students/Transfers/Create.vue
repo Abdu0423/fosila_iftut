@@ -58,7 +58,7 @@
 
                   <!-- Из группы -->
                   <v-col cols="12" md="6">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.from_group_id"
                       :items="groups || []"
                       item-title="display_name"
@@ -74,7 +74,7 @@
 
                   <!-- В группу -->
                   <v-col cols="12" md="6">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.to_group_id"
                       :items="groups || []"
                       item-title="display_name"

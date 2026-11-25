@@ -14,6 +14,7 @@ import router from './router';
 import { setupApi } from './api/client';
 import { installRouteHelper } from './router/laravel';
 import { usePageStore } from './stores/page';
+import { filterOption } from './utils/filterOption';
 
 installRouteHelper();
 setupApi();
@@ -48,6 +49,7 @@ const vuetify = createVuetify({
             variant: 'outlined',
             density: 'comfortable',
             color: 'primary',
+            customFilter: filterOption,
         },
         VCombobox: {
             variant: 'outlined',

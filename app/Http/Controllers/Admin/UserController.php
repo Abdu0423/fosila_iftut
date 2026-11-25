@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Department;
+use App\Models\Faculty;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Group;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
@@ -188,7 +192,9 @@ class UserController extends Controller
 
         return spa('Admin/Users/Create', [
             'roles' => $roles,
-            'groups' => $groups
+            'groups' => $groups,
+            'departments' => Department::orderBy('name')->get(['id', 'name']),
+            'faculties' => Faculty::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -208,18 +214,23 @@ class UserController extends Controller
                 'password' => 'nullable|string|min:4|confirmed',
                 'role_id' => 'required|exists:roles,id',
                 'group_id' => 'nullable|integer',
+                'department_id' => 'nullable|exists:departments,id',
+                'faculty_id' => 'nullable|exists:faculties,id',
                 'address' => 'nullable|string|max:255',
                 'phone' => 'nullable|string|max:255',
                 'dad_phone' => 'nullable|string|max:255',
                 'mom_phone' => 'nullable|string|max:255'
             ]);
 
+            $roleName = $this->validateRoleAssignment($request, (int) $validated['role_id']);
+
             // Проверяем, что хотя бы email или phone указан
-            if (empty($validated['email']) && empty($validated['phone'])) {
-                return back()->withErrors([
+            $normalizedPhone = $this->normalizePhone($validated['phone'] ?? null);
+            if (empty($validated['email']) && empty($normalizedPhone)) {
+                throw ValidationException::withMessages([
                     'email' => 'Необходимо указать хотя бы email или телефон',
-                    'phone' => 'Необходимо указать хотя бы email или телефон'
-                ])->withInput();
+                    'phone' => 'Необходимо указать хотя бы email или телефон',
+                ]);
             }
 
             \Log::info('Валидация прошла успешно', ['validated_data' => array_keys($validated)]);
@@ -230,40 +241,49 @@ class UserController extends Controller
             }
 
             // Нормализуем телефоны
-            $normalizedPhone = $this->normalizePhone($validated['phone'] ?? null);
             $normalizedDadPhone = $this->normalizePhone($validated['dad_phone'] ?? null);
             $normalizedMomPhone = $this->normalizePhone($validated['mom_phone'] ?? null);
 
-            $user = User::create([
-                'name' => $validated['name'],
-                'last_name' => $validated['last_name'],
-                'middle_name' => $validated['middle_name'] ?? null,
-                'email' => $validated['email'] ?? null,
-                'password' => bcrypt($validated['password']),
-                'role_id' => $validated['role_id'],
-                'group_id' => $validated['group_id'] ?? null,
-                'address' => $validated['address'] ?? null,
-                'phone' => $normalizedPhone,
-                'dad_phone' => $normalizedDadPhone,
-                'mom_phone' => $normalizedMomPhone,
-                'email_verified_at' => now(), // Автоматически подтверждаем email для админ-созданных пользователей
-                'must_change_password' => true // Требуем смену пароля при первом входе
-            ]);
+            $user = DB::transaction(function () use ($validated, $roleName, $normalizedPhone, $normalizedDadPhone, $normalizedMomPhone) {
+                $user = User::create([
+                    'name' => $validated['name'],
+                    'last_name' => $validated['last_name'],
+                    'middle_name' => $validated['middle_name'] ?? null,
+                    'email' => $validated['email'] ?? null,
+                    'password' => bcrypt($validated['password']),
+                    'role_id' => $validated['role_id'],
+                    'group_id' => $roleName === 'student' ? ($validated['group_id'] ?? null) : null,
+                    'address' => $validated['address'] ?? null,
+                    'phone' => $normalizedPhone,
+                    'dad_phone' => $normalizedDadPhone,
+                    'mom_phone' => $normalizedMomPhone,
+                    'email_verified_at' => now(), // Автоматически подтверждаем email для админ-созданных пользователей
+                    'must_change_password' => true // Требуем смену пароля при первом входе
+                ]);
+
+                $this->syncRoleAssignment(
+                    $user,
+                    $roleName,
+                    isset($validated['department_id']) ? (int) $validated['department_id'] : null,
+                    isset($validated['faculty_id']) ? (int) $validated['faculty_id'] : null
+                );
+
+                return $user;
+            });
 
             \Log::info('Пользователь успешно создан', ['user_id' => $user->id, 'email' => $user->email]);
 
             return response()->json(['redirect' => route('admin.users.index')]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             \Log::warning('Ошибка валидации при создании пользователя', ['errors' => $e->errors()]);
-            
-            // Проверяем, есть ли ошибка дубликата email
+
             if (isset($e->errors()['email']) && str_contains($e->errors()['email'][0], 'already been taken')) {
-                return back()->withErrors([
-                    'email' => 'Пользователь с таким email уже существует в системе'
-                ])->withInput();
+                throw ValidationException::withMessages([
+                    'email' => 'Пользователь с таким email уже существует в системе',
+                ]);
             }
-            
-            return back()->withErrors($e->errors())->withInput();
+
+            throw $e;
         } catch (\Exception $e) {
             \Log::error('Ошибка при создании пользователя', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return back()->with('error', __('controllers.error_creating', ['message' => $e->getMessage()]))->withInput();
@@ -314,12 +334,16 @@ class UserController extends Controller
                 'mom_phone' => $user->mom_phone ?? '',
                 'role_id' => $user->role_id,
                 'group_id' => $user->group_id ? (int)$user->group_id : null,
+                'department_id' => Department::where('user_id', $user->id)->value('id'),
+                'faculty_id' => Faculty::where('user_id', $user->id)->value('id'),
                 'created_at' => $user->created_at ? $user->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
                 'updated_at' => $user->updated_at ? $user->updated_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
                 'email_verified_at' => $user->email_verified_at
             ],
             'roles' => $roles,
-            'groups' => $groups
+            'groups' => $groups,
+            'departments' => Department::orderBy('name')->get(['id', 'name']),
+            'faculties' => Faculty::orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -340,8 +364,12 @@ class UserController extends Controller
                 'mom_phone' => 'nullable|string|max:255',
                 'role_id' => 'required|exists:roles,id',
                 'group_id' => 'nullable|integer',
+                'department_id' => 'nullable|exists:departments,id',
+                'faculty_id' => 'nullable|exists:faculties,id',
                 'password' => 'nullable|string|min:4|confirmed'
             ]);
+
+            $roleName = $this->validateRoleAssignment($request, (int) $validated['role_id']);
 
             // Проверяем уникальность email, если он указан
             if (!empty($validated['email'])) {
@@ -349,9 +377,9 @@ class UserController extends Controller
                     ->where('id', '!=', $user->id)
                     ->first();
                 if ($existingUser) {
-                    return back()->withErrors([
-                        'email' => 'Email уже используется другим пользователем'
-                    ])->withInput();
+                    throw ValidationException::withMessages([
+                        'email' => 'Email уже используется другим пользователем',
+                    ]);
                 }
             }
 
@@ -362,42 +390,50 @@ class UserController extends Controller
 
             // Проверяем, что хотя бы email или phone указан (после нормализации)
             if (empty($validated['email']) && empty($normalizedPhone)) {
-                return back()->withErrors([
+                throw ValidationException::withMessages([
                     'email' => 'Необходимо указать хотя бы email или телефон',
-                    'phone' => 'Необходимо указать хотя бы email или телефон'
-                ])->withInput();
-            }
-
-            $user->update([
-                'name' => $validated['name'],
-                'last_name' => $validated['last_name'],
-                'middle_name' => $validated['middle_name'] ?? null,
-                'email' => !empty($validated['email']) ? $validated['email'] : null,
-                'phone' => $normalizedPhone,
-                'address' => $validated['address'] ?? null,
-                'dad_phone' => $normalizedDadPhone,
-                'mom_phone' => $normalizedMomPhone,
-                'role_id' => $validated['role_id'],
-                'group_id' => $validated['group_id'] ?? null
-            ]);
-
-            if ($request->filled('password')) {
-                $user->update([
-                    'password' => bcrypt($request->password)
+                    'phone' => 'Необходимо указать хотя бы email или телефон',
                 ]);
             }
 
+            DB::transaction(function () use ($request, $user, $validated, $roleName, $normalizedPhone, $normalizedDadPhone, $normalizedMomPhone) {
+                $user->update([
+                    'name' => $validated['name'],
+                    'last_name' => $validated['last_name'],
+                    'middle_name' => $validated['middle_name'] ?? null,
+                    'email' => !empty($validated['email']) ? $validated['email'] : null,
+                    'phone' => $normalizedPhone,
+                    'address' => $validated['address'] ?? null,
+                    'dad_phone' => $normalizedDadPhone,
+                    'mom_phone' => $normalizedMomPhone,
+                    'role_id' => $validated['role_id'],
+                    'group_id' => $roleName === 'student' ? ($validated['group_id'] ?? null) : null
+                ]);
+
+                if ($request->filled('password')) {
+                    $user->update([
+                        'password' => bcrypt($request->password)
+                    ]);
+                }
+
+                $this->syncRoleAssignment(
+                    $user,
+                    $roleName,
+                    isset($validated['department_id']) ? (int) $validated['department_id'] : null,
+                    isset($validated['faculty_id']) ? (int) $validated['faculty_id'] : null
+                );
+            });
+
             // Возвращаем back() чтобы onSuccess на фронтенде обработал редирект
             return back()->with('success', 'Пользователь успешно обновлен');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Проверяем, есть ли ошибка дубликата email
+        } catch (ValidationException $e) {
             if (isset($e->errors()['email']) && str_contains($e->errors()['email'][0], 'already been taken')) {
-                return back()->withErrors([
-                    'email' => 'Пользователь с таким email уже существует в системе'
-                ])->withInput();
+                throw ValidationException::withMessages([
+                    'email' => 'Пользователь с таким email уже существует в системе',
+                ]);
             }
-            
-            return back()->withErrors($e->errors())->withInput();
+
+            throw $e;
         } catch (\Exception $e) {
             \Log::error('Ошибка при обновлении пользователя', [
                 'user_id' => $user->id,
@@ -406,6 +442,55 @@ class UserController extends Controller
             ]);
             return back()->with('error', 'Ошибка при обновлении пользователя: ' . $e->getMessage())->withInput();
         }
+    }
+
+    /**
+     * Проверяет обязательность кафедры или факультета для соответствующих ролей.
+     */
+    private function validateRoleAssignment(Request $request, int $roleId): string
+    {
+        $roleName = (string) Role::whereKey($roleId)->value('name');
+
+        if ($roleName === 'department' && ! $request->filled('department_id')) {
+            throw ValidationException::withMessages([
+                'department_id' => 'Необходимо указать кафедру',
+            ]);
+        }
+
+        if ($roleName === 'faculty' && ! $request->filled('faculty_id')) {
+            throw ValidationException::withMessages([
+                'faculty_id' => 'Необходимо указать факультет',
+            ]);
+        }
+
+        return $roleName;
+    }
+
+    /**
+     * Привязывает пользователя к выбранной кафедре или факультету и очищает неактуальные привязки.
+     */
+    private function syncRoleAssignment(User $user, string $roleName, ?int $departmentId, ?int $facultyId): void
+    {
+        if ($roleName === 'department' && $departmentId) {
+            Department::where('user_id', $user->id)
+                ->where('id', '!=', $departmentId)
+                ->update(['user_id' => null]);
+            Department::whereKey($departmentId)->update(['user_id' => $user->id]);
+            Faculty::where('user_id', $user->id)->update(['user_id' => null]);
+            return;
+        }
+
+        if ($roleName === 'faculty' && $facultyId) {
+            Faculty::where('user_id', $user->id)
+                ->where('id', '!=', $facultyId)
+                ->update(['user_id' => null]);
+            Faculty::whereKey($facultyId)->update(['user_id' => $user->id]);
+            Department::where('user_id', $user->id)->update(['user_id' => null]);
+            return;
+        }
+
+        Department::where('user_id', $user->id)->update(['user_id' => null]);
+        Faculty::where('user_id', $user->id)->update(['user_id' => null]);
     }
 
     /**

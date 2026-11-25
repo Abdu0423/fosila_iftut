@@ -62,7 +62,7 @@
                 <!-- Урок и год -->
                 <v-row>
                   <v-col cols="12" md="6">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.lesson_id"
                       :items="lessons"
                       item-title="display_name"
@@ -72,7 +72,7 @@
                       density="compact"
                       :error-messages="form.errors.lesson_id"
                       required
-                    ></v-select>
+                    ></v-autocomplete>
                   </v-col>
                   <v-col cols="12" md="6">
                     <v-select

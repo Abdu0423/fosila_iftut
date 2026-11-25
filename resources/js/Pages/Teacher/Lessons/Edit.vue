@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <Layout role="teacher">
     <v-container fluid>
       <!-- Заголовок -->
@@ -66,7 +66,7 @@
                     ></v-textarea>
                   </v-col>
                   <v-col cols="12" md="6">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.schedule_id"
                       :items="schedules"
                       item-title="display_name"
@@ -83,7 +83,7 @@
                           <v-list-item-subtitle>{{ item.raw.start_date }} - {{ item.raw.end_date }}</v-list-item-subtitle>
                         </v-list-item>
                       </template>
-                    </v-select>
+                    </v-autocomplete>
                   </v-col>
                   <v-col cols="12">
                     <!-- Текущий файл -->

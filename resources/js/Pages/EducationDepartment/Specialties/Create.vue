@@ -59,7 +59,7 @@
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="6">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.department_id"
                       :label="translations.messages?.category || 'Кафедра'"
                       :items="departments || []"
@@ -69,7 +69,7 @@
                       density="comfortable"
                       clearable
                       :error-messages="form.errors.department_id"
-                    ></v-select>
+                    ></v-autocomplete>
                   </v-col>
                   <v-col cols="12" md="6">
                     <v-text-field

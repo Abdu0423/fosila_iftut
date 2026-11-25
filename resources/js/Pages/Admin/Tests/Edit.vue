@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -65,7 +65,7 @@
 
                   <!-- Урок -->
                   <v-col cols="12" md="6">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.lesson_id"
                       :items="lessons"
                       item-title="name"
@@ -74,7 +74,7 @@
                       variant="outlined"
                       :error-messages="form.errors.lesson_id"
                       required
-                    ></v-select>
+                    ></v-autocomplete>
                   </v-col>
 
                   <!-- Тип теста -->

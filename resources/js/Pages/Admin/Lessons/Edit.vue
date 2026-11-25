@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -62,7 +62,7 @@
                 <!-- Расписание -->
                 <v-row>
                   <v-col cols="12">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.schedule_id"
                       :items="schedules"
                       item-title="display_name"
@@ -82,7 +82,7 @@
                           </v-list-item-subtitle>
                         </v-list-item>
                       </template>
-                    </v-select>
+                    </v-autocomplete>
                   </v-col>
                 </v-row>
 

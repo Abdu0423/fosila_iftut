@@ -86,14 +86,14 @@
               ></v-select>
             </v-col>
             <v-col cols="12" md="3">
-              <v-select
+              <v-autocomplete
                 v-model="groupFilter"
                 :items="groupOptions"
                 label="Фильтр по группе"
                 variant="outlined"
                 density="compact"
                 clearable
-              ></v-select>
+              ></v-autocomplete>
             </v-col>
             <v-col cols="12" md="2">
               <v-btn
@@ -237,14 +237,14 @@
               ></v-select>
             </v-col>
             <v-col cols="12" md="3">
-              <v-select
+              <v-autocomplete
                 v-model="groupFilter"
                 :items="groupOptions"
                 label="Фильтр по группе"
                 variant="outlined"
                 density="compact"
                 clearable
-              ></v-select>
+              ></v-autocomplete>
             </v-col>
             <v-col cols="12" md="2">
               <v-btn

@@ -71,7 +71,7 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12" md="3">
-                  <v-select
+                  <v-autocomplete
                     v-model="selectedGroup"
                     :items="groups"
                     item-title="name"
@@ -80,7 +80,7 @@
                     variant="outlined"
                     density="compact"
                     clearable
-                  ></v-select>
+                  ></v-autocomplete>
                 </v-col>
                 <v-col cols="12" md="3">
                   <v-select

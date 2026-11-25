@@ -171,7 +171,7 @@
 
                   <!-- Силлабусы -->
                   <v-col cols="12">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.syllabus_ids"
                       :items="syllabuses || []"
                       item-title="name"
@@ -200,12 +200,12 @@
                           </v-list-item-subtitle>
                         </v-list-item>
                       </template>
-                    </v-select>
+                    </v-autocomplete>
                   </v-col>
 
                   <!-- Уроки -->
                   <v-col cols="12">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.lesson_ids"
                       :items="lessons || []"
                       item-title="title"
@@ -234,7 +234,7 @@
                           </v-list-item-subtitle>
                         </v-list-item>
                       </template>
-                    </v-select>
+                    </v-autocomplete>
                   </v-col>
                 </v-row>
 

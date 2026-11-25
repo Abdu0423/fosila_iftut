@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <Layout role="teacher">
     <v-container fluid>
       <!-- Заголовок -->
@@ -60,7 +60,7 @@
               <v-form @submit.prevent="updateSchedule">
                 <v-row>
                   <v-col cols="12" md="6">
-                    <v-select
+                    <v-autocomplete
                       v-model="editForm.subject_id"
                       :items="subjects"
                       item-title="name"
@@ -69,10 +69,10 @@
                       variant="outlined"
                       density="compact"
                       required
-                    ></v-select>
+                    ></v-autocomplete>
                   </v-col>
                   <v-col cols="12" md="6">
-                    <v-select
+                    <v-autocomplete
                       v-model="editForm.group_id"
                       :items="groups"
                       item-title="name"
@@ -81,7 +81,7 @@
                       variant="outlined"
                       density="compact"
                       required
-                    ></v-select>
+                    ></v-autocomplete>
                   </v-col>
                   <v-col cols="12" md="6">
                     <v-text-field
@@ -166,7 +166,7 @@
             <v-card-text>
               <!-- Добавление силлабусов -->
               <div class="mb-4">
-                <v-select
+                <v-autocomplete
                   v-model="selectedSyllabuses"
                   :items="availableSyllabuses"
                   item-title="name"
@@ -183,7 +183,7 @@
                       <v-list-item-subtitle>{{ item.raw.subject?.name }}</v-list-item-subtitle>
                     </v-list-item>
                   </template>
-                </v-select>
+                </v-autocomplete>
                 <v-btn
                   color="primary"
                   @click="addSyllabuses"
@@ -241,7 +241,7 @@
             <v-card-text>
               <!-- Добавление уроков -->
               <div class="mb-4">
-                <v-select
+                <v-autocomplete
                   v-model="selectedLessons"
                   :items="availableLessons"
                   item-title="title"
@@ -258,7 +258,7 @@
                       <v-list-item-subtitle>{{ item.raw.subject?.name }}</v-list-item-subtitle>
                     </v-list-item>
                   </template>
-                </v-select>
+                </v-autocomplete>
                 <v-btn
                   color="primary"
                   @click="addLessons"

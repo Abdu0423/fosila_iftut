@@ -40,7 +40,7 @@
                   class="mb-4"
                 ></v-text-field>
 
-                <v-select
+                <v-autocomplete
                   v-model="form.schedule_id"
                   :items="schedules"
                   item-title="label"
@@ -51,7 +51,7 @@
                   clearable
                   :error-messages="form.errors.schedule_id"
                   class="mb-4"
-                ></v-select>
+                ></v-autocomplete>
 
                 <v-textarea
                   v-model="form.description"

@@ -108,7 +108,7 @@
                      ></v-select>
                    </v-col>
                    <v-col v-if="isStudent" cols="12" md="6">
-                     <v-select
+                     <v-autocomplete
                        v-model="form.group_id"
                        :items="groups"
                        item-title="display_name"
@@ -119,7 +119,37 @@
                        :error-messages="form.errors.group_id"
                        clearable
                        :placeholder="t('admin.users.select_group')"
-                     ></v-select>
+                     ></v-autocomplete>
+                   </v-col>
+                   <v-col v-if="isDepartment" cols="12" md="6">
+                     <v-autocomplete
+                       v-model="form.department_id"
+                       :items="departments"
+                       item-title="name"
+                       item-value="id"
+                       label="Кафедра *"
+                       variant="outlined"
+                       density="compact"
+                       :error-messages="form.errors.department_id"
+                       clearable
+                       placeholder="Выберите кафедру"
+                       required
+                     ></v-autocomplete>
+                   </v-col>
+                   <v-col v-if="isFaculty" cols="12" md="6">
+                     <v-autocomplete
+                       v-model="form.faculty_id"
+                       :items="faculties"
+                       item-title="name"
+                       item-value="id"
+                       label="Факультет *"
+                       variant="outlined"
+                       density="compact"
+                       :error-messages="form.errors.faculty_id"
+                       clearable
+                       placeholder="Выберите факультет"
+                       required
+                     ></v-autocomplete>
                    </v-col>
                  </v-row>
 
@@ -181,7 +211,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useForm, router } from '@/compat/inertia'
 import { useI18n } from 'vue-i18n'
 import AdminApp from '../AdminApp.vue'
@@ -199,6 +229,14 @@ const props = defineProps({
   groups: {
     type: Array,
     default: () => []
+  },
+  departments: {
+    type: Array,
+    default: () => []
+  },
+  faculties: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -213,14 +251,33 @@ const form = useForm({
   dad_phone: '+992',
   mom_phone: '+992',
   role_id: '',
-  group_id: ''
+  group_id: '',
+  department_id: null,
+  faculty_id: null
 })
 
-// Проверяем, является ли выбранная роль студентом
-const isStudent = computed(() => {
-  if (!form.role_id) return false
-  const role = props.roles.find(r => r.id === form.role_id)
-  return role?.name === 'student'
+const selectedRole = computed(() => {
+  if (!form.role_id) return null
+  return props.roles.find(r => r.id === form.role_id) || null
+})
+
+// Проверяем, является ли выбранная роль студентом, кафедрой или факультетом
+const isStudent = computed(() => selectedRole.value?.name === 'student')
+const isDepartment = computed(() => selectedRole.value?.name === 'department')
+const isFaculty = computed(() => selectedRole.value?.name === 'faculty')
+
+watch(() => form.role_id, () => {
+  if (!isStudent.value) {
+    form.group_id = null
+  }
+  if (!isDepartment.value) {
+    form.department_id = null
+    form.clearErrors('department_id')
+  }
+  if (!isFaculty.value) {
+    form.faculty_id = null
+    form.clearErrors('faculty_id')
+  }
 })
 
 // Методы
@@ -231,11 +288,26 @@ const navigateTo = (path) => {
 }
 
 const submitForm = () => {
+  form.clearErrors()
+
   // Валидация: хотя бы email или phone должен быть заполнен
   if (!form.email && !form.phone) {
     const errorMsg = t('admin.users.email_or_phone_required')
-    form.setError('email', errorMsg)
-    form.setError('phone', errorMsg)
+    form.errors.email = errorMsg
+    form.errors.phone = errorMsg
+    form.hasErrors = true
+    return
+  }
+
+  if (isDepartment.value && !form.department_id) {
+    form.errors.department_id = 'Необходимо указать кафедру'
+    form.hasErrors = true
+    return
+  }
+
+  if (isFaculty.value && !form.faculty_id) {
+    form.errors.faculty_id = 'Необходимо указать факультет'
+    form.hasErrors = true
     return
   }
   

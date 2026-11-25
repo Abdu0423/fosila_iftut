@@ -49,7 +49,7 @@
               <v-card-text>
                 <div class="text-subtitle-2 mb-2">Силлабус</div>
                 <div class="d-flex flex-wrap ga-2 mb-3">
-                  <v-select
+                  <v-autocomplete
                     v-model="selectedSyllabus[schedule.id]"
                     :items="availableFor(schedule)"
                     item-title="name"

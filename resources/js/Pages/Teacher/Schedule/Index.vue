@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <Layout role="teacher">
     <v-container fluid>
       <!-- Заголовок -->
@@ -139,7 +139,7 @@
                       <v-window v-model="syllabusTabs[schedule.id]" @update:model-value="() => initUploadForm(schedule.id)">
                         <!-- Вкладка выбора из списка -->
                         <v-window-item value="select">
-                          <v-select
+                          <v-autocomplete
                             v-model="selectedSyllabuses[schedule.id]"
                             :items="getAvailableSyllabusesForSchedule(schedule)"
                             item-title="name"
@@ -166,7 +166,7 @@
                                 </v-list-item-title>
                               </v-list-item>
                             </template>
-                          </v-select>
+                          </v-autocomplete>
                           <v-btn
                             color="primary"
                             @click="addSyllabus(schedule)"

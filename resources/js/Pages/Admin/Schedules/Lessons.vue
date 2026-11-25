@@ -155,7 +155,7 @@
             <v-form @submit.prevent="addLesson">
               <v-row>
                 <v-col cols="12">
-                  <v-select
+                  <v-autocomplete
                     v-model="newLesson.lesson_id"
                     :items="availableLessons"
                     item-title="title"
@@ -172,7 +172,7 @@
                         </v-list-item-subtitle>
                       </v-list-item>
                     </template>
-                  </v-select>
+                  </v-autocomplete>
                 </v-col>
                 <v-col cols="12" md="6">
                   <v-text-field

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <AdminApp>
     <div class="admin-courses">
       <v-row>
@@ -26,14 +26,14 @@
           ></v-text-field>
         </v-col>
         <v-col cols="12" md="3">
-          <v-select
+          <v-autocomplete
             v-model="selectedTeacher"
             :items="teachers"
             label="Преподаватель"
             outlined
             dense
             clearable
-          ></v-select>
+          ></v-autocomplete>
         </v-col>
         <v-col cols="12" md="3">
           <v-select

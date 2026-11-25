@@ -83,7 +83,7 @@
                 <!-- Предмет и год -->
                 <v-row>
                   <v-col cols="12" md="6">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.subject_id"
                       :items="subjects"
                       item-title="display_name"
@@ -96,7 +96,7 @@
                       :hint="!hasSchedules ? t('teacher.syllabuses.no_schedules_message', {}, { default: 'У вас пока нет расписаний. Обратитесь к администратору для создания расписания.' }) : (subjects.length === 0 ? t('teacher.syllabuses.no_subjects_in_schedules', {}, { default: 'Нет предметов в расписаниях' }) : '')"
                       persistent-hint
                       required
-                    ></v-select>
+                    ></v-autocomplete>
                   </v-col>
                   <v-col cols="12" md="6">
                     <v-select

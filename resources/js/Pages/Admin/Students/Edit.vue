@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <AdminLayout>
     <v-row>
       <v-col cols="12">
@@ -60,7 +60,7 @@
                 </v-col>
 
                 <v-col cols="12" md="6">
-                  <v-select
+                  <v-autocomplete
                     v-model="form.group_id"
                     label="Группа"
                     :items="groups"
@@ -68,7 +68,7 @@
                     item-value="id"
                     :error-messages="form.errors.group_id"
                     required
-                  ></v-select>
+                  ></v-autocomplete>
                 </v-col>
 
                 <v-col cols="12" md="6">

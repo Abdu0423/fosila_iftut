@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -63,7 +63,7 @@
           />
         </v-col>
         <v-col cols="12" md="3">
-          <v-select
+          <v-autocomplete
             v-model="departmentFilter"
             :label="t('admin.subjects.department')"
             :items="departmentItems"

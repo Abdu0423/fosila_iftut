@@ -104,7 +104,7 @@
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" md="4">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.department_id"
                       :items="departments"
                       item-title="display_name"
@@ -114,10 +114,10 @@
                       density="comfortable"
                       :error-messages="form.errors.department_id"
                       clearable
-                    ></v-select>
+                    ></v-autocomplete>
                   </v-col>
                   <v-col cols="12" md="4">
-                    <v-select
+                    <v-autocomplete
                       v-model="form.specialty_id"
                       :items="specialties"
                       item-title="display_name"
@@ -127,7 +127,7 @@
                       density="comfortable"
                       :error-messages="form.errors.specialty_id"
                       clearable
-                    ></v-select>
+                    ></v-autocomplete>
                   </v-col>
                 </v-row>
 

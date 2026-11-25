@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <AdminLayout>
     <v-row>
       <v-col cols="12">
@@ -32,14 +32,14 @@
               </v-col>
               
               <v-col cols="12" md="4">
-                <v-select
+                <v-autocomplete
                   v-model="filters.department_id"
                   :label="t('admin.teachers.department')"
                   :items="departments"
                   item-title="name"
                   item-value="id"
                   clearable
-                ></v-select>
+                ></v-autocomplete>
               </v-col>
               
               <v-col cols="12" md="4">

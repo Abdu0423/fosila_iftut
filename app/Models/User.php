@@ -189,9 +189,19 @@ class User extends Authenticatable
         return $this->hasOne(Department::class, 'user_id');
     }
 
+    public function facultyAccount()
+    {
+        return $this->hasOne(Faculty::class, 'user_id');
+    }
+
     public function ownedDepartment(): ?Department
     {
         return $this->departmentAccount;
+    }
+
+    public function ownedFaculty(): ?Faculty
+    {
+        return $this->facultyAccount;
     }
 
     public function canAssignScheduleTeacher(): bool
