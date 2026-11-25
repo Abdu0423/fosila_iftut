@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <AdminApp>
     <v-container fluid>
       <!-- Заголовок -->
@@ -67,10 +67,22 @@
                 :color="getRoleColor(user.role)"
                 size="large"
                 variant="tonal"
-                class="mb-3"
+                class="mb-2"
               >
                 {{ user.role_display }}
               </v-chip>
+              <div
+                v-if="user.role === 'department' && user.department_name"
+                class="text-body-2 font-weight-medium mb-3"
+              >
+                {{ user.department_name }}
+              </div>
+              <div
+                v-else-if="user.role === 'faculty' && user.faculty_name"
+                class="text-body-2 font-weight-medium mb-3"
+              >
+                {{ user.faculty_name }}
+              </div>
               <div class="text-body-2 text-medium-emphasis">
                 <v-icon size="small" class="mr-1">mdi-email</v-icon>
                 {{ user.email }}

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <Layout role="admin">
     <v-container fluid>
       <!-- Заголовок -->
@@ -151,7 +151,7 @@
 
       <!-- Таблица пользователей -->
       <v-card>
-        <ExcelSheet :headers="headers" :rows="props.users">
+        <ExcelSheet :columns="columns" :rows="props.users">
           <!-- Аватар пользователя -->
           <template #cell-avatar="{ row }">
             <v-avatar size="40">
@@ -170,13 +170,22 @@
 
           <!-- Роль -->
           <template #cell-role="{ row }">
-            <v-chip
-              :color="getRoleColor(row.role)"
-              size="small"
-              variant="tonal"
-            >
-              {{ getRoleDisplayName(row.role) }}
-            </v-chip>
+            <div class="d-flex flex-column align-start ga-1">
+              <v-chip
+                :color="getRoleColor(row.role)"
+                size="small"
+                variant="tonal"
+              >
+                {{ getRoleDisplayName(row.role) }}
+              </v-chip>
+              <span
+                v-if="roleUnitName(row)"
+                class="text-caption text-medium-emphasis"
+                style="white-space: normal;"
+              >
+                {{ roleUnitName(row) }}
+              </span>
+            </div>
           </template>
 
           <!-- Статус -->
@@ -303,14 +312,31 @@ const deleteDialog = ref(false)
 const userToDelete = ref(null)
 const deleting = ref(false)
 
-// Заголовки таблицы
-const headers = [
-  { title: 'Аватар', key: 'avatar', sortable: false, width: '80px' },
-  { title: 'Пользователь', key: 'name', sortable: true },
-  { title: 'Роль', key: 'role', sortable: true },
-  { title: 'Статус', key: 'status', sortable: true },
-  { title: 'Дата регистрации', key: 'created_at', sortable: true },
-  { title: 'Действия', key: 'actions', sortable: false, width: '100px' }
+const roleUnitName = (row) => {
+  if (row?.role === 'department') return row.department_name || ''
+  if (row?.role === 'faculty') return row.faculty_name || ''
+  return ''
+}
+
+const roleLabel = (row) => {
+  const base = getRoleDisplayName(row?.role)
+  const unit = roleUnitName(row)
+  return unit ? `${base} — ${unit}` : base
+}
+
+// Колонки таблицы
+const columns = [
+  { key: 'avatar', title: 'Аватар', width: '80px', editor: 'slot', filter: false, text: () => '' },
+  {
+    key: 'name',
+    title: 'Пользователь',
+    editor: 'slot',
+    text: (row) => [row.last_name, row.name, row.middle_name, row.email, row.phone].filter(Boolean).join(' ')
+  },
+  { key: 'role', title: 'Роль', editor: 'slot', text: (row) => roleLabel(row) },
+  { key: 'status', title: 'Статус', editor: 'slot', text: (row) => row.status || '' },
+  { key: 'created_at', title: 'Дата регистрации', editor: 'slot', text: (row) => row.created_at || '' },
+  { key: 'actions', title: 'Действия', width: '100px', editor: 'slot', text: () => '' }
 ]
 
 // Опции фильтров

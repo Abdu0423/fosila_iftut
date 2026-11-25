@@ -19,7 +19,11 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $query = User::with('role');
+        $query = User::with([
+            'role',
+            'departmentAccount:id,user_id,name',
+            'facultyAccount:id,user_id,name',
+        ]);
 
         // Поиск по ФИО, email, телефону
         if ($request->filled('search')) {
@@ -91,6 +95,8 @@ class UserController extends Controller
                     'phone' => $user->phone ?? '',
                     'role' => $user->role ? $user->role->name : 'Не назначена',
                     'role_id' => $user->role_id,
+                    'department_name' => $user->departmentAccount?->name,
+                    'faculty_name' => $user->facultyAccount?->name,
                     'created_at' => $user->created_at ? $user->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
                     'updated_at' => $user->updated_at ? $user->updated_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
                     'status' => $user->email_verified_at ? 'Подтвержден' : 'Не подтвержден',
@@ -134,6 +140,12 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
+        $user->loadMissing([
+            'role',
+            'departmentAccount:id,user_id,name',
+            'facultyAccount:id,user_id,name',
+        ]);
+
         // Формируем полное ФИО для аватара
         $fullName = trim(($user->last_name ?? '') . ' ' . ($user->name ?? '') . ' ' . ($user->middle_name ?? ''));
         if (empty($fullName)) {
@@ -154,6 +166,8 @@ class UserController extends Controller
             'role_display' => $user->role ? $this->getRoleDisplayName($user->role->name) : 'Не назначена',
             'role_id' => $user->role_id,
             'group_id' => $user->group_id,
+            'department_name' => $user->departmentAccount?->name,
+            'faculty_name' => $user->facultyAccount?->name,
             'created_at' => $user->created_at ? $user->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
             'updated_at' => $user->updated_at ? $user->updated_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
             'email_verified_at' => $user->email_verified_at ? $user->email_verified_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : null,
