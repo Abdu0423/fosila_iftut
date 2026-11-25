@@ -57,6 +57,8 @@
                 v-if="isFilterable(column)"
                 :model-value="filterMenuKey === column.key"
                 :disabled="!(filteredChoiceMap[column.key] || []).length"
+                :open-on-click="false"
+                disable-initial-focus
                 location="bottom start"
                 :close-on-content-click="true"
                 @update:model-value="(open) => setFilterMenu(column.key, open)"
@@ -68,6 +70,8 @@
                     :class="{ 'has-value': columnFilters[column.key] }"
                     :value="columnFilters[column.key] || ''"
                     placeholder="Фильтр"
+                    @focus="setFilterMenu(column.key, true)"
+                    @click="setFilterMenu(column.key, true)"
                     @input="onColumnFilter(column.key, $event)"
                     @blur="restoreFilterDefault(column)"
                   />
