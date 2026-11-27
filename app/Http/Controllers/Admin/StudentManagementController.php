@@ -47,21 +47,28 @@ class StudentManagementController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        $groups = Group::where('status', 'active')
-            ->orderBy('name')
+        return spa('Admin/Students/Management/Index', [
+            'students' => $students,
+            'groups' => $this->groupOptions(),
+            'filters' => $request->only(['search', 'group_id']),
+        ]);
+    }
+
+    private function groupOptions(bool $withDisplayName = false)
+    {
+        return Group::orderBy('name')
             ->get()
-            ->map(function ($group) {
-                return [
+            ->map(function ($group) use ($withDisplayName) {
+                $item = [
                     'id' => $group->id,
                     'name' => $group->name,
                 ];
-            });
+                if ($withDisplayName) {
+                    $item['display_name'] = $group->full_name ?? $group->name;
+                }
 
-        return spa('Admin/Students/Management/Index', [
-            'students' => $students,
-            'groups' => $groups,
-            'filters' => $request->only(['search', 'group_id']),
-        ]);
+                return $item;
+            });
     }
 
     /**
@@ -136,18 +143,8 @@ class StudentManagementController extends Controller
      */
     public function transfers(Request $request)
     {
-        $groups = Group::where('status', 'active')
-            ->orderBy('name')
-            ->get()
-            ->map(function ($group) {
-                return [
-                    'id' => $group->id,
-                    'name' => $group->name,
-                ];
-            });
-
         return spa('Admin/Students/Transfers', [
-            'groups' => $groups,
+            'groups' => $this->groupOptions(),
             'filters' => $request->only(['search', 'group_id']),
         ]);
     }
@@ -157,16 +154,7 @@ class StudentManagementController extends Controller
      */
     public function createTransfer(Request $request)
     {
-        $groups = Group::where('status', 'active')
-            ->orderBy('name')
-            ->get()
-            ->map(function ($group) {
-                return [
-                    'id' => $group->id,
-                    'name' => $group->name,
-                    'display_name' => $group->full_name ?? $group->name,
-                ];
-            });
+        $groups = $this->groupOptions(true);
 
         $students = User::whereHas('role', function($q) {
             $q->where('name', 'student');

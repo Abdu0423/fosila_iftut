@@ -63,6 +63,7 @@
           add-label="Добавить"
           empty-text="Студенты не найдены"
           @create="createStudent"
+          @column-filter="onSheetColumnFilter"
         >
           <template #cell-last_name="{ row }">
             <span class="font-weight-medium">{{ row.last_name || '—' }}</span>
@@ -215,6 +216,8 @@ const groupOptions = computed(() =>
   }))
 )
 
+const groupNames = computed(() => groupOptions.value.map((g) => g.title))
+
 const visibleStudents = computed(() => {
   const existing = (props.students?.data || []) as Record<string, any>[]
   const seen = new Set<number | string>()
@@ -270,6 +273,7 @@ const columns = computed(() => [
     width: '210px',
     editor: 'select' as const,
     options: groupOptions.value,
+    filterChoices: groupNames.value,
     preserveOnAdd: true,
     get: (row: Record<string, any>) => row.group_id ?? null,
     text: (row: Record<string, any>) => row.group?.name || '',
@@ -383,6 +387,26 @@ const handleSearch = () => {
     preserveState: true,
     preserveScroll: true
   })
+}
+
+const onSheetColumnFilter = ({ key, value }: { key: string; value: string }) => {
+  if (key !== 'group_id') {
+    return
+  }
+  const trimmed = value.trim()
+  if (!trimmed) {
+    if (groupFilter.value !== null) {
+      groupFilter.value = null
+      handleSearch()
+    }
+    return
+  }
+  const lowered = trimmed.toLowerCase()
+  const matched = (props.groups || []).find((g: any) => String(g.name).trim().toLowerCase() === lowered)
+  if (matched && Number(matched.id) !== groupFilter.value) {
+    groupFilter.value = Number(matched.id)
+    handleSearch()
+  }
 }
 
 const handlePageChange = (pageNum: number) => {

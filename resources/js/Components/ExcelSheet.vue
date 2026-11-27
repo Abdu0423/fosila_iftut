@@ -272,6 +272,7 @@ const emit = defineEmits<{
   (event: 'update:selected', value: Array<string | number>): void
   (event: 'create', draft: Record<string, unknown>): void
   (event: 'commit', payload: { row: Record<string, any>; column: SheetColumn; value: unknown }): void
+  (event: 'column-filter', payload: { key: string; value: string }): void
 }>()
 
 const sheetEl = ref<HTMLElement | null>(null)
@@ -372,6 +373,7 @@ function setFilterMenu(key: string, open: boolean) {
 function pickColumnFilter(key: string, choice: string) {
   columnFilters[key] = choice
   filterMenuKey.value = ''
+  emit('column-filter', { key, value: choice })
 }
 
 const choiceMap = computed(() => {
@@ -663,6 +665,7 @@ function onColumnFilter(key: string, event: Event) {
     dismissed.value = { ...dismissed.value, [key]: false }
     dirty.value = { ...dirty.value, [key]: false }
   }
+  emit('column-filter', { key, value })
 }
 
 function restoreFilterDefault(column: SheetColumn) {
@@ -677,6 +680,7 @@ function clearContext(key: string) {
   columnFilters[key] = column?.filterDefault || ''
   draft[key] = null
   dirty.value = { ...dirty.value, [key]: false }
+  emit('column-filter', { key, value: columnFilters[key] })
 }
 
 function markDirty(key: string) {
