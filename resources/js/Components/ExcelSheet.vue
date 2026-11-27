@@ -1,5 +1,5 @@
 <template>
-  <div class="excel-sheet">
+  <div ref="sheetEl" class="excel-sheet">
     <v-text-field
       v-model="search"
       :label="searchPlaceholder"
@@ -90,110 +90,114 @@
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="(row, index) in pageRows"
-            :key="rowKey(row, index)"
-            :class="{
-              'excel-selected': isRowSelected(row),
-              'excel-row-selectable': selectable && rowCanSelect(row),
-            }"
-            @click="onRowClick(row, $event)"
-          >
-            <td v-if="selectable" class="excel-check" @click.stop>
-              <v-checkbox-btn
-                :model-value="isRowSelected(row)"
-                :disabled="!rowCanSelect(row)"
-                :title="rowCanSelect(row) ? '' : 'Нет телефона'"
-                density="compact"
-                hide-details
-                @update:model-value="setRowSelected(row, $event)"
-              />
-            </td>
-            <td class="excel-index">{{ rowNumber(index) }}</td>
-            <td
-              v-for="column in sheetColumns"
-              :key="column.key"
-              :class="{ 'excel-editable': column.editable && column.editor !== 'slot' }"
-              @click="beginEdit(row, column, index)"
-            >
-              <template v-if="isEditing(row, column, index)">
-                <v-autocomplete
-                  v-if="column.editor === 'select'"
-                  :model-value="editValue"
-                  :items="column.options || []"
-                  item-title="title"
-                  item-value="value"
-                  density="compact"
-                  variant="plain"
-                  hide-details
-                  autofocus
-                  :custom-filter="filterOption"
-                  @update:model-value="finishEdit(row, column, index, $event)"
-                />
-                <input
-                  v-else
-                  class="excel-input"
-                  :type="column.editor === 'number' ? 'number' : 'text'"
-                  :value="editValue ?? ''"
-                  autofocus
-                  @click.stop
-                  @keydown.enter="finishFromInput(row, column, index, $event)"
-                  @blur="finishFromInput(row, column, index, $event)"
-                />
-              </template>
-              <slot
-                v-else
-                :name="`cell-${column.key}`"
-                :row="row"
-                :column="column"
-                :text="cellText(row, column)"
+          <template v-for="section in (addTop ? ['add', 'rows'] : ['rows', 'add'])" :key="section">
+            <template v-if="section === 'rows'">
+              <tr
+                v-for="(row, index) in pageRows"
+                :key="rowKey(row, index)"
+                :class="{
+                  'excel-selected': isRowSelected(row),
+                  'excel-row-selectable': selectable && rowCanSelect(row),
+                }"
+                @click="onRowClick(row, $event)"
               >
-                <span>{{ cellText(row, column) || '—' }}</span>
-              </slot>
-            </td>
-          </tr>
+                <td v-if="selectable" class="excel-check" @click.stop>
+                  <v-checkbox-btn
+                    :model-value="isRowSelected(row)"
+                    :disabled="!rowCanSelect(row)"
+                    :title="rowCanSelect(row) ? '' : 'Нет телефона'"
+                    density="compact"
+                    hide-details
+                    @update:model-value="setRowSelected(row, $event)"
+                  />
+                </td>
+                <td class="excel-index">{{ rowNumber(index) }}</td>
+                <td
+                  v-for="column in sheetColumns"
+                  :key="column.key"
+                  :class="{ 'excel-editable': column.editable && column.editor !== 'slot' }"
+                  @click="beginEdit(row, column, index)"
+                >
+                  <template v-if="isEditing(row, column, index)">
+                    <v-autocomplete
+                      v-if="column.editor === 'select'"
+                      :model-value="editValue"
+                      :items="column.options || []"
+                      item-title="title"
+                      item-value="value"
+                      density="compact"
+                      variant="plain"
+                      hide-details
+                      autofocus
+                      :custom-filter="filterOption"
+                      @update:model-value="finishEdit(row, column, index, $event)"
+                    />
+                    <input
+                      v-else
+                      class="excel-input"
+                      :type="column.editor === 'number' ? 'number' : 'text'"
+                      :value="editValue ?? ''"
+                      autofocus
+                      @click.stop
+                      @keydown.enter="finishFromInput(row, column, index, $event)"
+                      @blur="finishFromInput(row, column, index, $event)"
+                    />
+                  </template>
+                  <slot
+                    v-else
+                    :name="`cell-${column.key}`"
+                    :row="row"
+                    :column="column"
+                    :text="cellText(row, column)"
+                  >
+                    <span>{{ cellText(row, column) || '—' }}</span>
+                  </slot>
+                </td>
+              </tr>
+            </template>
 
-          <tr v-if="canAdd" class="excel-add-row">
-            <td v-if="selectable" class="excel-check"></td>
-            <td class="excel-index">+</td>
-            <td v-for="column in sheetColumns" :key="column.key">
-              <template v-if="column.editor === 'select'">
-                <v-autocomplete
-                  v-model="draft[column.key]"
-                  :items="column.options || []"
-                  item-title="title"
-                  item-value="value"
-                  density="compact"
-                  variant="plain"
-                  hide-details
-                  :placeholder="column.title"
-                  :custom-filter="filterOption"
-                  @update:model-value="markDirty(column.key)"
-                />
-              </template>
-              <template v-else-if="column.editor === 'text' || column.editor === 'number'">
-                <input
-                  v-model="draft[column.key]"
-                  class="excel-input"
-                  :type="column.editor === 'number' ? 'number' : 'text'"
-                  :placeholder="column.title"
-                  @input="markDirty(column.key)"
-                  @keydown.enter="submitAdd"
-                />
-              </template>
-              <v-btn
-                v-else-if="column.key === addActionKey"
-                size="small"
-                color="primary"
-                variant="flat"
-                :disabled="!canSubmit"
-                @click="submitAdd"
-              >
-                {{ addLabel }}
-              </v-btn>
-              <span v-else class="excel-muted">{{ inheritedLabel(column) }}</span>
-            </td>
-          </tr>
+            <tr v-else-if="canAdd" key="add-row" class="excel-add-row">
+              <td v-if="selectable" class="excel-check"></td>
+              <td class="excel-index">+</td>
+              <td v-for="column in sheetColumns" :key="column.key">
+                <template v-if="column.editor === 'select'">
+                  <v-autocomplete
+                    v-model="draft[column.key]"
+                    :items="column.options || []"
+                    item-title="title"
+                    item-value="value"
+                    density="compact"
+                    variant="plain"
+                    hide-details
+                    :placeholder="column.placeholder || column.title"
+                    :custom-filter="filterOption"
+                    @update:model-value="markDirty(column.key)"
+                  />
+                </template>
+                <template v-else-if="column.editor === 'text' || column.editor === 'number'">
+                  <input
+                    v-model="draft[column.key]"
+                    class="excel-input"
+                    :type="column.editor === 'number' ? 'number' : 'text'"
+                    :placeholder="column.placeholder || column.title"
+                    @input="markDirty(column.key)"
+                    @keydown.enter="submitAdd"
+                  />
+                </template>
+                <v-btn
+                  v-else-if="column.key === addActionKey"
+                  size="small"
+                  color="primary"
+                  variant="flat"
+                  :disabled="!canSubmit"
+                  @click="submitAdd"
+                >
+                  {{ addLabel }}
+                </v-btn>
+                <span v-else class="excel-muted">{{ inheritedLabel(column) }}</span>
+              </td>
+            </tr>
+          </template>
 
           <tr v-if="!pageRows.length && !canAdd">
             <td :colspan="sheetColumns.length + (selectable ? 2 : 1)" class="excel-empty">{{ emptyText }}</td>
@@ -217,10 +221,12 @@ type SheetColumn = {
   key: string
   title: string
   width?: string
+  placeholder?: string
   editable?: boolean
   editor?: 'text' | 'number' | 'select' | 'slot'
   options?: SheetOption[]
   inherit?: boolean
+  preserveOnAdd?: boolean
   filter?: boolean
   filterDefault?: string
   filterChoices?: string[]
@@ -234,6 +240,7 @@ const props = withDefaults(defineProps<{
   headers?: { key?: string; title?: string; value?: string; text?: string }[]
   rows?: Record<string, any>[]
   canAdd?: boolean
+  addTop?: boolean
   searchPlaceholder?: string
   emptyText?: string
   addLabel?: string
@@ -248,6 +255,7 @@ const props = withDefaults(defineProps<{
   headers: () => [],
   rows: () => [],
   canAdd: false,
+  addTop: false,
   searchPlaceholder: 'Поиск',
   emptyText: 'Ничего не найдено',
   addLabel: 'Добавить',
@@ -266,6 +274,7 @@ const emit = defineEmits<{
   (event: 'commit', payload: { row: Record<string, any>; column: SheetColumn; value: unknown }): void
 }>()
 
+const sheetEl = ref<HTMLElement | null>(null)
 const search = ref(props.modelValue || '')
 const page = ref(1)
 const draft = reactive<Record<string, any>>({})
@@ -723,6 +732,16 @@ function submitAdd() {
   emit('create', { ...draft })
   sheetColumns.value.forEach((column) => {
     const kept = draftContext.value[column.key]
+    if (column.preserveOnAdd) {
+      const current = draft[column.key]
+      if (current !== null && current !== '' && current !== undefined) {
+        dirty.value[column.key] = true
+        return
+      }
+      draft[column.key] = kept ? kept.value : null
+      dirty.value[column.key] = false
+      return
+    }
     if (kept && !dirty.value[column.key]) {
       draft[column.key] = kept.value
       return
@@ -755,9 +774,23 @@ function restoreDraft() {
   })
 }
 
+function setDraftValues(values: Record<string, unknown>) {
+  Object.entries(values).forEach(([key, value]) => {
+    draft[key] = value ?? null
+    dirty.value[key] = value !== null && value !== '' && value !== undefined
+  })
+}
+
+function focusFirstAddInput() {
+  const input = sheetEl.value?.querySelector('.excel-add-row input.excel-input') as HTMLInputElement | null
+  input?.focus()
+}
+
 defineExpose({
   showCreated,
   restoreDraft,
+  setDraftValues,
+  focusFirstAddInput,
 })
 </script>
 

@@ -13,109 +13,12 @@
         </div>
       </div>
 
-      <!-- Быстрое добавление студента -->
-      <v-card class="mb-6">
-        <v-card-title class="text-h6 pb-2">
-          <v-icon start color="primary">mdi-account-plus</v-icon>
-          Добавить студента
-        </v-card-title>
-        <v-card-text>
-          <v-alert v-if="successMessage" type="success" variant="tonal" class="mb-4" closable @click:close="successMessage = ''">
-            {{ successMessage }}
-          </v-alert>
-          <v-alert v-if="generalError" type="error" variant="tonal" class="mb-4" closable @click:close="generalError = ''">
-            {{ generalError }}
-          </v-alert>
-
-          <v-form @submit.prevent="createStudent">
-            <v-row dense>
-              <v-col cols="12" md="3">
-                <v-text-field
-                  ref="lastNameInput"
-                  v-model="form.last_name"
-                  label="Фамилия *"
-                  variant="outlined"
-                  density="comfortable"
-                  :error-messages="errors.last_name"
-                  required
-                />
-              </v-col>
-              <v-col cols="12" md="3">
-                <v-text-field
-                  v-model="form.name"
-                  label="Имя *"
-                  variant="outlined"
-                  density="comfortable"
-                  :error-messages="errors.name"
-                  required
-                />
-              </v-col>
-              <v-col cols="12" md="3">
-                <v-text-field
-                  v-model="form.middle_name"
-                  label="Отчество"
-                  variant="outlined"
-                  density="comfortable"
-                  :error-messages="errors.middle_name"
-                />
-              </v-col>
-              <v-col cols="12" md="3">
-                <v-autocomplete
-                  v-model="form.group_id"
-                  :label="translations.education_department?.groups_menu || 'Группа'"
-                  :items="groups || []"
-                  item-title="name"
-                  item-value="id"
-                  clearable
-                  variant="outlined"
-                  density="comfortable"
-                  :error-messages="errors.group_id"
-                />
-              </v-col>
-            </v-row>
-
-            <v-row dense class="mt-1 align-start">
-              <v-col cols="12" md="3">
-                <PhoneInput
-                  v-model="form.phone"
-                  label="Телефон"
-                  density="comfortable"
-                  :error-messages="errors.phone"
-                />
-              </v-col>
-              <v-col cols="12" md="3">
-                <PhoneInput
-                  v-model="form.dad_phone"
-                  label="Телефон отца"
-                  density="comfortable"
-                  :error-messages="errors.dad_phone"
-                />
-              </v-col>
-              <v-col cols="12" md="3">
-                <PhoneInput
-                  v-model="form.mom_phone"
-                  label="Телефон матери"
-                  density="comfortable"
-                  :error-messages="errors.mom_phone"
-                />
-              </v-col>
-              <v-col cols="12" md="3" class="d-flex align-center" style="min-height: 56px;">
-                <v-btn
-                  type="submit"
-                  color="primary"
-                  size="large"
-                  block
-                  prepend-icon="mdi-plus"
-                  :loading="submitting"
-                  :disabled="submitting"
-                >
-                  Добавить
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-form>
-        </v-card-text>
-      </v-card>
+      <v-alert v-if="successMessage" type="success" variant="tonal" class="mb-4" closable @click:close="successMessage = ''">
+        {{ successMessage }}
+      </v-alert>
+      <v-alert v-if="generalError" type="error" variant="tonal" class="mb-4" closable @click:close="generalError = ''">
+        {{ generalError }}
+      </v-alert>
 
       <!-- Поиск и фильтры -->
       <v-card class="mb-6">
@@ -149,31 +52,32 @@
         </v-card-text>
       </v-card>
 
-      <!-- Список студентов -->
+      <!-- Список студентов и быстрое добавление прямо в таблице -->
       <v-card>
-        <v-card-text v-if="visibleStudents.length === 0">
-          <div class="text-center py-8">
-            <v-icon size="64" color="grey-lighten-1">mdi-school-outline</v-icon>
-            <p class="text-h6 text-medium-emphasis mt-4">
-              {{ translations.messages?.no_data || 'Студенты не найдены' }}
-            </p>
-          </div>
-        </v-card-text>
-
-        <ExcelSheet :columns="columns" :rows="visibleStudents">
-          <template #cell-name="{ row }">
-            <div class="d-flex align-center py-2">
-              <v-avatar color="primary" size="40" class="mr-3">
-                <v-icon color="white">mdi-account</v-icon>
-              </v-avatar>
-              <div>
-                <div class="font-weight-medium">{{ [row.last_name, row.name, row.middle_name].filter(Boolean).join(' ') }}</div>
-                <div class="text-caption text-medium-emphasis">{{ row.email || row.phone || '—' }}</div>
-              </div>
-            </div>
+        <ExcelSheet
+          ref="sheetRef"
+          :columns="columns"
+          :rows="visibleStudents"
+          can-add
+          add-top
+          add-label="Добавить"
+          empty-text="Студенты не найдены"
+          @create="createStudent"
+        >
+          <template #cell-last_name="{ row }">
+            <span class="font-weight-medium">{{ row.last_name || '—' }}</span>
           </template>
 
-          <template #cell-group="{ row }">
+          <template #cell-name="{ row }">
+            <span>{{ row.name || '—' }}</span>
+          </template>
+
+          <template #cell-middle_name="{ row }">
+            <span v-if="row.middle_name">{{ row.middle_name }}</span>
+            <span v-else class="text-medium-emphasis">—</span>
+          </template>
+
+          <template #cell-group_id="{ row }">
             <span v-if="row.group?.name" class="text-body-2">{{ row.group.name }}</span>
             <span v-else class="text-medium-emphasis">—</span>
           </template>
@@ -224,10 +128,9 @@
 
 <script setup lang="ts">
 import ExcelSheet from '@/Components/ExcelSheet.vue'
-import PhoneInput from '@/Components/PhoneInput.vue'
 import { api, validationErrors } from '@/api/client'
 import { forgetPage } from '@/spa/pageCache'
-import { ref, reactive, computed, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { usePage, router } from '@/compat/inertia'
 import Layout from '../../../Layout.vue'
 
@@ -251,14 +154,31 @@ const props = defineProps({
   }
 })
 
+type SheetHandle = {
+  restoreDraft: () => void
+  setDraftValues: (values: Record<string, unknown>) => void
+  focusFirstAddInput: () => void
+}
+
+const sheetRef = ref<SheetHandle | null>(null)
 const searchQuery = ref(props.filters.search || '')
 const groupFilter = ref(props.filters.group_id ? Number(props.filters.group_id) : null)
 const recentStudents = ref<Record<string, any>[]>([])
 const submitting = ref(false)
 const successMessage = ref('')
 const generalError = ref('')
-const errors = reactive<Record<string, string | string[]>>({})
-const lastNameInput = ref<{ focus?: () => void } | null>(null)
+
+function saveLastGroupId(groupId: number | null) {
+  try {
+    if (groupId) {
+      localStorage.setItem(LAST_GROUP_STORAGE_KEY, String(groupId))
+    } else {
+      localStorage.removeItem(LAST_GROUP_STORAGE_KEY)
+    }
+  } catch {
+    // Игнорируем недоступность localStorage
+  }
+}
 
 function resolveInitialGroupId(): number | null {
   if (props.filters?.group_id) {
@@ -281,27 +201,19 @@ function resolveInitialGroupId(): number | null {
   return null
 }
 
-const form = reactive({
-  last_name: '',
-  name: '',
-  middle_name: '',
-  group_id: resolveInitialGroupId() as number | null,
-  phone: '+992',
-  dad_phone: '+992',
-  mom_phone: '+992',
-})
-
-watch(() => form.group_id, (value) => {
-  try {
-    if (value) {
-      localStorage.setItem(LAST_GROUP_STORAGE_KEY, String(value))
-    } else {
-      localStorage.removeItem(LAST_GROUP_STORAGE_KEY)
-    }
-  } catch {
-    // Игнорируем недоступность localStorage
+onMounted(() => {
+  const initialGroupId = resolveInitialGroupId()
+  if (initialGroupId) {
+    sheetRef.value?.setDraftValues({ group_id: initialGroupId })
   }
 })
+
+const groupOptions = computed(() =>
+  (props.groups || []).map((g: any) => ({
+    title: g.name,
+    value: g.id,
+  }))
+)
 
 const visibleStudents = computed(() => {
   const existing = (props.students?.data || []) as Record<string, any>[]
@@ -323,72 +235,119 @@ const visibleStudents = computed(() => {
 
 const columns = computed(() => [
   {
-    key: 'name',
-    title: translations.value.messages?.name || 'Имя',
-    editor: 'slot' as const,
-    text: (row: Record<string, any>) => [row.last_name, row.name, row.middle_name, row.email, row.phone].filter(Boolean).join(' ')
+    key: 'last_name',
+    title: 'Фамилия',
+    placeholder: 'Фамилия *',
+    width: '150px',
+    editor: 'text' as const,
+    required: true,
+    get: (row: Record<string, any>) => row.last_name || '',
+    text: (row: Record<string, any>) => row.last_name || '',
   },
   {
-    key: 'group',
+    key: 'name',
+    title: translations.value.messages?.name || 'Имя',
+    placeholder: 'Имя *',
+    width: '140px',
+    editor: 'text' as const,
+    required: true,
+    get: (row: Record<string, any>) => row.name || '',
+    text: (row: Record<string, any>) => row.name || '',
+  },
+  {
+    key: 'middle_name',
+    title: 'Отчество',
+    placeholder: 'Отчество',
+    width: '150px',
+    editor: 'text' as const,
+    get: (row: Record<string, any>) => row.middle_name || '',
+    text: (row: Record<string, any>) => row.middle_name || '',
+  },
+  {
+    key: 'group_id',
     title: translations.value.education_department?.groups_menu || 'Группа',
-    editor: 'slot' as const,
-    text: (row: Record<string, any>) => row.group?.name || ''
+    placeholder: 'Группа',
+    width: '210px',
+    editor: 'select' as const,
+    options: groupOptions.value,
+    preserveOnAdd: true,
+    get: (row: Record<string, any>) => row.group_id ?? null,
+    text: (row: Record<string, any>) => row.group?.name || '',
   },
   {
     key: 'phone',
     title: translations.value.messages?.phone || 'Телефон',
-    editor: 'slot' as const,
-    text: (row: Record<string, any>) => row.phone || ''
+    placeholder: '+992...',
+    width: '150px',
+    editor: 'text' as const,
+    get: (row: Record<string, any>) => row.phone || '',
+    text: (row: Record<string, any>) => row.phone || '',
   },
   {
     key: 'dad_phone',
     title: 'Тел. отца',
-    editor: 'slot' as const,
-    text: (row: Record<string, any>) => row.dad_phone || ''
+    placeholder: '+992...',
+    width: '150px',
+    editor: 'text' as const,
+    get: (row: Record<string, any>) => row.dad_phone || '',
+    text: (row: Record<string, any>) => row.dad_phone || '',
   },
   {
     key: 'mom_phone',
     title: 'Тел. матери',
-    editor: 'slot' as const,
-    text: (row: Record<string, any>) => row.mom_phone || ''
+    placeholder: '+992...',
+    width: '150px',
+    editor: 'text' as const,
+    get: (row: Record<string, any>) => row.mom_phone || '',
+    text: (row: Record<string, any>) => row.mom_phone || '',
   },
   {
     key: 'actions',
     title: translations.value.messages?.actions || 'Действия',
+    width: '120px',
     editor: 'slot' as const,
-    text: () => ''
-  }
+    text: () => '',
+  },
 ])
 
-function clearErrors() {
-  Object.keys(errors).forEach((key) => delete errors[key])
-  generalError.value = ''
+function formatErrorMessages(fieldErrors: Record<string, string | string[]>): string {
+  return Object.values(fieldErrors)
+    .flatMap((value) => (Array.isArray(value) ? value : [value]))
+    .filter(Boolean)
+    .join('; ')
 }
 
-const createStudent = async () => {
-  clearErrors()
-  successMessage.value = ''
+const createStudent = async (draft: Record<string, any>) => {
+  if (submitting.value) {
+    return
+  }
 
-  if (!form.last_name.trim()) {
-    errors.last_name = 'Необходимо указать фамилию'
-  }
-  if (!form.name.trim()) {
-    errors.name = 'Необходимо указать имя'
-  }
-  if (errors.last_name || errors.name) {
+  successMessage.value = ''
+  generalError.value = ''
+
+  const lastName = String(draft.last_name || '').trim()
+  const firstName = String(draft.name || '').trim()
+  const middleName = String(draft.middle_name || '').trim()
+  const groupId = draft.group_id ? Number(draft.group_id) : null
+
+  saveLastGroupId(groupId)
+
+  if (!lastName || !firstName) {
+    generalError.value = 'Укажите фамилию и имя студента'
+    sheetRef.value?.restoreDraft()
     return
   }
 
   submitting.value = true
   try {
     const response = await api.post('/admin/students', {
-      last_name: form.last_name.trim(),
-      name: form.name.trim(),
-      middle_name: form.middle_name.trim() || null,
-      group_id: form.group_id || null,
-      phone: form.phone,
-      dad_phone: form.dad_phone,
-      mom_phone: form.mom_phone,
+      last_name: lastName,
+      name: firstName,
+      middle_name: middleName || null,
+      group_id: groupId,
+      phone: draft.phone ? String(draft.phone) : null,
+      dad_phone: draft.dad_phone ? String(draft.dad_phone) : null,
+      mom_phone: draft.mom_phone ? String(draft.mom_phone) : null,
     })
 
     const created = response.data?.student
@@ -399,23 +358,13 @@ const createStudent = async () => {
     forgetPage()
     successMessage.value = response.data?.message || 'Студент успешно добавлен'
 
-    // Сбрасываем данные студента, но сохраняем выбранную группу для следующего ввода
-    form.last_name = ''
-    form.name = ''
-    form.middle_name = ''
-    form.phone = '+992'
-    form.dad_phone = '+992'
-    form.mom_phone = '+992'
-
     await nextTick()
-    lastNameInput.value?.focus?.()
+    sheetRef.value?.focusFirstAddInput()
   } catch (error: any) {
+    sheetRef.value?.restoreDraft()
     const fieldErrors = validationErrors(error)
-    if (Object.keys(fieldErrors).length > 0) {
-      Object.assign(errors, fieldErrors)
-    } else {
-      generalError.value = error?.response?.data?.message || 'Не удалось добавить студента'
-    }
+    const formatted = formatErrorMessages(fieldErrors)
+    generalError.value = formatted || error?.response?.data?.message || 'Не удалось добавить студента'
   } finally {
     submitting.value = false
   }
@@ -424,7 +373,8 @@ const createStudent = async () => {
 const handleSearch = () => {
   recentStudents.value = []
   if (groupFilter.value) {
-    form.group_id = groupFilter.value
+    saveLastGroupId(groupFilter.value)
+    sheetRef.value?.setDraftValues({ group_id: groupFilter.value })
   }
   router.get('/admin/students', {
     search: searchQuery.value,
