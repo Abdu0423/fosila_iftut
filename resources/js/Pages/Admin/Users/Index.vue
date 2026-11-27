@@ -315,6 +315,7 @@ const deleting = ref(false)
 const roleUnitName = (row) => {
   if (row?.role === 'department') return row.department_name || ''
   if (row?.role === 'faculty') return row.faculty_name || ''
+  if (row?.role === 'student') return row.group_name || ''
   return ''
 }
 

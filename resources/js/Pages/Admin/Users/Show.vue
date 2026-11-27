@@ -83,6 +83,12 @@
               >
                 {{ user.faculty_name }}
               </div>
+              <div
+                v-else-if="user.role === 'student' && user.group_name"
+                class="text-body-2 font-weight-medium mb-3"
+              >
+                {{ user.group_name }}
+              </div>
               <div class="text-body-2 text-medium-emphasis">
                 <v-icon size="small" class="mr-1">mdi-email</v-icon>
                 {{ user.email }}
@@ -250,8 +256,8 @@
                 </v-col>
                 <v-col cols="12" md="6">
                   <div class="mb-4">
-                    <div class="text-body-2 text-medium-emphasis mb-1">ID группы:</div>
-                    <div class="text-body-1 font-weight-medium">{{ user.group_id }}</div>
+                    <div class="text-body-2 text-medium-emphasis mb-1">Группа:</div>
+                    <div class="text-body-1 font-weight-medium">{{ user.group_name || 'Не указана' }}</div>
                   </div>
                 </v-col>
               </v-row>

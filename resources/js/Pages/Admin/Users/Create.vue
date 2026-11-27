@@ -250,15 +250,15 @@ const form = useForm({
   address: '',
   dad_phone: '+992',
   mom_phone: '+992',
-  role_id: '',
-  group_id: '',
+  role_id: null,
+  group_id: null,
   department_id: null,
   faculty_id: null
 })
 
 const selectedRole = computed(() => {
   if (!form.role_id) return null
-  return props.roles.find(r => r.id === form.role_id) || null
+  return props.roles.find(r => Number(r.id) === Number(form.role_id)) || null
 })
 
 // Проверяем, является ли выбранная роль студентом, кафедрой или факультетом

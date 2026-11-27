@@ -21,6 +21,7 @@ class UserController extends Controller
     {
         $query = User::with([
             'role',
+            'group:id,name',
             'departmentAccount:id,user_id,name',
             'facultyAccount:id,user_id,name',
         ]);
@@ -37,7 +38,10 @@ class UserController extends Controller
                       ->orWhereRaw('LOWER(last_name) LIKE ?', ["%{$searchLower}%"])
                       ->orWhereRaw('LOWER(middle_name) LIKE ?', ["%{$searchLower}%"])
                       ->orWhereRaw('LOWER(email) LIKE ?', ["%{$searchLower}%"])
-                      ->orWhere('phone', 'like', "%{$search}%");
+                      ->orWhere('phone', 'like', "%{$search}%")
+                      ->orWhereHas('group', function ($groupQuery) use ($searchLower) {
+                          $groupQuery->whereRaw('LOWER(name) LIKE ?', ["%{$searchLower}%"]);
+                      });
                     
                     // Поиск по полному ФИО (если есть пробелы)
                     if (strpos($search, ' ') !== false) {
@@ -95,6 +99,8 @@ class UserController extends Controller
                     'phone' => $user->phone ?? '',
                     'role' => $user->role ? $user->role->name : 'Не назначена',
                     'role_id' => $user->role_id,
+                    'group_id' => $user->group_id ? (int) $user->group_id : null,
+                    'group_name' => $user->group?->name,
                     'department_name' => $user->departmentAccount?->name,
                     'faculty_name' => $user->facultyAccount?->name,
                     'created_at' => $user->created_at ? $user->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
@@ -142,6 +148,7 @@ class UserController extends Controller
     {
         $user->loadMissing([
             'role',
+            'group:id,name',
             'departmentAccount:id,user_id,name',
             'facultyAccount:id,user_id,name',
         ]);
@@ -165,7 +172,8 @@ class UserController extends Controller
             'role' => $user->role ? $user->role->name : 'Не назначена',
             'role_display' => $user->role ? $this->getRoleDisplayName($user->role->name) : 'Не назначена',
             'role_id' => $user->role_id,
-            'group_id' => $user->group_id,
+            'group_id' => $user->group_id ? (int) $user->group_id : null,
+            'group_name' => $user->group?->name,
             'department_name' => $user->departmentAccount?->name,
             'faculty_name' => $user->facultyAccount?->name,
             'created_at' => $user->created_at ? $user->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
@@ -193,20 +201,9 @@ class UserController extends Controller
             ];
         });
 
-        $groups = Group::where('status', 'active')
-            ->orderBy('name')
-            ->get()
-            ->map(function ($group) {
-                return [
-                    'id' => $group->id,
-                    'name' => $group->full_name,
-                    'display_name' => $group->full_name
-                ];
-            });
-
         return spa('Admin/Users/Create', [
             'roles' => $roles,
-            'groups' => $groups,
+            'groups' => $this->groupOptions(),
             'departments' => Department::orderBy('name')->get(['id', 'name']),
             'faculties' => Faculty::orderBy('name')->get(['id', 'name']),
         ]);
@@ -317,24 +314,6 @@ class UserController extends Controller
             ];
         });
 
-        // Получаем активные группы, но также включаем группу пользователя, если она неактивна
-        $groupsQuery = Group::where(function($query) use ($user) {
-            $query->where('status', 'active');
-            if ($user->group_id) {
-                $query->orWhere('id', $user->group_id);
-            }
-        });
-        $groups = $groupsQuery
-            ->orderBy('name')
-            ->get()
-            ->map(function ($group) {
-                return [
-                    'id' => $group->id,
-                    'name' => $group->full_name,
-                    'display_name' => $group->full_name
-                ];
-            });
-
         return spa('Admin/Users/Edit', [
             'user' => [
                 'id' => $user->id,
@@ -346,8 +325,9 @@ class UserController extends Controller
                 'address' => $user->address ?? '',
                 'dad_phone' => $user->dad_phone ?? '',
                 'mom_phone' => $user->mom_phone ?? '',
-                'role_id' => $user->role_id,
-                'group_id' => $user->group_id ? (int)$user->group_id : null,
+                'role_id' => $user->role_id ? (int) $user->role_id : null,
+                'group_id' => $user->group_id ? (int) $user->group_id : null,
+                'group_name' => $user->group?->name,
                 'department_id' => Department::where('user_id', $user->id)->value('id'),
                 'faculty_id' => Faculty::where('user_id', $user->id)->value('id'),
                 'created_at' => $user->created_at ? $user->created_at->copy()->timezone('Asia/Dushanbe')->format('d.m.Y H:i') : 'Не указано',
@@ -355,10 +335,27 @@ class UserController extends Controller
                 'email_verified_at' => $user->email_verified_at
             ],
             'roles' => $roles,
-            'groups' => $groups,
+            'groups' => $this->groupOptions(),
             'departments' => Department::orderBy('name')->get(['id', 'name']),
             'faculties' => Faculty::orderBy('name')->get(['id', 'name']),
         ]);
+    }
+
+    private function groupOptions()
+    {
+        return Group::orderBy('name')
+            ->get()
+            ->map(function ($group) {
+                $displayName = ($group->enrollment_year && $group->graduation_year)
+                    ? $group->full_name
+                    : $group->name;
+
+                return [
+                    'id' => (int) $group->id,
+                    'name' => $group->name,
+                    'display_name' => $displayName,
+                ];
+            });
     }
 
     /**

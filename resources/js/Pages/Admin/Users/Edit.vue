@@ -134,7 +134,7 @@
                   <v-col v-if="isStudent" cols="12" md="6">
                     <v-autocomplete
                       v-model="form.group_id"
-                      :items="groups"
+                      :items="normalizedGroups"
                       item-title="display_name"
                       item-value="id"
                       :label="t('admin.users.group')"
@@ -287,16 +287,33 @@ const form = useForm({
   address: '',
   dad_phone: '',
   mom_phone: '',
-  role_id: '',
-  group_id: '',
-  department_id: null,
-  faculty_id: null
+  role_id: props.user?.role_id ? Number(props.user.role_id) : null,
+  group_id: props.user?.group_id ? Number(props.user.group_id) : null,
+  department_id: props.user?.department_id ? Number(props.user.department_id) : null,
+  faculty_id: props.user?.faculty_id ? Number(props.user.faculty_id) : null
+})
+
+const normalizedGroups = computed(() => {
+  const list = (props.groups || []).map((g: any) => ({
+    ...g,
+    id: Number(g.id),
+    display_name: g.display_name || g.name || '',
+  }))
+  const currentGroupId = props.user?.group_id ? Number(props.user.group_id) : null
+  if (currentGroupId && !list.some((g) => g.id === currentGroupId)) {
+    list.unshift({
+      id: currentGroupId,
+      name: props.user?.group_name || `Группа #${currentGroupId}`,
+      display_name: props.user?.group_name || `Группа #${currentGroupId}`,
+    })
+  }
+  return list
 })
 
 const selectedRole = computed(() => {
   const roleId = form.role_id || props.user.role_id
   if (!roleId) return null
-  return props.roles.find(r => r.id === roleId) || null
+  return props.roles.find(r => Number(r.id) === Number(roleId)) || null
 })
 
 // Проверяем, является ли пользователь студентом, кафедрой или факультетом
