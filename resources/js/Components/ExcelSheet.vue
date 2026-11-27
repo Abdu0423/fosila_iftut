@@ -154,6 +154,9 @@
                   </slot>
                 </td>
               </tr>
+              <tr v-if="!pageRows.length" key="empty-row">
+                <td :colspan="sheetColumns.length + (selectable ? 2 : 1)" class="excel-empty">{{ emptyText }}</td>
+              </tr>
             </template>
 
             <tr v-else-if="canAdd" key="add-row" class="excel-add-row">
@@ -198,10 +201,6 @@
               </td>
             </tr>
           </template>
-
-          <tr v-if="!pageRows.length && !canAdd">
-            <td :colspan="sheetColumns.length + (selectable ? 2 : 1)" class="excel-empty">{{ emptyText }}</td>
-          </tr>
         </tbody>
       </table>
     </div>
@@ -373,6 +372,8 @@ function setFilterMenu(key: string, open: boolean) {
 function pickColumnFilter(key: string, choice: string) {
   columnFilters[key] = choice
   filterMenuKey.value = ''
+  dismissed.value = { ...dismissed.value, [key]: false }
+  dirty.value = { ...dirty.value, [key]: false }
   emit('column-filter', { key, value: choice })
 }
 
@@ -575,7 +576,7 @@ const inherited = computed(() => {
 })
 
 function prefillFor(column: SheetColumn, label: string): SheetOption | null {
-  if (!column.editable || column.editor === 'slot') {
+  if (column.editor === 'slot') {
     return null
   }
   if (column.editor === 'select') {
@@ -632,6 +633,9 @@ watch(draftContext, (map) => {
     if (dirty.value[column.key]) {
       return
     }
+    if (column.preserveOnAdd && !map[column.key] && draft[column.key] != null && draft[column.key] !== '') {
+      return
+    }
     draft[column.key] = map[column.key] ? map[column.key].value : null
   })
 }, { immediate: true })
@@ -661,7 +665,8 @@ function onColumnFilter(key: string, event: Event) {
   columnFilters[key] = value
   page.value = 1
   filterMenuKey.value = (filteredChoiceMap.value[key] || []).length ? key : ''
-  if (value.trim()) {
+  const column = sheetColumns.value.find((item) => item.key === key)
+  if (value.trim() && column && prefillFor(column, value.trim())) {
     dismissed.value = { ...dismissed.value, [key]: false }
     dirty.value = { ...dirty.value, [key]: false }
   }
@@ -678,8 +683,10 @@ function clearContext(key: string) {
   const column = sheetColumns.value.find((item) => item.key === key)
   dismissed.value = { ...dismissed.value, [key]: true }
   columnFilters[key] = column?.filterDefault || ''
-  draft[key] = null
-  dirty.value = { ...dirty.value, [key]: false }
+  if (!column?.preserveOnAdd) {
+    draft[key] = null
+    dirty.value = { ...dirty.value, [key]: false }
+  }
   emit('column-filter', { key, value: columnFilters[key] })
 }
 

@@ -58,8 +58,8 @@
           ref="sheetRef"
           :columns="columns"
           :rows="visibleStudents"
+          :page-size="Math.max(25, visibleStudents.length)"
           can-add
-          add-top
           add-label="Добавить"
           empty-text="Студенты не найдены"
           @create="createStudent"
@@ -223,7 +223,7 @@ const visibleStudents = computed(() => {
   const seen = new Set<number | string>()
   const merged: Record<string, any>[] = []
 
-  for (const item of [...recentStudents.value, ...existing]) {
+  for (const item of [...existing, ...recentStudents.value]) {
     if (item?.id != null && seen.has(item.id)) {
       continue
     }
@@ -274,6 +274,7 @@ const columns = computed(() => [
     editor: 'select' as const,
     options: groupOptions.value,
     filterChoices: groupNames.value,
+    inherit: true,
     preserveOnAdd: true,
     get: (row: Record<string, any>) => row.group_id ?? null,
     text: (row: Record<string, any>) => row.group?.name || '',
@@ -356,7 +357,7 @@ const createStudent = async (draft: Record<string, any>) => {
 
     const created = response.data?.student
     if (created) {
-      recentStudents.value = [created, ...recentStudents.value.filter((item) => item.id !== created.id)]
+      recentStudents.value = [...recentStudents.value.filter((item) => item.id !== created.id), created]
     }
 
     forgetPage()
@@ -374,11 +375,26 @@ const createStudent = async (draft: Record<string, any>) => {
   }
 }
 
+function findMatchingGroupIdFromSearch(query: string): number | null {
+  const lowered = query.trim().toLowerCase()
+  if (!lowered) {
+    return null
+  }
+  const allGroups = (props.groups || []) as Array<{ id: number; name: string }>
+  const exact = allGroups.find((g) => String(g.name).trim().toLowerCase() === lowered)
+  if (exact) {
+    return Number(exact.id)
+  }
+  const partial = allGroups.filter((g) => String(g.name).trim().toLowerCase().includes(lowered))
+  return partial.length === 1 ? Number(partial[0].id) : null
+}
+
 const handleSearch = () => {
   recentStudents.value = []
-  if (groupFilter.value) {
-    saveLastGroupId(groupFilter.value)
-    sheetRef.value?.setDraftValues({ group_id: groupFilter.value })
+  const targetGroupId = groupFilter.value || findMatchingGroupIdFromSearch(searchQuery.value || '')
+  if (targetGroupId) {
+    saveLastGroupId(targetGroupId)
+    sheetRef.value?.setDraftValues({ group_id: targetGroupId })
   }
   router.get('/admin/students', {
     search: searchQuery.value,

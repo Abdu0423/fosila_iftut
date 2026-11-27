@@ -33,7 +33,10 @@ class StudentManagementController extends Controller
                   ->orWhere('email', 'like', "%{$search}%")
                   ->orWhere('phone', 'like', "%{$search}%")
                   ->orWhere('dad_phone', 'like', "%{$search}%")
-                  ->orWhere('mom_phone', 'like', "%{$search}%");
+                  ->orWhere('mom_phone', 'like', "%{$search}%")
+                  ->orWhereHas('group', function ($groupQuery) use ($search) {
+                      $groupQuery->where('name', 'like', "%{$search}%");
+                  });
             });
         }
 
